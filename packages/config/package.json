@@ -1,0 +1,30 @@
+{
+  "name": "@mytutor/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "commonjs",
+  "exports": {
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/node.json": "./tsconfig/node.json",
+    "./eslint": "./eslint/base.mjs",
+    "./tailwind": {
+      "types": "./tailwind/preset.d.ts",
+      "default": "./tailwind/preset.js"
+    },
+    "./tailwind/tokens": {
+      "types": "./tailwind/tokens.d.ts",
+      "default": "./tailwind/tokens.js"
+    }
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.39.0",
+    "globals": "^17.0.0",
+    "typescript-eslint": "^8.71.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.0"
+  }
+}
