@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "topic": { "number": "4.1", "title": "Cəmin və fərqin kvadratı" },
+  "source": { "title": "Riyaziyyat 7, 1-ci hissə", "printedPages": [83] },
+  "theme": "blackboard",
+  "steps": [
+    {
+      "id": "question",
+      "narration": "Tərəfi a üstəgəl b olan kvadratın sahəsini necə tapmaq olar?",
+      "actions": [
+        {
+          "type": "write",
+          "id": "title",
+          "text": "Cəmin kvadratı",
+          "at": { "x": 960, "y": 170 },
+          "size": 104,
+          "color": "yellow",
+          "align": "center"
+        },
+        {
+          "type": "rect",
+          "id": "square",
+          "at": { "x": 300, "y": 260 },
+          "width": 540,
+          "height": 540,
+          "color": "chalk"
+        }
+      ]
+    },
+    {
+      "id": "split",
+      "narration": "Kvadratı tərəfləri a və b olan dörd hissəyə bölək.",
+      "actions": [
+        {
+          "type": "line",
+          "id": "split-v",
+          "from": { "x": 630, "y": 260 },
+          "to": { "x": 630, "y": 800 },
+          "color": "chalk"
+        },
+        {
+          "type": "line",
+          "id": "split-h",
+          "from": { "x": 300, "y": 590 },
+          "to": { "x": 840, "y": 590 },
+          "color": "chalk"
+        },
+        {
+          "type": "write",
+          "id": "top-a",
+          "text": "a",
+          "at": { "x": 465, "y": 240 },
+          "size": 60,
+          "color": "chalk",
+          "align": "center"
+        },
+        {
+          "type": "write",
+          "id": "top-b",
+          "text": "b",
+          "at": { "x": 735, "y": 240 },
+          "size": 60,
+          "color": "chalk",
+          "align": "center"
+        },
+        {
+          "type": "write",
+          "id": "left-a",
+          "text": "a",
+          "at": { "x": 262, "y": 445 },
+          "size": 60,
+          "color": "chalk",
+          "align": "center"
+        },
+        {
+          "type": "write",
+          "id": "left-b",
+          "text": "b",
+          "at": { "x": 262, "y": 712 },
+          "size": 60,
+          "color": "chalk",
+          "align": "center"
+        }
+      ]
+    },
+    {
+      "id": "areas",
+      "narration": "Hissələrin sahələri: a kvadrat, iki dəfə ab və b kvadrat.",
+      "actions": [
+        {
+          "type": "fill",
+          "id": "fill-a2",
+          "at": { "x": 300, "y": 260 },
+          "width": 330,
+          "height": 330,
+          "color": "blue"
+        },
+        {
+          "type": "write",
+          "id": "area-a2",
+          "text": "a^2",
+          "at": { "x": 465, "y": 450 },
+          "size": 80,
+          "color": "blue",
+          "align": "center"
+        },
+        {
+          "type": "fill",
+          "id": "fill-ab1",
+          "at": { "x": 630, "y": 260 },
+          "width": 210,
+          "height": 330,
+          "color": "pink"
+        },
+        {
+          "type": "write",
+          "id": "area-ab1",
+          "text": "ab",
+          "at": { "x": 735, "y": 450 },
+          "size": 72,
+          "color": "pink",
+          "align": "center"
+        },
+        {
+          "type": "fill",
+          "id": "fill-ab2",
+          "at": { "x": 300, "y": 590 },
+          "width": 330,
+          "height": 210,
+          "color": "pink"
+        },
+        {
+          "type": "write",
+          "id": "area-ab2",
+          "text": "ab",
+          "at": { "x": 465, "y": 720 },
+          "size": 72,
+          "color": "pink",
+          "align": "center"
+        },
+        {
+          "type": "fill",
+          "id": "fill-b2",
+          "at": { "x": 630, "y": 590 },
+          "width": 210,
+          "height": 210,
+          "color": "green"
+        },
+        {
+          "type": "write",
+          "id": "area-b2",
+          "text": "b^2",
+          "at": { "x": 735, "y": 720 },
+          "size": 72,
+          "color": "green",
+          "align": "center"
+        }
+      ]
+    },
+    {
+      "id": "formula",
+      "narration": "Deməli, a üstəgəl b-nin kvadratı a kvadrat üstəgəl iki ab üstəgəl b kvadrata bərabərdir.",
+      "actions": [
+        {
+          "type": "write",
+          "id": "rule",
+          "text": "(a + b)^2 = a^2 + 2ab + b^2",
+          "at": { "x": 1370, "y": 545 },
+          "size": 92,
+          "color": "chalk",
+          "align": "center"
+        },
+        { "type": "underline", "id": "rule-underline", "target": "rule", "color": "yellow" }
+      ]
+    }
+  ]
+}
