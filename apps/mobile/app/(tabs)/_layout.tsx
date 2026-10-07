@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router/js-tabs';
 import { useTranslation } from 'react-i18next';
 import { Icon, type IconName } from '@/components/ui';
-import { useThemeColors } from '@/theme';
+import { fontFamily, useThemeColors } from '@/theme';
 
 /** Filled icon for the active tab, outline otherwise. */
 function tabIcon(active: IconName, inactive: IconName) {
@@ -27,6 +27,7 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors['muted-foreground'],
+        tabBarLabelStyle: { fontFamily: fontFamily.bold },
       }}
     >
       <Tabs.Screen
@@ -34,8 +35,15 @@ export default function TabsLayout() {
         options={{ title: t('tabs.home'), tabBarIcon: tabIcon('home', 'home-outline') }}
       />
       <Tabs.Screen
-        name="ask"
-        options={{ title: t('tabs.ask'), tabBarIcon: tabIcon('camera', 'camera-outline') }}
+        name="tests"
+        options={{ title: t('tabs.tests'), tabBarIcon: tabIcon('layers', 'layers-outline') }}
+      />
+      <Tabs.Screen
+        name="results"
+        options={{
+          title: t('tabs.results'),
+          tabBarIcon: tabIcon('stats-chart', 'stats-chart-outline'),
+        }}
       />
       <Tabs.Screen
         name="profile"

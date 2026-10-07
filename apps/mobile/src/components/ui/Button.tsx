@@ -1,60 +1,71 @@
-import { ActivityIndicator, Pressable, type PressableProps } from 'react-native';
+import { ActivityIndicator, Pressable, type PressableProps, View } from 'react-native';
 import { cn } from '@/lib/cn';
 import { useThemeColors, type SemanticColors } from '@/theme';
 import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
-type ButtonSize = 'md' | 'lg';
+type ButtonVariant = 'primary' | 'secondary' | 'success' | 'destructive' | 'ghost';
 
-const containerClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-primary active:bg-primary-pressed',
-  secondary: 'bg-secondary active:opacity-80',
-  ghost: 'bg-transparent active:bg-muted',
-  destructive: 'bg-destructive active:opacity-80',
-};
-
-const sizeClasses: Record<ButtonSize, string> = {
-  md: 'min-h-touch px-4',
-  lg: 'min-h-14 px-6',
-};
-
-const contentColor: Record<ButtonVariant, keyof SemanticColors> = {
-  primary: 'primary-foreground',
-  secondary: 'secondary-foreground',
-  ghost: 'primary',
-  destructive: 'destructive-foreground',
-};
-
-const textClasses: Record<ButtonVariant, string> = {
-  primary: 'text-primary-foreground',
-  secondary: 'text-secondary-foreground',
-  ghost: 'text-primary',
-  destructive: 'text-destructive-foreground',
+/** Face color, bottom "edge" color (the 3D depth) and content color per variant. */
+const variants: Record<
+  ButtonVariant,
+  { face: string; edge: string; text: string; content: keyof SemanticColors }
+> = {
+  primary: {
+    face: 'bg-primary',
+    edge: 'bg-primary-shadow',
+    text: 'text-primary-foreground',
+    content: 'primary-foreground',
+  },
+  secondary: {
+    face: 'bg-card border-2 border-border',
+    edge: 'bg-border',
+    text: 'text-primary',
+    content: 'primary',
+  },
+  success: {
+    face: 'bg-success',
+    edge: 'bg-success-shadow',
+    text: 'text-success-foreground',
+    content: 'success-foreground',
+  },
+  destructive: {
+    face: 'bg-destructive',
+    edge: 'bg-destructive-shadow',
+    text: 'text-destructive-foreground',
+    content: 'destructive-foreground',
+  },
+  ghost: {
+    face: 'bg-transparent',
+    edge: 'bg-transparent',
+    text: 'text-primary',
+    content: 'primary',
+  },
 };
 
 type ButtonProps = Omit<PressableProps, 'children' | 'style'> & {
   label: string;
   variant?: ButtonVariant;
-  size?: ButtonSize;
   icon?: IconName;
   loading?: boolean;
-  fullWidth?: boolean;
   className?: string;
 };
 
+/**
+ * Tactile button: the face sits on a darker edge and sinks into it while pressed.
+ * Pressing only translates the face, so layout never shifts.
+ */
 export function Button({
   label,
   variant = 'primary',
-  size = 'md',
   icon,
   loading = false,
-  fullWidth = false,
   disabled,
   className,
   ...props
 }: ButtonProps) {
   const colors = useThemeColors();
+  const v = variants[variant];
   const isDisabled = disabled === true || loading;
 
   return (
@@ -63,24 +74,25 @@ export function Button({
       accessibilityLabel={label}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
-      className={cn(
-        'flex-row items-center justify-center gap-2 rounded-md',
-        containerClasses[variant],
-        sizeClasses[size],
-        fullWidth && 'self-stretch',
-        isDisabled && 'opacity-50',
-        className,
-      )}
+      className={cn('rounded-lg pb-1', v.edge, isDisabled && 'opacity-50', className)}
       {...props}
     >
-      {loading ? (
-        <ActivityIndicator color={colors[contentColor[variant]]} />
-      ) : (
-        icon && <Icon name={icon} size={20} color={contentColor[variant]} />
+      {({ pressed }) => (
+        <View
+          className={cn(
+            'min-h-touch flex-row items-center justify-center gap-2 rounded-lg px-5 py-3',
+            v.face,
+            pressed && !isDisabled && 'translate-y-1',
+          )}
+        >
+          {loading ? (
+            <ActivityIndicator color={colors[v.content]} />
+          ) : (
+            icon && <Icon name={icon} size={20} color={v.content} />
+          )}
+          <Text className={cn('font-sans-bold text-base', v.text)}>{label}</Text>
+        </View>
       )}
-      <Text variant="body" className={cn('font-semibold', textClasses[variant])}>
-        {label}
-      </Text>
     </Pressable>
   );
 }

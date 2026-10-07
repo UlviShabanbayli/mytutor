@@ -1,7 +1,7 @@
 # MyTutor
 
-Kunduz-style education app for Azerbaijan. Demo scope: ask a question → AI + teacher
-answer. See [CLAUDE.md](CLAUDE.md) for product context, git workflow and code rules.
+Kunduz-style education app for Azerbaijan. Demo scope: test practice built from
+provided textbooks and test banks. See [CLAUDE.md](CLAUDE.md) for product context, git workflow and code rules.
 
 ## Requirements
 

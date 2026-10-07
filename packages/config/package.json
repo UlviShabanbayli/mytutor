@@ -17,7 +17,8 @@
     }
   },
   "scripts": {
-    "lint": "eslint . --max-warnings 0"
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run"
   },
   "dependencies": {
     "@eslint/js": "^9.39.0",
@@ -25,6 +26,7 @@
     "typescript-eslint": "^8.71.1"
   },
   "devDependencies": {
-    "eslint": "^9.39.0"
+    "eslint": "^9.39.0",
+    "vitest": "^5.0.3"
   }
 }

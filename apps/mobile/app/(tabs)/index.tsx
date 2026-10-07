@@ -1,11 +1,18 @@
-import { router } from 'expo-router';
+import { Link } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { QuickActionCard } from '@/components/home/QuickActionCard';
-import { EmptyState, Screen, Text } from '@/components/ui';
+import { DailyGoalCard } from '@/components/home/DailyGoalCard';
+import { RecommendedTestCard } from '@/components/home/RecommendedTestCard';
+import { SubjectGrid } from '@/components/tests/SubjectGrid';
+import { ErrorState, LoadingState, Screen, Text } from '@/components/ui';
+import { useRecommendedTopic, useSubjects } from '@/features/tests/queries';
+
+const HOME_SUBJECT_COUNT = 4;
 
 export default function HomeScreen() {
   const { t } = useTranslation();
+  const subjects = useSubjects();
+  const recommended = useRecommendedTopic();
 
   return (
     <Screen>
@@ -13,21 +20,25 @@ export default function HomeScreen() {
         <Text variant="title">{t('home.greeting')}</Text>
         <Text tone="muted">{t('home.subtitle')}</Text>
       </View>
-      <QuickActionCard
-        icon="camera-outline"
-        title={t('home.askTitle')}
-        description={t('home.askDescription')}
-        actionLabel={t('home.askAction')}
-        onPress={() => router.navigate('/ask')}
-      />
-      <View className="flex-1 gap-2">
-        <Text variant="heading">{t('home.recentTitle')}</Text>
-        {/* Replaced by the question list once the ask feature lands. */}
-        <EmptyState
-          icon="chatbubbles-outline"
-          title={t('home.recentEmptyTitle')}
-          description={t('home.recentEmptyDescription')}
-        />
+      <DailyGoalCard />
+      {recommended.data ? <RecommendedTestCard topic={recommended.data} /> : null}
+      <View className="gap-3">
+        <View className="flex-row items-center justify-between">
+          <Text variant="heading">{t('home.subjectsTitle')}</Text>
+          <Link
+            href="/tests"
+            className="min-h-touch px-2 py-3 font-sans-bold text-base text-primary"
+          >
+            {t('home.seeAll')}
+          </Link>
+        </View>
+        {subjects.isPending ? (
+          <LoadingState />
+        ) : subjects.isError ? (
+          <ErrorState onRetry={() => void subjects.refetch()} />
+        ) : (
+          <SubjectGrid subjects={subjects.data.slice(0, HOME_SUBJECT_COUNT)} />
+        )}
       </View>
     </Screen>
   );
