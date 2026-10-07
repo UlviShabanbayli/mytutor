@@ -101,7 +101,9 @@ apps/
   mobile/
     app/                      # Expo Router routes ONLY (thin screens)
       (auth)/                 # phone, otp
-      (tabs)/                 # home, ask, profile (lessons after the demo)
+      (tabs)/                 # home, tests, results, profile
+      subject/[id].tsx        # topics of a subject
+      test/[id]/              # test session (index) and result
       _layout.tsx
     src/
       components/
@@ -111,7 +113,7 @@ apps/
       features/<feature>/     # hooks, API calls, state for one feature
       lib/                    # api client, auth client, query client
       theme/                  # design tokens
-      i18n/                   # az (default), ru, en
+      i18n/                   # az only for now (keys kept so locales can be added)
   api/
     src/ routes/ services/ db/ middleware/
   lesson-engine/              # later: Remotion whiteboard pipeline
@@ -151,18 +153,28 @@ packages/
 
 ## 6. MVP roadmap (do in order, one PR each unless told otherwise)
 
-Demo scope: **question & answer only**. Lessons and the lesson engine come after the demo.
+Demo scope: **test practice**. The app UI is Azerbaijani only.
+
+Content rule (non-negotiable): test questions are built ONLY from the textbooks and
+test banks the team provides. Paraphrase them; never invent questions, answers or
+explanations. Every question cites its source (`sourceRefSchema`: book/bank, grade,
+section, page) so a teacher can verify it.
 
 1. **Scaffold** — monorepo, `apps/mobile`, `apps/api` skeleton, `packages/*`, GitHub
    Actions CI (typecheck, lint, test), theme tokens, `components/ui` primitives.
-2. **Auth** — phone number → OTP verification → session.
-3. **Ask a question** — camera/photo upload → status tracking → answer view.
-4. **Teacher panel** (web).
+2. **Test UI** — subjects → topics → one-question-at-a-time test with feedback,
+   explanation and source → result → results history. Runs on clearly marked demo data.
+3. **Content import** — ingest the provided textbooks and test banks into
+   paraphrased, source-cited questions (schemas in `packages/schemas/src/test.ts`).
+4. **Tests API** — serve subjects/topics/tests from PostgreSQL; persist results.
 
 After the demo:
 
-5. **Lessons** — list, detail, `VideoPlayer` with resume position.
-6. **Lesson engine** — Remotion whiteboard pipeline.
+5. **Auth** — phone number → OTP verification → session.
+6. **Ask a question** — camera/photo upload → status tracking → answer view.
+7. **Teacher panel** (web).
+8. **Lessons** — list, detail, `VideoPlayer` with resume position.
+9. **Lesson engine** — Remotion whiteboard pipeline.
 
-Current status: Scaffold PR open (`feature/scaffold` → `dev`).
-Next task: roadmap item 2 (Auth) on branch `feature/auth`, PR into `dev`.
+Current status: Scaffold PR and Test UI PR open.
+Next task: roadmap item 3 (Content import) once the team sends textbooks and test banks.
