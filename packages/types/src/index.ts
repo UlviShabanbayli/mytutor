@@ -3,6 +3,10 @@ import type {
   answerOptionSchema,
   apiErrorSchema,
   healthResponseSchema,
+  lessonActionSchema,
+  lessonColorSchema,
+  lessonScriptSchema,
+  lessonStepSchema,
   localeSchema,
   optionKeySchema,
   otpCodeSchema,
@@ -53,3 +57,8 @@ export type TestResult = {
   answers: TestAnswers;
   finishedAt: string;
 };
+
+export type LessonColor = z.output<typeof lessonColorSchema>;
+export type LessonAction = z.output<typeof lessonActionSchema>;
+export type LessonStep = z.output<typeof lessonStepSchema>;
+export type LessonScript = z.output<typeof lessonScriptSchema>;
