@@ -4,6 +4,10 @@ import type {
   answerOptionSchema,
   apiErrorSchema,
   bboxSchema,
+  bookMetaSchema,
+  contentBookEntrySchema,
+  contentIndexSchema,
+  contentTopicEntrySchema,
   extractedItemSchema,
   healthResponseSchema,
   knowledgeCheckSchema,
@@ -93,3 +97,8 @@ export type KnowledgeSourceRef = z.output<typeof knowledgeSourceRefSchema>;
 export type KnowledgeItem = z.output<typeof knowledgeItemSchema>;
 export type AiCall = z.output<typeof aiCallSchema>;
 export type KnowledgeDocument = z.output<typeof knowledgeDocumentSchema>;
+
+export type ContentTopicEntry = z.output<typeof contentTopicEntrySchema>;
+export type ContentBookEntry = z.output<typeof contentBookEntrySchema>;
+export type ContentIndex = z.output<typeof contentIndexSchema>;
+export type BookMeta = z.output<typeof bookMetaSchema>;

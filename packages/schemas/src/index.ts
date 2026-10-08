@@ -5,3 +5,4 @@ export * from './test';
 export * from './textbook';
 export * from './source';
 export * from './knowledge';
+export * from './content';
