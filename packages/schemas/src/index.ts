@@ -4,3 +4,4 @@ export * from './phone';
 export * from './test';
 export * from './textbook';
 export * from './source';
+export * from './knowledge';
