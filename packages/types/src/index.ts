@@ -1,15 +1,25 @@
 import type { z } from 'zod';
 import type {
+  aiCallSchema,
   answerOptionSchema,
   apiErrorSchema,
+  bboxSchema,
+  extractedItemSchema,
   healthResponseSchema,
+  knowledgeCheckSchema,
+  knowledgeDocumentSchema,
+  knowledgeExtractionSchema,
+  knowledgeItemSchema,
+  knowledgeItemTypeSchema,
+  knowledgeSourceIdSchema,
+  knowledgeSourceRefSchema,
+  knowledgeStatusSchema,
   localeSchema,
   optionKeySchema,
   otpCodeSchema,
   phoneNumberSchema,
   practiceTestSchema,
   questionSchema,
-  bboxSchema,
   sourceBlockKindSchema,
   sourceBlockSchema,
   sourceFigureSchema,
@@ -23,8 +33,9 @@ import type {
   textbookStructureSchema,
   textbookTopicSchema,
   textbookUnitSchema,
-  topicSourceSchema,
   topicSchema,
+  topicSourceSchema,
+  verificationVerdictSchema,
 } from '@mytutor/schemas';
 
 // Types inferred from shared schemas. Domain types without a schema are declared here.
@@ -70,3 +81,15 @@ export type SourceFigure = z.output<typeof sourceFigureSchema>;
 export type SourceBlockKind = z.output<typeof sourceBlockKindSchema>;
 export type SourceBlock = z.output<typeof sourceBlockSchema>;
 export type TopicSource = z.output<typeof topicSourceSchema>;
+
+export type KnowledgeItemType = z.output<typeof knowledgeItemTypeSchema>;
+export type KnowledgeSourceId = z.output<typeof knowledgeSourceIdSchema>;
+export type ExtractedItem = z.output<typeof extractedItemSchema>;
+export type KnowledgeExtraction = z.output<typeof knowledgeExtractionSchema>;
+export type VerificationVerdict = z.output<typeof verificationVerdictSchema>;
+export type KnowledgeStatus = z.output<typeof knowledgeStatusSchema>;
+export type KnowledgeCheck = z.output<typeof knowledgeCheckSchema>;
+export type KnowledgeSourceRef = z.output<typeof knowledgeSourceRefSchema>;
+export type KnowledgeItem = z.output<typeof knowledgeItemSchema>;
+export type AiCall = z.output<typeof aiCallSchema>;
+export type KnowledgeDocument = z.output<typeof knowledgeDocumentSchema>;
