@@ -12,10 +12,15 @@ export const textbookBlockKindSchema = z.enum([
   'other',
 ]);
 
-/** PDF page numbers are 1-based; `printedPage` is the number printed in the book. */
+/**
+ * PDF page numbers are 1-based. `startY`/`endY` refine the range within the first and last
+ * page (points from the top edge), so blocks sharing a page do not overlap.
+ */
 const pageRangeSchema = z.object({
   startPage: z.number().int().positive(),
   endPage: z.number().int().positive(),
+  startY: z.number().nonnegative().optional(),
+  endY: z.number().nonnegative().optional(),
 });
 
 export const textbookSectionSchema = z.object({

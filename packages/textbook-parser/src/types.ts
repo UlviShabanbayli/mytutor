@@ -16,9 +16,13 @@ export type TextItem = {
 export type TextLine = {
   page: number;
   text: string;
+  /** Largest and smallest run sizes: superscripts and math fonts differ from body size. */
   size: number;
+  minSize: number;
   x: number;
+  /** Baseline, PDF coordinates (bottom-left origin). */
   y: number;
+  width: number;
 };
 
 export type ExtractedPdf = {

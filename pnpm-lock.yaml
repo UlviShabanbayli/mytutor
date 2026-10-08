@@ -393,6 +393,9 @@ importers:
       '@mytutor/schemas':
         specifier: workspace:*
         version: link:../schemas
+      '@napi-rs/canvas':
+        specifier: ^1.0.10
+        version: 1.0.10
       pdfjs-dist:
         specifier: ^6.4.299
         version: 6.4.299
@@ -7943,7 +7946,6 @@ snapshots:
       '@napi-rs/canvas-linux-x64-musl': 1.0.10
       '@napi-rs/canvas-win32-arm64-msvc': 1.0.10
       '@napi-rs/canvas-win32-x64-msvc': 1.0.10
-    optional: true
 
   '@napi-rs/wasm-runtime@1.2.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:

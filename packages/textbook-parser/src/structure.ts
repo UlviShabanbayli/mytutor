@@ -2,7 +2,8 @@ import type { TextbookBlock, TextbookStructure, TextbookTopic, TextbookUnit } fr
 import type { HeadingEvent } from './classify';
 import { isSuspicious } from './repair';
 
-type Node = { page: number; y: number; setEnd: (page: number) => void };
+type Node = { page: number; y: number; top: number; setEnd: (page: number, y: number) => void };
+type Ranged = { startPage: number; endPage: number; startY?: number; endY?: number };
 
 type BuildInput = {
   events: HeadingEvent[];
@@ -10,6 +11,8 @@ type BuildInput = {
   /** Last page that belongs to the book body (back cover excluded). */
   lastPage: number;
 };
+
+const round = (n: number) => Math.round(n * 10) / 10;
 
 /** A heading this close to the top starts on a fresh page, so the previous node ends earlier. */
 const TOP_OF_PAGE = 0.78;
@@ -27,12 +30,18 @@ export function buildStructure({ events, pageHeight, lastPage }: BuildInput) {
   let topic: TextbookTopic | null = null;
   let closed = false;
 
-  const track = (e: HeadingEvent, target: { startPage: number; endPage: number }) =>
+  const track = (e: HeadingEvent, target: Ranged, withY: boolean) => {
+    if (withY) target.startY = round(e.top);
     nodes.push({
       page: e.page,
       y: e.y,
-      setEnd: (p) => (target.endPage = Math.max(p, target.startPage)),
+      top: e.top,
+      setEnd: (p, y) => {
+        target.endPage = Math.max(p, target.startPage);
+        if (withY) target.endY = round(y);
+      },
     });
+  };
 
   for (const e of events) {
     if (isSuspicious(e.title))
@@ -48,7 +57,7 @@ export function buildStructure({ events, pageHeight, lastPage }: BuildInput) {
       units.push(unit);
       topic = null;
       closed = false;
-      track(e, unit);
+      track(e, unit, false);
     } else if (e.type === 'topic') {
       if (!unit) {
         warnings.push(`səh. ${e.page}: "${e.title}" mövzusu heç bir bölməyə aid deyil`);
@@ -64,7 +73,7 @@ export function buildStructure({ events, pageHeight, lastPage }: BuildInput) {
         sections: [],
       };
       unit.items.push(topic);
-      track(e, topic);
+      track(e, topic, true);
     } else if (e.type === 'block') {
       const block: TextbookBlock = {
         type: 'block',
@@ -77,7 +86,7 @@ export function buildStructure({ events, pageHeight, lastPage }: BuildInput) {
       else backMatter.push(block);
       if (e.kind === 'steam') closed = true;
       topic = null;
-      track(e, block);
+      track(e, block, true);
     } else if (topic) {
       topic.sections.push({ title: e.title, page: e.page });
     }
@@ -85,8 +94,10 @@ export function buildStructure({ events, pageHeight, lastPage }: BuildInput) {
 
   nodes.forEach((node, i) => {
     const next = nodes[i + 1];
-    if (!next) return node.setEnd(lastPage);
-    node.setEnd(next.y >= pageHeight * TOP_OF_PAGE ? next.page - 1 : next.page);
+    if (!next) return node.setEnd(lastPage, pageHeight);
+    // A node that starts at the top of a page leaves the previous page to its predecessor.
+    if (next.y >= pageHeight * TOP_OF_PAGE) node.setEnd(next.page - 1, pageHeight);
+    else node.setEnd(next.page, next.top);
   });
   for (const u of units) u.endPage = Math.max(u.startPage, ...u.items.map((i) => i.endPage));
 
