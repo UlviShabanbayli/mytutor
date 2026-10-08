@@ -10,7 +10,8 @@ import { sourceRegionSchema } from './source';
  * prompt); `knowledgeDocumentSchema` is the stored, validated document.
  */
 
-export const KNOWLEDGE_EXTRACTION_VERSION = 1;
+/** 2: the model returns flat items (`knowledgeExtractionSchema`), converted to `ExtractedItem` in code. */
+export const KNOWLEDGE_EXTRACTION_VERSION = 2;
 
 export const knowledgeItemTypeSchema = z.enum([
   'definition', // a stated definition of a concept
@@ -103,8 +104,47 @@ export const extractedItemSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('prerequisite'), ...extractedBase, statement: z.string() }),
 ]);
 
+// Wire shapes use "" and [] instead of null: the API allows at most 16 union-typed (incl.
+// nullable) parameters per schema, and a flat item for nine types needs more than that.
+const wireMath = z.object({ text: z.string(), latex: z.string() });
+
+/**
+ * What the model returns for one item: a single flat shape instead of the nine-way union above
+ * (which compiles to a structured-output grammar the API rejects as too large). Fields that do
+ * not apply to the item's type are "" or []; code converts the item to `ExtractedItem`.
+ */
+export const wireItemSchema = z.object({
+  type: knowledgeItemTypeSchema,
+  ref: extractedBase.ref,
+  origin: extractedBase.origin,
+  sources: z
+    .array(z.object({ blockId: z.string(), lineIds: z.array(z.string()), figureId: z.string() }))
+    .min(1)
+    .describe('figureId "" when no figure is cited'),
+  readFrom: extractedBase.readFrom,
+  concept: z.string().describe('definition'),
+  statement: z.string().describe('definition, rule, prerequisite'),
+  latex: z.string().describe('rule, formula (required), question'),
+  name: z.string().describe('formula: caption as printed, e.g. "Cəmin kvadratı düsturu"'),
+  spoken: z.string().describe('formula: how to read it aloud in Azerbaijani'),
+  label: z.string().describe('worked_example: exactly the source block label'),
+  problem: wireMath.describe('worked_example'),
+  steps: z.array(wireMath).describe('worked_example'),
+  explanation: z.string().describe('worked_example: the "Açıqlama" text'),
+  number: z.string().describe('exercise: exactly the source block number'),
+  instruction: z.string().describe('exercise'),
+  items: z
+    .array(z.object({ label: z.string(), text: z.string(), latex: z.string() }))
+    .describe('exercise: sub-items a, b, c, …'),
+  text: z.string().describe('question'),
+  description: z.string().describe('figure: what the drawing shows'),
+  labels: z.array(z.string()).describe('figure'),
+  term: z.string().describe('term'),
+  context: z.string().describe('term'),
+});
+
 export const knowledgeExtractionSchema = z.object({
-  items: z.array(extractedItemSchema),
+  items: z.array(wireItemSchema),
 });
 
 /** Image check answer for one claim, from an independent verification call. */
@@ -186,6 +226,8 @@ export const knowledgeDocumentSchema = z.object({
     derived: z.number().int(),
     unverified: z.number().int(),
     imageBasedFormulas: z.array(z.string()),
+    /** Model items dropped because their fields did not fit their type. */
+    rejected: z.number().int(),
     costUsd: z.number(),
   }),
 });

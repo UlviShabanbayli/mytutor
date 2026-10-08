@@ -9,7 +9,7 @@ import type {
   TopicSource,
   VerificationVerdict,
 } from '@mytutor/types';
-import { EXTRACT_PROMPT_VERSION, EXTRACT_SYSTEM } from './prompts/extract.v1';
+import { EXTRACT_PROMPT_VERSION, EXTRACT_SYSTEM } from './prompts/extract.v2';
 import { VERIFY_PROMPT_VERSION, VERIFY_SYSTEM } from './prompts/verify.v1';
 import { checkItem, statusOf } from './validate';
 
@@ -31,12 +31,18 @@ export function resolveSources(item: ExtractedItem, source: TopicSource): Knowle
     return {
       ...s,
       regions: regions.length ? regions : (block?.regions ?? []),
-      crops: figure ? [figure.image] : (block?.crops ?? []),
+      // The block crop shows the printed text; a cited figure is added, not substituted.
+      crops: [...new Set([...(block?.crops ?? []), ...(figure ? [figure.image] : [])])],
     };
   });
 }
 
-export type GroupResult = { items: ExtractedItem[]; verdicts: VerificationVerdict[] };
+export type GroupResult = {
+  items: ExtractedItem[];
+  verdicts: VerificationVerdict[];
+  /** Model items rejected by `fromWire` (fields did not fit their type). */
+  rejected: number;
+};
 
 export function buildDocument(
   source: TopicSource,
@@ -96,6 +102,7 @@ export function buildDocument(
       derived: items.filter((i) => i.status === 'derived').length,
       unverified: items.filter((i) => i.status === 'unverified').length,
       imageBasedFormulas,
+      rejected: groups.reduce((n, g) => n + g.rejected, 0),
       costUsd: Math.round(aiCalls.reduce((s, c) => s + c.costUsd, 0) * 10000) / 10000,
     },
   });
