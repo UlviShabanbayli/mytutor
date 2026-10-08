@@ -58,9 +58,14 @@ export function KnowledgeItemBody({ item }: { item: ExtractedItem }) {
           </p>
           {item.items.length ? (
             <ul className="grid gap-1 sm:grid-cols-2">
-              {item.items.map((sub) => (
-                <li key={sub.label} className="flex gap-1.5">
-                  <span className="font-sans-bold">{sub.label})</span>
+              {item.items.map((sub, i) => (
+                // Labels can repeat or be empty (unlabelled sub-items), so the index is part of the key.
+                <li key={`${i}-${sub.label}`} className="flex gap-1.5">
+                  {sub.label ? (
+                    <span className="font-sans-bold">
+                      {/^[\p{L}\d]+$/u.test(sub.label) ? `${sub.label})` : sub.label}
+                    </span>
+                  ) : null}
                   <Mixed part={sub} />
                 </li>
               ))}

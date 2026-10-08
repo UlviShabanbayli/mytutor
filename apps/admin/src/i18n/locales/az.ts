@@ -117,6 +117,7 @@ export const az = {
       derived: 'Törəmə',
       unverified: 'Təsdiqlənməyib',
       failed: 'Uğursuz yoxlama',
+      rejected: '{{count}} element sxemə uyğun deyil',
       imageFormulas: 'Şəkildən düstur',
       aiCalls: 'AI çağırışı',
       aiCallsDetail: '{{fresh}} yeni, {{cached}} cache',

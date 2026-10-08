@@ -18,6 +18,7 @@ export function KnowledgeStats({ doc }: { doc: KnowledgeDocument }) {
         label={t('knowledge.stats.failed')}
         value={calls.failedItems}
         tone={calls.failedItems ? 'destructive' : 'success'}
+        detail={t('knowledge.stats.rejected', { count: s.rejected })}
       />
       <StatCard label={t('knowledge.stats.imageFormulas')} value={s.imageBasedFormulas.length} />
       <StatCard

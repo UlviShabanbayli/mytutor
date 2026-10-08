@@ -48,9 +48,10 @@ export function typeCounts(items: KnowledgeItem[]): [KnowledgeItemType, number][
 }
 
 export function callStats(doc: KnowledgeDocument) {
+  // Each call keeps the tokens and cost of producing its result, also when reused from cache.
   const fresh = doc.aiCalls.filter((c) => !c.cached);
   const sum = (key: 'inputTokens' | 'outputTokens' | 'cacheReadTokens' | 'cacheCreationTokens') =>
-    fresh.reduce((total, c) => total + c[key], 0);
+    doc.aiCalls.reduce((total, c) => total + c[key], 0);
   return {
     total: doc.aiCalls.length,
     fresh: fresh.length,
