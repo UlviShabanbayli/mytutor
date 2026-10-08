@@ -26,7 +26,7 @@ type Cached = { model: string; usage: Usage; output: unknown };
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
 
-/** Everything that determines the answer; images by hash. Same key → reuse, no API call. */
+/** Everything that determines the answer (incl. output schema); images by hash. Same key → reuse. */
 export function cacheKey(spec: CallSpec<z.ZodType>): string {
   return sha(
     JSON.stringify({
@@ -34,6 +34,7 @@ export function cacheKey(spec: CallSpec<z.ZodType>): string {
       effort: spec.effort,
       promptVersion: spec.promptVersion,
       system: sha(spec.system),
+      schema: sha(JSON.stringify(zodOutputFormat(spec.schema).schema)),
       content: spec.content.map((c) => (c.type === 'text' ? sha(c.text) : c.sha256)),
     }),
   );
@@ -61,7 +62,8 @@ export async function callClaude<S extends z.ZodType>(
     cacheCreationTokens: usage.cacheWrite,
     cacheReadTokens: usage.cacheRead,
     outputTokens: usage.output,
-    costUsd: cached ? 0 : costUsd(model, usage),
+    // What producing this result cost, also when it is reused from the cache (`cached`).
+    costUsd: costUsd(model, usage),
     cached,
   });
 

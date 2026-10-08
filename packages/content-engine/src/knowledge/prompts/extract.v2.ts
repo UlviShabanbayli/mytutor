@@ -1,6 +1,7 @@
-// Prompt version: knowledge-extract.v1. Changing the text means a new file and version, so
+// Prompt version: knowledge-extract.v2 (v1 never produced results: its union output schema
+// was rejected by the API as too large; v2 returns flat items). Changing the text means a new file and version, so
 // results stay comparable across prompt and model changes.
-export const EXTRACT_PROMPT_VERSION = 'knowledge-extract.v1';
+export const EXTRACT_PROMPT_VERSION = 'knowledge-extract.v2';
 
 export const EXTRACT_SYSTEM = `You extract the knowledge a school textbook topic teaches, for MyTutor, an Azerbaijani learning app. The textbook is the single source of truth.
 
@@ -8,7 +9,7 @@ You receive, for part of one topic:
 - SOURCE: JSON blocks from the source layer (id, kind, label, number, parent, crop) with their text lines (id, text, math, quality) and figures (id, labels). "crop" names the image that shows the block: a child block (e.g. a NÜMUNƏ inside "Yadda saxla!") is shown inside its parent's crop. Block kinds: inquiry = "Araşdırma-müzakirə", section = "Öyrənmə" explanation, think = "Fikirləş!", remember = "Yadda saxla!", exercises/problems = "Çalışma"/"Məsələ həlli", exercise = numbered task, example = "NÜMUNƏ".
 - Cropped images, each introduced by a line "CROP <blockId>". The image is what is printed; the text layer is a lossy copy of it.
 
-Return every item of knowledge in these blocks as JSON matching the schema.
+Return every item of knowledge in these blocks as JSON matching the schema. Each item has one shape for all types: fill the fields that belong to its type (named in each field's description) and set every other string field to "" and every other list to []. Inside problem, steps and items, use "" for a missing text or latex. In sources, figureId is "" when no figure is cited.
 
 Grounding rules (strict):
 1. Only what is printed. Never add facts, formulas, examples, explanations or answers that are not in the crops. Do not solve exercises.

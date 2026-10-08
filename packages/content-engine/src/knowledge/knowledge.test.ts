@@ -191,7 +191,13 @@ describe('buildDocument', () => {
     const doc = buildDocument(
       source,
       '{}',
-      [{ items: [item], verdicts: [{ ref: 'k1', verdict: 'match', correction: null }] }],
+      [
+        {
+          items: [item],
+          verdicts: [{ ref: 'k1', verdict: 'match', correction: null }],
+          rejected: 0,
+        },
+      ],
       [],
     );
     expect(doc.items[0]?.sources[0]?.regions[0]?.printedPage).toBe(83);

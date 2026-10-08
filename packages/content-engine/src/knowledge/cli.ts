@@ -13,7 +13,7 @@ import { estimateTokens } from './estimate';
 import { cropsFor, groupBlocks, payloadFor } from './groups';
 import { runKnowledgePipeline } from './pipeline';
 import { costUsd } from './pricing';
-import { EXTRACT_SYSTEM } from './prompts/extract.v1';
+import { EXTRACT_SYSTEM } from './prompts/extract.v2';
 import { renderKnowledgeReview } from './reviewHtml';
 
 const EXTRACT_MODEL = 'claude-opus-5-5';
@@ -74,11 +74,19 @@ async function main() {
     `\n${doc.items.length} element: textbook ${s.textbook}, derived ${s.derived}, unverified ${s.unverified}`,
   );
   console.log(`Şəkildən oxunan düsturlar: ${s.imageBasedFormulas.length}`);
-  const fresh = calls.filter((c) => !c.cached);
-  const sum = (k: 'inputTokens' | 'outputTokens' | 'cacheReadTokens' | 'cacheCreationTokens') =>
-    fresh.reduce((t, c) => t + c[k], 0);
   console.log(
-    `AI çağırışları: ${calls.length} (yeni ${fresh.length}, cache ${calls.length - fresh.length}); input ${sum('inputTokens')}, cache yazma ${sum('cacheCreationTokens')}, cache oxuma ${sum('cacheReadTokens')}, output ${sum('outputTokens')} token; $${s.costUsd}`,
+    `Uğursuz yoxlamalı element: ${doc.items.filter((i) => i.checks.some((c) => c.result === 'fail')).length}; rədd edilən (sxemə uyğun deyil): ${s.rejected}`,
+  );
+  const fresh = calls.filter((c) => !c.cached);
+  const sum = (
+    list: typeof calls,
+    k: 'inputTokens' | 'outputTokens' | 'cacheReadTokens' | 'cacheCreationTokens',
+  ) => list.reduce((t, c) => t + c[k], 0);
+  console.log(
+    `AI çağırışları: ${calls.length} (yeni ${fresh.length}, cache ${calls.length - fresh.length}); input ${sum(calls, 'inputTokens')}, cache yazma ${sum(calls, 'cacheCreationTokens')}, cache oxuma ${sum(calls, 'cacheReadTokens')}, output ${sum(calls, 'outputTokens')} token`,
+  );
+  console.log(
+    `Xərc: bütün nəticələr $${s.costUsd}; bu işə salmada $${Math.round(fresh.reduce((t, c) => t + c.costUsd, 0) * 10000) / 10000}`,
   );
   console.log(`Yazıldı: ${outDir}`);
 }

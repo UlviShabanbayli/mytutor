@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type Anthropic from '@anthropic-ai/sdk';
@@ -6,9 +7,9 @@ import type { AiCall, ExtractedItem, TopicSource } from '@mytutor/types';
 import { callClaude, type ContentPart } from './claude';
 import type { GroupResult } from './document';
 import { cropBlockOf, cropsFor, groupBlocks, payloadFor, type CallGroup } from './groups';
-import { EXTRACT_PROMPT_VERSION, EXTRACT_SYSTEM } from './prompts/extract.v1';
+import { EXTRACT_PROMPT_VERSION, EXTRACT_SYSTEM } from './prompts/extract.v2';
 import { VERIFY_PROMPT_VERSION, VERIFY_SYSTEM } from './prompts/verify.v1';
-import { createHash } from 'node:crypto';
+import { fromWire } from './wire';
 
 export type PipelineOptions = {
   client: Anthropic | null;
@@ -67,11 +68,13 @@ export async function runKnowledgePipeline(source: TopicSource, opts: PipelineOp
       opts.cacheDir,
     );
     calls.push(extracted.call);
+    const { items, rejected } = fromWire(extracted.output.items);
     opts.log(
-      `${group.id}: ${extracted.output.items.length} element${extracted.call.cached ? ' (cache)' : ''} · ${group.blockIds.join(',')}`,
+      `${group.id}: ${items.length} element${extracted.call.cached ? ' (cache)' : ''} · ${group.blockIds.join(',')}`,
     );
+    for (const r of rejected) opts.log(`  rədd edildi ${r.ref} (${r.type}): ${r.reason}`);
 
-    const claims = extracted.output.items
+    const claims = items
       .filter((i) => i.origin === 'textbook')
       .map((i) => claimOf(i, source, group));
     let verdicts: GroupResult['verdicts'] = [];
@@ -94,7 +97,7 @@ export async function runKnowledgePipeline(source: TopicSource, opts: PipelineOp
       calls.push(verified.call);
       verdicts = verified.output.verdicts;
     }
-    results.push({ items: extracted.output.items, verdicts });
+    results.push({ items, verdicts, rejected: rejected.length });
   }
   return { results, calls };
 }
