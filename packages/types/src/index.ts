@@ -36,6 +36,7 @@ import type {
   topicSchema,
   topicSourceSchema,
   verificationVerdictSchema,
+  wireItemSchema,
 } from '@mytutor/schemas';
 
 // Types inferred from shared schemas. Domain types without a schema are declared here.
@@ -86,6 +87,7 @@ export type KnowledgeItemType = z.output<typeof knowledgeItemTypeSchema>;
 export type KnowledgeSourceId = z.output<typeof knowledgeSourceIdSchema>;
 export type ExtractedItem = z.output<typeof extractedItemSchema>;
 export type KnowledgeExtraction = z.output<typeof knowledgeExtractionSchema>;
+export type WireItem = z.output<typeof wireItemSchema>;
 export type VerificationVerdict = z.output<typeof verificationVerdictSchema>;
 export type KnowledgeStatus = z.output<typeof knowledgeStatusSchema>;
 export type KnowledgeCheck = z.output<typeof knowledgeCheckSchema>;
