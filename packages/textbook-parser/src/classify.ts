@@ -1,11 +1,14 @@
 import type { TextbookBlockKind } from '@mytutor/types';
 import type { TextItem, TextLine } from './types';
 
+/** `y` is the PDF baseline (bottom-left origin); `top` is the heading's top edge (top-left origin). */
+type At = { page: number; y: number; top: number };
+
 export type HeadingEvent =
-  | { type: 'unit'; page: number; y: number; title: string }
-  | { type: 'topic'; page: number; y: number; title: string }
-  | { type: 'block'; page: number; y: number; kind: TextbookBlockKind; title: string }
-  | { type: 'section'; page: number; y: number; title: string };
+  | ({ type: 'unit'; title: string } & At)
+  | ({ type: 'topic'; title: string } & At)
+  | ({ type: 'block'; kind: TextbookBlockKind; title: string } & At)
+  | ({ type: 'section'; title: string } & At);
 
 /** Heading sizes relative to body text, calibrated on the TRİMS layout (body 12pt). */
 const UNIT = 2.4; // 32pt unit (bölmə) titles; STEAM banners are 30pt
@@ -97,23 +100,29 @@ export function classifyHeadings(
     title = title.replace(/\s+/g, ' ').trim();
     const ratio = line.size / body;
     const kind = blockKind(title);
-    const at = { page: line.page, y: line.y };
+    const at = {
+      page: line.page,
+      y: line.y,
+      top: Math.max(0, pages.height - line.y - line.size * 1.2),
+    };
 
     if (ratio >= UNIT) {
       if (kind === 'steam') {
         const named = steamTitles.get(line.page);
         // The page starts at whichever is higher: the banner or its title.
         const y = Math.max(line.y, named?.y ?? 0);
+        const top = Math.max(0, pages.height - y - line.size * 1.2);
         events.push({
           type: 'block',
           kind,
           title: named ? `STEAM: ${named.title}` : 'STEAM',
           page: line.page,
           y,
+          top,
         });
       } else {
         // Unit openers are full pages: the unit starts at the top even if the title sits lower.
-        events.push({ type: 'unit', title, page: line.page, y: pages.height });
+        events.push({ type: 'unit', title, page: line.page, y: pages.height, top: 0 });
       }
     } else if (ratio >= TITLE) {
       const numbered = labels.some(

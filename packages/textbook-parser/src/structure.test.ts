@@ -8,7 +8,9 @@ const line = (page: number, y: number, size: number, text: string): TextLine => 
   page,
   y,
   size,
+  minSize: size,
   x: 100,
+  width: 200,
   text,
 });
 const badge = (page: number, y: number): TextItem => ({
@@ -54,13 +56,13 @@ describe('classifyHeadings', () => {
 
 describe('buildStructure', () => {
   const events: HeadingEvent[] = [
-    { type: 'unit', page: 9, y: HEIGHT, title: 'Rasional ədədlər' },
-    { type: 'block', kind: 'pretest', page: 10, y: 714, title: 'İlkin yoxlama' },
-    { type: 'topic', page: 11, y: 713, title: 'Rasional ədədlər' },
-    { type: 'section', page: 12, y: 500, title: 'Rasional ədədin modulu' },
-    { type: 'topic', page: 15, y: 713, title: 'Onluq kəsrlər' },
-    { type: 'block', kind: 'steam', page: 18, y: 300, title: 'STEAM' },
-    { type: 'block', kind: 'glossary', page: 20, y: 720, title: 'SÖZLÜK' },
+    { type: 'unit', page: 9, y: HEIGHT, top: 0, title: 'Rasional ədədlər' },
+    { type: 'block', kind: 'pretest', page: 10, y: 714, top: 86, title: 'İlkin yoxlama' },
+    { type: 'topic', page: 11, y: 713, top: 87, title: 'Rasional ədədlər' },
+    { type: 'section', page: 12, y: 500, top: 300, title: 'Rasional ədədin modulu' },
+    { type: 'topic', page: 15, y: 713, top: 87, title: 'Onluq kəsrlər' },
+    { type: 'block', kind: 'steam', page: 18, y: 300, top: 500, title: 'STEAM' },
+    { type: 'block', kind: 'glossary', page: 20, y: 720, top: 80, title: 'SÖZLÜK' },
   ];
 
   it('numbers topics per unit and assigns page ranges', () => {
@@ -77,6 +79,15 @@ describe('buildStructure', () => {
       ['steam', 18, 19],
     ]);
     expect(backMatter.map((b) => [b.kind, b.startPage, b.endPage])).toEqual([['glossary', 20, 21]]);
+  });
+
+  it('records where a range starts and stops within its first and last page', () => {
+    const { units } = buildStructure({ events, pageHeight: HEIGHT, lastPage: 21 });
+    const topics = units[0]?.items.filter((i) => i.type === 'topic') ?? [];
+    // 1.1 starts at its heading and runs to the bottom of page 14 (1.2 starts at a page top).
+    expect([topics[0]?.startY, topics[0]?.endY]).toEqual([87, 800]);
+    // 1.2 stops where the STEAM block starts on page 18.
+    expect(topics[1]?.endY).toBe(500);
   });
 
   it('warns when topic counts differ from the table of contents', () => {

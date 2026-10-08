@@ -104,6 +104,18 @@ export function repairHeading(text: string): string {
   return mapChars(decorative, LIGATURES);
 }
 
+/**
+ * Repairs body text. Unlike headings, digits and punctuation in body runs are real, so the
+ * all-caps table only applies to runs that contain at least two capital letters.
+ */
+export function repairBody(text: string): string {
+  if (looksShifted(text)) return decodeShifted(text);
+  const decorative = mapChars(text, DECORATIVE);
+  const capitals = (decorative.match(/\p{Lu}/gu) ?? []).length;
+  if (!hasLowercase(decorative) && capitals >= 2) return mapChars(decorative, ALL_CAPS);
+  return mapChars(decorative, LIGATURES);
+}
+
 /** Repairs a short run that may be a shifted number (page numbers are drawn in body fonts). */
 export function repairNumber(text: string): string {
   return looksShifted(text) ? decodeShifted(text) : text;
