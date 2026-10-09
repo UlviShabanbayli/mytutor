@@ -61,6 +61,19 @@ describe('template markers', () => {
   it('finds number circles in the left gutter', () => {
     expect(findNumberCircles(graphics)).toHaveLength(1);
   });
+
+  it('ignores pale, smaller order-of-operations circles', () => {
+    const steps: PageGraphics = {
+      page: 33,
+      images: [],
+      paths: [
+        { bbox: box(57, 265, 18.2, 18.2), fill: '#55bb49', filled: true }, // exercise 10
+        { bbox: box(60, 236, 14.6, 14.7), fill: '#fffad8', filled: true }, // step ①
+        { bbox: box(70, 300, 18.2, 18.2), fill: '#fffad8', filled: true }, // pale: not a badge
+      ],
+    };
+    expect(findNumberCircles(steps).map((c) => c.bbox.y)).toEqual([265]);
+  });
 });
 
 describe('buildBlocks', () => {
