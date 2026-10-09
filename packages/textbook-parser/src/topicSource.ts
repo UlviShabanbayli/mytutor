@@ -39,6 +39,8 @@ const FOOTER = 0.93;
 const RAW = /[\u0000-\u001f]/;
 const MATH = /[=+×·÷√²³−∙^_]|\b[a-z]\s*[²³]/;
 const r1 = (n: number) => Math.round(n * 10) / 10;
+// The topic start is the heading's detected top; glyph tops can sit a point or two above it.
+const SLACK = 3;
 
 export function buildTopicSource(input: TopicSourceInput): TopicSourceDraft {
   const { topic, page, body } = input;
@@ -66,17 +68,20 @@ export function buildTopicSource(input: TopicSourceInput): TopicSourceDraft {
   const items = input.items.filter((i) => {
     const w = window(i.page);
     const top = H - i.y - i.size;
-    return pages.includes(i.page) && top >= w.top - 2 && top < w.bottom;
+    return pages.includes(i.page) && top >= w.top - SLACK && top < w.bottom;
   });
   const lines = groupSourceLines(items, repairBody, body).sort(
     (a, b) => a.page - b.page || lineTop(a) - lineTop(b) || a.x - b.x,
   );
   const graphics = input.graphics.filter((g) => pages.includes(g.page));
 
-  const markers = findMarkers({ lines, items, graphics, body, pageHeight: H });
+  // A topic has one title, its heading; other large glyphs (e.g. a big "a/b" in a drawing) are content.
+  const markers = findMarkers({ lines, items, graphics, body, pageHeight: H }).filter(
+    (m, i, all) => m.kind !== 'title' || all.findIndex((x) => x.kind === 'title') === i,
+  );
   const title = markers.find((m) => m.kind === 'title');
   if (title) title.title = topic.title; // the badge number glyphs are not part of the title
-  const drafts = buildBlocks(markers, start, end);
+  const drafts = buildBlocks(markers, { ...start, top: start.top - SLACK }, end);
 
   // Small images in the left gutter are template icons, not figures.
   const icons = graphics.flatMap((g) =>

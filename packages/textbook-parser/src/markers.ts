@@ -77,7 +77,7 @@ export function findMarkers({ lines, items, graphics, body, pageHeight }: Input)
         });
     }
     for (const circle of findNumberCircles(g)) {
-      const inside = items.find((i) => {
+      const inside = items.filter((i) => {
         const top = pageHeight - i.y - i.size;
         return (
           i.page === g.page &&
@@ -87,7 +87,15 @@ export function findMarkers({ lines, items, graphics, body, pageHeight }: Input)
           top <= circle.bbox.y + circle.bbox.height
         );
       });
-      const number = inside ? repairNumber(inside.text).trim() : '';
+      // Some badges are overprinted ("1" then "2" at the same spot): the glyph drawn last is the
+      // one on top, so keep the last item per position and read the positions left to right.
+      const byX = new Map<number, string>();
+      for (const i of inside) byX.set(Math.round(i.x * 2) / 2, i.text);
+      const text = [...byX.entries()]
+        .sort(([a], [b]) => a - b)
+        .map(([, t]) => t)
+        .join('');
+      const number = repairNumber(text).trim();
       if (/^\d{1,3}$/.test(number)) {
         markers.push({
           kind: 'exercise',
