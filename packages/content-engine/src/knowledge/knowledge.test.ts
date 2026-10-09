@@ -183,6 +183,23 @@ describe('checks and status', () => {
     ]);
     expect(checkItem(ex, source).find((c) => c.name === 'identity')?.result).toBe('pass');
   });
+
+  it('joins a row the book wraps after an operator', () => {
+    const ex: ExtractedItem = {
+      ...base,
+      type: 'worked_example',
+      label: 'NÜMUNƏ',
+      problem: { text: null, latex: '(a+1)(a-2) = ?' },
+      steps: [
+        { text: null, latex: '(a+1)(a-2) = a \\cdot a - 2a + a -' },
+        { text: null, latex: '- 2 = a^2 - a - 2' },
+      ],
+      explanation: null,
+      sources: [{ blockId: 'b07', lineIds: [], figureId: null }],
+    };
+    expect(identitiesOf(ex)).toEqual(['(a+1)(a-2) = a \\cdot a - 2a + a - 2 = a^2 - a - 2']);
+    expect(checkItem(ex, source).find((c) => c.name === 'identity')?.result).toBe('pass');
+  });
 });
 
 describe('buildDocument', () => {
