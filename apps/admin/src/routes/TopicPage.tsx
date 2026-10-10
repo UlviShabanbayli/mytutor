@@ -1,6 +1,7 @@
 import { BookText, BrainCircuit, Clapperboard, FileSearch } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
+import { ExtractSourceButton } from '@/components/curriculum/ExtractSourceButton';
 import { KnowledgeMissing } from '@/components/knowledge/KnowledgeMissing';
 import { KnowledgeTab } from '@/components/knowledge/KnowledgeTab';
 import { LessonTab } from '@/components/lesson/LessonTab';
@@ -50,7 +51,11 @@ export function TopicPage() {
           title={t('topic.notReadyTitle')}
           body={t('topic.notReadyBody')}
         >
-          <CommandHint command={commands.source(number)} />
+          {book.data.canExtract ? (
+            <ExtractSourceButton bookId={bookId} topic={number} />
+          ) : (
+            <CommandHint command={commands.source(number)} />
+          )}
         </EmptyState>
       </div>
     );

@@ -9,9 +9,10 @@ type UnitSectionProps = {
   unit: TextbookUnit;
   offset: number | null;
   topics: ContentTopicEntry[];
+  canExtract: boolean;
 };
 
-export function UnitSection({ bookId, unit, offset, topics }: UnitSectionProps) {
+export function UnitSection({ bookId, unit, offset, topics, canExtract }: UnitSectionProps) {
   const { t } = useTranslation();
   const pages = (from: number, to: number) =>
     from === to
@@ -38,6 +39,7 @@ export function UnitSection({ bookId, unit, offset, topics }: UnitSectionProps) 
               title={item.title}
               pages={pages(item.startPage, item.endPage)}
               entry={topics.find((e) => e.number === item.number)}
+              canExtract={canExtract}
             />
           ) : (
             <li

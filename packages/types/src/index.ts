@@ -1,13 +1,16 @@
 import type { z } from 'zod';
 import type {
+  addBookResponseSchema,
   aiCallSchema,
   answerOptionSchema,
   apiErrorSchema,
   bboxSchema,
   bookMetaSchema,
+  contentActionErrorCodeSchema,
   contentBookEntrySchema,
   contentIndexSchema,
   contentTopicEntrySchema,
+  extractSourceResponseSchema,
   extractedItemSchema,
   healthResponseSchema,
   knowledgeCheckSchema,
@@ -104,3 +107,6 @@ export type ContentTopicEntry = z.output<typeof contentTopicEntrySchema>;
 export type ContentBookEntry = z.output<typeof contentBookEntrySchema>;
 export type ContentIndex = z.output<typeof contentIndexSchema>;
 export type BookMeta = z.output<typeof bookMetaSchema>;
+export type ContentActionErrorCode = z.output<typeof contentActionErrorCodeSchema>;
+export type AddBookResponse = z.output<typeof addBookResponseSchema>;
+export type ExtractSourceResponse = z.output<typeof extractSourceResponseSchema>;

@@ -191,6 +191,9 @@ importers:
       '@mytutor/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
+      '@mytutor/textbook-parser':
+        specifier: workspace:*
+        version: link:../../packages/textbook-parser
       '@mytutor/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -221,6 +224,9 @@ importers:
       tailwind-merge:
         specifier: ^2.6.1
         version: 2.6.1
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
       zod:
         specifier: ^4.6.5
         version: 4.6.5
