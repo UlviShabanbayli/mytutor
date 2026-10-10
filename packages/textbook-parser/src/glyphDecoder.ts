@@ -1,4 +1,4 @@
-import type { EmbeddedFont, PdfFontTables } from './pdfFonts';
+import type { CompositeFont, EmbeddedFont } from './pdfFonts';
 
 /**
  * Characters for glyphs that no table inside the PDF names. These are properties of widely
@@ -15,6 +15,10 @@ const FONT_TABLES: { family: RegExp; glyphs: Record<number, string> }[] = [
 export const baseFontName = (name: string) => name.split('+').pop() ?? name;
 
 export type GlyphDecoder = {
+  /** Whether pdf.js showed this glyph as its own code because no ToUnicode entry names it. */
+  unmapped(fontName: string, code: number, unicode: string): boolean;
+  /** The glyph id a code draws: the font's CIDToGIDMap, or the code itself (Identity). */
+  glyphId(fontName: string, code: number): number;
   /** The character of an unmapped glyph, or null when nothing in the PDF names it. */
   decode(fontName: string, gid: number): string | null;
 };
@@ -27,14 +31,22 @@ export const isFallbackGlyph = (code: number, unicode: string) =>
   unicode.length > 0 && unicode.codePointAt(0) === code && [...unicode].length === 1;
 
 /**
- * Resolves glyphs of composite fonts whose ToUnicode map is partial. Order:
+ * Resolves glyphs of composite fonts whose ToUnicode map is partial. A glyph shown as its own
+ * code counts as unmapped unless the ToUnicode map says exactly that (e.g. fonts whose codes
+ * are Unicode code points, as some generators and OCR tools write them). Order:
  * 1. the font program's own cmap;
  * 2. the cmap of a sibling subset of the same font in the same PDF (same base name and glyph
  *    count, so glyph ids line up);
  * 3. a small reviewed table for symbol fonts that carry no cmap at all.
  * Guessing from glyph order is deliberately not done: it silently produces wrong symbols.
  */
-export function createGlyphDecoder({ fonts }: PdfFontTables): GlyphDecoder {
+export function createGlyphDecoder({
+  fonts,
+  composites = new Map(),
+}: {
+  fonts: EmbeddedFont[];
+  composites?: Map<string, CompositeFont>;
+}): GlyphDecoder {
   const byName = new Map(fonts.map((f) => [f.name, f]));
   const siblings = new Map<string, EmbeddedFont | null>();
   const sibling = (font: EmbeddedFont): EmbeddedFont | null => {
@@ -55,6 +67,14 @@ export function createGlyphDecoder({ fonts }: PdfFontTables): GlyphDecoder {
   };
 
   return {
+    unmapped(fontName, code, unicode) {
+      const ranges = composites.get(fontName)?.selfMapped ?? [];
+      return isFallbackGlyph(code, unicode) && !ranges.some(([lo, hi]) => code >= lo && code <= hi);
+    },
+    glyphId(fontName, code) {
+      const map = composites.get(fontName)?.cidToGid;
+      return map && map.length >= 2 * code + 2 ? map.readUInt16BE(2 * code) : code;
+    },
     decode(fontName, gid) {
       const font = byName.get(fontName);
       const code = font?.cmap.get(gid) ?? (font ? sibling(font)?.cmap.get(gid) : undefined);

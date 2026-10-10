@@ -131,8 +131,10 @@ function similarity(a: string, b: string): number {
  * when the heading could not be read (or differs from it only in spacing). Blocks (İlkin
  * yoxlama, STEAM, Sözlük, …) take the contents title when one starts on the same page and reads
  * alike. Matching is by printed page, never by position, so a missed or extra heading does not
- * shift every number after it. A unit takes the number its topics share (part 2 of a book
- * continues with units 6–10). Returns warnings and the heading titles the contents replaced.
+ * shift every number after it: every topic on its exact page is matched before any topic one
+ * page off, and a topic the contents do not list gets a number no listed topic has. A unit
+ * takes the number its topics share (part 2 of a book continues with units 6–10). Returns
+ * warnings and, for each heading the contents re-titled, its warning prefix (`səh. 9: "…"`).
  */
 export function applyToc(
   units: TextbookUnit[],
@@ -146,35 +148,67 @@ export function applyToc(
   const used = new Set<TocEntry>();
   const topics = entries.filter((e) => e.number !== null && e.printedPage !== null);
   const blocks = entries.filter((e) => e.number === null && e.printedPage !== null);
-  const retitle = (target: { title: string }, title: string) => {
+  const retitle = (target: { title: string; startPage: number }, title: string) => {
     if (target.title === title) return;
-    replaced.push(target.title);
+    replaced.push(`səh. ${target.startPage}: "${target.title}"`);
     target.title = title;
   };
 
+  const detected = units.flatMap((u) =>
+    u.items.filter((i): i is TextbookTopic => i.type === 'topic'),
+  );
+  const matched = new Map<TextbookTopic, { entry: TocEntry; exact: boolean }>();
+  // Numbers listed in the contents, plus those given to unlisted topics: never given twice.
+  const taken = new Set(topics.map((e) => e.number ?? ''));
+  for (const gap of [0, 1])
+    for (const item of detected) {
+      if (matched.has(item)) continue;
+      const printed = item.startPage - printedPageOffset;
+      const entry = topics.find(
+        (e) => !used.has(e) && Math.abs((e.printedPage ?? 0) - printed) === gap,
+      );
+      if (!entry) continue;
+      used.add(entry);
+      matched.set(item, { entry, exact: gap === 0 });
+    }
+
   for (const unit of units) {
+    const unlisted: TextbookTopic[] = [];
     for (const item of unit.items) {
       if (item.type !== 'topic') continue;
-      const printed = item.startPage - printedPageOffset;
-      const entry =
-        topics.find((e) => !used.has(e) && e.printedPage === printed) ??
-        topics.find((e) => !used.has(e) && Math.abs((e.printedPage ?? 0) - printed) === 1);
-      if (!entry?.number) {
-        warnings.push(
-          `səh. ${item.startPage}: "${item.title}" mövzusu mündəricatda tapılmadı (${item.number})`,
-        );
+      const match = matched.get(item);
+      if (!match?.entry.number) {
+        unlisted.push(item);
         continue;
       }
-      used.add(entry);
-      item.number = entry.number;
-      if (isSuspicious(item.title) || letters(item.title) === letters(entry.title))
-        retitle(item, entry.title);
+      item.number = match.entry.number;
+      // A heading one page off may be a different heading: only spacing or case may differ.
+      if (
+        (match.exact && isSuspicious(item.title)) ||
+        letters(item.title) === letters(match.entry.title)
+      )
+        retitle(item, match.entry.title);
     }
     const prefixes = new Set(
-      unit.items.flatMap((i) => (i.type === 'topic' ? [i.number.split('.')[0]] : [])),
+      unit.items.flatMap((i) =>
+        i.type === 'topic' && matched.has(i) ? [i.number.split('.')[0]] : [],
+      ),
     );
     const [prefix] = [...prefixes];
     if (prefixes.size === 1 && prefix) unit.index = Number(prefix);
+    for (const item of unlisted) {
+      // Its place number stays unless a listed topic has it; then the unit's next free one.
+      if (!item.number.startsWith(`${unit.index}.`) || taken.has(item.number)) {
+        const minors = [...taken]
+          .filter((n) => n.startsWith(`${unit.index}.`))
+          .map((n) => Number(n.split('.')[1]) || 0);
+        item.number = `${unit.index}.${Math.max(0, ...minors) + 1}`;
+      }
+      taken.add(item.number);
+      warnings.push(
+        `səh. ${item.startPage}: "${item.title}" mövzusu mündəricatda tapılmadı (${item.number})`,
+      );
+    }
   }
 
   const allBlocks = [
@@ -211,9 +245,15 @@ export function validate(
   tocCounts: Record<string, number>,
 ): Pick<TextbookStructure['validation'], 'detectedTopicCounts' | 'warnings'> {
   const detectedTopicCounts: Record<string, number> = {};
-  for (const u of units)
-    detectedTopicCounts[String(u.index)] = u.items.filter((i) => i.type === 'topic').length;
   const warnings: string[] = [];
+  for (const u of units) {
+    const k = String(u.index);
+    // Two units with one number (e.g. a divider heading kept its place number) must not hide
+    // each other's topics.
+    if (k in detectedTopicCounts) warnings.push(`Bölmə ${k} bir neçə dəfə tapıldı ("${u.title}")`);
+    detectedTopicCounts[k] =
+      (detectedTopicCounts[k] ?? 0) + u.items.filter((i) => i.type === 'topic').length;
+  }
   const keys = new Set([...Object.keys(tocCounts), ...Object.keys(detectedTopicCounts)]);
   for (const k of keys) {
     if (tocCounts[k] !== detectedTopicCounts[k]) {

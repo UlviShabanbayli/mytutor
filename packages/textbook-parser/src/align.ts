@@ -22,7 +22,7 @@ const MIN_PAIRED = 0.9;
 
 type Match = { text: string; end: number; paired: number };
 
-const isSpace = (ch: string | undefined) => ch !== undefined && /\s/.test(ch);
+const isSpace = (text: string | undefined) => text !== undefined && /^\s+$/.test(text);
 
 /**
  * Pairs `str` with glyphs starting at `start`. Spaces pdf.js inserted between words have no
@@ -41,6 +41,16 @@ function pairFrom(str: string, glyphs: DrawnGlyph[], start: number, font: string
       pos += glyph.shown.length;
       if (!isSpace(glyph.shown)) paired += glyph.shown.length;
       g++;
+    } else if (glyph && glyph.font === font && isSpace(glyph.shown)) {
+      // pdf.js counted this glyph as whitespace (a space, or an unmapped code 9–13 that is
+      // really "(" or ")") and dropped or merged it: step over it, keeping what it really is.
+      if (!isSpace(glyph.real)) {
+        text += glyph.real;
+        // It may stand in `str` as a plain space, unless a real space glyph comes next.
+        const next = glyphs[g + 1];
+        if (isSpace(str[pos]) && !(next?.font === font && isSpace(next.real))) pos++;
+      }
+      g++;
     } else {
       text += str[pos];
       pos++;
@@ -58,7 +68,11 @@ function pairFrom(str: string, glyphs: DrawnGlyph[], start: number, font: string
  */
 export function realText(runs: TextRun[], glyphs: DrawnGlyph[]): RealText[] {
   let cursor = 0;
-  return runs.map(({ str, fontName }) => {
+  // Which run each glyph went to (-1: none).
+  const owner = new Int32Array(glyphs.length).fill(-1);
+  const starts: (number | null)[] = [];
+  const texts = runs.map(({ str, fontName }, i) => {
+    starts.push(null);
     const first = str.search(/\S/);
     if (first < 0) return { text: str, paired: false };
     const visible = str.replace(/\s/g, '').length;
@@ -80,9 +94,38 @@ export function realText(runs: TextRun[], glyphs: DrawnGlyph[]): RealText[] {
         const m = tryAt(j);
         if (!m) continue;
         cursor = m.end;
+        owner.fill(i, j, m.end);
+        starts[i] = j;
         return { text: str.slice(0, first) + m.text, paired: true };
       }
     }
     return { text: str, paired: false };
   });
+
+  // pdf.js leaves glyphs it took for whitespace out of every item when they fall between two
+  // items (an unmapped "=" drawn as code 32 between two spaces, a ")" drawn as code 12). A
+  // closing bracket goes to the run drawn before it; the rest to the run drawn after it, in
+  // whatever font that run is ("(" Segoe UI, "N" Times, ")" Segoe UI).
+  texts.forEach((t, i) => {
+    const start = starts[i];
+    if (start === null || start === undefined || !t.paired) return;
+    let k = start;
+    while (k > 0 && owner[k - 1] === -1 && isSpace(glyphs[k - 1]?.shown)) k--;
+    const between = glyphs.slice(k, start).map((g) => (isSpace(g.real) ? ' ' : g.real));
+    if (between.every((ch) => ch === ' ')) return;
+    owner.fill(i, k, start);
+    let cut = 0;
+    while (cut < between.length && /^[\s)\]}]$/.test(between[cut] ?? '')) cut++;
+    const previous = k > 0 ? owner[k - 1] : -1;
+    const before = previous !== undefined && previous >= 0 ? texts[previous] : undefined;
+    const closing = between.slice(0, cut).join('').trim();
+    if (closing && before?.paired) before.text = `${before.text.trimEnd()}${closing}`;
+    else cut = 0;
+    // Spaces drawn after the glyphs stay ("= 5"); none is added ("(5").
+    const opening = between.slice(cut).join('').trimStart();
+    if (!opening.trim()) return;
+    const first = t.text.search(/\S/);
+    t.text = `${t.text.slice(0, first)}${opening}${t.text.slice(first)}`;
+  });
+  return texts;
 }

@@ -21,6 +21,14 @@ export type TocEntry = {
 
 const textOf = (i: TextItem) => (i.decoded ? i.text : repairBody(i.text)).trim();
 
+/** A dot leader, and a page number set in the title's own run: "Funksiya . . . . 7". */
+const LEADER = /^(.*?\S)(?:\s*[.·…_]){3,}\s*(\d{1,3})?$/u;
+
+function splitLeader(text: string): { title: string; page: number | null } {
+  const m = LEADER.exec(text);
+  return m?.[1] ? { title: m[1], page: m[2] ? Number(m[2]) : null } : { title: text, page: null };
+}
+
 /** The contents page(s): pages with at least 4 topic numbers ("1.1.", "8.4."). */
 function tocPages(items: TextItem[]): number[] {
   const counts = new Map<number, number>();
@@ -43,7 +51,12 @@ export function readTocEntries(items: TextItem[]): TocEntry[] {
   for (const page of tocPages(items)) {
     const onPage = items.filter((i) => i.page === page);
     const numbers = onPage.filter((i) => TOC_NUMBER.test(numberText(i).trim()));
-    const pages = onPage.filter((i) => PAGE_NUMBER.test(numberText(i).trim()));
+    // A leader may be set in the page number's own run (". . . 7").
+    const pageOf = (i: TextItem) =>
+      numberText(i)
+        .trim()
+        .replace(/^[.·…_\s]+/u, '');
+    const pages = onPage.filter((i) => PAGE_NUMBER.test(pageOf(i)));
     const isNumber = (i: TextItem) => /^[\d.\s]+$/.test(numberText(i).trim());
     const words = onPage.filter((i) => !isNumber(i) && /\p{L}/u.test(textOf(i)));
     // Entry text is the most common size among titles next to topic numbers.
@@ -68,7 +81,17 @@ export function readTocEntries(items: TextItem[]): TocEntry[] {
       else columns.push([row]);
     }
 
-    const lefts = columns.map((c) => c[0]?.x ?? 0);
+    // A column starts at its topic numbers, and only columns with numbers end another one: a
+    // title run in another font (a formula, italics) is not a column of its own.
+    const numbersOf = (row: TextItem) =>
+      numbers.filter(
+        (n) =>
+          Math.abs(n.y - row.y) < row.size * SAME_ROW && n.x < row.x && row.x - n.x < NUMBER_GAP,
+      );
+    const lefts = columns.flatMap((c) => {
+      const xs = c.flatMap(numbersOf).map((n) => n.x);
+      return xs.length ? [Math.min(c[0]?.x ?? 0, ...xs)] : [];
+    });
     for (const column of columns) {
       column.sort((a, b) => b.y - a.y);
       // A page number belongs to this column only if it sits before the next column starts.
@@ -81,17 +104,18 @@ export function readTocEntries(items: TextItem[]): TocEntry[] {
         const pageItem = pages
           .filter((p) => near(p) && p.x - row.x > PAGE_GAP && p.x < limit)
           .sort((a, b) => a.x - b.x)[0];
+        const own = splitLeader(textOf(row));
         if (!current || number) {
           current = {
             number: number ? numberText(number).trim().replace(/\.$/, '') : null,
-            title: textOf(row),
+            title: own.title,
             printedPage: null,
             tocPage: page,
           };
           entries.push(current);
-        } else current.title = `${current.title} ${textOf(row)}`;
-        if (pageItem) {
-          current.printedPage = Number(numberText(pageItem).trim());
+        } else current.title = `${current.title} ${own.title}`;
+        if (pageItem || own.page !== null) {
+          current.printedPage = pageItem ? Number(pageOf(pageItem)) : own.page;
           current = null;
         }
       }

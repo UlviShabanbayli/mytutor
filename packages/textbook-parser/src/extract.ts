@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import type { PDFPageProxy } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { getDocument, normalizeUnicode, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { type DrawnGlyph, realText } from './align';
-import { createGlyphDecoder, createGlyphOrderEvidence, isFallbackGlyph } from './glyphDecoder';
+import { createGlyphDecoder, createGlyphOrderEvidence } from './glyphDecoder';
 import { readPdfFontTables } from './pdfFonts';
 import { repairNumber } from './repair';
 import type { ExtractedPdf, TextItem } from './types';
@@ -40,29 +40,39 @@ const SHOW_TEXT = new Set<number>([
 ]);
 
 type PdfGlyph = { unicode: string; originalCharCode: number };
-type PdfFont = { composite?: boolean; name?: string };
+export type PdfFont = { composite?: boolean; name?: string };
 
 const isGlyph = (g: unknown): g is PdfGlyph =>
   typeof g === 'object' && g !== null && 'unicode' in g && 'originalCharCode' in g;
 
-type RawGlyph = { font: string; composite: boolean; code: number; unicode: string };
+export type RawGlyph = { font: string; composite: boolean; code: number; unicode: string };
 type PageText = {
   runs: (TextContentRun & { font: string; composite: boolean })[];
   glyphs: RawGlyph[];
 };
 type TextContentRun = { str: string; transform: number[]; width: number };
 
-/** Every glyph the page draws, in content-stream order, as pdf.js reads it. */
-async function rawGlyphs(page: PDFPageProxy): Promise<RawGlyph[]> {
-  const ops = await page.getOperatorList();
+/**
+ * Every glyph an operator list draws, in content-stream order, with the font it is drawn in.
+ * pdf.js lists a font change only for `Tf`; `Q` and the end of a form XObject bring the earlier
+ * font back without one, so the font is saved and restored with them.
+ */
+export function drawnGlyphs(
+  ops: { fnArray: number[]; argsArray: unknown[] },
+  fontOf: (id: string) => PdfFont,
+): RawGlyph[] {
   const glyphs: RawGlyph[] = [];
+  const saved: string[] = [];
   let font = '';
   for (let i = 0; i < ops.fnArray.length; i++) {
     const fn = ops.fnArray[i];
-    const args: unknown[] = ops.argsArray[i] ?? [];
+    const raw = ops.argsArray[i];
+    const args: unknown[] = Array.isArray(raw) ? raw : [];
     if (fn === OPS.setFont) font = String(args[0]);
+    else if (fn === OPS.save || fn === OPS.paintFormXObjectBegin) saved.push(font);
+    else if (fn === OPS.restore || fn === OPS.paintFormXObjectEnd) font = saved.pop() ?? font;
     if (fn === undefined || !SHOW_TEXT.has(fn)) continue;
-    const info = page.commonObjs.get(font) as PdfFont;
+    const info = fontOf(font);
     for (const arg of args) {
       if (!Array.isArray(arg)) continue;
       for (const g of arg)
@@ -78,15 +88,30 @@ async function rawGlyphs(page: PDFPageProxy): Promise<RawGlyph[]> {
   return glyphs;
 }
 
+/** A loaded font's details; an id pdf.js has not resolved gives none. */
+function fontInfo(page: PDFPageProxy, id: string): PdfFont {
+  try {
+    return page.commonObjs.get(id) as PdfFont;
+  } catch {
+    return {};
+  }
+}
+
 /**
  * Reads every positioned text run from the PDF. Runs drawn with composite fonts get their real
  * text from the glyph decoder (`decoded: true`, no later repair); the rest stay raw and are
  * repaired per use. Two passes: the first reads every page and learns how each font orders its
- * glyphs, the second decodes.
+ * glyphs, the second decodes. An encrypted PDF is not decoded (its font programs are unreadable
+ * here), so it gets the text pdf.js shows, as before.
  */
 export async function extractPdf(file: string): Promise<ExtractedPdf> {
   const bytes = new Uint8Array(await readFile(file));
-  const decoder = createGlyphDecoder(readPdfFontTables(bytes));
+  const tables = readPdfFontTables(bytes);
+  if (tables.encrypted)
+    console.warn(
+      `${file}: encrypted PDF; embedded fonts are not decoded, text is as pdf.js shows it`,
+    );
+  const decoder = createGlyphDecoder(tables);
   const order = createGlyphOrderEvidence();
   // pdf.js takes ownership of the buffer it is given; the font tables are already read.
   const task = getDocument({ data: bytes, verbosity: 0, fontExtraProperties: true });
@@ -98,12 +123,13 @@ export async function extractPdf(file: string): Promise<ExtractedPdf> {
     const page = await pdf.getPage(n);
     pageHeight = Math.max(pageHeight, page.view[3] ?? 0);
     const content = await page.getTextContent();
-    const glyphs = await rawGlyphs(page);
+    const glyphs = drawnGlyphs(await page.getOperatorList(), (id) => fontInfo(page, id));
     for (const g of glyphs)
-      if (g.composite && !isFallbackGlyph(g.code, g.unicode)) order.add(g.font, g.code, g.unicode);
+      if (g.composite && !decoder.unmapped(g.font, g.code, g.unicode))
+        order.add(g.font, decoder.glyphId(g.font, g.code), g.unicode);
     const runs = content.items.flatMap((item) => {
       if (!('str' in item)) return [];
-      const info = page.commonObjs.get(item.fontName) as PdfFont;
+      const info = fontInfo(page, item.fontName);
       return [
         {
           str: item.str,
@@ -122,9 +148,10 @@ export async function extractPdf(file: string): Promise<ExtractedPdf> {
   pages.forEach(({ runs, glyphs }, index) => {
     const drawn: DrawnGlyph[] = glyphs.map((g) => {
       const shown = normalizeUnicode(g.unicode);
-      if (!g.composite || !isFallbackGlyph(g.code, g.unicode))
+      if (!g.composite || !decoder.unmapped(g.font, g.code, g.unicode))
         return { font: g.font, shown, real: shown };
-      const real = decoder.decode(g.font, g.code) ?? order.guess(g.font, g.code) ?? UNKNOWN_GLYPH;
+      const gid = decoder.glyphId(g.font, g.code);
+      const real = decoder.decode(g.font, gid) ?? order.guess(g.font, gid) ?? UNKNOWN_GLYPH;
       return { font: g.font, shown, real: normalizeUnicode(real) };
     });
     const real = realText(
@@ -138,7 +165,7 @@ export async function extractPdf(file: string): Promise<ExtractedPdf> {
       const isLabel = LABEL.test(run.str) && RAW_CODE.test(run.str);
       const paired = real[i];
       // Only text paired with its glyphs counts as decoded; anything else keeps the old repair.
-      const decoded = run.composite && !isLabel && !!paired?.paired;
+      const decoded = !tables.encrypted && run.composite && !isLabel && !!paired?.paired;
       items.push({
         page: index + 1,
         text: decoded && paired ? withoutRawCodes(paired.text) : run.str,

@@ -1,8 +1,10 @@
 import { deflateSync } from 'node:zlib';
+import { OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { describe, expect, it } from 'vitest';
 import { realText, type DrawnGlyph } from './align';
+import { drawnGlyphs } from './extract';
 import { createGlyphDecoder, isFallbackGlyph } from './glyphDecoder';
-import { parseTrueType, readPdfFontTables } from './pdfFonts';
+import { parseTrueType, readPdfFontTables, selfMappedCodes } from './pdfFonts';
 import { repairNumber } from './repair';
 
 /** A minimal TrueType program: maxp (glyph count) and a format-4 cmap, nothing else. */
@@ -72,6 +74,14 @@ describe('readPdfFontTables', () => {
     );
   };
 
+  const stream = (num: number, data: string | Buffer) => {
+    const packed = deflateSync(data).toString('latin1');
+    return object(
+      num,
+      `<</Filter/FlateDecode/Length ${packed.length}>>stream\r\n${packed}\r\nendstream`,
+    );
+  };
+
   it('finds embedded fonts and lets a later definition replace an earlier one', () => {
     const pdf =
       '%PDF-1.7\r' +
@@ -85,6 +95,62 @@ describe('readPdfFontTables', () => {
     expect(fonts.map((f) => [f.name, f.numGlyphs, f.cmap.size])).toEqual([
       ['AAAAAA+SegoeUI', 500, 1],
       ['BBBBBB+SegoeUI', 500, 0],
+    ]);
+  });
+
+  it("reads a composite font's self-mapped codes and CID-to-glyph map by its descendant's name", () => {
+    const gids = Buffer.alloc(2 * 0x62);
+    gids.writeUInt16BE(68, 2 * 0x61); // CID 0x61 ("a") draws glyph 68
+    const pdf =
+      '%PDF-1.7\r' +
+      object(
+        20,
+        '<</Type/Font/Subtype/Type0/BaseFont/CCCCCC+Arial/DescendantFonts[21 0 R]/ToUnicode 24 0 R>>',
+      ) +
+      object(21, '<</Type/Font/Subtype/CIDFontType2/FontDescriptor 22 0 R/CIDToGIDMap 23 0 R>>') +
+      object(22, '<</Type/FontDescriptor/FontName/CCCCCC+Arial>>') +
+      stream(23, gids) +
+      stream(24, 'begincmap\n1 beginbfrange\n<0020> <007E> <0020>\nendbfrange\nendcmap');
+    const tables = readPdfFontTables(new Uint8Array(Buffer.from(pdf, 'latin1')));
+    const font = tables.composites.get('CCCCCC+Arial');
+    expect(font?.selfMapped).toEqual([[0x20, 0x7e]]);
+    expect(tables.encrypted).toBe(false);
+    const decoder = createGlyphDecoder(tables);
+    // pdf.js shows "a" for code 0x61 either way; the ToUnicode map says it really is "a".
+    expect(decoder.unmapped('CCCCCC+Arial', 0x61, 'a')).toBe(false);
+    expect(decoder.unmapped('CCCCCC+Arial', 0x7f, '\u007f')).toBe(true);
+    expect(decoder.glyphId('CCCCCC+Arial', 0x61)).toBe(68);
+    expect(decoder.glyphId('OTHER+Font', 0x61)).toBe(0x61);
+  });
+
+  it('reads nothing from an encrypted PDF', () => {
+    const pdf =
+      '%PDF-1.7\r' +
+      fontStream(10, trueType(500, { 0x61: 68 })) +
+      object(11, '<</Type/FontDescriptor/FontName/AAAAAA+SegoeUI/FontFile2 10 0 R>>') +
+      'trailer\r<</Root 1 0 R/Encrypt 30 0 R>>';
+    const tables = readPdfFontTables(new Uint8Array(Buffer.from(pdf, 'latin1')));
+    expect(tables).toEqual({ fonts: [], composites: new Map(), encrypted: true });
+  });
+});
+
+describe('selfMappedCodes', () => {
+  it('keeps only entries that map a code to itself', () => {
+    const cmap = [
+      '2 beginbfchar',
+      '<0041> <0041>',
+      '<0042> <0062>',
+      'endbfchar',
+      '3 beginbfrange',
+      '<0030> <0039> <0030>',
+      '<0061> <0063> [<0061> <0062> <0063>]',
+      '<0100> <0105> <0200>',
+      'endbfrange',
+    ].join('\n');
+    // An array destination is skipped whole, never read as the next entry.
+    expect(selfMappedCodes(cmap)).toEqual([
+      [0x41, 0x41],
+      [0x30, 0x39],
     ]);
   });
 });
@@ -117,6 +183,22 @@ describe('createGlyphDecoder', () => {
   it('treats a glyph shown as its own code as unmapped', () => {
     expect(isFallbackGlyph(92, '\\')).toBe(true);
     expect(isFallbackGlyph(68, 'a')).toBe(false);
+  });
+
+  it('rejects a sibling that differs in base name, glyph count, or has a small cmap', () => {
+    const big = () => {
+      const m = new Map<number, number>([[92, 0x41]]);
+      for (let g = 300; g < 420; g++) m.set(g, 0x4e00 + g);
+      return m;
+    };
+    const small = new Map<number, number>([[92, 0x41]]);
+    for (let g = 300; g < 349; g++) small.set(g, 0x4e00 + g);
+    const only = (f: { name: string; numGlyphs: number; cmap: Map<number, number> }) =>
+      createGlyphDecoder({ fonts: [subset, f] }).decode('GPFMAM+SegoeUI', 92);
+    expect(only({ name: 'QQQQQQ+SegoeUI-Bold', numGlyphs: 5394, cmap: big() })).toBeNull();
+    expect(only({ name: 'QQQQQQ+SegoeUI', numGlyphs: 3000, cmap: big() })).toBeNull();
+    expect(only({ name: 'QQQQQQ+SegoeUI', numGlyphs: 5394, cmap: small })).toBeNull();
+    expect(only({ name: 'QQQQQQ+SegoeUI', numGlyphs: 5394, cmap: big() })).toBe('A');
   });
 });
 
@@ -156,6 +238,192 @@ describe('realText', () => {
     expect(realText([{ str: 'abc', fontName: 'f1' }], [g('f9', 'a', 'z')])).toEqual([
       { text: 'abc', paired: false },
     ]);
+  });
+
+  const upper = (s: string) => [...s].map((ch) => g('f1', ch, ch.toUpperCase()));
+
+  it('trusts a run when at least 90% of its characters pair', () => {
+    expect(realText([{ str: 'abcdefghiQ', fontName: 'f1' }], upper('abcdefghi'))).toEqual([
+      { text: 'ABCDEFGHIQ', paired: true },
+    ]);
+  });
+
+  it('keeps pdf.js text when fewer than 90% pair, even if the first glyph fits', () => {
+    expect(realText([{ str: 'abcdefghQQ', fontName: 'f1' }], upper('abcdefgh'))).toEqual([
+      { text: 'abcdefghQQ', paired: false },
+    ]);
+  });
+
+  it('keeps leading spaces and leaves whitespace-only runs unpaired', () => {
+    expect(
+      realText(
+        [
+          { str: '  ab', fontName: 'f1' },
+          { str: '   ', fontName: 'f1' },
+        ],
+        upper('ab'),
+      ),
+    ).toEqual([
+      { text: '  AB', paired: true },
+      { text: '   ', paired: false },
+    ]);
+  });
+
+  it('continues from where the previous run ended when the same text repeats', () => {
+    // A mapped "a" and an unmapped glyph that pdf.js also shows as "a" look the same.
+    const glyphs = [g('f1', 'a'), g('f1', 'b'), g('f1', 'a', 'ə'), g('f1', 'b')];
+    expect(
+      realText(
+        [
+          { str: 'ab', fontName: 'f1' },
+          { str: 'ab', fontName: 'f1' },
+        ],
+        glyphs,
+      ),
+    ).toEqual([
+      { text: 'ab', paired: true },
+      { text: 'əb', paired: true },
+    ]);
+  });
+
+  it('steps over glyphs pdf.js took for whitespace, keeping what they really are', () => {
+    // "c) İki": the ")" glyph has code 12, which pdf.js shows as a form feed and drops.
+    const brackets = [
+      g('f1', 'c'),
+      g('f1', '\f', ')'),
+      g('f1', ' '),
+      g('f1', 'ù', 'İ'),
+      g('f1', 'N', 'k'),
+      g('f1', 'i'),
+    ];
+    expect(realText([{ str: 'c ùNi', fontName: 'f1' }], brackets)).toEqual([
+      { text: 'c) İki', paired: true },
+    ]);
+    // Two space glyphs drawn, one space in the text item.
+    const spaces = [g('f1', 'a'), g('f1', ' '), g('f1', ' '), g('f1', 'K', 'h')];
+    expect(realText([{ str: 'a K', fontName: 'f1' }], spaces)).toEqual([
+      { text: 'a h', paired: true },
+    ]);
+    // A drawn space the text item left out (justified text draws some inside words).
+    const dropped = [g('f1', 'q'), g('f1', ' '), g('f1', 'n'), g('f1', 'R', 'o')];
+    expect(realText([{ str: 'qnR', fontName: 'f1' }], dropped)).toEqual([
+      { text: 'qno', paired: true },
+    ]);
+    // An unmapped "(" that pdf.js wrote as a plain space: the space is that glyph.
+    const bracket = [
+      g('f1', '0'),
+      g('f1', ','),
+      g('f1', '\u0014', '1'),
+      g('f1', '\v', '('),
+      g('f1', '6'),
+    ];
+    expect(realText([{ str: '0,\u0014 6', fontName: 'f1' }], bracket)).toEqual([
+      { text: '0,1(6', paired: true },
+    ]);
+  });
+
+  it('gives glyphs pdf.js dropped between two runs to the run after them', () => {
+    // "|a| = |b|": the unmapped "=" (code 32) is shown as a space between two spaces, and
+    // pdf.js ends one item before them and starts the next after them.
+    const glyphs = [
+      g('f1', '_', '|'),
+      g('f1', 'a'),
+      g('f1', '_', '|'),
+      g('f1', ' '),
+      g('f1', ' ', '='),
+      g('f1', ' '),
+      g('f1', '_', '|'),
+      g('f1', 'b'),
+      g('f1', '_', '|'),
+    ];
+    expect(
+      realText(
+        [
+          { str: '_a_', fontName: 'f1' },
+          { str: '_b_', fontName: 'f1' },
+        ],
+        glyphs,
+      ).map((r) => r.text),
+    ).toEqual(['|a|', '= |b|']);
+    // A closing bracket dropped at the end of a run belongs to that run, not the next one.
+    const closing = [
+      g('f1', '\u0016', '3'),
+      g('f1', '\f', '('),
+      g('f1', '\u001a', '7'),
+      g('f1', '\v', ')'),
+      g('f1', ' '),
+      g('f1', 'c'),
+    ];
+    expect(
+      realText(
+        [
+          { str: '\u0016\f\u001a', fontName: 'f1' },
+          { str: 'c', fontName: 'f1' },
+        ],
+        closing,
+      ).map((r) => r.text),
+    ).toEqual(['3(7)', 'c']);
+    // Real spaces between runs change nothing.
+    const plain = [g('f1', 'a'), g('f1', ' '), g('f1', 'b')];
+    expect(
+      realText(
+        [
+          { str: 'a', fontName: 'f1' },
+          { str: 'b', fontName: 'f1' },
+        ],
+        plain,
+      ).map((r) => r.text),
+    ).toEqual(['a', 'b']);
+  });
+});
+
+describe('drawnGlyphs', () => {
+  const glyph = (code: number) => [{ unicode: String.fromCharCode(code), originalCharCode: code }];
+  const fonts: Record<string, { name: string; composite: boolean }> = {
+    f1: { name: 'AAAAAA+SegoeUI', composite: true },
+    f2: { name: 'BBBBBB+SymbolMT', composite: false },
+  };
+
+  it('gives glyphs drawn after Q or a form XObject the font that was restored', () => {
+    const ops = {
+      fnArray: [
+        OPS.setFont,
+        OPS.showText,
+        OPS.save,
+        OPS.setFont,
+        OPS.showText,
+        OPS.restore,
+        OPS.showText,
+        OPS.paintFormXObjectBegin,
+        OPS.setFont,
+        OPS.showText,
+        OPS.paintFormXObjectEnd,
+        OPS.showText,
+      ],
+      argsArray: [
+        ['f1'],
+        [glyph(65)],
+        null,
+        ['f2'],
+        [glyph(66)],
+        null,
+        [glyph(67)],
+        null,
+        ['f2'],
+        [glyph(68)],
+        null,
+        [glyph(69)],
+      ],
+    };
+    const drawn = drawnGlyphs(ops, (id) => fonts[id] ?? {});
+    expect(drawn.map((d) => `${d.unicode}:${d.font}`)).toEqual([
+      'A:AAAAAA+SegoeUI',
+      'B:BBBBBB+SymbolMT',
+      'C:AAAAAA+SegoeUI',
+      'D:BBBBBB+SymbolMT',
+      'E:AAAAAA+SegoeUI',
+    ]);
+    expect(drawn.map((d) => d.composite)).toEqual([true, false, true, false, true]);
   });
 });
 

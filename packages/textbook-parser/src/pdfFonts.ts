@@ -18,7 +18,21 @@ export type EmbeddedFont = {
   cmap: Map<number, number>;
 };
 
-export type PdfFontTables = { fonts: EmbeddedFont[] };
+/** What a composite (Type0) font adds to its embedded program. */
+export type CompositeFont = {
+  /** Code ranges its ToUnicode map sends to the same code point (code 65 → "A"), inclusive. */
+  selfMapped: [number, number][];
+  /** Glyph id per CID (2 bytes each, big-endian), when the CIDFont has a CIDToGIDMap stream. */
+  cidToGid: Buffer | null;
+};
+
+export type PdfFontTables = {
+  fonts: EmbeddedFont[];
+  /** By the descendant font's FontName, the name pdf.js reports for the font. */
+  composites: Map<string, CompositeFont>;
+  /** An encrypted PDF's streams cannot be read here: no tables, callers keep pdf.js's text. */
+  encrypted: boolean;
+};
 
 const latin1 = (bytes: Uint8Array) => Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 
@@ -150,8 +164,70 @@ export function parseTrueType(
 
 const NAME = /\/(?:FontName|BaseFont)\s*\/([^\s/<>[\]()]+)/;
 
+const hex = (token: string) => parseInt(token.slice(1, -1), 16);
+
+/**
+ * Code ranges a ToUnicode CMap maps to themselves: `<0041> <0041>` in a bfchar block, or
+ * `<0020> <007E> <0020>` in a bfrange block. pdf.js shows an unmapped code as itself too, so
+ * only these say that such a glyph really is mapped.
+ */
+export function selfMappedCodes(cmap: string): [number, number][] {
+  const ranges: [number, number][] = [];
+  // A one-unit UTF-16 destination; longer ones (ligatures, surrogates) never equal a code.
+  const single = (token: string) => token.length <= 6;
+  for (const [, body = ''] of cmap.matchAll(/beginbfchar([\s\S]*?)endbfchar/g)) {
+    const t = body.match(/<[0-9a-fA-F]+>/g) ?? [];
+    for (let i = 0; i + 1 < t.length; i += 2) {
+      const [src = '', dst = ''] = [t[i], t[i + 1]];
+      if (single(dst) && hex(dst) === hex(src)) ranges.push([hex(src), hex(src)]);
+    }
+  }
+  for (const [, body = ''] of cmap.matchAll(/beginbfrange([\s\S]*?)endbfrange/g)) {
+    // Each entry is <lo> <hi> followed by one destination or an array of them.
+    const t = body.match(/<[0-9a-fA-F]+>|\[[^\]]*\]/g) ?? [];
+    for (let i = 0; i + 2 < t.length; i += 3) {
+      const [lo = '', hi = '', dst = ''] = [t[i], t[i + 1], t[i + 2]];
+      if (dst.startsWith('<') && single(dst) && hex(dst) === hex(lo))
+        ranges.push([hex(lo), hex(hi)]);
+    }
+  }
+  return ranges;
+}
+
+const refTo = (body: string, key: string) =>
+  new RegExp(`/${key}\\s*(\\d+)\\s+\\d+\\s+R`).exec(body)?.[1];
+
+/** Type0 fonts by their descendant's FontName: self-mapped codes and the CID → glyph id map. */
+function readComposites(objects: Map<number, string>): Map<string, CompositeFont> {
+  const composites = new Map<string, CompositeFont>();
+  const get = (ref: string | undefined) => (ref ? objects.get(Number(ref)) : undefined);
+  for (const body of objects.values()) {
+    if (!/\/Subtype\s*\/Type0\b/.test(body)) continue;
+    // /DescendantFonts [12 0 R], or a reference to an object holding that array.
+    const list = /\/DescendantFonts\s*(\[[^\]]*\]|\d+\s+\d+\s+R)/.exec(body)?.[1] ?? '';
+    const array = list.startsWith('[') ? list : (get(/^(\d+)/.exec(list)?.[1]) ?? '');
+    const cidFont = get(/(\d+)\s+\d+\s+R/.exec(array)?.[1]);
+    const name = cidFont ? NAME.exec(get(refTo(cidFont, 'FontDescriptor')) ?? '')?.[1] : undefined;
+    if (!cidFont || !name) continue;
+    const toUnicode = get(refTo(body, 'ToUnicode'));
+    const cmap = toUnicode ? streamData(toUnicode)?.toString('latin1') : undefined;
+    const gidMap = get(refTo(cidFont, 'CIDToGIDMap'));
+    const known = composites.get(name);
+    // Several Type0 fonts may share one descendant, each with its own ToUnicode map.
+    composites.set(name, {
+      selfMapped: [...(known?.selfMapped ?? []), ...(cmap ? selfMappedCodes(cmap) : [])],
+      cidToGid: known?.cidToGid ?? (gidMap ? streamData(gidMap) : null),
+    });
+  }
+  return composites;
+}
+
 export function readPdfFontTables(bytes: Uint8Array): PdfFontTables {
-  const objects = readObjects(latin1(bytes).toString('latin1'));
+  const text = latin1(bytes).toString('latin1');
+  // The trailer (or cross-reference stream) dictionary itself is never encrypted.
+  if (/\/Encrypt\s*(?:\d+\s+\d+\s+R|<<)/.test(text))
+    return { fonts: [], composites: new Map(), encrypted: true };
+  const objects = readObjects(text);
   const fonts: EmbeddedFont[] = [];
   for (const body of objects.values()) {
     if (/\/Type\s*\/FontDescriptor/.test(body)) {
@@ -163,5 +239,5 @@ export function readPdfFontTables(bytes: Uint8Array): PdfFontTables {
       if (name && parsed) fonts.push({ name, ...parsed });
     }
   }
-  return { fonts };
+  return { fonts, composites: readComposites(objects), encrypted: false };
 }

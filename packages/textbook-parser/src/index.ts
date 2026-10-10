@@ -35,7 +35,7 @@ export function splitExtracted(pdf: ExtractedPdf): TextbookStructure {
   const numbering = applyToc(built.units, built.backMatter, toc.entries, numbers.offset);
   // Headings the contents re-titled no longer need an "unreadable heading" warning.
   const headingWarnings = built.warnings.filter(
-    (w) => !numbering.replaced.some((title) => w.includes(`"${title}"`)),
+    (w) => !numbering.replaced.some((heading) => w.startsWith(heading)),
   );
   const checked = validate(built.units, toc.counts);
 
