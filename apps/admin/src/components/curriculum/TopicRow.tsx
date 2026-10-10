@@ -2,6 +2,7 @@ import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { ContentTopicEntry } from '@mytutor/types';
+import { ExtractSourceButton } from './ExtractSourceButton';
 import { StageChip } from './StageChip';
 
 type TopicRowProps = {
@@ -10,9 +11,11 @@ type TopicRowProps = {
   title: string;
   pages: string;
   entry: ContentTopicEntry | undefined;
+  /** The book PDF is on disk, so a missing source can be extracted from here. */
+  canExtract: boolean;
 };
 
-export function TopicRow({ bookId, number, title, pages, entry }: TopicRowProps) {
+export function TopicRow({ bookId, number, title, pages, entry, canExtract }: TopicRowProps) {
   const { t } = useTranslation();
   const body = (
     <>
@@ -34,10 +37,15 @@ export function TopicRow({ bookId, number, title, pages, entry }: TopicRowProps)
   );
 
   if (!entry) {
-    return (
+    return canExtract ? (
+      <li className="flex items-center gap-3 px-4 py-3">
+        {body}
+        <ExtractSourceButton bookId={bookId} topic={number} />
+      </li>
+    ) : (
       <li
         className="flex items-center gap-3 px-4 py-3 opacity-70"
-        title={t('curriculum.sourceMissing')}
+        title={`${t('curriculum.sourceMissing')}. ${t('curriculum.noPdf')}`}
       >
         {body}
         <span className="size-5 shrink-0" aria-hidden />
