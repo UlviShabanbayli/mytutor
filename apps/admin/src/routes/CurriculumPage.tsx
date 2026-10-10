@@ -1,6 +1,7 @@
 import { ListTree } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
+import { DeleteBookButton } from '@/components/curriculum/DeleteBookButton';
 import { UnitSection } from '@/components/curriculum/UnitSection';
 import { Breadcrumbs, CommandHint, EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { bookTitle } from '@/features/content/pages';
@@ -10,6 +11,7 @@ import { NotFoundPage } from './NotFoundPage';
 
 export function CurriculumPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { bookId = '' } = useParams();
   const book = useBook(bookId);
   const structure = useStructure(book.data?.structure ?? null);
@@ -22,9 +24,12 @@ export function CurriculumPage() {
   return (
     <div className="flex flex-col gap-6">
       <Breadcrumbs items={[{ label: t('books.title'), to: '/' }, { label: bookTitle(entry) }]} />
-      <header className="flex flex-col gap-1">
-        <h1 className="font-sans-black text-3xl text-foreground">{bookTitle(entry)}</h1>
-        <p className="font-mono text-xs text-muted-foreground">{entry.file}</p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex min-w-0 flex-col gap-1">
+          <h1 className="font-sans-black text-3xl text-foreground">{bookTitle(entry)}</h1>
+          <p className="break-all font-mono text-xs text-muted-foreground">{entry.file}</p>
+        </div>
+        <DeleteBookButton book={entry} onDeleted={() => void navigate('/')} />
       </header>
       {!entry.structure ? (
         <EmptyState

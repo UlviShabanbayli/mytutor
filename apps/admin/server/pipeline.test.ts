@@ -3,8 +3,16 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { scanBooks } from './contentIndex';
-import { addBook, type CliRunner, extractSource, PipelineError, safePdfName } from './pipeline';
+import { buildContentIndex, scanBooks } from './contentIndex';
+import {
+  addBook,
+  type CliRunner,
+  deleteBook,
+  extractSource,
+  PipelineError,
+  restoreBook,
+  safePdfName,
+} from './pipeline';
 
 const PDF = Buffer.from('%PDF-1.7\n%fake textbook\n');
 const body = (bytes: Buffer) => Readable.from([bytes]);
@@ -50,6 +58,21 @@ function fakeRunner(topics = ['1.1', '1.2']) {
       );
   };
   return { run, calls };
+}
+
+/** A source extraction that holds its lock until `release()` is called. */
+function heldExtraction(run: CliRunner) {
+  let release = () => {};
+  let started = () => {};
+  const running = new Promise<void>((resolve) => {
+    started = resolve;
+  });
+  const slow: CliRunner = (cli, args) =>
+    new Promise<void>((resolve) => {
+      release = () => void run(cli, args).then(resolve);
+      started();
+    });
+  return { slow, running, release: () => release() };
 }
 
 let root = '';
@@ -236,20 +259,123 @@ describe('extractSource', () => {
   it('runs one extraction per topic at a time', async () => {
     const { run } = fakeRunner();
     await addBook({ root, fileName: 'a.pdf', title: 'A', body: body(PDF), run });
-    let release = () => {};
-    let started = () => {};
-    const running = new Promise<void>((resolve) => {
-      started = resolve;
-    });
-    const slow: CliRunner = (cli, args) =>
-      new Promise<void>((resolve) => {
-        release = () => void run(cli, args).then(resolve);
-        started();
-      });
-    const first = extractSource({ root, bookId: 'a', topic: '1.1', run: slow });
-    await running; // the lock is held from here until release()
+    const held = heldExtraction(run);
+    const first = extractSource({ root, bookId: 'a', topic: '1.1', run: held.slow });
+    await held.running; // the lock is held from here until release()
     expect(await code(extractSource({ root, bookId: 'a', topic: '1.1', run }))).toBe('409 busy');
-    release();
+    held.release();
     await first;
+  });
+});
+
+const AT = new Date('2026-10-10T18:15:00.000Z');
+
+/** Book "a" in its upload folder plus an older folder with a topic source and knowledge. */
+async function twoFolderBook() {
+  const { run } = fakeRunner();
+  await addBook({ root, fileName: 'a.pdf', title: 'A', body: body(PDF), run });
+  await addBook({ root, fileName: 'b.pdf', title: 'B', body: body(PDF), run });
+  await mkdir(join(root, 'old-a', 'topics', '1.1', 'knowledge'), { recursive: true });
+  await writeFile(
+    join(root, 'old-a', 'topics', '1.1', 'source.json'),
+    JSON.stringify({ book: { file: 'a.pdf' }, topic: { number: '1.1' } }),
+  );
+  await writeFile(join(root, 'old-a', 'topics', '1.1', 'knowledge', 'knowledge.json'), '{}');
+  return run;
+}
+
+describe('deleteBook', () => {
+  it('moves every folder of the book to the trash, which the index lists', async () => {
+    await twoFolderBook();
+    const { trashId } = await deleteBook({ root, bookId: 'a', now: () => AT });
+    expect(trashId).toMatch(/^2026-10-10T18-15-00-000Z-a-\w+$/);
+    expect((await readdir(root)).sort()).toEqual(['.trash', 'b']);
+    const entry = join(root, '.trash', trashId);
+    expect((await readdir(entry)).sort()).toEqual(['a', 'old-a', 'trash.json']);
+    // Nothing was erased: the PDF and the knowledge document moved with their folders.
+    expect(await readdir(join(entry, 'a'))).toContain('a.pdf');
+    expect(await readdir(join(entry, 'old-a', 'topics', '1.1', 'knowledge'))).toEqual([
+      'knowledge.json',
+    ]);
+    const index = await buildContentIndex(root);
+    expect(index.books.map((b) => b.id)).toEqual(['b']);
+    expect(index.trash).toEqual([
+      {
+        id: trashId,
+        bookId: 'a',
+        title: 'A',
+        deletedAt: AT.toISOString(),
+        sourceCount: 1,
+        knowledgeCount: 1,
+      },
+    ]);
+  });
+
+  it('refuses a book whose folder also holds another book, and moves nothing', async () => {
+    const { run } = fakeRunner();
+    await addBook({ root, fileName: 'a.pdf', title: 'A', body: body(PDF), run });
+    await mkdir(join(root, 'mixed', 'topics', '1.1'), { recursive: true });
+    await writeFile(
+      join(root, 'mixed', 'structure.json'),
+      JSON.stringify(structure('c.pdf', ['1.1'])),
+    );
+    await writeFile(
+      join(root, 'mixed', 'topics', '1.1', 'source.json'),
+      JSON.stringify({ book: { file: 'a.pdf' }, topic: { number: '1.1' } }),
+    );
+    expect(await code(deleteBook({ root, bookId: 'a' }))).toBe('409 shared_folder');
+    expect((await readdir(root)).sort()).toEqual(['a', 'mixed']);
+  });
+
+  it('refuses an unknown book', async () => {
+    expect(await code(deleteBook({ root, bookId: 'nope' }))).toBe('404 no_book');
+  });
+
+  it('waits for a running extraction of the book, and extraction waits for a delete', async () => {
+    const { run } = fakeRunner();
+    await addBook({ root, fileName: 'a.pdf', title: 'A', body: body(PDF), run });
+    const held = heldExtraction(run);
+    const first = extractSource({ root, bookId: 'a', topic: '1.1', run: held.slow });
+    await held.running;
+    expect(await code(deleteBook({ root, bookId: 'a' }))).toBe('409 busy');
+    held.release();
+    await first;
+    await deleteBook({ root, bookId: 'a' });
+    expect(await code(extractSource({ root, bookId: 'a', topic: '1.1', run }))).toBe('404 no_book');
+  });
+});
+
+describe('restoreBook', () => {
+  it('puts the folders back where they were and empties the trash entry', async () => {
+    await twoFolderBook();
+    const before = await buildContentIndex(root);
+    const { trashId } = await deleteBook({ root, bookId: 'a' });
+    expect(await restoreBook({ root, trashId })).toEqual({ bookId: 'a' });
+    expect(await buildContentIndex(root)).toEqual(before);
+    expect(await readdir(join(root, '.trash'))).toEqual([]);
+    // The restored book works as before.
+    expect(await extractSource({ root, bookId: 'a', topic: '1.2', run: fakeRunner().run })).toEqual(
+      { bookId: 'a', topic: '1.2' },
+    );
+  });
+
+  it('refuses when the book was added again, and keeps the entry', async () => {
+    const run = await twoFolderBook();
+    const { trashId } = await deleteBook({ root, bookId: 'a' });
+    await addBook({ root, fileName: 'a.pdf', title: 'A again', body: body(PDF), run });
+    expect(await code(restoreBook({ root, trashId }))).toBe('409 restore_conflict');
+    expect((await buildContentIndex(root)).trash.map((e) => e.id)).toEqual([trashId]);
+  });
+
+  it('refuses unknown, hidden and path-like ids', async () => {
+    for (const trashId of ['nope', '.trash', '..', '../a', 'a/b'])
+      expect(await code(restoreBook({ root, trashId }))).toBe('404 no_trash');
+  });
+
+  it('refuses a second restore of the same entry', async () => {
+    await twoFolderBook();
+    const { trashId } = await deleteBook({ root, bookId: 'a' });
+    await restoreBook({ root, trashId });
+    expect(await code(restoreBook({ root, trashId }))).toBe('404 no_trash');
   });
 });

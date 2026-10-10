@@ -34,6 +34,8 @@ export const az = {
     topics: '{{count}} mövzu',
     sourcesReady: '{{count}} mövzunun mənbəyi hazırdır',
     noStructure: 'Bölgü yoxdur',
+    delete: 'Kitabı sil',
+    deleteNamed: '«{{title}}» kitabını sil',
   },
   curriculum: {
     unit: 'Bölmə {{index}}',
@@ -66,6 +68,29 @@ export const az = {
     close: 'Bağla',
     notPdf: 'Yalnız PDF faylı seçmək olar.',
   },
+  deleteBook: {
+    title: 'Kitab silinsin?',
+    body: '«{{title}}» dərsliklər siyahısından çıxarılacaq. Onunla birlikdə bunlar da gedəcək:',
+    structure: 'bölmə və mövzu bölgüsü',
+    sources: '{{count}} mövzunun mənbəyi',
+    knowledge: '{{count}} mövzunun bilik sənədi',
+    knowledgeCost: 'Bilik sənədləri AI ilə yaradılıb: yenidən yaratmaq pullu olacaq.',
+    recoverable:
+      'Fayllar birdəfəlik silinmir. Kitab səbətə köçürülür, «Dərsliklər» səhifəsindəki «Silinmiş kitablar» bölməsindən geri qaytarmaq olar.',
+    submit: 'Sil',
+    pending: 'Silinir…',
+    cancel: 'Ləğv et',
+    close: 'Bağla',
+  },
+  trash: {
+    title: 'Silinmiş kitablar',
+    body: 'Bu kitablar diskdə saxlanılır. Geri qaytarılan kitab bütün mənbə və bilik sənədləri ilə qayıdır.',
+    deletedAt: 'Silinib: {{date}}',
+    sources: '{{count}} mənbə',
+    knowledge: '{{count}} bilik sənədi',
+    restore: 'Geri qaytar',
+    restoring: 'Qaytarılır…',
+  },
   errors: {
     exists: 'Bu adlı PDF faylından kitab artıq əlavə olunub. Faylın adını dəyişib yenidən seçin.',
     not_pdf: 'Fayl PDF deyil.',
@@ -80,6 +105,11 @@ export const az = {
     no_pdf: 'Bu kitabın PDF faylı diskdə tapılmadı.',
     no_topic: 'Bu mövzu kitabın bölgüsündə yoxdur.',
     no_book: 'Kitab tapılmadı.',
+    shared_folder:
+      'Bu kitabın faylları başqa kitabın faylları ilə eyni qovluqdadır, ona görə panel onu silə bilmir.',
+    no_trash: 'Silinmiş kitab tapılmadı. Ola bilsin, artıq geri qaytarılıb.',
+    restore_conflict:
+      'Bu kitab yenidən əlavə olunub. Köhnəsini qaytarmaq üçün əvvəlcə yenisini silin.',
     forbidden: 'Bu əməliyyata icazə verilmir.',
     method: 'Bu sorğu dəstəklənmir.',
     not_found: 'Belə əməliyyat yoxdur.',

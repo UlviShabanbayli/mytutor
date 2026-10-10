@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { type ReactNode, useEffect, useId, useRef } from 'react';
+import { type ReactNode, type RefObject, useEffect, useId, useRef } from 'react';
 import { cn } from '@/lib/cn';
 
 type DialogProps = {
@@ -9,6 +9,8 @@ type DialogProps = {
   /** False while work is running: Esc, the backdrop and the close button do nothing. */
   dismissible?: boolean;
   onClose: () => void;
+  /** Focused when the dialog opens (default: the first focusable element, the close button). */
+  initialFocus?: RefObject<HTMLElement | null>;
   children: ReactNode;
   className?: string;
 };
@@ -20,6 +22,7 @@ export function Dialog({
   closeLabel,
   dismissible = true,
   onClose,
+  initialFocus,
   children,
   className,
 }: DialogProps) {
@@ -32,9 +35,12 @@ export function Dialog({
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
+    if (open && !dialog.open) {
+      dialog.showModal();
+      initialFocus?.current?.focus();
+    }
     if (!open && dialog.open) dialog.close();
-  }, [open]);
+  }, [open, initialFocus]);
 
   return (
     <dialog
