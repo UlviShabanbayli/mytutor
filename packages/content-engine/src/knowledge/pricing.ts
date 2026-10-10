@@ -10,14 +10,17 @@ const PRICES: Record<
 
 export type Usage = { input: number; output: number; cacheWrite: number; cacheRead: number };
 
+const warned = new Set<string>();
+
+/** Cost of one call; an unpriced model counts 0 and is reported once, never priced as Opus. */
 export function costUsd(model: string, u: Usage): number {
   const key = Object.keys(PRICES).find((k) => model.startsWith(k));
-  const p = PRICES[key ?? 'claude-opus-5-5'] ?? {
-    input: 4,
-    output: 20,
-    cacheWrite: 5,
-    cacheRead: 0.2,
-  };
+  const p = key ? PRICES[key] : undefined;
+  if (!p) {
+    if (!warned.has(model)) console.warn(`Qiymət cədvəlində "${model}" yoxdur: xərc 0 sayılır.`);
+    warned.add(model);
+    return 0;
+  }
   const usd =
     (u.input * p.input +
       u.output * p.output +

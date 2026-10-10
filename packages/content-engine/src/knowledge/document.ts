@@ -11,6 +11,7 @@ import type {
 } from '@mytutor/types';
 import { EXTRACT_PROMPT_VERSION, EXTRACT_SYSTEM } from './prompts/extract.v2';
 import { VERIFY_PROMPT_VERSION, VERIFY_SYSTEM } from './prompts/verify.v1';
+import { canonicalSha256 } from './canonical';
 import { checkItem, statusOf } from './validate';
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -86,7 +87,7 @@ export function buildDocument(
     source: {
       bookSha256: source.book.sha256,
       parserVersion: source.parserVersion,
-      sourceSha256: sha(sourceJson),
+      sourceSha256: canonicalSha256(JSON.parse(sourceJson)),
     },
     prompts: {
       extract: EXTRACT_PROMPT_VERSION,

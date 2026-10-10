@@ -18,6 +18,7 @@ import { renderKnowledgeReview } from './reviewHtml';
 
 const EXTRACT_MODEL = 'claude-opus-5-5';
 const VERIFY_MODEL = 'claude-opus-5-5';
+const ESTIMATE_CALIBRATION = 1.41;
 
 async function main() {
   const args = process.argv.slice(2);
@@ -46,8 +47,10 @@ async function main() {
     }
     // Verification resends the crops with the claims; output ≈ 40% of input for extraction.
     const est = { input: total * 2, output: Math.round(total * 0.5), cacheWrite: 0, cacheRead: 0 };
+    // The token estimate ran 1.41× low against real runs (part 1, 26 topics: $11.62 → $16.39).
+    const calibrated = Math.round(costUsd(EXTRACT_MODEL, est) * ESTIMATE_CALIBRATION * 100) / 100;
     console.log(
-      `Cəmi: ${groupBlocks(source).length * 2} çağırış, ~${est.input} input, ~${est.output} output token, ~$${costUsd(EXTRACT_MODEL, est)}`,
+      `Cəmi: ${groupBlocks(source).length * 2} çağırış, ~${est.input} input, ~${est.output} output token, ~$${calibrated} (real qaçışlarla kalibrləşdirilib)`,
     );
     return;
   }
