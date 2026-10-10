@@ -21,6 +21,7 @@ const badge = (page: number, y: number): TextItem => ({
   width: 30,
   text: '\u001f\u001e',
   isLabel: true,
+  decoded: false,
 });
 
 describe('classifyHeadings', () => {

@@ -1,5 +1,6 @@
 import type { TextbookBlock, TextbookStructure, TextbookTopic, TextbookUnit } from '@mytutor/types';
 import type { HeadingEvent } from './classify';
+import type { TocEntry } from './toc';
 import { isSuspicious } from './repair';
 
 type Node = { page: number; y: number; top: number; setEnd: (page: number, y: number) => void };
@@ -102,6 +103,106 @@ export function buildStructure({ events, pageHeight, lastPage }: BuildInput) {
   for (const u of units) u.endPage = Math.max(u.startPage, ...u.items.map((i) => i.endPage));
 
   return { units, backMatter, warnings };
+}
+
+const letters = (s: string) => s.toLocaleLowerCase('az').replace(/[^\p{L}\p{N}]/gu, '');
+
+/** Letter-bigram overlap (Dice) of two titles, ignoring case, spaces and punctuation. */
+function similarity(a: string, b: string): number {
+  const grams = (s: string) => {
+    const t = letters(s);
+    return new Map(
+      Array.from({ length: Math.max(0, t.length - 1) }, (_, i) => t.slice(i, i + 2)).reduce(
+        (m, g) => m.set(g, (m.get(g) ?? 0) + 1),
+        new Map<string, number>(),
+      ),
+    );
+  };
+  const x = grams(a);
+  const y = grams(b);
+  let shared = 0;
+  for (const [g, n] of x) shared += Math.min(n, y.get(g) ?? 0);
+  const total = [...x.values(), ...y.values()].reduce((t, n) => t + n, 0);
+  return total ? (2 * shared) / total : 0;
+}
+
+/**
+ * Gives detected topics the numbers printed in the table of contents, and the contents title
+ * when the heading could not be read (or differs from it only in spacing). Blocks (İlkin
+ * yoxlama, STEAM, Sözlük, …) take the contents title when one starts on the same page and reads
+ * alike. Matching is by printed page, never by position, so a missed or extra heading does not
+ * shift every number after it. A unit takes the number its topics share (part 2 of a book
+ * continues with units 6–10). Returns warnings and the heading titles the contents replaced.
+ */
+export function applyToc(
+  units: TextbookUnit[],
+  backMatter: TextbookBlock[],
+  entries: TocEntry[],
+  printedPageOffset: number | null,
+): { warnings: string[]; replaced: string[] } {
+  const warnings: string[] = [];
+  const replaced: string[] = [];
+  if (!entries.length || printedPageOffset === null) return { warnings, replaced };
+  const used = new Set<TocEntry>();
+  const topics = entries.filter((e) => e.number !== null && e.printedPage !== null);
+  const blocks = entries.filter((e) => e.number === null && e.printedPage !== null);
+  const retitle = (target: { title: string }, title: string) => {
+    if (target.title === title) return;
+    replaced.push(target.title);
+    target.title = title;
+  };
+
+  for (const unit of units) {
+    for (const item of unit.items) {
+      if (item.type !== 'topic') continue;
+      const printed = item.startPage - printedPageOffset;
+      const entry =
+        topics.find((e) => !used.has(e) && e.printedPage === printed) ??
+        topics.find((e) => !used.has(e) && Math.abs((e.printedPage ?? 0) - printed) === 1);
+      if (!entry?.number) {
+        warnings.push(
+          `səh. ${item.startPage}: "${item.title}" mövzusu mündəricatda tapılmadı (${item.number})`,
+        );
+        continue;
+      }
+      used.add(entry);
+      item.number = entry.number;
+      if (isSuspicious(item.title) || letters(item.title) === letters(entry.title))
+        retitle(item, entry.title);
+    }
+    const prefixes = new Set(
+      unit.items.flatMap((i) => (i.type === 'topic' ? [i.number.split('.')[0]] : [])),
+    );
+    const [prefix] = [...prefixes];
+    if (prefixes.size === 1 && prefix) unit.index = Number(prefix);
+  }
+
+  const allBlocks = [
+    ...units.flatMap((u) => u.items.filter((i): i is TextbookBlock => i.type === 'block')),
+    ...backMatter,
+  ];
+  for (const block of allBlocks) {
+    const printed = block.startPage - printedPageOffset;
+    const best = blocks
+      .filter((e) => !used.has(e) && e.printedPage === printed)
+      .map((e) => ({
+        e,
+        score: letters(e.title).startsWith(letters(block.title))
+          ? 1
+          : similarity(e.title, block.title),
+      }))
+      .sort((a, b) => b.score - a.score)[0];
+    if (!best || best.score < 0.6) continue;
+    used.add(best.e);
+    retitle(block, best.e.title);
+  }
+
+  for (const e of topics)
+    if (!used.has(e))
+      warnings.push(
+        `Mündəricatdakı ${e.number} "${e.title}" (səh. ${e.printedPage}) mətndə tapılmadı`,
+      );
+  return { warnings, replaced };
 }
 
 /** Compares topic counts per unit with the table of contents. */

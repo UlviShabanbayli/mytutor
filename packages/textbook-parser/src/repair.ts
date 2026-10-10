@@ -116,10 +116,23 @@ export function repairBody(text: string): string {
   return mapChars(decorative, LIGATURES);
 }
 
-/** Repairs a short run that may be a shifted number (page numbers are drawn in body fonts). */
+/**
+ * Repairs a short run that may be a shifted number (page numbers are drawn in body fonts).
+ * Shifted digits and dots land on control codes (0x13–0x1c, 0x11), so only those are shifted
+ * back; printable characters are real, which keeps mixed runs like "7" + shifted "1" intact.
+ */
 export function repairNumber(text: string): string {
-  return looksShifted(text) ? decodeShifted(text) : text;
+  let out = '';
+  for (const ch of text) {
+    const code = ch.codePointAt(0) ?? 0;
+    out += code >= 0x03 && code < 0x20 ? String.fromCodePoint(code + SHIFT) : ch;
+  }
+  return out;
 }
+
+/** A run's number text: decoded runs are already real text, raw runs may be shifted. */
+export const numberText = (item: { text: string; decoded: boolean }) =>
+  item.decoded ? item.text : repairNumber(item.text);
 
 const ALLOWED = /^[\p{L}\p{N}\s.,:;!?()"'«»\-–—−+=/%°²³]*$/u;
 const AZ_LETTERS = /^[A-Za-zƏəÇçĞğIıİiÖöŞşÜü\s\d.,:;!?()"'«»\-–—−+=/%°²³]*$/;
