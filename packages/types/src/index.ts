@@ -10,6 +10,7 @@ import type {
   contentBookEntrySchema,
   contentIndexSchema,
   contentTopicEntrySchema,
+  deleteBookResponseSchema,
   extractSourceResponseSchema,
   extractedItemSchema,
   healthResponseSchema,
@@ -27,6 +28,7 @@ import type {
   phoneNumberSchema,
   practiceTestSchema,
   questionSchema,
+  restoreBookResponseSchema,
   sourceBlockKindSchema,
   sourceBlockSchema,
   sourceFigureSchema,
@@ -42,6 +44,7 @@ import type {
   textbookUnitSchema,
   topicSchema,
   topicSourceSchema,
+  trashEntrySchema,
   verificationVerdictSchema,
   wireItemSchema,
 } from '@mytutor/schemas';
@@ -110,3 +113,6 @@ export type BookMeta = z.output<typeof bookMetaSchema>;
 export type ContentActionErrorCode = z.output<typeof contentActionErrorCodeSchema>;
 export type AddBookResponse = z.output<typeof addBookResponseSchema>;
 export type ExtractSourceResponse = z.output<typeof extractSourceResponseSchema>;
+export type TrashEntry = z.output<typeof trashEntrySchema>;
+export type DeleteBookResponse = z.output<typeof deleteBookResponseSchema>;
+export type RestoreBookResponse = z.output<typeof restoreBookResponseSchema>;
