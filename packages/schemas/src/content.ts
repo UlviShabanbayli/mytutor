@@ -26,8 +26,22 @@ export const contentBookEntrySchema = z.object({
   topics: z.array(contentTopicEntrySchema),
 });
 
+/** A book deleted from the panel: its folders wait in `<root>/.trash/<id>/` until restored. */
+export const trashEntrySchema = z.object({
+  /** Folder name under `.trash/`; the restore action takes it. */
+  id: z.string(),
+  bookId: z.string(),
+  title: z.string().nullable(),
+  /** ISO time of the deletion. */
+  deletedAt: z.string(),
+  sourceCount: z.number().int().nonnegative(),
+  knowledgeCount: z.number().int().nonnegative(),
+});
+
 export const contentIndexSchema = z.object({
   books: z.array(contentBookEntrySchema),
+  /** Newest first. */
+  trash: z.array(trashEntrySchema),
 });
 
 /** `book.json` next to a book's outputs: written by the panel on upload, or by hand. */
@@ -54,6 +68,9 @@ export const contentActionErrorCodeSchema = z.enum([
   'no_pdf',
   'no_topic',
   'no_book',
+  'shared_folder',
+  'no_trash',
+  'restore_conflict',
   'forbidden',
   'method',
   'not_found',
@@ -66,3 +83,9 @@ export const addBookResponseSchema = z.object({ bookId: z.string() });
 
 /** Response of the panel's "extract topic source" action. */
 export const extractSourceResponseSchema = z.object({ bookId: z.string(), topic: z.string() });
+
+/** Response of the panel's "delete book" action: where the book's folders went. */
+export const deleteBookResponseSchema = z.object({ bookId: z.string(), trashId: z.string() });
+
+/** Response of the panel's "restore book" action. */
+export const restoreBookResponseSchema = z.object({ bookId: z.string() });

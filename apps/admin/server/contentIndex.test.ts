@@ -50,7 +50,7 @@ describe('buildContentIndex', () => {
   });
 
   it('returns no books for a missing root', async () => {
-    expect(await buildContentIndex(join(root, 'nope'))).toEqual({ books: [] });
+    expect(await buildContentIndex(join(root, 'nope'))).toEqual({ books: [], trash: [] });
   });
 });
 

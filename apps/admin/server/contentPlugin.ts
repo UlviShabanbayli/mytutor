@@ -5,7 +5,14 @@ import { extname } from 'node:path';
 import type { Plugin } from 'vite';
 import type { ContentActionErrorCode } from '@mytutor/types';
 import { buildContentIndex, resolveContentPath } from './contentIndex';
-import { addBook, extractSource, MAX_PDF_BYTES, PipelineError } from './pipeline';
+import {
+  addBook,
+  deleteBook,
+  extractSource,
+  MAX_PDF_BYTES,
+  PipelineError,
+  restoreBook,
+} from './pipeline';
 
 const TYPES: Record<string, string> = {
   '.json': 'application/json; charset=utf-8',
@@ -54,7 +61,18 @@ const header = (req: IncomingMessage, name: string) => {
 // Actions live outside /content/ so no book folder name can shadow them.
 export const ACTIONS_BASE = '/content-api';
 const ADD_BOOK = /^\/books\/?$/;
+const BOOK = /^\/books\/([^/]+)\/?$/;
 const EXTRACT_SOURCE = /^\/books\/([^/]+)\/topics\/([^/]+)\/source\/?$/;
+const RESTORE_BOOK = /^\/trash\/([^/]+)\/restore\/?$/;
+
+/** A path segment, or "" when it is not valid percent-encoding (then nothing matches it). */
+const segment = (value: string | undefined) => {
+  try {
+    return decodeURIComponent(value ?? '');
+  } catch {
+    return '';
+  }
+};
 
 /**
  * Serves pipeline outputs from disk under `/content/` and runs the panel's actions
@@ -65,6 +83,11 @@ const EXTRACT_SOURCE = /^\/books\/([^/]+)\/topics\/([^/]+)\/source\/?$/;
 export function contentPlugin(root: string): Plugin {
   const handleAction = async (req: IncomingMessage, res: ServerResponse, path: string) => {
     if (!isSameOrigin(req)) return apiError(res, 403, 'forbidden', 'Cross-site request');
+    if (req.method === 'DELETE') {
+      const book = BOOK.exec(path);
+      if (!book) return apiError(res, 404, 'not_found', 'Unknown action');
+      return json(res, 200, await deleteBook({ root, bookId: segment(book[1]) }));
+    }
     if (ADD_BOOK.test(path)) {
       // Refuse an oversized upload before reading it, instead of after 300 MB.
       if (Number(req.headers['content-length'] ?? 0) > MAX_PDF_BYTES)
@@ -81,17 +104,20 @@ export function contentPlugin(root: string): Plugin {
     if (match) {
       const result = await extractSource({
         root,
-        bookId: decodeURIComponent(match[1] ?? ''),
-        topic: decodeURIComponent(match[2] ?? ''),
+        bookId: segment(match[1]),
+        topic: segment(match[2]),
       });
       return json(res, 200, result);
     }
+    const restore = RESTORE_BOOK.exec(path);
+    if (restore) return json(res, 200, await restoreBook({ root, trashId: segment(restore[1]) }));
     return apiError(res, 404, 'not_found', 'Unknown action');
   };
 
   const actions = async (req: IncomingMessage, res: ServerResponse) => {
     const path = (req.url ?? '/').split('?')[0] ?? '/';
-    if (req.method !== 'POST') return apiError(res, 405, 'method', 'Use POST');
+    if (req.method !== 'POST' && req.method !== 'DELETE')
+      return apiError(res, 405, 'method', 'Use POST or DELETE');
     try {
       return await handleAction(req, res, path);
     } catch (error) {

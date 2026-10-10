@@ -2,7 +2,7 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import { basename, extname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { z } from 'zod';
 import { bookMetaSchema, contentIndexSchema } from '@mytutor/schemas';
-import type { ContentBookEntry, ContentIndex, ContentTopicEntry } from '@mytutor/types';
+import type { ContentBookEntry, ContentIndex, ContentTopicEntry, TrashEntry } from '@mytutor/types';
 
 // Only the fields the index needs; full validation happens in the browser when a file is opened.
 const structureHead = z.object({ source: z.object({ file: z.string() }) });
@@ -42,12 +42,14 @@ const toPosix = (path: string) => path.split(sep).join(posix.sep);
 /** Book id: the PDF file name without extension, stable across output folders. */
 export const bookIdOf = (file: string) => basename(file, extname(file));
 
-/** What the server knows about a book; `pdf` and `folder` never leave the server. */
+/** What the server knows about a book; `pdf`, `folder` and `folders` never leave the server. */
 export type ScannedBook = ContentBookEntry & {
   /** Absolute path of the textbook PDF, when a `book.json` names one that exists. */
   pdf: string | null;
   /** Folder where new topic outputs go: the one holding the PDF's `book.json`. */
   folder: string | null;
+  /** Every folder under the root that holds any of this book's outputs (absolute paths). */
+  folders: string[];
 };
 
 /**
@@ -69,14 +71,18 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
         topics: [],
         pdf: null,
         folder: null,
+        folders: [],
       };
       books.set(file, book);
     }
     return book;
   };
+  const holds = (book: ScannedBook, dir: string) => {
+    if (!book.folders.includes(dir)) book.folders.push(dir);
+  };
 
   for (const name of await subdirs(root)) {
-    // Dot folders are work in progress (upload staging), not books.
+    // Dot folders are not books: upload staging, deleted books (`.trash`).
     if (name.startsWith('.')) continue;
     const dir = join(root, name);
     const rel = (path: string) => toPosix(relative(root, path));
@@ -85,6 +91,7 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
     const structure = await readJson(join(dir, 'structure.json'), structureHead);
     if (structure) {
       const book = bookFor(structure.source.file);
+      holds(book, dir);
       book.structure ??= rel(join(dir, 'structure.json'));
       files.add(structure.source.file);
     }
@@ -94,6 +101,7 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
       const head = await readJson(join(topicDir, 'source.json'), sourceHead);
       if (!head) continue;
       const book = bookFor(head.book.file);
+      holds(book, dir);
       files.add(head.book.file);
       if (book.topics.some((t) => t.number === head.topic.number)) continue;
       const knowledge = join(topicDir, 'knowledge', 'knowledge.json');
@@ -114,6 +122,7 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
     if (pdfFound) files.add(basename(pdf));
     for (const file of files) {
       const book = bookFor(file);
+      holds(book, dir);
       book.title ??= meta.title;
       if (pdfFound && basename(pdf) === file && !book.pdf) {
         book.pdf = pdf;
@@ -128,10 +137,43 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
   return [...books.values()];
 }
 
+/** Deleted books wait here (see `deleteBook`); a dot folder, so never scanned as a book. */
+export const TRASH_DIR = '.trash';
+/** What a trash entry holds: the book's folders, moved as they were, and this description. */
+export const TRASH_META = 'trash.json';
+
+export const trashMetaSchema = z.object({
+  bookId: z.string(),
+  title: z.string().nullable(),
+  deletedAt: z.string(),
+  /** Names of the moved folders: each was `<root>/<name>` and is `<entry>/<name>` now. */
+  folders: z.array(z.string()),
+  sourceCount: z.number().int().nonnegative(),
+  knowledgeCount: z.number().int().nonnegative(),
+});
+
+export type TrashMeta = z.output<typeof trashMetaSchema>;
+
+export const readTrashMeta = (entry: string) => readJson(join(entry, TRASH_META), trashMetaSchema);
+
+/** Deleted books that can be restored, newest first. */
+export async function scanTrash(root: string): Promise<TrashEntry[]> {
+  const trash = join(root, TRASH_DIR);
+  const entries: TrashEntry[] = [];
+  for (const id of await subdirs(trash)) {
+    const meta = await readTrashMeta(join(trash, id));
+    if (!meta) continue;
+    const { folders: _folders, ...entry } = meta;
+    entries.push({ id, ...entry });
+  }
+  return entries.sort((a, b) => b.deletedAt.localeCompare(a.deletedAt));
+}
+
 export async function buildContentIndex(root: string): Promise<ContentIndex> {
   const books = await scanBooks(root);
   return contentIndexSchema.parse({
-    books: books.map(({ pdf: _pdf, folder: _folder, ...book }) => book),
+    books: books.map(({ pdf: _pdf, folder: _folder, folders: _folders, ...book }) => book),
+    trash: await scanTrash(root),
   });
 }
 
