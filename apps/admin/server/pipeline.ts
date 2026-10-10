@@ -387,8 +387,13 @@ export async function restoreBook({ root, trashId }: RestoreBookInput) {
     if (!meta?.folders.every(isPlainName)) throw notFound();
     const conflict = () =>
       new PipelineError(409, 'restore_conflict', `A book from ${meta.bookId} was added again`);
-    const books = await scanBooks(root);
-    if (books.some((b) => b.id.toLowerCase() === meta.bookId.toLowerCase())) throw conflict();
+    // A book still listed only from folders this entry names is what an interrupted delete left
+    // behind: those folders stay where they are and the rest move back next to them.
+    const live = (await scanBooks(root)).find(
+      (b) => b.id.toLowerCase() === meta.bookId.toLowerCase(),
+    );
+    if (live && !live.folders.every((dir) => meta.folders.includes(basename(dir))))
+      throw conflict();
     const moves: { from: string; to: string }[] = [];
     for (const name of meta.folders) {
       const move = { from: join(entry, name), to: join(root, name) };

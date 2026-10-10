@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
@@ -365,6 +365,16 @@ describe('restoreBook', () => {
     await addBook({ root, fileName: 'a.pdf', title: 'A again', body: body(PDF), run });
     expect(await code(restoreBook({ root, trashId }))).toBe('409 restore_conflict');
     expect((await buildContentIndex(root)).trash.map((e) => e.id)).toEqual([trashId]);
+  });
+
+  it('restores a book whose delete stopped after the first folder moved', async () => {
+    await twoFolderBook();
+    const before = await buildContentIndex(root);
+    const { trashId } = await deleteBook({ root, bookId: 'a' });
+    // Folders move in name order: `a` reached the trash, `old-a` did not.
+    await rename(join(root, '.trash', trashId, 'old-a'), join(root, 'old-a'));
+    expect(await restoreBook({ root, trashId })).toEqual({ bookId: 'a' });
+    expect(await buildContentIndex(root)).toEqual(before);
   });
 
   it('refuses unknown, hidden and path-like ids', async () => {

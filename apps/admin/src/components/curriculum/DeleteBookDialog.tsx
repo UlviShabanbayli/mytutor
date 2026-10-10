@@ -41,6 +41,8 @@ export function DeleteBookDialog({ book, open, onClose, onDeleted }: DeleteBookD
         <div className="flex flex-col gap-2">
           <p className="text-foreground">{t('deleteBook.body', { title: bookTitle(book) })}</p>
           <ul className="list-disc pl-5 text-muted-foreground marker:text-muted-foreground">
+            {/* A book not split yet has only its PDF, so the list is never empty. */}
+            {book.canExtract ? <li>{t('deleteBook.pdf', { file: book.file })}</li> : null}
             {book.structure ? <li>{t('deleteBook.structure')}</li> : null}
             {sources ? <li>{t('deleteBook.sources', { count: sources })}</li> : null}
             {knowledge ? (

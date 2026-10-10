@@ -29,7 +29,8 @@ export function CurriculumPage() {
           <h1 className="font-sans-black text-3xl text-foreground">{bookTitle(entry)}</h1>
           <p className="break-all font-mono text-xs text-muted-foreground">{entry.file}</p>
         </div>
-        <DeleteBookButton book={entry} onDeleted={() => void navigate('/')} />
+        {/* Replaces the history entry, so Back never lands on the deleted book's page. */}
+        <DeleteBookButton book={entry} onDeleted={() => void navigate('/', { replace: true })} />
       </header>
       {!entry.structure ? (
         <EmptyState

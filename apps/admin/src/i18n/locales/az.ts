@@ -71,6 +71,7 @@ export const az = {
   deleteBook: {
     title: 'Kitab silinsin?',
     body: '«{{title}}» dərsliklər siyahısından çıxarılacaq. Onunla birlikdə bunlar da gedəcək:',
+    pdf: 'yüklənmiş PDF faylı ({{file}})',
     structure: 'bölmə və mövzu bölgüsü',
     sources: '{{count}} mövzunun mənbəyi',
     knowledge: '{{count}} mövzunun bilik sənədi',
