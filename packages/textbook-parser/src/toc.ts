@@ -81,22 +81,35 @@ export function readTocEntries(items: TextItem[]): TocEntry[] {
       else columns.push([row]);
     }
 
-    // A column starts at its topic numbers, and only columns with numbers end another one: a
-    // title run in another font (a formula, italics) is not a column of its own.
+    // A column starts at its topic numbers. A column without numbers (back matter: Lüğət,
+    // Cavablar) ends the one to its left only past that one's page numbers, so a title run in
+    // another font (a formula, italics) is not a column of its own.
     const numbersOf = (row: TextItem) =>
       numbers.filter(
         (n) =>
           Math.abs(n.y - row.y) < row.size * SAME_ROW && n.x < row.x && row.x - n.x < NUMBER_GAP,
       );
-    const lefts = columns.flatMap((c) => {
+    const starts = columns.map((c) => {
       const xs = c.flatMap(numbersOf).map((n) => n.x);
-      return xs.length ? [Math.min(c[0]?.x ?? 0, ...xs)] : [];
+      return { x: Math.min(c[0]?.x ?? 0, ...xs), numbered: xs.length > 0 };
     });
     for (const column of columns) {
       column.sort((a, b) => b.y - a.y);
       // A page number belongs to this column only if it sits before the next column starts.
       const left = column[0]?.x ?? 0;
-      const limit = Math.min(...lefts.filter((x) => x > left + 15), Infinity);
+      const firstPage = Math.min(
+        ...pages
+          .filter(
+            (p) =>
+              p.x - left > PAGE_GAP && column.some((r) => Math.abs(p.y - r.y) < r.size * SAME_ROW),
+          )
+          .map((p) => p.x),
+        Infinity,
+      );
+      const limit = Math.min(
+        ...starts.filter((c) => c.x > left + 15 && (c.numbered || c.x > firstPage)).map((c) => c.x),
+        Infinity,
+      );
       let current: TocEntry | null = null;
       for (const row of column) {
         const near = (i: TextItem) => Math.abs(i.y - row.y) < row.size * SAME_ROW;

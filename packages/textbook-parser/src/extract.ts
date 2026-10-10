@@ -45,7 +45,36 @@ export type PdfFont = { composite?: boolean; name?: string };
 const isGlyph = (g: unknown): g is PdfGlyph =>
   typeof g === 'object' && g !== null && 'unicode' in g && 'originalCharCode' in g;
 
-export type RawGlyph = { font: string; composite: boolean; code: number; unicode: string };
+/** `y`: the baseline in PDF user space, as pdf.js gives it for text items. */
+export type RawGlyph = {
+  font: string;
+  composite: boolean;
+  code: number;
+  unicode: string;
+  y: number;
+};
+
+type Matrix = [number, number, number, number, number, number];
+const IDENTITY: Matrix = [1, 0, 0, 1, 0, 0];
+const multiply = (m: Matrix, n: Matrix): Matrix => [
+  m[0] * n[0] + m[1] * n[2],
+  m[0] * n[1] + m[1] * n[3],
+  m[2] * n[0] + m[3] * n[2],
+  m[2] * n[1] + m[3] * n[3],
+  m[4] * n[0] + m[5] * n[2] + n[4],
+  m[4] * n[1] + m[5] * n[3] + n[5],
+];
+/** Six numbers, given as they are or as one array (pdf.js passes `Tm` as a Float32Array). */
+const matrixOf = (args: unknown[]): Matrix | null => {
+  const [first] = args;
+  const values = Array.from(
+    (ArrayBuffer.isView(first) || Array.isArray(first) ? first : args) as ArrayLike<unknown>,
+  );
+  return values.length >= 6 && values.slice(0, 6).every((v) => typeof v === 'number')
+    ? (values.slice(0, 6) as Matrix)
+    : null;
+};
+const num = (value: unknown) => (typeof value === 'number' ? value : 0);
 type PageText = {
   runs: (TextContentRun & { font: string; composite: boolean })[];
   glyphs: RawGlyph[];
@@ -53,26 +82,53 @@ type PageText = {
 type TextContentRun = { str: string; transform: number[]; width: number };
 
 /**
- * Every glyph an operator list draws, in content-stream order, with the font it is drawn in.
- * pdf.js lists a font change only for `Tf`; `Q` and the end of a form XObject bring the earlier
- * font back without one, so the font is saved and restored with them.
+ * Every glyph an operator list draws, in content-stream order, with the font it is drawn in and
+ * its baseline. pdf.js lists a font change only for `Tf`; `Q` and the end of a form XObject
+ * bring the earlier font back without one, so the font is saved and restored with them. The
+ * baseline follows the text and transformation matrices (glyph advances never move it in
+ * horizontal text).
  */
 export function drawnGlyphs(
   ops: { fnArray: number[]; argsArray: unknown[] },
   fontOf: (id: string) => PdfFont,
 ): RawGlyph[] {
   const glyphs: RawGlyph[] = [];
-  const saved: string[] = [];
+  const saved: { font: string; ctm: Matrix }[] = [];
   let font = '';
+  let ctm = IDENTITY;
+  let line = IDENTITY;
+  let leading = 0;
+  let rise = 0;
+  const moveLine = (tx: number, ty: number) => {
+    line = multiply([1, 0, 0, 1, tx, ty], line);
+  };
   for (let i = 0; i < ops.fnArray.length; i++) {
     const fn = ops.fnArray[i];
     const raw = ops.argsArray[i];
     const args: unknown[] = Array.isArray(raw) ? raw : [];
     if (fn === OPS.setFont) font = String(args[0]);
-    else if (fn === OPS.save || fn === OPS.paintFormXObjectBegin) saved.push(font);
-    else if (fn === OPS.restore || fn === OPS.paintFormXObjectEnd) font = saved.pop() ?? font;
+    else if (fn === OPS.save) saved.push({ font, ctm });
+    else if (fn === OPS.paintFormXObjectBegin) {
+      saved.push({ font, ctm });
+      const form = matrixOf([args[0]]);
+      if (form) ctm = multiply(form, ctm);
+    } else if (fn === OPS.restore || fn === OPS.paintFormXObjectEnd)
+      ({ font, ctm } = saved.pop() ?? { font, ctm });
+    else if (fn === OPS.transform) ctm = multiply(matrixOf(args) ?? IDENTITY, ctm);
+    else if (fn === OPS.beginText) line = IDENTITY;
+    else if (fn === OPS.setTextMatrix) line = matrixOf(args) ?? line;
+    else if (fn === OPS.moveText) moveLine(num(args[0]), num(args[1]));
+    else if (fn === OPS.setLeadingMoveText) {
+      leading = -num(args[1]);
+      moveLine(num(args[0]), num(args[1]));
+    } else if (fn === OPS.setLeading) leading = num(args[0]);
+    else if (fn === OPS.setTextRise) rise = num(args[0]);
+    if (fn === OPS.nextLine || fn === OPS.nextLineShowText || fn === OPS.nextLineSetSpacingShowText)
+      moveLine(0, -leading);
     if (fn === undefined || !SHOW_TEXT.has(fn)) continue;
     const info = fontOf(font);
+    const m = multiply(line, ctm);
+    const y = rise * m[3] + m[5];
     for (const arg of args) {
       if (!Array.isArray(arg)) continue;
       for (const g of arg)
@@ -82,6 +138,7 @@ export function drawnGlyphs(
             composite: info.composite === true,
             code: g.originalCharCode,
             unicode: g.unicode,
+            y,
           });
     }
   }
@@ -149,13 +206,18 @@ export async function extractPdf(file: string): Promise<ExtractedPdf> {
     const drawn: DrawnGlyph[] = glyphs.map((g) => {
       const shown = normalizeUnicode(g.unicode);
       if (!g.composite || !decoder.unmapped(g.font, g.code, g.unicode))
-        return { font: g.font, shown, real: shown };
+        return { font: g.font, shown, real: shown, y: g.y };
       const gid = decoder.glyphId(g.font, g.code);
       const real = decoder.decode(g.font, gid) ?? order.guess(g.font, gid) ?? UNKNOWN_GLYPH;
-      return { font: g.font, shown, real: normalizeUnicode(real) };
+      return { font: g.font, shown, real: normalizeUnicode(real), y: g.y };
     });
     const real = realText(
-      runs.map((r) => ({ str: r.str, fontName: r.font })),
+      runs.map((r) => ({
+        str: r.str,
+        fontName: r.font,
+        y: r.transform[5],
+        size: Math.hypot(r.transform[2] ?? 0, r.transform[3] ?? 0),
+      })),
       drawn,
     );
     runs.forEach((run, i) => {
@@ -166,9 +228,14 @@ export async function extractPdf(file: string): Promise<ExtractedPdf> {
       const paired = real[i];
       // Only text paired with its glyphs counts as decoded; anything else keeps the old repair.
       const decoded = !tables.encrypted && run.composite && !isLabel && !!paired?.paired;
+      // A simple-font run keeps its text (and the later repair) plus the glyphs it took over.
+      const attached =
+        !tables.encrypted && !isLabel && paired?.paired
+          ? `${paired.prefix ?? ''}${run.str}${paired.suffix ?? ''}`
+          : run.str;
       items.push({
         page: index + 1,
-        text: decoded && paired ? withoutRawCodes(paired.text) : run.str,
+        text: decoded && paired ? withoutRawCodes(paired.text) : attached,
         size: Math.hypot(c, d),
         x,
         y,

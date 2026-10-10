@@ -9,13 +9,22 @@ export type DrawnGlyph = {
   shown: string;
   /** The glyph's real text; equals `shown` unless the glyph decoder corrected it. */
   real: string;
+  /** Baseline (PDF user space), when known: says which line a glyph between two runs is on. */
+  y?: number;
 };
 
-/** A pdf.js text item; `fontName` here is the font's PDF name (see `DrawnGlyph.font`). */
-export type TextRun = { str: string; fontName: string };
+/**
+ * A pdf.js text item; `fontName` here is the font's PDF name (see `DrawnGlyph.font`). `y` is
+ * its baseline and `size` its font size, when known.
+ */
+export type TextRun = { str: string; fontName: string; y?: number; size?: number };
 
-/** A run's text and whether it was paired with its glyphs (else it is pdf.js's text as is). */
-export type RealText = { text: string; paired: boolean };
+/**
+ * A run's text and whether it was paired with its glyphs (else it is pdf.js's text as is).
+ * `prefix` and `suffix` are glyphs pdf.js dropped next to the run that it took over; they are
+ * already part of `text`.
+ */
+export type RealText = { text: string; paired: boolean; prefix?: string; suffix?: string };
 
 /** Share of a run's visible characters that must pair with glyphs to trust the pairing. */
 const MIN_PAIRED = 0.9;
@@ -71,7 +80,7 @@ export function realText(runs: TextRun[], glyphs: DrawnGlyph[]): RealText[] {
   // Which run each glyph went to (-1: none).
   const owner = new Int32Array(glyphs.length).fill(-1);
   const starts: (number | null)[] = [];
-  const texts = runs.map(({ str, fontName }, i) => {
+  const texts: RealText[] = runs.map(({ str, fontName }, i) => {
     starts.push(null);
     const first = str.search(/\S/);
     if (first < 0) return { text: str, paired: false };
@@ -103,29 +112,63 @@ export function realText(runs: TextRun[], glyphs: DrawnGlyph[]): RealText[] {
   });
 
   // pdf.js leaves glyphs it took for whitespace out of every item when they fall between two
-  // items (an unmapped "=" drawn as code 32 between two spaces, a ")" drawn as code 12). A
-  // closing bracket goes to the run drawn before it; the rest to the run drawn after it, in
-  // whatever font that run is ("(" Segoe UI, "N" Times, ")" Segoe UI).
+  // items (an unmapped "=" drawn as code 32 between two spaces, a ")" drawn as code 12). Each
+  // goes to the neighbouring run on its own line, in whatever font that run is ("(" Segoe UI,
+  // "N" Times, ")" Segoe UI): to the run drawn before it if it closes something or only that run
+  // is on its line, else to the run drawn after it. A glyph on neither run's line is dropped,
+  // as pdf.js did. Without positions, closing brackets go back and the rest forward.
   texts.forEach((t, i) => {
     const start = starts[i];
-    if (start === null || start === undefined || !t.paired) return;
+    const run = runs[i];
+    if (start === null || start === undefined || !t.paired || !run) return;
     let k = start;
     while (k > 0 && owner[k - 1] === -1 && isSpace(glyphs[k - 1]?.shown)) k--;
-    const between = glyphs.slice(k, start).map((g) => (isSpace(g.real) ? ' ' : g.real));
-    if (between.every((ch) => ch === ' ')) return;
+    const between = glyphs.slice(k, start);
+    if (between.every((g) => isSpace(g.real))) return;
     owner.fill(i, k, start);
-    let cut = 0;
-    while (cut < between.length && /^[\s)\]}]$/.test(between[cut] ?? '')) cut++;
-    const previous = k > 0 ? owner[k - 1] : -1;
-    const before = previous !== undefined && previous >= 0 ? texts[previous] : undefined;
-    const closing = between.slice(0, cut).join('').trim();
-    if (closing && before?.paired) before.text = `${before.text.trimEnd()}${closing}`;
-    else cut = 0;
+    const previous = k > 0 ? (owner[k - 1] ?? -1) : -1;
+    const before = previous >= 0 && texts[previous]?.paired ? texts[previous] : undefined;
+    const beforeRun = before ? runs[previous] : undefined;
+    const onLine = (g: DrawnGlyph, r: TextRun | undefined) =>
+      g.y !== undefined && r?.y !== undefined && Math.abs(g.y - r.y) <= (r.size ?? 10) * 0.5;
+    const known = between.every((g) => g.y !== undefined) && run.y !== undefined;
+    const closes = (g: DrawnGlyph) =>
+      /^[)\]}]$/.test(g.real) ||
+      (/^['"’”»]+$/.test(g.real) && g.font === beforeRun?.fontName && g.font !== run.fontName);
+    const target = (g: DrawnGlyph): 'back' | 'front' | null => {
+      if (!known) return closes(g) ? (before ? 'back' : null) : 'front';
+      const back = !!before && onLine(g, beforeRun);
+      if (back && (closes(g) || !onLine(g, run))) return 'back';
+      return onLine(g, run) ? 'front' : null;
+    };
+    // Spaces follow the glyph before them, or the one after them when they lead.
+    const targets = between.map((g) => (isSpace(g.real) ? undefined : target(g)));
+    targets.forEach((_, j) => {
+      if (targets[j] !== undefined) return;
+      const left = targets
+        .slice(0, j)
+        .filter((x) => x !== undefined)
+        .at(-1);
+      targets[j] = left !== undefined ? left : targets.slice(j).find((x) => x !== undefined);
+    });
+    const text = (side: 'back' | 'front') =>
+      between
+        .filter((_, j) => targets[j] === side)
+        .map((g) => (isSpace(g.real) ? ' ' : g.real))
+        .join('');
+    const suffix = text('back')
+      .replace(/^\s+(?=[)\]}])/, '')
+      .trimEnd();
+    if (before && suffix.trim()) {
+      before.text = `${before.text.trimEnd()}${suffix}`;
+      before.suffix = `${before.suffix ?? ''}${suffix}`;
+    }
     // Spaces drawn after the glyphs stay ("= 5"); none is added ("(5").
-    const opening = between.slice(cut).join('').trimStart();
-    if (!opening.trim()) return;
+    const prefix = text('front').trimStart();
+    if (!prefix.trim()) return;
     const first = t.text.search(/\S/);
-    t.text = `${t.text.slice(0, first)}${opening}${t.text.slice(first)}`;
+    t.text = `${t.text.slice(0, first)}${prefix}${t.text.slice(first)}`;
+    t.prefix = prefix;
   });
   return texts;
 }

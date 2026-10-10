@@ -94,6 +94,39 @@ describe('readTocEntries', () => {
     ]);
   });
 
+  it("does not take a back-matter column's page numbers for a wrapped title", () => {
+    const lastPage = [
+      item('5.1.', 75, 670, 12, false),
+      item('Çoxbucaqlılar', 109, 671),
+      item('101', 292, 671, 11, false),
+      item('5.2.', 75, 657, 12, false),
+      item('Düzgün çoxbucaqlının', 109, 658),
+      item('daxilinə çəkilmiş çevrə', 109, 645),
+      item('105', 292, 645, 11, false),
+      item('5.3.', 75, 632, 12, false),
+      item('Prizma', 109, 633),
+      item('110', 292, 633, 11, false),
+      item('5.4.', 75, 619, 12, false),
+      item('Piramida', 109, 620),
+      item('114', 292, 620, 11, false),
+      item('Lüğət', 383, 671),
+      item('120', 566, 671, 11, false),
+      item('Cavablar', 383, 658),
+      item('124', 566, 658, 11, false),
+      item('Ədəbiyyat', 383, 645),
+      item('130', 566, 645, 11, false),
+    ];
+    expect(readTocEntries(lastPage).map((e) => [e.number, e.title, e.printedPage])).toEqual([
+      ['5.1', 'Çoxbucaqlılar', 101],
+      ['5.2', 'Düzgün çoxbucaqlının daxilinə çəkilmiş çevrə', 105],
+      ['5.3', 'Prizma', 110],
+      ['5.4', 'Piramida', 114],
+      [null, 'Lüğət', 120],
+      [null, 'Cavablar', 124],
+      [null, 'Ədəbiyyat', 130],
+    ]);
+  });
+
   it('does not let a title run in another font cut off the page numbers', () => {
     const formula = [
       item('1.1.', 75, 644, 12, false),

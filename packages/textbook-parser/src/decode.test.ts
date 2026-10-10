@@ -375,6 +375,111 @@ describe('realText', () => {
       ).map((r) => r.text),
     ).toEqual(['a', 'b']);
   });
+
+  /** A glyph with a baseline. */
+  const at = (y: number, shown: string, real = shown, font = 'f1'): DrawnGlyph => ({
+    font,
+    shown,
+    real,
+    y,
+  });
+
+  it('puts each dropped glyph on its own line when the runs around it are on two lines', () => {
+    // "a + b =" ends one line and "= c" starts the next; both "=" are drawn between the runs.
+    const glyphs = [
+      at(100, 'a'),
+      at(100, ' '),
+      at(100, '+'),
+      at(100, ' '),
+      at(100, 'b'),
+      at(100, ' '),
+      at(100, ' ', '='),
+      at(82, ' ', '='),
+      at(82, ' '),
+      at(82, 'c'),
+    ];
+    const runs = [
+      { str: 'a + b', fontName: 'f1', y: 100, size: 10 },
+      { str: 'c', fontName: 'f1', y: 82, size: 10 },
+    ];
+    expect(realText(runs, glyphs).map((r) => r.text)).toEqual(['a + b =', '= c']);
+    // An "=" before an answer box drawn as graphics sits on neither run's line: dropped.
+    const box = [at(100, 'a'), at(120, ' ', '='), at(82, 'c')];
+    expect(
+      realText(
+        [
+          { str: 'a', fontName: 'f1', y: 100, size: 10 },
+          { str: 'c', fontName: 'f1', y: 82, size: 10 },
+        ],
+        box,
+      ).map((r) => r.text),
+    ).toEqual(['a', 'c']);
+  });
+
+  it('drops a closing bracket after a run that did not pair, instead of moving it on', () => {
+    const glyphs = [
+      g('S', '\v', '('),
+      g('S', 's'),
+      g('S', 'm'),
+      g('S', 'ࢗ', '³'),
+      g('S', '\f', ')'),
+      g('T', 'π'),
+    ];
+    expect(
+      realText(
+        [
+          { str: 'ࢗsm', fontName: 'S' },
+          { str: 'π', fontName: 'T' },
+        ],
+        glyphs,
+      ).map((r) => r.text),
+    ).toEqual(['ࢗsm', 'π']);
+  });
+
+  it("closes a quote in the run before when it is drawn in that run's font only", () => {
+    const glyphs = [
+      g('B', '\n', "'"),
+      g('B', '\n', "'"),
+      g('B', 'E'),
+      g('B', 'L'),
+      g('B', '\n', "'"),
+      g('B', '\n', "'"),
+      g('S', '*', 'G'),
+      g('S', '|', 'ö'),
+      g('S', 'z'),
+    ];
+    expect(
+      realText(
+        [
+          { str: 'EL', fontName: 'B' },
+          { str: '*|z', fontName: 'S' },
+        ],
+        glyphs,
+      ).map((r) => r.text),
+    ).toEqual(["''EL''", 'Göz']);
+  });
+
+  it('lets a run in another font take the brackets around it, and says what it took', () => {
+    // "Natural ədədlər (N)": the brackets are Segoe UI, the letter Times.
+    const glyphs = [
+      at(100, 'x', 'x', 'S'),
+      at(100, ' ', ' ', 'S'),
+      at(100, '\v', '(', 'S'),
+      at(100, 'N', 'N', 'T'),
+      at(100, '\f', ')', 'S'),
+      at(82, 'y', 'y', 'S'),
+    ];
+    const runs = [
+      { str: 'x', fontName: 'S', y: 100, size: 10 },
+      { str: 'N', fontName: 'T', y: 100, size: 10 },
+      { str: 'y', fontName: 'S', y: 82, size: 10 },
+    ];
+    expect(realText(runs, glyphs)).toEqual([
+      { text: 'x', paired: true },
+      { text: '(N)', paired: true, prefix: '(', suffix: ')' },
+      { text: 'y', paired: true },
+    ]);
+  });
 });
 
 describe('drawnGlyphs', () => {
@@ -424,6 +529,39 @@ describe('drawnGlyphs', () => {
       'E:AAAAAA+SegoeUI',
     ]);
     expect(drawn.map((d) => d.composite)).toEqual([true, false, true, false, true]);
+  });
+
+  it('gives each glyph its baseline from the text and transformation matrices', () => {
+    const ops = {
+      fnArray: [
+        OPS.setFont,
+        OPS.transform,
+        OPS.beginText,
+        OPS.setTextMatrix,
+        OPS.showText,
+        OPS.moveText,
+        OPS.showText,
+        OPS.setLeadingMoveText,
+        OPS.nextLine,
+        OPS.showText,
+        OPS.endText,
+      ],
+      argsArray: [
+        ['f1', 1],
+        [1, 0, 0, 1, 0, 100],
+        null,
+        [new Float32Array([10, 0, 0, 10, 50, 600])],
+        [glyph(65)],
+        [0, -1.5],
+        [glyph(66)],
+        [0, -2],
+        null,
+        [glyph(67)],
+        null,
+      ],
+    };
+    // 600 + 100; then 1.5 lines of 10 down; then 2 lines down twice (move, then T*).
+    expect(drawnGlyphs(ops, (id) => fonts[id] ?? {}).map((d) => d.y)).toEqual([700, 685, 645]);
   });
 });
 
