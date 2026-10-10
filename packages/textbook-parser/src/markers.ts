@@ -2,7 +2,7 @@ import type { SourceBlockKind } from '@mytutor/types';
 import type { PageGraphics } from './graphics';
 import { findGraphicMarkers, findNumberCircles, TEXT_LABELS } from './template';
 import type { TextItem, TextLine } from './types';
-import { repairNumber } from './repair';
+import { numberText } from './repair';
 
 /** Something that opens a block: a label, badge, icon, heading or exercise number. */
 export type Marker = {
@@ -89,13 +89,13 @@ export function findMarkers({ lines, items, graphics, body, pageHeight }: Input)
       });
       // Some badges are overprinted ("1" then "2" at the same spot): the glyph drawn last is the
       // one on top, so keep the last item per position and read the positions left to right.
-      const byX = new Map<number, string>();
-      for (const i of inside) byX.set(Math.round(i.x * 2) / 2, i.text);
-      const text = [...byX.entries()]
+      const byX = new Map<number, TextItem>();
+      for (const i of inside) byX.set(Math.round(i.x * 2) / 2, i);
+      const number = [...byX.entries()]
         .sort(([a], [b]) => a - b)
-        .map(([, t]) => t)
-        .join('');
-      const number = repairNumber(text).trim();
+        .map(([, i]) => numberText(i))
+        .join('')
+        .trim();
       if (/^\d{1,3}$/.test(number)) {
         markers.push({
           kind: 'exercise',

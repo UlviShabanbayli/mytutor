@@ -9,7 +9,7 @@ import type { TopicSource } from '@mytutor/types';
 import { bodySize } from './classify';
 import { extractPdf } from './extract';
 import { readGraphics } from './graphics';
-import { splitTextbook } from './index';
+import { splitExtracted } from './index';
 import { crop, renderPage, sha256 } from './render';
 import { renderReview } from './reviewHtml';
 import { buildTopicSource } from './topicSource';
@@ -30,7 +30,8 @@ async function main() {
     outArg ?? join('out', basename(file, extname(file)), 'topics', topicNumber),
   );
 
-  const structure = await splitTextbook(file);
+  const extracted = await extractPdf(file);
+  const structure = splitExtracted(extracted);
   const unit = structure.units.find((u) =>
     u.items.some((i) => i.type === 'topic' && i.number === topicNumber),
   );
@@ -38,7 +39,6 @@ async function main() {
   if (!unit || !topic || topic.type !== 'topic') throw new Error(`Mövzu ${topicNumber} tapılmadı`);
 
   const bytes = await readFile(file);
-  const extracted = await extractPdf(file);
   const task = getDocument({ data: new Uint8Array(bytes), verbosity: 0 });
   const pdf = await task.promise;
   const first = await pdf.getPage(topic.startPage);

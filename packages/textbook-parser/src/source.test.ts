@@ -205,6 +205,7 @@ describe('groupSourceLines', () => {
     size,
     width,
     isLabel: false,
+    decoded: false,
   });
 
   it('attaches superscripts to their line', () => {

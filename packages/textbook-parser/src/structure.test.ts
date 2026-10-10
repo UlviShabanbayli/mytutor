@@ -21,6 +21,7 @@ const badge = (page: number, y: number): TextItem => ({
   width: 30,
   text: '\u001f\u001e',
   isLabel: true,
+  decoded: false,
 });
 
 describe('classifyHeadings', () => {
@@ -95,6 +96,17 @@ describe('buildStructure', () => {
     expect(validate(units, { '1': 2 }).warnings).toEqual([]);
     expect(validate(units, { '1': 3 }).warnings).toEqual([
       'Bölmə 1: mündəricatda 3 mövzu, tapılan 2',
+    ]);
+  });
+
+  it('does not let two units with one number hide each other', () => {
+    const { units } = buildStructure({ events, pageHeight: HEIGHT, lastPage: 21 });
+    const [unit] = units;
+    if (!unit) throw new Error('fixture has a unit');
+    // A divider heading kept its place number, which the contents gave the next unit.
+    const divider = { ...unit, title: 'II YARIMİL', items: [] };
+    expect(validate([divider, unit], { '1': 2 }).warnings).toEqual([
+      'Bölmə 1 bir neçə dəfə tapıldı ("Rasional ədədlər")',
     ]);
   });
 });
