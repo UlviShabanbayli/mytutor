@@ -34,3 +34,8 @@ pnpm-debug.log*
 .DS_Store
 *.pem
 .idea/
+
+# textbook PDFs are licensed material: never commit them, wherever they are dropped
+*.pdf
+# generated whiteboard renders (the lesson-engine branch also ignores these)
+apps/lesson-engine/out/
