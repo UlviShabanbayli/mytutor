@@ -11,6 +11,11 @@ import type {
   questionSchema,
   sourceRefSchema,
   subjectSchema,
+  textbookBlockKindSchema,
+  textbookBlockSchema,
+  textbookStructureSchema,
+  textbookTopicSchema,
+  textbookUnitSchema,
   topicSchema,
 } from '@mytutor/schemas';
 
@@ -28,6 +33,12 @@ export type Question = z.output<typeof questionSchema>;
 export type Subject = z.output<typeof subjectSchema>;
 export type Topic = z.output<typeof topicSchema>;
 export type PracticeTest = z.output<typeof practiceTestSchema>;
+
+export type TextbookBlockKind = z.output<typeof textbookBlockKindSchema>;
+export type TextbookTopic = z.output<typeof textbookTopicSchema>;
+export type TextbookBlock = z.output<typeof textbookBlockSchema>;
+export type TextbookUnit = z.output<typeof textbookUnitSchema>;
+export type TextbookStructure = z.output<typeof textbookStructureSchema>;
 
 /** The student's answers in one test session, keyed by question id. */
 export type TestAnswers = Record<string, OptionKey>;
