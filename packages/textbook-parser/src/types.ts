@@ -10,6 +10,11 @@ export type TextItem = {
   width: number;
   /** Short numeric marker drawn next to a heading (e.g. the "1.2." topic badge). */
   isLabel: boolean;
+  /**
+   * Text came from the glyph decoder (composite fonts): it is the real text and must not be
+   * "repaired" again. Raw runs from simple fonts still go through the repair heuristics.
+   */
+  decoded: boolean;
 };
 
 /** Items on the same baseline joined left to right. */
