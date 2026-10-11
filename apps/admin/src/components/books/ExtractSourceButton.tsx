@@ -26,7 +26,7 @@ export function ExtractSourceButton({ bookId, topic }: ExtractSourceButtonProps)
         )}
         {/* Visible text stays the accessible name; the topic number only adds context. */}
         <span aria-live="polite">
-          {extract.isPending ? t('curriculum.extracting') : t('curriculum.extract')}
+          {extract.isPending ? t('bookPage.extracting') : t('bookPage.extract')}
         </span>
         <span className="sr-only"> ({topic})</span>
       </Button>

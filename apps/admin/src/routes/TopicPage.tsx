@@ -1,7 +1,7 @@
 import { BookText, BrainCircuit, Clapperboard, FileSearch } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
-import { ExtractSourceButton } from '@/components/curriculum/ExtractSourceButton';
+import { ExtractSourceButton } from '@/components/books/ExtractSourceButton';
 import { KnowledgeMissing } from '@/components/knowledge/KnowledgeMissing';
 import { KnowledgeTab } from '@/components/knowledge/KnowledgeTab';
 import { LessonTab } from '@/components/lesson/LessonTab';
@@ -86,7 +86,7 @@ export function TopicPage() {
       <header className="flex flex-col gap-1">
         {source.data ? (
           <p className="font-sans-bold text-sm text-primary">
-            {t('curriculum.unit', { index: source.data.topic.unit.index })} ·{' '}
+            {t('bookPage.unit', { index: source.data.topic.unit.index })} ·{' '}
             {source.data.topic.unit.title}
           </p>
         ) : null}

@@ -1,15 +1,15 @@
 import { ListTree } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
-import { DeleteBookButton } from '@/components/curriculum/DeleteBookButton';
-import { UnitSection } from '@/components/curriculum/UnitSection';
+import { DeleteBookButton } from '@/components/books/DeleteBookButton';
+import { UnitSection } from '@/components/books/UnitSection';
 import { Breadcrumbs, CommandHint, EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { bookTitle } from '@/features/content/pages';
 import { useBook, useStructure } from '@/features/content/queries';
 import { commands } from '@/lib/commands';
 import { NotFoundPage } from './NotFoundPage';
 
-export function CurriculumPage() {
+export function BookPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { bookId = '' } = useParams();
@@ -35,8 +35,8 @@ export function CurriculumPage() {
       {!entry.structure ? (
         <EmptyState
           icon={<ListTree className="size-6" />}
-          title={t('curriculum.noStructureTitle')}
-          body={t('curriculum.noStructureBody')}
+          title={t('bookPage.noStructureTitle')}
+          body={t('bookPage.noStructureBody')}
         >
           <CommandHint command={commands.split} />
         </EmptyState>

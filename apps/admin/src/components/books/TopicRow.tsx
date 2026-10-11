@@ -28,9 +28,9 @@ export function TopicRow({ bookId, number, title, pages, entry, canExtract }: To
           <span className="block text-xs text-muted-foreground">{pages}</span>
         </span>
         <span className="flex flex-wrap gap-1">
-          <StageChip label={t('curriculum.stage.source')} ready={Boolean(entry?.source)} />
-          <StageChip label={t('curriculum.stage.knowledge')} ready={Boolean(entry?.knowledge)} />
-          <StageChip label={t('curriculum.stage.lesson')} ready={false} />
+          <StageChip label={t('bookPage.stage.source')} ready={Boolean(entry?.source)} />
+          <StageChip label={t('bookPage.stage.knowledge')} ready={Boolean(entry?.knowledge)} />
+          <StageChip label={t('bookPage.stage.lesson')} ready={false} />
         </span>
       </span>
     </>
@@ -45,7 +45,7 @@ export function TopicRow({ bookId, number, title, pages, entry, canExtract }: To
     ) : (
       <li
         className="flex items-center gap-3 px-4 py-3 opacity-70"
-        title={`${t('curriculum.sourceMissing')}. ${t('curriculum.noPdf')}`}
+        title={`${t('bookPage.sourceMissing')}. ${t('bookPage.noPdf')}`}
       >
         {body}
         <span className="size-5 shrink-0" aria-hidden />

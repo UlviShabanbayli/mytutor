@@ -5,7 +5,7 @@ import { AddBookForm } from './AddBookForm';
 
 type AddBookDialogProps = { open: boolean; onClose: () => void };
 
-/** Upload a textbook PDF; on success the new book's curriculum opens. */
+/** Upload a textbook PDF; on success the new book's page opens. */
 export function AddBookDialog({ open, onClose }: AddBookDialogProps) {
   const { t } = useTranslation();
   // Owned here so the dialog cannot be dismissed while an upload is running.

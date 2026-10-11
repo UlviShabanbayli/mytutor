@@ -23,7 +23,7 @@ export function UnitSection({ bookId, unit, offset, topics, canExtract }: UnitSe
     <Card className="overflow-hidden">
       <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border bg-muted/50 px-4 py-3">
         <h2 className="font-sans-bold text-base text-foreground">
-          <span className="text-primary">{t('curriculum.unit', { index: unit.index })}</span>
+          <span className="text-primary">{t('bookPage.unit', { index: unit.index })}</span>
           <span className="text-muted-foreground"> · </span>
           {unit.title}
         </h2>

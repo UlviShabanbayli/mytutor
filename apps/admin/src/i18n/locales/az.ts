@@ -37,7 +37,7 @@ export const az = {
     delete: 'Kitabı sil',
     deleteNamed: '«{{title}}» kitabını sil',
   },
-  curriculum: {
+  bookPage: {
     unit: 'Bölmə {{index}}',
     noStructureTitle: 'Dərsliyin bölgüsü tapılmadı',
     noStructureBody: 'structure.json yaratmaq üçün:',
