@@ -4,12 +4,10 @@ import { cn } from '@/lib/cn';
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 const variants: Record<ButtonVariant, string> = {
-  primary:
-    'bg-primary text-primary-foreground border-b-4 border-primary-shadow hover:bg-primary-pressed active:border-b-2 active:translate-y-0.5',
+  primary: 'bg-primary text-primary-foreground hover:bg-primary-pressed',
   secondary: 'bg-card text-foreground border border-border hover:bg-muted',
   ghost: 'text-muted-foreground hover:bg-muted hover:text-foreground',
-  danger:
-    'bg-destructive text-destructive-foreground border-b-4 border-destructive-shadow hover:bg-destructive/90 active:border-b-2 active:translate-y-0.5',
+  danger: 'bg-destructive text-destructive-foreground hover:bg-destructive-shadow',
 };
 
 type ButtonProps = ComponentProps<'button'> & { variant?: ButtonVariant };
