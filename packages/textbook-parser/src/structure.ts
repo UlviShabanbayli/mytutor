@@ -83,9 +83,9 @@ export function buildStructure({ events, pageHeight, lastPage }: BuildInput) {
         startPage: e.page,
         endPage: e.page,
       };
-      if (unit && !closed) unit.items.push(block);
+      if (unit && !closed && !e.bookLevel) unit.items.push(block);
       else backMatter.push(block);
-      if (e.kind === 'steam') closed = true;
+      if (e.kind === 'steam' || e.bookLevel) closed = true;
       topic = null;
       track(e, block, true);
     } else if (topic) {
@@ -108,7 +108,7 @@ export function buildStructure({ events, pageHeight, lastPage }: BuildInput) {
 const letters = (s: string) => s.toLocaleLowerCase('az').replace(/[^\p{L}\p{N}]/gu, '');
 
 /** Letter-bigram overlap (Dice) of two titles, ignoring case, spaces and punctuation. */
-function similarity(a: string, b: string): number {
+export function similarity(a: string, b: string): number {
   const grams = (s: string) => {
     const t = letters(s);
     return new Map(
