@@ -23,6 +23,8 @@ beforeAll(async () => {
   await put('riyaziyyat-7/topics/4.1/knowledge/knowledge.json', {});
   await put('riyaziyyat-7/topics/4.2/source.json', { broken: true });
   await put('riyaziyyat-7/book.json', { title: 'Riyaziyyat 7' });
+  // An upload in progress: never listed.
+  await put('.incoming-x1/structure.json', { source: { file: 'yarim.pdf' }, units: [] });
 });
 
 describe('buildContentIndex', () => {
@@ -34,6 +36,7 @@ describe('buildContentIndex', () => {
         file: FILE,
         title: 'Riyaziyyat 7',
         structure: 'split/structure.json',
+        canExtract: false,
         topics: [
           {
             number: '4.1',

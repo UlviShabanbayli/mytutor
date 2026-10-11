@@ -47,6 +47,7 @@ export function CurriculumPage() {
               unit={unit}
               offset={structure.data.source.printedPageOffset}
               topics={entry.topics}
+              canExtract={entry.canExtract}
             />
           ))}
         </div>
