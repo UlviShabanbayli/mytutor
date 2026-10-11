@@ -1797,6 +1797,9 @@ packages:
   '@expo-google-fonts/material-symbols@0.4.49':
     resolution: {integrity: sha512-HtoaXYCk7A9kOjwoxrjq6i0iDtAoQnOPm31zUn+TgmKlHVUU+yyqvQDxN830MvGmBQV8eINv/SK7JRtWhB2xcg==}
 
+  '@expo-google-fonts/nunito@0.4.2':
+    resolution: {integrity: sha512-1KCWphw/I2ugqfs9iRHUCkPTnomNgGPtF4AvqVquoEKxr0EL+mcLNLgeixsslbaSFevRR6/KJAE3sc8g0VaY0Q==}
+
   '@expo-google-fonts/plus-jakarta-sans@0.4.2':
     resolution: {integrity: sha512-6LYVmVGwjQvH+uzzWlVc9+oMj4lkNQ41aymVDjO+x8aFk8kCye20wOyLomYMZaMezA++Uf1mZRCw3W3Fy/hxEA==}
 
@@ -8599,6 +8602,8 @@ snapshots:
   '@expo-google-fonts/caveat@0.4.2': {}
 
   '@expo-google-fonts/material-symbols@0.4.49': {}
+
+  '@expo-google-fonts/nunito@0.4.2': {}
 
   '@expo-google-fonts/plus-jakarta-sans@0.4.2': {}
 
