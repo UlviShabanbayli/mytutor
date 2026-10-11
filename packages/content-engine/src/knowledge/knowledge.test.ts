@@ -92,9 +92,49 @@ describe('groups', () => {
       'b21',
     ]);
   });
+
+  it('sends the key-words box with the block next to it, before or after it', () => {
+    const many = ['l1', 'l2', 'l3', 'l4', 'l1', 'l2', 'l3'];
+    const withKeywords = (order: string[]): TopicSource => ({
+      ...source,
+      blocks: order.map((id) =>
+        id === 'kw'
+          ? block('b02', 'keywords', { label: 'Açar sözlər', lineIds: many })
+          : id === 'inq'
+            ? block('b03', 'inquiry', { lineIds: many })
+            : block('b04', 'section', { lineIds: many }),
+      ),
+    });
+    const ids = (s: TopicSource) => groupBlocks(s).map((g) => g.blockIds);
+    expect(ids(withKeywords(['kw', 'inq', 'sec']))).toEqual([['b02', 'b03'], ['b04']]);
+    expect(ids(withKeywords(['inq', 'kw', 'sec']))).toEqual([['b03', 'b02'], ['b04']]);
+  });
 });
 
 describe('checks and status', () => {
+  it('accepts a term cited from the key-words box', () => {
+    const withKeywords: TopicSource = {
+      ...source,
+      blocks: [
+        ...source.blocks,
+        block('b02', 'keywords', { label: 'Açar sözlər', lineIds: ['l5'] }),
+      ],
+      lines: [...source.lines, line('l5', '• cəmin kvadratı')],
+    };
+    const term: ExtractedItem = {
+      ...base,
+      readFrom: 'text',
+      type: 'term',
+      term: 'cəmin kvadratı',
+      context: '',
+      sources: [{ blockId: 'b02', lineIds: ['l5'], figureId: null }],
+    };
+    const checks = checkItem(term, withKeywords);
+    expect(checks.find((c) => c.name === 'source_ids')?.result).toBe('pass');
+    expect(checks.find((c) => c.name === 'block_kind')?.result).toBe('skip');
+    expect(checks.find((c) => c.name === 'text_grounding')?.result).toBe('pass');
+  });
+
   it('a formula confirmed by the image and true as an identity is textbook', () => {
     const item = formula('(a+b)^2 = a^2 + 2ab + b^2');
     const checks = checkItem(item, source, { ref: 'k1', verdict: 'match', correction: null });

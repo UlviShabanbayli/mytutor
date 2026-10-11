@@ -61,6 +61,7 @@ export const sourceBlockKindSchema = z.enum([
   'remember', // Yadda saxla!
   'find_mistake', // Səhvi düzəlt!
   'history', // Riyaziyyat tarixindən
+  'keywords', // Açar sözlər: side box listing the topic's key terms
   'exercises', // Çalışma (container)
   'problems', // Məsələ həlli (container)
   'exercise', // numbered task inside exercises/problems

@@ -1,4 +1,5 @@
-import type { SourceBlockKind } from '@mytutor/types';
+import type { BBox, SourceBlockKind } from '@mytutor/types';
+import { centerInside } from './assign';
 import type { PageGraphics } from './graphics';
 import { findGraphicMarkers, findNumberCircles, TEXT_LABELS } from './template';
 import type { TextItem, TextLine } from './types';
@@ -13,6 +14,8 @@ export type Marker = {
   label: string | null;
   title: string | null;
   number: string | null;
+  /** Set when the label is printed inside a narrow panel: the panel is the whole block. */
+  box?: BBox;
 };
 
 type Input = {
@@ -21,6 +24,8 @@ type Input = {
   graphics: PageGraphics[];
   body: number;
   pageHeight: number;
+  /** Narrow panels (side notes, drawing backgrounds) per page. */
+  panels?: { page: number; bbox: BBox }[];
 };
 
 const SECTION = 1.25; // 16pt sub-headings over 12pt body
@@ -29,23 +34,46 @@ const COLUMN_HEADERS = /^(Həlli|Açıqlama)$/;
 
 const topOf = (line: TextLine, pageHeight: number) => pageHeight - line.y - line.size;
 
+/** Only the label itself ("NÜMUNƏ 1.") is the marker; what follows on the line is content. */
+function labelMarker(
+  label: (typeof TEXT_LABELS)[number],
+  text: string,
+  at: { page: number; top: number },
+): Marker {
+  const number = label.pattern.exec(text)?.[1] ?? null;
+  const printed = number ? `${label.label} ${number}.` : label.label;
+  return { kind: label.kind, ...at, label: printed, title: null, number };
+}
+
 /** Finds every block-opening marker in the topic window, in reading order. */
-export function findMarkers({ lines, items, graphics, body, pageHeight }: Input): Marker[] {
+export function findMarkers({
+  lines,
+  items,
+  graphics,
+  body,
+  pageHeight,
+  panels = [],
+}: Input): Marker[] {
   const markers: Marker[] = [];
   const at = (line: TextLine) => ({ page: line.page, top: topOf(line, pageHeight) });
 
   for (const line of lines) {
     const text = line.text.trim();
+    const label = TEXT_LABELS.find((l) => l.pattern.test(text));
+    const box = { x: line.x, y: at(line).top, width: line.width, height: line.size * 1.25 };
+    const panel = panels.find((p) => p.page === line.page && centerInside(box, p.bbox));
+    if (panel) {
+      // Text in a narrow panel never opens a full-width block: big glyphs there are drawings or
+      // ticks, and a printed label (a side NÜMUNƏ) makes the panel a block of its own.
+      if (label) markers.push({ ...labelMarker(label, text, at(line)), box: panel.bbox });
+      continue;
+    }
     if (line.size >= body * TITLE) {
       markers.push({ kind: 'title', ...at(line), label: null, title: text, number: null });
       continue;
     }
-    const label = TEXT_LABELS.find((l) => l.pattern.test(text));
     if (label) {
-      const number = label.pattern.exec(text)?.[1] ?? null;
-      // Only the label itself ("NÜMUNƏ 1."); what follows on the line is content.
-      const printed = number ? `${label.label} ${number}.` : label.label;
-      markers.push({ kind: label.kind, ...at(line), label: printed, title: null, number });
+      markers.push(labelMarker(label, text, at(line)));
     } else if (line.size >= body * SECTION && !COLUMN_HEADERS.test(text)) {
       markers.push({ kind: 'section', ...at(line), label: null, title: text, number: null });
     }

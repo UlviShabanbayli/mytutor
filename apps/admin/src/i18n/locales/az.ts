@@ -171,6 +171,7 @@ export const az = {
       remember: 'Yadda saxla!',
       find_mistake: 'Səhvi düzəlt!',
       history: 'Riyaziyyat tarixindən',
+      keywords: 'Açar sözlər',
       exercises: 'Çalışmalar',
       problems: 'Məsələ həlli',
       exercise: 'Tapşırıq',
