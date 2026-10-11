@@ -58,7 +58,7 @@ function finish(drafts: Draft[], repair: (text: string) => string): TextLine[] {
     let text = '';
     let end = -Infinity;
     for (const p of l.parts) {
-      let piece = repair(p.text);
+      let piece = p.decoded ? p.text : repair(p.text);
       if (p.script) piece = `${p.script === 'sup' ? '^' : '_'}${piece.trim()}`;
       const gap = p.x - end;
       // Separate runs that are visibly apart; glue split glyphs (e.g. "Ç" + "oxhədlilər").

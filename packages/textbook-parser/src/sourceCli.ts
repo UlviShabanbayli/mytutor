@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 // Usage: pnpm --filter @mytutor/textbook-parser source <book.pdf> --topic 4.1 [--out <dir>] [--inline]
 // Writes source.json, page images, block crops, figure crops and review.html for one topic.
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { basename, extname, join, resolve } from 'node:path';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { topicSourceSchema } from '@mytutor/schemas';
@@ -9,12 +9,12 @@ import type { TopicSource } from '@mytutor/types';
 import { bodySize } from './classify';
 import { extractPdf } from './extract';
 import { readGraphics } from './graphics';
-import { splitTextbook } from './index';
+import { splitExtracted } from './index';
 import { crop, renderPage, sha256 } from './render';
 import { renderReview } from './reviewHtml';
 import { buildTopicSource } from './topicSource';
+import { parserVersion } from './version';
 
-export const PARSER_VERSION = '0.2.0';
 const SCALE = 2;
 
 async function main() {
@@ -30,7 +30,8 @@ async function main() {
     outArg ?? join('out', basename(file, extname(file)), 'topics', topicNumber),
   );
 
-  const structure = await splitTextbook(file);
+  const extracted = await extractPdf(file);
+  const structure = splitExtracted(extracted);
   const unit = structure.units.find((u) =>
     u.items.some((i) => i.type === 'topic' && i.number === topicNumber),
   );
@@ -38,7 +39,6 @@ async function main() {
   if (!unit || !topic || topic.type !== 'topic') throw new Error(`Mövzu ${topicNumber} tapılmadı`);
 
   const bytes = await readFile(file);
-  const extracted = await extractPdf(file);
   const task = getDocument({ data: new Uint8Array(bytes), verbosity: 0 });
   const pdf = await task.promise;
   const first = await pdf.getPage(topic.startPage);
@@ -65,9 +65,12 @@ async function main() {
     printedPageOffset: structure.source.printedPageOffset,
   });
 
-  await Promise.all(
-    ['pages', 'crops', 'figures'].map((d) => mkdir(join(outDir, d), { recursive: true })),
-  );
+  // Generated image folders are rebuilt from scratch, so a re-run leaves no orphan crops.
+  // Anything else in the topic folder (e.g. knowledge/) is kept.
+  for (const d of ['pages', 'crops', 'figures']) {
+    await rm(join(outDir, d), { recursive: true, force: true });
+    await mkdir(join(outDir, d), { recursive: true });
+  }
   const pages: TopicSource['pages'] = [];
   for (const n of pageNumbers) {
     const r = rendered.get(n);
@@ -101,7 +104,7 @@ async function main() {
 
   const source = topicSourceSchema.parse({
     schemaVersion: 1,
-    parserVersion: PARSER_VERSION,
+    parserVersion: parserVersion(),
     book: {
       file: basename(file),
       sha256: sha256(bytes),

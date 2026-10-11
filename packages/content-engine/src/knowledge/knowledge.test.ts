@@ -227,3 +227,22 @@ describe('buildDocument', () => {
     });
   });
 });
+
+describe('canonicalSha256', () => {
+  it('ignores key order and formatting', async () => {
+    const { canonicalSha256 } = await import('./canonical');
+    const a = JSON.parse('{"b": [1, {"y": 2, "x": 1}], "a": "ə"}');
+    const b = JSON.parse('{\n  "a": "ə",\n  "b": [1, {"x": 1, "y": 2}]\n}');
+    expect(canonicalSha256(a)).toBe(canonicalSha256(b));
+    expect(canonicalSha256({ a: 1 })).not.toBe(canonicalSha256({ a: 2 }));
+  });
+});
+
+describe('costUsd', () => {
+  it('prices known models and counts unknown ones as 0, not as Opus', async () => {
+    const { costUsd } = await import('./pricing');
+    const usage = { input: 1_000_000, output: 1_000_000, cacheWrite: 0, cacheRead: 0 };
+    expect(costUsd('claude-opus-5-5', usage)).toBe(24);
+    expect(costUsd('qwen3-vl:8b', usage)).toBe(0);
+  });
+});
