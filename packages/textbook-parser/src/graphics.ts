@@ -43,7 +43,8 @@ export async function readGraphics(page: PDFPageProxy, pageHeight: number): Prom
   const ops = await page.getOperatorList();
   const images: PageImage[] = [];
   const paths: PagePath[] = [];
-  const stack: Matrix[] = [];
+  // The fill colour is graphics state too: Q and the end of a form bring the earlier one back.
+  const stack: { ctm: Matrix; fill: string }[] = [];
   let ctm: Matrix = [1, 0, 0, 1, 0, 0];
   let fill = '#000000';
 
@@ -52,20 +53,20 @@ export async function readGraphics(page: PDFPageProxy, pageHeight: number): Prom
     const args = ops.argsArray[i] as unknown[];
     switch (fn) {
       case OPS.save:
-        stack.push(ctm);
+        stack.push({ ctm, fill });
         break;
       case OPS.restore:
-        ctm = stack.pop() ?? ctm;
+      case OPS.paintFormXObjectEnd: {
+        const saved = stack.pop();
+        if (saved) ({ ctm, fill } = saved);
         break;
+      }
       case OPS.transform:
         ctm = Util.transform(ctm, args as number[]);
         break;
       case OPS.paintFormXObjectBegin:
-        stack.push(ctm);
+        stack.push({ ctm, fill });
         if (Array.isArray(args[0])) ctm = Util.transform(ctm, args[0] as number[]);
-        break;
-      case OPS.paintFormXObjectEnd:
-        ctm = stack.pop() ?? ctm;
         break;
       case OPS.setFillRGBColor:
         fill = String(args[0] ?? args);

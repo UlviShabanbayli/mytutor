@@ -172,7 +172,7 @@ export function findSideBoxes(g: PageGraphics, pageWidth: number): SideBox[] {
   const boxes: SideBox[] = [];
   for (const p of findPanels(g, pageWidth)) {
     if (sideBoxAt(boxes, g.page, p)) continue; // the same panel painted twice
-    const pill = g.paths.find(
+    const pills = g.paths.filter(
       ({ filled, fill, bbox: b }) =>
         filled &&
         luminance(fill) < PALE &&
@@ -181,17 +181,21 @@ export function findSideBoxes(g: PageGraphics, pageWidth: number): SideBox[] {
         b.width >= 40 &&
         b.y < p.y &&
         b.y + b.height > p.y &&
-        b.x >= p.x - 4 &&
+        b.x >= p.x + 8 && // label pills start 25-34pt in; table header rows sit flush left
         b.x + b.width <= p.x + p.width + 4,
     );
-    // Template badges (Fikirləş!, …) open full-width boxes through their markers instead.
-    if (!pill || BADGES.some((s) => matchesBadge(s, pill))) continue;
+    const pill = pills[0];
+    // Template badges (Fikirləş!, …) open full-width boxes through their markers instead; a pill
+    // can be painted twice, in a badge colour and another.
+    if (!pill || pills.some((q) => BADGES.some((s) => matchesBadge(s, q)))) continue;
     const icon = g.images.filter(
       ({ bbox: b }) =>
         b.x >= p.x - 40 && b.x + b.width <= pill.bbox.x + 2 && Math.abs(b.y - pill.bbox.y) < 20,
     );
     const pixels = new Set(icon.map((i) => `${i.pixels.width}x${i.pixels.height}`));
     const signature = SIDE_BOXES.find((s) => s.pixels.every((px) => pixels.has(px)));
+    // So do boxes with a template icon (Yadda saxla!), however narrow.
+    if (!signature && ICONS.some((s) => s.pixels.every((px) => pixels.has(px)))) continue;
     // The disc and ring painted behind the icon belong to the box too.
     const iconArea = union(icon.map((i) => i.bbox));
     const disc = iconArea
