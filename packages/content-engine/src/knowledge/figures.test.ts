@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ExtractedItem, SourceBlock, SourceFigure, TopicSource } from '@mytutor/types';
 import { buildDocument } from './document';
-import { linkFigures } from './figureLinks';
+import { linkAllFigures, linkFigures } from './figureLinks';
 import { pictureNeed, pictureReferences } from './pictureRefs';
 import { checkItem, statusOf } from './validate';
 
@@ -264,6 +264,156 @@ describe('linkFigures', () => {
     };
     expect(figureIdsOf(drawing, source)).toEqual([]);
   });
+
+  it('keeps an opening picture the parser merged into the key-word frame', () => {
+    // 6.1: the frame reaches far left of and below its bullets because the picture is in it.
+    const source = sourceOf({
+      blocks: [block('b02', { lineIds: ['l1', 'l2'], figureIds: ['merged', 'icon'] })],
+      lines: [
+        line('l1', 'Diaqramdakı ədədlər arasında uyğunluğu izah edin.', box(71, 250, 200, 15)),
+        line('l2', '\u0087 natural ədədlər', box(458, 120, 90, 15)),
+      ],
+      figures: [
+        figure('merged', box(276, 71, 291, 200)),
+        // a small picture drawn inside the merged figure
+        figure('icon', box(300, 150, 40, 40), 'image'),
+      ],
+    });
+    const item = question('Diaqramdakı ədədlər arasında uyğunluğu izah edin.');
+    expect(figureIdsOf(item, source)).toEqual(['merged']);
+  });
+
+  it('finds a table drawn on an illustration', () => {
+    const source = sourceOf({
+      blocks: [block('b02', { lineIds: ['l1'], figureIds: ['f01', 'f02'] })],
+      lines: [line('l1', 'Cədvəldə temperatur verilib.')],
+      figures: [
+        figure('f01', box(380, 110, 200, 150), 'image'),
+        figure('f02', box(400, 140, 150, 80)),
+      ],
+    });
+    expect(figureIdsOf(question('Cədvəldə temperatur verilib.'), source)).toEqual(['f02']);
+  });
+
+  it('links a figure item without labels only when its blocks hold one drawing', () => {
+    const source = sourceOf({
+      blocks: [
+        block('b03', { kind: 'section', figureIds: ['f02', 'f03', 'f04'] }),
+        block('b05', { kind: 'section', figureIds: ['f05'], regions: [box(49, 500, 540, 200)] }),
+      ],
+      figures: [
+        figure('f02', box(400, 120, 100, 60)),
+        figure('f03', box(400, 300, 100, 60)),
+        figure('f04', box(80, 330, 100, 60), 'image'),
+        figure('f05', box(400, 560, 100, 60)),
+      ],
+    });
+    const drawing = (blockId: string): ExtractedItem => ({
+      type: 'figure',
+      ref: 'k1',
+      origin: 'derived',
+      readFrom: 'image',
+      sources: [{ blockId, lineIds: [], figureId: null }],
+      description: 'ABCD paraleloqramı',
+      labels: [],
+    });
+    expect(linkFigures(drawing('b03'), source)).toEqual([]);
+    expect(checkItem(drawing('b03'), source).find((c) => c.name === 'figure_link')?.result).toBe(
+      'fail',
+    );
+    expect(figureIdsOf(drawing('b05'), source)).toEqual(['f05']);
+  });
+});
+
+describe('linkAllFigures', () => {
+  // 5.5: the NÜMUNƏ's own triangle was not detected; the a), b), c) drawings printed below it
+  // are exercise 2's, and the exercise cites their a), b), c) markers.
+  const source = sourceOf({
+    blocks: [
+      block('b08', {
+        kind: 'exercise',
+        number: '2',
+        lineIds: ['l1', 'la', 'lb', 'lc'],
+        figureIds: [],
+      }),
+      block('b09', {
+        kind: 'example',
+        label: 'NÜMUNƏ',
+        parentId: 'b08',
+        lineIds: ['l2', 'l3'],
+        figureIds: ['fa', 'fb', 'fc'],
+      }),
+    ],
+    lines: [
+      line('l1', 'Şəkildə verilənlərə görə tələb olunanları tapın.', box(71, 70, 400, 15)),
+      line('l2', 'Şəkildə: AM = MB = 5, MN = x.', box(120, 100, 300, 15)),
+      line('l3', 'x = 8', box(120, 223, 60, 15)),
+      line('la', 'a)', box(100, 255, 10, 12)),
+      line('lb', 'b)', box(280, 255, 10, 12)),
+      line('lc', 'c)', box(451, 255, 10, 12)),
+    ],
+    figures: [
+      figure('fa', box(108, 259, 85, 50)),
+      figure('fb', box(288, 259, 85, 50)),
+      figure('fc', box(459, 259, 85, 50)),
+    ],
+  });
+  const exercise: ExtractedItem = {
+    type: 'exercise',
+    ref: 'k1',
+    origin: 'textbook',
+    readFrom: 'image',
+    sources: [{ blockId: 'b08', lineIds: ['l1', 'la', 'lb', 'lc'], figureId: null }],
+    number: '2',
+    instruction: 'Şəkildə verilənlərə görə tələb olunanları tapın.',
+    items: [
+      { label: 'a', text: 'MN = ?', latex: null },
+      { label: 'b', text: 'PQ = ?', latex: null },
+      { label: 'c', text: 'KL = ?', latex: null },
+    ],
+  };
+  const example: ExtractedItem = {
+    type: 'worked_example',
+    ref: 'k2',
+    origin: 'textbook',
+    readFrom: 'image',
+    sources: [{ blockId: 'b09', lineIds: ['l2', 'l3'], figureId: null }],
+    label: 'NÜMUNƏ',
+    problem: { text: 'Şəkildə: AM = MB = 5, MN = x.', latex: null },
+    steps: [{ text: null, latex: 'x = 8' }],
+    explanation: null,
+  };
+  // A figure item labelled on drawing a): its labels sit on the drawing, so it never competes.
+  const drawing: ExtractedItem = {
+    type: 'figure',
+    ref: 'k3',
+    origin: 'derived',
+    readFrom: 'image',
+    sources: [{ blockId: 'b08', lineIds: ['la'], figureId: null }],
+    description: 'ABC üçbucağı, MN orta xətdir.',
+    labels: ['a)'],
+  };
+
+  it('gives a drawing to the nearest text that uses it', () => {
+    // On its own the example would take the drawings 20pt below its last line.
+    expect(figureIdsOf(example, source)).toEqual(['fa', 'fb', 'fc']);
+    const links = linkAllFigures([exercise, example, drawing], source);
+    expect(links.map((l) => l.map((s) => s.figureId))).toEqual([['fa', 'fb', 'fc'], [], ['fa']]);
+  });
+
+  it('makes the example fail its figure check in the document', () => {
+    const doc = buildDocument(
+      source,
+      '{}',
+      [{ items: [exercise, example, drawing], verdicts: [], rejected: 0 }],
+      [],
+    );
+    expect(doc.items.map((i) => i.checks.find((c) => c.name === 'figure_link')?.result)).toEqual([
+      'pass',
+      'fail',
+      'pass',
+    ]);
+  });
 });
 
 describe('figure_link check', () => {
@@ -339,5 +489,39 @@ describe('figure_link check', () => {
     expect(stored?.checks.find((c) => c.name === 'text_grounding')).toMatchObject({
       result: 'fail',
     });
+  });
+
+  it("counts image-based formulas from the model's own refs, not the linked ones", () => {
+    const formulaSource = sourceOf({
+      blocks: [
+        block('b03', { kind: 'section', lineIds: ['l1'] }),
+        block('b04', {
+          kind: 'example',
+          parentId: 'b03',
+          figureIds: ['f01'],
+          flags: { hasMath: true, hasFigure: true, lowTextQuality: true },
+        }),
+      ],
+      lines: [line('l1', 'Şəkildəki düzbucaqlının sahəsi S = ab.')],
+      figures: [figure('f01', box(400, 160, 100, 60))],
+    });
+    const formula: ExtractedItem = {
+      type: 'formula',
+      ref: 'k1',
+      origin: 'textbook',
+      readFrom: 'text',
+      sources: [{ blockId: 'b03', lineIds: ['l1'], figureId: null }],
+      name: 'Şəkildəki düzbucaqlının sahəsi',
+      latex: 'S = ab',
+      spoken: 'S bərabərdir a vurulsun b',
+    };
+    const doc = buildDocument(
+      formulaSource,
+      '{}',
+      [{ items: [formula], verdicts: [], rejected: 0 }],
+      [],
+    );
+    expect(doc.items[0]?.sources.map((s) => s.blockId)).toEqual(['b03', 'b04']);
+    expect(doc.summary.imageBasedFormulas).toEqual([]);
   });
 });

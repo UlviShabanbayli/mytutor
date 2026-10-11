@@ -15,6 +15,8 @@ const EDGE = 2;
 const TIE = 2;
 /** How far a drawing's printed labels may sit outside its box (points). */
 const LABEL_REACH = 12;
+/** Padding of the "Açar sözlər" frame around its word list (points). */
+const WORD_BOX_PAD = 30;
 /** A bulleted text line ("• mənfi kəsrlər"); the book's text layer keeps the bullet as U+0087. */
 const BULLET = /^\s*[•\u0087▪◦‣]\s*\p{L}/u;
 
@@ -63,8 +65,17 @@ export const citedFigures = (item: ExtractedItem, source: TopicSource): string[]
     s.figureId && source.figures.some((f) => f.id === s.figureId) ? [s.figureId] : [],
   );
 
+/** Where the item's own text is: its cited lines, else its cited blocks. */
+function nearOf(item: ExtractedItem, source: TopicSource): SourceRegion[] {
+  const lineIds = new Set(item.sources.flatMap((s) => s.lineIds));
+  const lines = source.lines.filter((l) => lineIds.has(l.id)).map((l) => l.region);
+  return lines.length
+    ? lines
+    : item.sources.flatMap((s) => source.blocks.find((b) => b.id === s.blockId)?.regions ?? []);
+}
+
 /** Figures of the cited blocks and the blocks inside them, with the block that holds each. */
-function candidatesOf(item: ExtractedItem, source: TopicSource): Candidate[] {
+function candidatesOf(item: ExtractedItem, source: TopicSource, tableOnly: boolean): Candidate[] {
   const out: Candidate[] = [];
   for (const s of item.sources) {
     const cited = source.blocks.find((b) => b.id === s.blockId);
@@ -75,15 +86,27 @@ function candidatesOf(item: ExtractedItem, source: TopicSource): Candidate[] {
         if (block.figureIds.includes(figure.id) && !out.some((c) => c.figure === figure))
           out.push({ figure, blockId: block.id });
   }
-  // The "Açar sözlər" box is a frame drawn around a bulleted word list, not a picture.
-  const wordList = (f: SourceFigure) =>
-    source.lines.some((l) => BULLET.test(l.text) && contains(f.region, l.region));
+  // The "Açar sözlər" box is a frame drawn around a bulleted word list, not a picture. The
+  // parser sometimes merges the opening picture into it (left of or below the list): that
+  // figure reaches past the bullets by more than the frame's padding and stays a picture.
+  const wordList = (f: SourceFigure) => {
+    const bullets = source.lines.filter((l) => BULLET.test(l.text) && contains(f.region, l.region));
+    if (!bullets.length) return false;
+    const left = Math.min(...bullets.map((l) => l.region.bbox.x));
+    const bottom = Math.max(...bullets.map((l) => l.region.bbox.y + l.region.bbox.height));
+    const { x, y, height } = f.region.bbox;
+    return x >= left - WORD_BOX_PAD && y + height <= bottom + WORD_BOX_PAD;
+  };
   // A drawing inside another is part of it; an identical box counts once (the lower id stays).
   const inside = (c: Candidate, o: Candidate) =>
     o !== c &&
     contains(o.figure.region, c.figure.region) &&
     (!contains(c.figure.region, o.figure.region) || o.figure.id < c.figure.id);
-  const pictures = out.filter((c) => !wordList(c.figure));
+  // A table is ruled lines (a vector drawing), never a photo or an illustration. Filtered
+  // before the containment step, or an illustration around a table would hide it.
+  const pictures = out.filter(
+    (c) => (!tableOnly || c.figure.kind === 'vector') && !wordList(c.figure),
+  );
   return pictures.filter((c) => !pictures.some((o) => inside(c, o)));
 }
 
@@ -98,16 +121,17 @@ export function linkFigures(item: ExtractedItem, source: TopicSource): Knowledge
   const need = pictureNeed(item);
   if (citedFigures(item, source).length || need.length === 0) return [];
 
-  const lineIds = new Set(item.sources.flatMap((s) => s.lineIds));
-  const lineRegions = source.lines.filter((l) => lineIds.has(l.id)).map((l) => l.region);
-  const near = lineRegions.length
-    ? lineRegions
-    : item.sources.flatMap((s) => source.blocks.find((b) => b.id === s.blockId)?.regions ?? []);
-  // A table is ruled lines (a vector drawing), never a photo or an illustration.
-  const tableOnly = need.every((phrase) => phrase.startsWith('cədvəl'));
+  const near = nearOf(item, source);
+  const candidates = candidatesOf(
+    item,
+    source,
+    need.every((phrase) => phrase.startsWith('cədvəl')),
+  );
+  // Without its labels a figure item cannot tell its blocks' drawings apart: only a lone one is it.
+  const labelled = source.lines.some((l) => item.sources.some((s) => s.lineIds.includes(l.id)));
+  if (item.type === 'figure' && !labelled && candidates.length > 1) return [];
 
-  const ranked = candidatesOf(item, source)
-    .filter((c) => !tableOnly || c.figure.kind === 'vector')
+  const ranked = candidates
     // A figure item's lines are the labels printed on its drawing: only a figure at those
     // labels is that drawing, a nearby one is a different picture.
     .filter(
@@ -139,4 +163,30 @@ export function linkFigures(item: ExtractedItem, source: TopicSource): Knowledge
   return rows
     .flatMap((row) => row.sort((a, b) => a.figure.region.bbox.x - b.figure.region.bbox.x))
     .map(({ figure, blockId }) => ({ blockId, lineIds: [], figureId: figure.id }));
+}
+
+/**
+ * `linkFigures` for every item of a topic. A drawing that another item also uses (cites, or
+ * is linked to) belongs to that item when its text is nearer: 5.5 k021, whose own triangle
+ * the parser missed, must not take exercise 2's a), b), c) drawings printed below it. Figure
+ * items do not compete: their lines are the drawing's own labels and would always win.
+ */
+export function linkAllFigures(items: ExtractedItem[], source: TopicSource): KnowledgeSourceId[][] {
+  const links = items.map((item) => linkFigures(item, source));
+  const near = items.map((item) => nearOf(item, source));
+  const uses = (j: number, id: string) =>
+    !!items[j]?.sources.some((s) => s.figureId === id) ||
+    !!links[j]?.some((l) => l.figureId === id);
+  return links.map((own, i) =>
+    own.filter(({ figureId }) => {
+      const region = source.figures.find((f) => f.id === figureId)?.region;
+      if (!region || !figureId) return true;
+      const [pages, gap] = distance(region, near[i] ?? []);
+      return !items.some((other, j) => {
+        if (j === i || other.type === 'figure' || !uses(j, figureId)) return false;
+        const [otherPages, otherGap] = distance(region, near[j] ?? []);
+        return otherPages < pages || (otherPages === pages && otherGap + TIE < gap);
+      });
+    }),
+  );
 }
