@@ -7,14 +7,14 @@ export function AppShell() {
   const { t } = useTranslation();
   return (
     <div className="min-h-dvh bg-background">
-      <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-screen-2xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link
             to="/"
             aria-label={t('app.home')}
             className="flex items-center gap-2 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <span className="flex size-8 items-center justify-center rounded-sm bg-primary text-primary-foreground">
+            <span className="flex size-9 items-center justify-center rounded-sm bg-primary text-primary-foreground">
               <GraduationCap className="size-5" />
             </span>
             <span className="font-sans-black text-lg text-foreground">{t('app.name')}</span>
