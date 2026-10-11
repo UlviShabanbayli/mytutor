@@ -7,7 +7,8 @@ type At = { page: number; y: number; top: number };
 export type HeadingEvent =
   | ({ type: 'unit'; title: string } & At)
   | ({ type: 'topic'; title: string } & At)
-  | ({ type: 'block'; kind: TextbookBlockKind; title: string } & At)
+  /** `bookLevel`: back matter of the whole book (answers, cross-unit reviews), not of a unit. */
+  | ({ type: 'block'; kind: TextbookBlockKind; title: string; bookLevel?: true } & At)
   | ({ type: 'section'; title: string } & At);
 
 /** Heading sizes relative to body text, calibrated on the TRİMS layout (body 12pt). */
@@ -45,7 +46,7 @@ export function bodySize(items: TextItem[]): number {
 const isCaps = (s: string) => s === s.toLocaleUpperCase('az') && /\p{Lu}/u.test(s);
 const isQuoted = (s: string) => /^["«].+["»]$/.test(s.trim());
 /** Real headings contain a word; large math letters ("a", "b") and figure labels do not. */
-const hasWord = (s: string) => /\p{L}{3,}/u.test(s);
+export const hasWord = (s: string) => /\p{L}{3,}/u.test(s);
 const labelKey = (s: string) =>
   s
     .toLocaleLowerCase('az')
