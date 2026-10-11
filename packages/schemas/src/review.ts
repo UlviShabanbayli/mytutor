@@ -19,6 +19,11 @@ export const itemReviewSchema = z.object({
   decision: reviewDecisionSchema,
   note: z.string().trim().max(REVIEW_NOTE_MAX).nullable(),
   decidedAt: z.string(),
+  /**
+   * The editor's corrected content, same shape as the item's `content`; only with "approved".
+   * The extracted original is kept as it was, and lessons use this corrected version.
+   */
+  correction: z.record(z.string(), z.unknown()).nullable().optional(),
 });
 
 export const blockReviewSchema = z.object({
@@ -148,4 +153,14 @@ export function reviewProgress(
     decidedItems: decisions.size,
     openFlagged: items.filter((item) => isFlagged(item) && !decisions.has(item.id)).length,
   };
+}
+
+/** What lessons use for an item: the editor's correction when there is one, else the extract. */
+export function effectiveContent(
+  item: Pick<Item, 'content'>,
+  decision: Pick<ItemReview, 'decision' | 'correction'> | undefined,
+): Item['content'] {
+  return decision?.decision === 'approved' && decision.correction
+    ? decision.correction
+    : item.content;
 }

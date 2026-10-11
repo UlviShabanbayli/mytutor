@@ -1,40 +1,25 @@
+import { Maximize2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { isFlagged } from '@mytutor/schemas';
-import type { ItemReview, KnowledgeItem, TopicSource } from '@mytutor/types';
+import type { TopicSource } from '@mytutor/types';
 import { useBlockLabel } from '@/components/source/BlockLabel';
-import type { ReviewBlock } from '@/features/review/queue';
-import type { ReviewActions } from '@/features/review/useTopicReview';
-import { BlockFooter } from './BlockFooter';
+import { Button } from '@/components/ui';
+import { BlockItems, type BlockItemsProps } from './BlockItems';
 import { BlockSource } from './BlockSource';
-import { ItemDecisionCard } from './ItemDecisionCard';
 
-type BlockCardProps = {
-  entry: ReviewBlock;
+type BlockCardProps = BlockItemsProps & {
   source: TopicSource;
   topicDir: string;
-  decisions: Map<string, ItemReview>;
-  actions: ReviewActions;
-  next: string | null;
-  onNext: () => void;
-  itemStandards?: (item: KnowledgeItem) => React.ReactNode;
+  /** Opens the block large, with the same decisions beside it. */
+  onZoom: () => void;
 };
 
 /** The block being reviewed: the printed text beside what was extracted from it. */
-export function BlockCard({
-  entry,
-  source,
-  topicDir,
-  decisions,
-  actions,
-  next,
-  onNext,
-  itemStandards,
-}: BlockCardProps) {
+export function BlockCard({ source, topicDir, onZoom, ...items }: BlockCardProps) {
   const { t } = useTranslation();
   const blockLabel = useBlockLabel();
-  const { block, items } = entry;
+  const { entry } = items;
+  const { block } = entry;
   const page = block?.regions[0];
-  const clean = items.filter((item) => !decisions.has(item.id) && !isFlagged(item));
   const flags = [
     block?.flags.hasMath ? t('source.flags.hasMath') : null,
     block?.flags.hasFigure ? t('source.flags.hasFigure') : null,
@@ -54,6 +39,12 @@ export function BlockCard({
             )}
           </span>
         ) : null}
+        {block ? (
+          <Button variant="secondary" className="min-h-9 px-3 text-xs" onClick={onZoom}>
+            <Maximize2 className="size-4" />
+            {t('review.zoom')}
+          </Button>
+        ) : null}
       </header>
       <div className="flex flex-wrap items-start gap-4">
         <section
@@ -63,39 +54,17 @@ export function BlockCard({
           <span className="text-xs font-sans-black uppercase text-muted-foreground">
             {t('review.inBook')}
           </span>
-          {block ? <BlockSource block={block} source={source} topicDir={topicDir} /> : null}
+          {block ? (
+            <BlockSource block={block} source={source} topicDir={topicDir} onZoom={onZoom} />
+          ) : null}
         </section>
         <section
           aria-label={t('review.extracted')}
-          className="flex min-w-0 flex-[1.3_1_20rem] flex-col gap-2"
+          className="flex min-w-0 flex-[1.3_1_20rem] flex-col"
         >
-          <span className="text-xs font-sans-black uppercase text-muted-foreground">
-            {t('review.extractedCount', { count: items.length })}
-          </span>
-          {items.map((item) => (
-            <ItemDecisionCard
-              key={item.id}
-              item={item}
-              decision={decisions.get(item.id)}
-              actions={actions}
-              canUndo={!entry.approved}
-              standards={itemStandards?.(item)}
-            />
-          ))}
+          <BlockItems {...items} />
         </section>
       </div>
-      <BlockFooter
-        blockId={entry.id}
-        approved={entry.approved}
-        itemCount={items.length}
-        open={entry.open}
-        clean={clean.length}
-        next={next}
-        onApproveClean={() => actions.decideAll(clean, 'approved')}
-        onApprove={() => actions.approveBlock(entry.id, items)}
-        onReopen={() => actions.reopenBlock(entry.id)}
-        onNext={onNext}
-      />
     </article>
   );
 }

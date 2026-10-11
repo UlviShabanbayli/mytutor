@@ -3,6 +3,7 @@ import type { z } from 'zod';
 import type { knowledgeItemSchema } from './knowledge';
 import {
   approvedBlocks,
+  effectiveContent,
   itemDecisions,
   itemFingerprint,
   reviewBlocks,
@@ -88,5 +89,13 @@ describe('review', () => {
       decidedItems: 2,
       openFlagged: 1,
     });
+  });
+
+  it('uses an approved correction, and only an approved one', () => {
+    const fixed = { statement: 'Düzgün' };
+    expect(effectiveContent(a, undefined)).toBe(a.content);
+    expect(effectiveContent(a, { decision: 'approved', correction: fixed })).toBe(fixed);
+    expect(effectiveContent(a, { decision: 'needs_fix', correction: fixed })).toBe(a.content);
+    expect(effectiveContent(a, { decision: 'approved', correction: null })).toBe(a.content);
   });
 });

@@ -92,7 +92,11 @@ export const guide = {
       'Səhifədəki bloklar: işarəli təsdiqlənib, mavi halqalı indi baxılır, boş halqalı gözləyir. Qırmızı «problem»: qərar gözləyən yoxlanmalı element.',
     flagged: 'Element yoxlanmalıdır: təsdiqlənməyib və ya avtomatik yoxlaması keçməyib.',
     approve: 'Element doğrudur: tələbələrə olduğu kimi göstəriləcək.',
-    needsFix: 'Elementdə səhv var: nəyin düzəldiləcəyini qısa yazırsınız.',
+    correct:
+      'Element səhvdirsə, amma lazımdırsa: sahələri dərslikdə yazıldığı kimi düzəldin (düstur yazanda görünüşü dərhal göstərilir). Düzəldilmiş versiya təsdiqlənir, AI-nin ilkin variantı saxlanılır.',
+    needsFix:
+      'İndi düzəldə bilmirsinizsə: nəyin səhv olduğunu qeyd edin, element sonra düzəldilsin.',
+    zoom: 'Kəsiyi böyük açır: mətni rahat oxuyun, qərar düymələri yanında işləyir.',
     reject: 'Element lazımsızdır və ya yanlışdır: tələbələrə göstərilməyəcək.',
     undo: 'Qərarı geri alır; blok təsdiqlənibsə, blok yenidən açılır.',
     approveClean: 'Problemsiz (yoxlaması keçmiş) elementlərin hamısını birdən təsdiqləyir.',

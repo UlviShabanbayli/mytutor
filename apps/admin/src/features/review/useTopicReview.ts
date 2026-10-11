@@ -58,12 +58,25 @@ export function useReviewActions(bookId: string, topic: string) {
 
   return {
     save,
-    decide: (item: KnowledgeItem, decision: ReviewDecision, note: string | null = null) =>
+    /** A decision, with the editor's corrected content when they fixed the item. */
+    decide: (
+      item: KnowledgeItem,
+      decision: ReviewDecision,
+      note: string | null = null,
+      correction: KnowledgeItem['content'] | null = null,
+    ) =>
       apply((r) => ({
         ...r,
         items: [
           ...without(r, item),
-          { itemId: item.id, fingerprint: itemFingerprint(item), decision, note, decidedAt: now() },
+          {
+            itemId: item.id,
+            fingerprint: itemFingerprint(item),
+            decision,
+            note,
+            decidedAt: now(),
+            ...(correction ? { correction } : {}),
+          },
         ],
       })),
     /** Takes a decision back; the item's block, if approved, opens again. */
