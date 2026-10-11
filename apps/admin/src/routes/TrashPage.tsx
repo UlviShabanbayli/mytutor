@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { DeletedBookRow } from '@/components/trash/DeletedBookRow';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { useContentIndex } from '@/features/content/queries';
+import { usePageCrumbs } from '@/features/layout/crumbs';
 
 /** Deleted books, waiting in the trash on disk: restore them or erase them for good. */
 export function TrashPage() {
   const { t } = useTranslation();
+  usePageCrumbs([{ label: t('nav.overview'), to: '/' }, { label: t('nav.trash') }]);
   const index = useContentIndex();
 
   return (

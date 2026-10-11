@@ -7,10 +7,12 @@ import { CurriculumMetaDialog } from '@/components/curriculum/CurriculumMetaDial
 import { Button, EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { useContentIndex } from '@/features/content/queries';
 import { useCreateCurriculum } from '@/features/curriculum/mutations';
+import { usePageCrumbs } from '@/features/layout/crumbs';
 
 /** The curricula the team entered; books link their topics to their standards. */
 export function CurriculaPage() {
   const { t } = useTranslation();
+  usePageCrumbs([{ label: t('nav.overview'), to: '/' }, { label: t('curricula.title') }]);
   const navigate = useNavigate();
   const index = useContentIndex();
   const create = useCreateCurriculum();

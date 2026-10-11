@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { knowledgeItemSchema } from './knowledge';
+import type { knowledgeItemSchema } from './knowledge';
 
 /**
  * The editors' review of a topic's knowledge document, block by block: a decision per item and

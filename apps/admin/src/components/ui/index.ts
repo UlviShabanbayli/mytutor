@@ -1,5 +1,4 @@
 export { Badge } from './Badge';
-export { Breadcrumbs } from './Breadcrumbs';
 export { Button, buttonClass } from './Button';
 export { Card } from './Card';
 export { CommandHint } from './CommandHint';

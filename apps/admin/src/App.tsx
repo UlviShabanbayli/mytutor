@@ -8,6 +8,9 @@ import { CurriculumEditorPage } from './routes/CurriculumEditorPage';
 import { GuidePage } from './routes/GuidePage';
 import { BookPage } from './routes/BookPage';
 import { NotFoundPage } from './routes/NotFoundPage';
+import { OverviewPage } from './routes/OverviewPage';
+import { ReviewPage } from './routes/ReviewPage';
+import { ReviewQueuePage } from './routes/ReviewQueuePage';
 import { TopicPage } from './routes/TopicPage';
 import { TrashPage } from './routes/TrashPage';
 
@@ -17,11 +20,14 @@ export function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<AppShell />}>
-            <Route index element={<BooksPage />} />
+            <Route index element={<OverviewPage />} />
+            <Route path="books" element={<BooksPage />} />
             <Route path="books/:bookId" element={<BookPage tab="topics" />} />
             <Route path="books/:bookId/curriculum" element={<BookPage tab="curriculum" />} />
             <Route path="books/:bookId/topics/:number" element={<Navigate to="source" replace />} />
+            <Route path="books/:bookId/topics/:number/review" element={<ReviewPage />} />
             <Route path="books/:bookId/topics/:number/:tab" element={<TopicPage />} />
+            <Route path="review" element={<ReviewQueuePage />} />
             <Route path="curricula" element={<CurriculaPage />} />
             <Route path="curricula/:curriculumId" element={<CurriculumEditorPage />} />
             <Route path="trash" element={<TrashPage />} />

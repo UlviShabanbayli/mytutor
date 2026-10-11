@@ -5,7 +5,8 @@ import { useNavigate, useParams } from 'react-router';
 import { CurriculumMetaDialog } from '@/components/curriculum/CurriculumMetaDialog';
 import { DeleteCurriculumDialog } from '@/components/curriculum/DeleteCurriculumDialog';
 import { StandardsEditor } from '@/components/curriculum/StandardsEditor';
-import { Badge, Breadcrumbs, Button, ErrorState, LoadingState } from '@/components/ui';
+import { Badge, Button, ErrorState, LoadingState } from '@/components/ui';
+import { usePageCrumbs } from '@/features/layout/crumbs';
 import { bookTitle } from '@/features/content/pages';
 import { useContentIndex } from '@/features/content/queries';
 import { curriculumSubtitle } from '@/features/curriculum/labels';
@@ -22,6 +23,11 @@ export function CurriculumEditorPage() {
   const curriculum = useCurriculum(entry?.path ?? null);
   const save = useSaveCurriculum(curriculumId);
   const [dialog, setDialog] = useState<'meta' | 'delete' | null>(null);
+  usePageCrumbs([
+    { label: t('nav.overview'), to: '/' },
+    { label: t('curricula.title'), to: '/curricula' },
+    { label: entry?.title ?? '…' },
+  ]);
 
   if (index.isPending) return <LoadingState />;
   if (index.isError) return <ErrorState onRetry={() => void index.refetch()} />;
@@ -36,9 +42,6 @@ export function CurriculumEditorPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Breadcrumbs
-        items={[{ label: t('curricula.title'), to: '/curricula' }, { label: entry.title }]}
-      />
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-2">
           <h1 className="font-sans-black text-3xl text-foreground">{entry.title}</h1>

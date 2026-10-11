@@ -1,15 +1,17 @@
 import {
+  BookOpen,
   CircleHelp,
+  Clapperboard,
   Copy,
-  Library,
+  Inbox,
+  LayoutGrid,
   ListChecks,
-  Monitor,
-  Moon,
-  Sun,
+  Search,
   Trash2,
   TriangleAlert,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { CountBadge } from '@/components/layout/CountBadge';
 import { Badge, type Tone } from '@/components/ui';
 import { dotTone } from '@/components/ui/tones';
 import { cn } from '@/lib/cn';
@@ -38,30 +40,61 @@ export function BasicsGuide() {
       title={t('guide.basics.title')}
       rows={[
         {
-          sample: nav(<Library className="size-4" />, t('nav.books')),
+          sample: nav(<LayoutGrid className="size-4" />, t('nav.overview')),
+          text: t('guide.basics.overview'),
+        },
+        {
+          sample: (
+            <>
+              {nav(<BookOpen className="size-4" />, t('nav.books'))}
+              <CountBadge tone="destructive" value={83} />
+            </>
+          ),
           text: t('guide.basics.books'),
+        },
+        {
+          sample: (
+            <>
+              {nav(<Inbox className="size-4" />, t('nav.review'))}
+              <CountBadge tone="destructive" value={83} />
+            </>
+          ),
+          text: t('guide.basics.review'),
         },
         {
           sample: nav(<ListChecks className="size-4" />, t('nav.curricula')),
           text: t('guide.basics.curricula'),
         },
         {
-          sample: nav(<Trash2 className="size-4" />, t('nav.trash')),
-          text: t('guide.basics.trash'),
+          sample: nav(<Clapperboard className="size-4" />, t('nav.lessons')),
+          text: t('guide.basics.later'),
         },
         {
           sample: nav(<CircleHelp className="size-4" />, t('nav.guide')),
           text: t('guide.basics.guide'),
         },
         {
+          sample: nav(<Trash2 className="size-4" />, t('nav.trash')),
+          text: t('guide.basics.trash'),
+        },
+        {
           sample: (
-            <span className="flex gap-2 text-muted-foreground">
-              <Sun className="size-4" />
-              <Monitor className="size-4" />
-              <Moon className="size-4" />
+            <span className="flex gap-3 text-xs font-sans-bold text-muted-foreground">
+              <span>{t('theme.system')}</span>
+              <span>{t('theme.light')}</span>
+              <span>{t('theme.dark')}</span>
             </span>
           ),
           text: t('guide.basics.theme'),
+        },
+        {
+          sample: (
+            <span className="flex items-center gap-1.5 rounded-sm border border-border px-2 py-1 text-xs text-muted-foreground">
+              <Search className="size-3.5" />
+              ⌘K
+            </span>
+          ),
+          text: t('guide.basics.search'),
         },
         ...TONES.map(({ tone, key }) => ({
           sample: (

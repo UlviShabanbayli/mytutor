@@ -4,16 +4,20 @@ import { BooksGuide } from '@/components/guide/BooksGuide';
 import { ChecksGuide } from '@/components/guide/ChecksGuide';
 import { CurriculumGuide } from '@/components/guide/CurriculumGuide';
 import { KnowledgeGuide } from '@/components/guide/KnowledgeGuide';
+import { ReviewGuide } from '@/components/guide/ReviewGuide';
 import { SourceGuide } from '@/components/guide/SourceGuide';
 import { WorkflowGuide } from '@/components/guide/WorkflowGuide';
+import { usePageCrumbs } from '@/features/layout/crumbs';
 
 /** What everything in the panel means, each mark shown as it looks. */
 export function GuidePage() {
   const { t } = useTranslation();
+  usePageCrumbs([{ label: t('nav.overview'), to: '/' }, { label: t('nav.guide') }]);
   const parts = [
     { id: 'workflow', label: t('guide.workflow.title') },
     { id: 'basics', label: t('guide.basics.title') },
     { id: 'books', label: t('guide.books.title') },
+    { id: 'review', label: t('guide.review.title') },
     { id: 'source', label: t('guide.source.title') },
     { id: 'knowledge', label: t('guide.knowledge.title') },
     { id: 'checks', label: t('guide.checks.title') },
@@ -41,6 +45,7 @@ export function GuidePage() {
       <WorkflowGuide />
       <BasicsGuide />
       <BooksGuide />
+      <ReviewGuide />
       <SourceGuide />
       <KnowledgeGuide />
       <ChecksGuide />

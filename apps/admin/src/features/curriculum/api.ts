@@ -5,14 +5,9 @@ import {
   savedResponseSchema,
 } from '@mytutor/schemas';
 import type { CurriculumInput, CurriculumLinksInput } from '@mytutor/types';
-import { getJson, runAction } from '@/features/content/api';
+import { getJson, jsonBody, runAction } from '@/features/content/api';
 
 export const fetchCurriculum = (path: string) => getJson(path, curriculumSchema);
-
-const jsonBody = (body: unknown): RequestInit => ({
-  body: JSON.stringify(body),
-  headers: { 'Content-Type': 'application/json' },
-});
 
 export const createCurriculum = (input: CurriculumInput) =>
   runAction(['curricula'], createCurriculumResponseSchema, jsonBody(input));

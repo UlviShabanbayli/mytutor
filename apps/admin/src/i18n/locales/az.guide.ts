@@ -1,6 +1,6 @@
 /** The «Bələdçi» page: what every page, button, colour and mark of the panel means. */
 export const guide = {
-  title: 'Bələdçi',
+  title: 'Necə işləyir?',
   subtitle:
     'Paneldəki hər səhifənin, düymənin, rəngin və işarənin mənası. Lazım olan bölməni aşağıdakı siyahıdan seçin.',
   toc: 'Bölmələr',
@@ -14,7 +14,7 @@ export const guide = {
     knowledge:
       'AI mənbədən tərif, qayda, düstur, nümunə və tapşırıqları çıxarır, sonra hər element avtomatik yoxlanılır. Pullu addımdır və hələlik terminaldan işə salınır.',
     review:
-      'Komanda «Bilik» bölməsində elementləri dərsliklə müqayisə edir: status, yoxlamalar və səhifədəki yer göstərilir.',
+      'Redaktor «Review» ekranında hər bloku dərsliklə tutuşdurur və hər elementə qərar verir: təsdiqlə, düzəliş lazımdır və ya rədd et.',
     curriculum:
       'Mövzular və bilik elementləri kurikulum standartlarına bağlanır ki, hansı standartın harada öyrədildiyi görünsün.',
     lesson: 'Hələ hazır deyil: bilik sənədi təsdiqləndikdən sonra yaradılacaq.',
@@ -28,11 +28,18 @@ export const guide = {
   },
   basics: {
     title: 'Menyu, tema və rənglər',
-    books: 'Bütün dərsliklər. Yanındakı rəqəm dərsliklərin sayıdır.',
+    overview: 'Bütün kitablar üzrə 5 addım, növbəti tövsiyə olunan iş və hər kitabın vəziyyəti.',
+    books:
+      'Bütün dərsliklər. Altında hər kitab ayrıca: qırmızı rəqəm qərar gözləyən yoxlanmalı elementlərdir, «1/22» isə mənbəsi çıxarılmış mövzular.',
+    review:
+      'Review gözləyən və davam edən mövzular. Qırmızı rəqəm: qərar gözləyən yoxlanmalı elementlər.',
     curricula: 'Komandanın daxil etdiyi kurikulumlar və onların standartları.',
-    trash: 'Silinmiş kitablar: geri qaytarmaq və ya birdəfəlik silmək üçün.',
+    later: '«Sonra» altındakılar hələ hazır deyil.',
     guide: 'Bu səhifə.',
-    theme: 'Sağ yuxarıdakı düymələr: açıq tema, cihazın temasına uyğun, tünd tema.',
+    trash: 'Silinmiş kitablar: geri qaytarmaq və ya birdəfəlik silmək üçün.',
+    theme: 'Menyunun altındakı seçim: cihazın temasına uyğun, açıq və ya tünd.',
+    search:
+      'Yuxarıdakı axtarış: mövzunu nömrəsinə və ya adına görə bütün kitablarda tapır. ⌘K (Windows-da Ctrl+K) ilə açılır.',
     colorsIntro: 'Rənglər paneldə hər yerdə eyni mənanı verir:',
     primary: 'Əsas məlumat, seçilmiş element, element növü, izah blokları.',
     success: 'Hazırdır, keçdi, dərslikdən təsdiqlənib.',
@@ -44,23 +51,51 @@ export const guide = {
     command: 'Bu addımı terminaldan işə salmaq üçün əmr. «Kopyala» ilə götürün.',
   },
   books: {
-    title: 'Dərsliklər və kitab səhifəsi',
-    units: 'Kitabda neçə bölmə var.',
-    topics: 'Kitabda neçə mövzu var.',
-    sources: 'Neçə mövzunun mənbəyi artıq çıxarılıb.',
-    noStructure: 'Kitab hələ bölmə və mövzulara bölünməyib.',
-    delete: 'Kitabı silir. Kitab «Silinmişlər» səhifəsinə düşür, oradan geri qaytarmaq olar.',
-    tabs: 'Kitab səhifəsinin iki bölməsi: bölmə və mövzular, bir də kurikulum bağlantıları.',
-    stageReady: 'Bu addım hazırdır (yaşıl, işarəli).',
-    stageMissing: 'Bu addım hələ edilməyib (boz, xətli).',
-    stages:
-      'Mövzunun üç addımı: Mənbə (səhifələr bloklara ayrılıb), Bilik (bilik sənədi yaradılıb), Dərs planı (hələ yoxdur).',
-    extract: 'Mövzunun mənbəyini PDF-dən çıxarır. Bir neçə saniyə çəkir, pulsuzdur.',
-    dimmed:
-      'Solğun mövzu sətri: mənbə çıxarılmayıb və kitabın PDF faylı diskdə yoxdur, ona görə yalnız terminaldan çıxarmaq olar.',
+    title: 'Ümumi baxış və dərsliklər',
+    steps:
+      'Kitabların hamısı üzrə 5 addım: neçə mövzunun hansı addımda olduğu. Narıncı çərçivəli addımda iş gözləyir.',
+    recommended:
+      'Növbəti ən faydalı iş: başlanmış review, sonra pulsuz mənbə çıxarma, sonra kurikulum işi. Bir düymə ilə başlayır.',
+    spine: 'Kitabın sinfi və hissəsi (adından oxunur).',
+    cells:
+      'Hər kvadrat bir mövzudur, bölmələr arasında boşluq var. Kvadrata toxunanda mövzu açılır.',
+    none: 'Mövzunun mənbəyi hələ çıxarılmayıb.',
+    source: 'Mənbə var, bilik sənədi hələ yoxdur.',
+    knowledge: 'Bilik sənədi var, review gözləyir.',
+    review: 'Review başlanıb, hələ bitməyib.',
+    approved: 'Bütün blokları təsdiqlənib.',
+    dot: 'Mövzuda qərar gözləyən yoxlanmalı element var.',
+    extractAll:
+      'Kitabın mənbəsi olmayan bütün mövzularını bir-bir çıxarır. Pulsuzdur; bu vaxt paneldə işləməyə davam edə bilərsiniz.',
+    bookSteps:
+      'Kitab səhifəsində bu kitabın 5 addımı: yaşıl hazırdır, narıncı çərçivəli indiki addımdır. «Kurikulum»a toxunanda bağlantılar açılır.',
+    filter: 'Mövzuları addıma görə süzür; qutu yalnız yoxlanmalı elementi olan mövzuları saxlayır.',
+    unit: 'Bölmə sətri: toxunanda bölmənin mövzuları cədvəl kimi açılır və ya bağlanır.',
+    bar: 'Mövzunun 5 addımı kiçik zolaq kimi: Mənbə → Bilik → Review → Kurikulum → Dərs planı.',
+    barDone: 'Bu addım hazırdır.',
+    barCurrent: 'Bu addım davam edir.',
+    barQueued: 'Bu addım sıradadır (əvvəlki hazırdır).',
+    action: 'Mövzu ilə indi ediləcək iş: mənbəni çıxar, review-a başla, davam et və ya bax.',
+    more: '«Digər əməliyyatlar»: kurikulum bağlantıları və kitabı silmək.',
     restore: 'Silinmiş kitabı bütün faylları ilə geri qaytarır.',
     purge:
       'Kitabı diskdən birdəfəlik silir. Geri qaytarmaq olmur, ona görə əvvəlcə kitabın adını yazmaq lazımdır.',
+  },
+  review: {
+    title: 'Review',
+    intro:
+      'Mövzu blok-blok yoxlanılır: solda dərslik səhifəsi, sağda seçilmiş blokun dərslikdəki kəsiyi və ondan çıxarılan elementlər. Hər qərar dərhal yadda saxlanılır.',
+    pageList:
+      'Səhifədəki bloklar: işarəli təsdiqlənib, mavi halqalı indi baxılır, boş halqalı gözləyir. Qırmızı «problem»: qərar gözləyən yoxlanmalı element.',
+    flagged: 'Element yoxlanmalıdır: təsdiqlənməyib və ya avtomatik yoxlaması keçməyib.',
+    approve: 'Element doğrudur: tələbələrə olduğu kimi göstəriləcək.',
+    needsFix: 'Elementdə səhv var: nəyin düzəldiləcəyini qısa yazırsınız.',
+    reject: 'Element lazımsızdır və ya yanlışdır: tələbələrə göstərilməyəcək.',
+    undo: 'Qərarı geri alır; blok təsdiqlənibsə, blok yenidən açılır.',
+    approveClean: 'Problemsiz (yoxlaması keçmiş) elementlərin hamısını birdən təsdiqləyir.',
+    later: 'Bloku hələlik buraxıb növbətinə keçir.',
+    approveBlock: 'Blokun bütün elementlərinə qərar veriləndən sonra açılır və bloku təsdiqləyir.',
+    done: 'Blok təsdiqlənib. Element sonradan dəyişsə (bilik yenidən yaradılsa), blok özü yenidən açılır.',
   },
   source: {
     title: 'Mövzu: Mənbə',

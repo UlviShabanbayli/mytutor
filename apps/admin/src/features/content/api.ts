@@ -75,6 +75,12 @@ export async function runAction<S extends z.ZodType>(
   return schema.parse(body);
 }
 
+/** A JSON request body for an action. */
+export const jsonBody = (body: unknown): RequestInit => ({
+  body: JSON.stringify(body),
+  headers: { 'Content-Type': 'application/json' },
+});
+
 /** Uploads a textbook PDF; the server stores it and splits it into units and topics. */
 export const addBook = (file: File, title: string) =>
   runAction(['books'], addBookResponseSchema, {

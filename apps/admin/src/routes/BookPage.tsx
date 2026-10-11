@@ -1,41 +1,113 @@
-import { ListChecks, ListTree } from 'lucide-react';
+import { ChevronRight, ListTree } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router';
-import { DeleteBookButton } from '@/components/books/DeleteBookButton';
-import { UnitSection } from '@/components/books/UnitSection';
+import { Link, useNavigate, useParams } from 'react-router';
+import { BookActionsMenu } from '@/components/books/BookActionsMenu';
+import { BookSteps } from '@/components/books/BookSteps';
+import { ExtractMissingButton } from '@/components/books/ExtractMissingButton';
+import { matchesFilter, type TopicFilter, TopicFilterBar } from '@/components/books/TopicFilterBar';
+import { UnitAccordion } from '@/components/books/UnitAccordion';
 import { BookCurriculumTab } from '@/components/links/BookCurriculumTab';
-import {
-  Breadcrumbs,
-  CommandHint,
-  EmptyState,
-  ErrorState,
-  LoadingState,
-  TabNav,
-} from '@/components/ui';
+import { buttonClass, CommandHint, EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { bookTitle } from '@/features/content/pages';
-import { useBook, useStructure } from '@/features/content/queries';
+import { useStructure } from '@/features/content/queries';
+import { usePageCrumbs } from '@/features/layout/crumbs';
+import { missingSources, nextReviewTopic } from '@/features/progress/stages';
+import { useLibrary } from '@/features/progress/useLibrary';
 import { commands } from '@/lib/commands';
 import { NotFoundPage } from './NotFoundPage';
 
 type BookPageProps = { tab: 'topics' | 'curriculum' };
 
-/** A book: its units and topics, or its links to a curriculum. */
+/** A book's units and topics with the next action for each; or its curriculum links. */
 export function BookPage({ tab }: BookPageProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { bookId = '' } = useParams();
-  const book = useBook(bookId);
-  const structure = useStructure(book.data?.structure ?? null);
+  const { index, library } = useLibrary();
+  const item = library.find((b) => b.book.id === bookId);
+  const structure = useStructure(item?.book.structure ?? null);
+  const [filter, setFilter] = useState<TopicFilter>({ stage: 'all', flaggedOnly: false });
+  const [opened, setOpened] = useState<Set<number> | null>(null);
+  const base = `/books/${encodeURIComponent(bookId)}`;
+  const title = item ? bookTitle(item.book) : '';
+  usePageCrumbs([
+    { label: t('nav.overview'), to: '/' },
+    { label: t('nav.books'), to: '/books' },
+    { label: title, to: base },
+    ...(tab === 'curriculum' ? [{ label: t('bookPage.tabs.curriculum') }] : []),
+  ]);
 
-  if (book.isPending) return <LoadingState />;
-  if (book.isError) return <ErrorState onRetry={() => void book.refetch()} />;
-  if (!book.data) return <NotFoundPage />;
-  const entry = book.data;
-  const base = `/books/${encodeURIComponent(entry.id)}`;
+  if (index.isPending) return <LoadingState />;
+  if (index.isError) return <ErrorState onRetry={() => void index.refetch()} />;
+  if (!item) return <NotFoundPage />;
+  const { book, units, topics, stats } = item;
+  const next = nextReviewTopic(topics);
+  const missing = missingSources(topics).map((topic) => topic.number);
+  const linked = new Set(Object.keys(book.curriculumLinks?.topics ?? {}));
+  for (const link of book.curriculumLinks?.items ?? []) linked.add(link.topic);
+  // Opened by default: the unit of the topic to review next, else the first.
+  const nextUnit = units.find((u) => u.topics.some((topic) => topic.number === next?.number));
+  const open = opened ?? new Set([nextUnit?.index ?? units[0]?.index ?? 0]);
+  const toggle = (index: number) => {
+    const set = new Set(open);
+    if (set.has(index)) set.delete(index);
+    else set.add(index);
+    setOpened(set);
+  };
 
-  const content = () => {
-    if (!entry.structure)
-      return (
+  const header = (
+    <header className="flex flex-wrap items-end gap-4">
+      <div className="flex min-w-0 flex-[1_1_26rem] flex-col gap-1.5">
+        <h1 className="font-sans-black text-3xl text-foreground">
+          {tab === 'curriculum' ? t('bookPage.curriculumLinks') : title}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          {tab === 'curriculum'
+            ? title
+            : [
+                structure.data
+                  ? t('bookPage.pageCount', { count: structure.data.source.pageCount })
+                  : null,
+                t('bookPage.unitCount', { count: units.length }),
+                t('books.topics', { count: stats.topics }),
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+        </p>
+      </div>
+      {tab === 'topics' ? (
+        <>
+          <BookActionsMenu
+            book={book}
+            onDeleted={() => void navigate('/books', { replace: true })}
+          />
+          {next ? (
+            <Link
+              to={`${base}/topics/${encodeURIComponent(next.number)}/review`}
+              className={buttonClass('primary', 'h-12 rounded-md px-4 text-[15px]')}
+            >
+              {t(next.stage === 'review' ? 'bookPage.continueAt' : 'bookPage.startAt', {
+                number: next.number,
+              })}
+              <ChevronRight className="size-5" />
+            </Link>
+          ) : (
+            <ExtractMissingButton book={book} topics={missing} />
+          )}
+        </>
+      ) : (
+        <Link to={base} className={buttonClass('secondary')}>
+          {t('bookPage.backToTopics')}
+        </Link>
+      )}
+    </header>
+  );
+
+  if (!book.structure)
+    return (
+      <div className="flex flex-col gap-6">
+        {header}
         <EmptyState
           icon={<ListTree className="size-6" />}
           title={t('bookPage.noStructureTitle')}
@@ -43,57 +115,38 @@ export function BookPage({ tab }: BookPageProps) {
         >
           <CommandHint command={commands.split} />
         </EmptyState>
-      );
-    if (structure.isPending) return <LoadingState />;
-    if (structure.isError)
-      return (
-        <ErrorState onRetry={() => void structure.refetch()} detail={structure.error.message} />
-      );
-    if (tab === 'curriculum') return <BookCurriculumTab book={entry} structure={structure.data} />;
-    return (
-      <div className="flex flex-col gap-4">
-        {structure.data.units.map((unit) => (
-          <UnitSection
-            key={unit.index}
-            bookId={entry.id}
-            unit={unit}
-            offset={structure.data.source.printedPageOffset}
-            topics={entry.topics}
-            canExtract={entry.canExtract}
-          />
-        ))}
       </div>
     );
-  };
+  if (structure.isPending) return <LoadingState />;
+  if (structure.isError)
+    return <ErrorState onRetry={() => void structure.refetch()} detail={structure.error.message} />;
 
   return (
-    <div className="flex flex-col gap-6">
-      <Breadcrumbs items={[{ label: t('books.title'), to: '/' }, { label: bookTitle(entry) }]} />
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="font-sans-black text-3xl text-foreground">{bookTitle(entry)}</h1>
-          <p className="break-all font-mono text-xs text-muted-foreground">{entry.file}</p>
-        </div>
-        {/* Replaces the history entry, so Back never lands on the deleted book's page. */}
-        <DeleteBookButton book={entry} onDeleted={() => void navigate('/', { replace: true })} />
-      </header>
-      <TabNav
-        label={bookTitle(entry)}
-        tabs={[
-          {
-            to: base,
-            end: true,
-            label: t('bookPage.tabs.topics'),
-            icon: <ListTree className="size-4" />,
-          },
-          {
-            to: `${base}/curriculum`,
-            label: t('bookPage.tabs.curriculum'),
-            icon: <ListChecks className="size-4" />,
-          },
-        ]}
-      />
-      {content()}
+    <div className="flex flex-col gap-5">
+      {header}
+      {tab === 'curriculum' ? (
+        <BookCurriculumTab book={book} structure={structure.data} />
+      ) : (
+        <>
+          <BookSteps bookId={book.id} stats={stats} linkedTopics={linked.size} />
+          <TopicFilterBar topics={topics} filter={filter} onChange={setFilter} />
+          <div className="flex flex-col gap-2.5">
+            {units.map((unit) => (
+              <UnitAccordion
+                key={unit.index}
+                bookId={book.id}
+                unit={unit}
+                topics={unit.topics.filter((topic) => matchesFilter(topic, filter))}
+                offset={structure.data.source.printedPageOffset}
+                canExtract={book.canExtract}
+                linkedTopics={linked}
+                open={open.has(unit.index)}
+                onToggle={() => toggle(unit.index)}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

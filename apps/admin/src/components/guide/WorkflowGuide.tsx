@@ -35,7 +35,7 @@ export function WorkflowGuide() {
           text: t('guide.workflow.knowledge'),
         },
         {
-          sample: step(4, <SearchCheck className="size-4" />, t('knowledge.checks')),
+          sample: step(4, <SearchCheck className="size-4" />, t('nav.review')),
           text: t('guide.workflow.review'),
         },
         {
