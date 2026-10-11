@@ -1,0 +1,33 @@
+{
+  "name": "@mytutor/content-engine",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "knowledge": "tsx --env-file-if-exists=../../.env src/knowledge/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.132.0",
+    "@mytutor/schemas": "workspace:*",
+    "@mytutor/types": "workspace:*",
+    "katex": "^0.19.0",
+    "mathjs": "^15.2.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@mytutor/config": "workspace:*",
+    "@types/node": "^24.0.0",
+    "eslint": "^9.39.0",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.3"
+  }
+}

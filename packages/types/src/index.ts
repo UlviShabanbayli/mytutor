@@ -1,8 +1,23 @@
 import type { z } from 'zod';
 import type {
+  aiCallSchema,
   answerOptionSchema,
   apiErrorSchema,
+  bboxSchema,
+  bookMetaSchema,
+  contentBookEntrySchema,
+  contentIndexSchema,
+  contentTopicEntrySchema,
+  extractedItemSchema,
   healthResponseSchema,
+  knowledgeCheckSchema,
+  knowledgeDocumentSchema,
+  knowledgeExtractionSchema,
+  knowledgeItemSchema,
+  knowledgeItemTypeSchema,
+  knowledgeSourceIdSchema,
+  knowledgeSourceRefSchema,
+  knowledgeStatusSchema,
   localeSchema,
   optionKeySchema,
   otpCodeSchema,
@@ -17,6 +32,9 @@ import type {
   textbookTopicSchema,
   textbookUnitSchema,
   topicSchema,
+  topicSourceSchema,
+  verificationVerdictSchema,
+  wireItemSchema,
 } from '@mytutor/schemas';
 
 // Types inferred from shared schemas. Domain types without a schema are declared here.
