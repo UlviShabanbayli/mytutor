@@ -6,7 +6,7 @@ import type {
   TopicSource,
   VerificationVerdict,
 } from '@mytutor/types';
-import { checkIdentity, latexSyntaxError } from './latex';
+import { checkIdentity, latexSyntaxError, solutionsOf } from './latex';
 
 const QUESTION_BLOCKS = new Set(['inquiry', 'think', 'find_mistake', 'history']);
 const GROUNDING_PASS = 0.8;
@@ -46,6 +46,9 @@ export function latexOf(item: ExtractedItem): string[] {
   }
 }
 
+/** A step that ends with an operator continues on the next line (the book wraps long rows). */
+const CONTINUES = /(?:[+\-=]|\\cdot|\\times)\s*$/;
+
 /** Equalities to test numerically. Steps starting with "=" continue the previous expression. */
 export function identitiesOf(item: ExtractedItem): string[] {
   if (item.type === 'formula') return [item.latex];
@@ -53,9 +56,20 @@ export function identitiesOf(item: ExtractedItem): string[] {
   if (item.type !== 'worked_example') return [];
   const out: string[] = [];
   let last = item.problem.latex ?? '';
+  let pending = '';
   for (const step of item.steps) {
-    const l = step.latex?.trim();
+    let l = step.latex?.trim();
     if (!l) continue;
+    if (pending) {
+      // "… =" + "= …" and "… +" + "+ …" repeat the operator at the wrap.
+      const op = pending.at(-1);
+      l = `${pending} ${(op && l.startsWith(op) ? l.slice(1) : l).trimStart()}`;
+      pending = '';
+    }
+    if (CONTINUES.test(l)) {
+      pending = l;
+      continue;
+    }
     const chain = l.startsWith('=') ? `${last}${l}` : l;
     if (chain.includes('=')) out.push(chain);
     last = chain.split('=').at(-1) ?? last;
@@ -173,8 +187,9 @@ export function checkItem(
   });
 
   // 5. Equalities are algebraic identities.
+  const solutions = item.type === 'worked_example' ? solutionsOf(latexOf(item)) : {};
   const results = identitiesOf(item)
-    .map(checkIdentity)
+    .map((l) => checkIdentity(l, solutions))
     .filter((r) => r !== null);
   const broken = results.find((r) => !r.holds);
   checks.push({
