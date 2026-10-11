@@ -3,6 +3,7 @@
 // <topic-dir> is the folder written by `textbook-parser source` (contains source.json and crops).
 // Writes <topic-dir>/knowledge/knowledge.json and review.html; AI results are cached in
 // <topic-dir>/knowledge/cache, so re-running costs nothing unless inputs or prompts change.
+// --dry-run makes no call: it lists the calls the cache cannot answer and estimates their cost.
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -10,8 +11,8 @@ import { topicSourceSchema } from '@mytutor/schemas';
 import { createClient, type ContentPart } from './claude';
 import { buildDocument } from './document';
 import { estimateTokens } from './estimate';
-import { cropsFor, groupBlocks, payloadFor } from './groups';
-import { runKnowledgePipeline } from './pipeline';
+import { cropsFor, payloadFor } from './groups';
+import { runKnowledgePipeline, uncachedCalls } from './pipeline';
 import { costUsd } from './pricing';
 import { EXTRACT_SYSTEM } from './prompts/extract.v2';
 import { renderKnowledgeReview } from './reviewHtml';
@@ -29,8 +30,16 @@ async function main() {
   const cacheDir = join(outDir, 'cache');
 
   if (args.includes('--dry-run')) {
-    let total = 0;
-    for (const g of groupBlocks(source)) {
+    // Only calls without a cached result reach the API; those are what the estimate prices.
+    const plan = await uncachedCalls(source, {
+      topicDir,
+      cacheDir,
+      extractModel: EXTRACT_MODEL,
+      verifyModel: VERIFY_MODEL,
+    });
+    let extractTokens = 0;
+    let verifyTokens = 0;
+    for (const { group: g, uncached } of plan) {
       const crops: ContentPart[] = [];
       for (const c of cropsFor(source, g)) {
         const png = await readFile(join(topicDir, c.path));
@@ -40,17 +49,24 @@ async function main() {
         [{ type: 'text', text: JSON.stringify(payloadFor(source, g)) }, ...crops],
         EXTRACT_SYSTEM,
       );
-      total += tokens;
+      if (uncached.includes('extract')) extractTokens += tokens;
+      if (uncached.includes('verify')) verifyTokens += tokens;
       console.log(
-        `${g.id}: ${g.blockIds.length} blok, ${crops.length} şəkil, ~${tokens} input token · ${g.blockIds.join(',')}`,
+        `${g.id}: ${g.blockIds.length} blok, ${crops.length} şəkil, ~${tokens} input token · ${uncached.length ? `yeni: ${uncached.join(', ')}` : 'cache'} · ${g.blockIds.join(',')}`,
       );
     }
     // Verification resends the crops with the claims; output ≈ 40% of input for extraction.
-    const est = { input: total * 2, output: Math.round(total * 0.5), cacheWrite: 0, cacheRead: 0 };
+    const est = {
+      input: extractTokens + verifyTokens,
+      output: Math.round(extractTokens * 0.5),
+      cacheWrite: 0,
+      cacheRead: 0,
+    };
     // The token estimate ran 1.41× low against real runs (part 1, 26 topics: $11.62 → $16.39).
     const calibrated = Math.round(costUsd(EXTRACT_MODEL, est) * ESTIMATE_CALIBRATION * 100) / 100;
+    const fresh = plan.reduce((n, p) => n + p.uncached.length, 0);
     console.log(
-      `Cəmi: ${groupBlocks(source).length * 2} çağırış, ~${est.input} input, ~${est.output} output token, ~$${calibrated} (real qaçışlarla kalibrləşdirilib)`,
+      `Cəmi: ${fresh} yeni AI çağırışı (${plan.length} qrup), ~${est.input} input, ~${est.output} output token, ~$${calibrated} (real qaçışlarla kalibrləşdirilib)`,
     );
     return;
   }
