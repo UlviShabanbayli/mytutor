@@ -1,0 +1,16 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# Expo + React Native need a flat node_modules layout.
+nodeLinker: hoisted
+
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  unrs-resolver: true
+
+# Keep React Native tooling on the version that matches the Expo SDK's react-native.
+overrides:
+  '@react-native/metro-config': 0.86.3
+  '@react-native/jest-preset': 0.86.3
