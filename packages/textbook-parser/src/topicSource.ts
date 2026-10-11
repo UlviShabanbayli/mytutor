@@ -12,7 +12,8 @@ import { buildBlocks, withSideBoxes, type DraftBlock, type Pos } from './blocks'
 import { findFigures } from './figures';
 import type { PageGraphics } from './graphics';
 import { groupSourceLines } from './lines';
-import { findMarkers } from './markers';
+import { findLayoutMarkers } from './layoutMarkers';
+import { findMarkers, type Marker } from './markers';
 import { isSuspicious, repairBody } from './repair';
 import { findPanels, findSideBoxes, sideBoxAt, type SideBox } from './template';
 import type { TextItem, TextLine } from './types';
@@ -105,14 +106,27 @@ export function buildTopicSource(input: TopicSourceInput): TopicSourceDraft {
       .sort((a, b) => a.page - b.page || lineTop(a) - lineTop(b) || a.x - b.x);
   let lines = groupLines();
 
-  const found = findMarkers({
-    lines: lines.filter((l) => !boxAt(l.page, lineBox(l))),
+  const columnLines = lines.filter((l) => !boxAt(l.page, lineBox(l)));
+  const template = findMarkers({
+    lines: columnLines,
     items,
     graphics,
     body,
     pageHeight: H,
     panels,
   });
+  // A book outside the TRİMS template shows few of its labels, badges or number circles (a
+  // "Teorem 1." may match): its blocks are found by label vocabulary and layout instead, when
+  // that finds clearly more of them.
+  const specific = (ms: Marker[]) => ms.filter((m) => m.kind !== 'title' && m.kind !== 'section');
+  const layout = findLayoutMarkers({
+    lines: columnLines,
+    items,
+    body,
+    pageHeight: H,
+    topicTitle: topic.title,
+  });
+  const found = specific(layout).length > 2 * specific(template).length ? layout : template;
   // A label printed in a narrow panel (a NÜMUNƏ beside the text) makes the panel a side box.
   for (const m of found) {
     if (m.box && !boxAt(m.page, m.box)) {
