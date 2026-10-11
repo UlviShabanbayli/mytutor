@@ -1,13 +1,7 @@
 import '../global.css';
 import '@/i18n';
 
-import {
-  PlusJakartaSans_400Regular,
-  PlusJakartaSans_600SemiBold,
-  PlusJakartaSans_700Bold,
-  PlusJakartaSans_800ExtraBold,
-  useFonts,
-} from '@expo-google-fonts/plus-jakarta-sans';
+import { useFonts } from 'expo-font';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
@@ -18,11 +12,13 @@ import { ThemeProvider } from '@/theme';
 void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  // Local copies without contextual alternates, so "2x" never becomes "2×" (see
+  // scripts/strip-font-calt.py); the names match the font tokens.
   const [fontsLoaded, fontError] = useFonts({
-    PlusJakartaSans_400Regular,
-    PlusJakartaSans_600SemiBold,
-    PlusJakartaSans_700Bold,
-    PlusJakartaSans_800ExtraBold,
+    PlusJakartaSans_400Regular: require('../assets/fonts/PlusJakartaSans_400Regular.ttf'),
+    PlusJakartaSans_600SemiBold: require('../assets/fonts/PlusJakartaSans_600SemiBold.ttf'),
+    PlusJakartaSans_700Bold: require('../assets/fonts/PlusJakartaSans_700Bold.ttf'),
+    PlusJakartaSans_800ExtraBold: require('../assets/fonts/PlusJakartaSans_800ExtraBold.ttf'),
   });
   const ready = fontsLoaded || fontError !== null;
 

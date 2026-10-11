@@ -27,8 +27,9 @@ module.exports = {
     ({ addBase }) =>
       addBase({
         ':root': { ...themeVars('light'), colorScheme: 'light' },
-        // The font turns "x" between digits into "×"; in maths text "2x" must stay a variable.
-        body: { fontVariantLigatures: 'no-contextual' },
+        // The font turns "x" after a digit into "×"; in maths text "2x" must stay a variable.
+        // font-feature-settings (unlike font-variant-ligatures) is inherited by form controls.
+        body: { fontFeatureSettings: '"calt" 0' },
         '@media (prefers-color-scheme: dark)': {
           ':root:not([data-theme="light"])': { ...themeVars('dark'), colorScheme: 'dark' },
         },

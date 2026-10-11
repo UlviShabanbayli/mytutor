@@ -14,7 +14,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@expo-google-fonts/plus-jakarta-sans": "0.4.2",
     "@expo/vector-icons": "^15.1.1",
     "@mytutor/config": "workspace:*",
     "@mytutor/schemas": "workspace:*",
@@ -48,6 +47,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@expo-google-fonts/plus-jakarta-sans": "0.4.2",
     "@testing-library/react-native": "^14.0.1",
     "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
