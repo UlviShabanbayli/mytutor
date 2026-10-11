@@ -125,6 +125,7 @@ export function buildTopicSource(input: TopicSourceInput): TopicSourceDraft {
     body,
     pageHeight: H,
     topicTitle: topic.title,
+    graphics,
   });
   const found = specific(layout).length > 2 * specific(template).length ? layout : template;
   // A label printed in a narrow panel (a NÜMUNƏ beside the text) makes the panel a side box.

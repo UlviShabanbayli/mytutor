@@ -139,7 +139,13 @@ export function withSideBoxes(blocks: DraftBlock[], boxes: SideBox[]): DraftBloc
         !LEAVES.includes(b.kind) &&
         b.spans.some((s) => !before(at, s.from) && before(at, s.to)),
     );
-    const parent = TOP_LEVEL.includes(x.kind) ? null : (open.at(-1) ?? null);
+    // An exercise printed in a box of its own belongs to the exercise list, not to the
+    // exercise above it.
+    const parent = TOP_LEVEL.includes(x.kind)
+      ? null
+      : x.kind === 'exercise'
+        ? (open.filter((b) => CONTAINERS.includes(b.kind)).at(-1) ?? null)
+        : (open.at(-1) ?? null);
     const level = parent ? depth(parent) + 1 : 0;
     const next = out.findIndex(
       (b, i) => i > 0 && depth(b) <= level && !!b.spans[0] && before(at, b.spans[0].from),
