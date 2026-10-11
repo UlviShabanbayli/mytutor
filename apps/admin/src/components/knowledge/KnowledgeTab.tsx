@@ -45,6 +45,7 @@ export function KnowledgeTab({ doc, source, topicDir }: KnowledgeTabProps) {
                 key={item.id}
                 item={item}
                 source={source}
+                topicDir={topicDir}
                 active={item.id === itemId}
                 onSelect={select}
               />

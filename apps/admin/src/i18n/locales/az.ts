@@ -227,6 +227,9 @@ export const az = {
     sources: 'Mənbə',
     sourceRef: '{{block}} · {{page}}',
     lineCount: '{{count}} sətir',
+    figures: 'Mətnin istinad etdiyi fiqurlar',
+    figureAlt: 'Fiqur {{id}}',
+    showFigure: 'Mənbə panelində böyük göstər',
     checks: 'Yoxlamalar',
     check: {
       source_ids: 'Mənbə ID-ləri',
@@ -235,6 +238,7 @@ export const az = {
       latex_syntax: 'LaTeX sintaksisi',
       identity: 'Riyazi eynilik',
       image_verification: 'Şəkil yoxlaması',
+      figure_link: 'Fiqur',
     },
     result: {
       pass: 'keçdi',

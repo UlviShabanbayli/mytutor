@@ -3,24 +3,34 @@ import { useTranslation } from 'react-i18next';
 import type { KnowledgeItem, TopicSource } from '@mytutor/types';
 import { Badge } from '@/components/ui';
 import { useBlockLabel } from '@/components/source/BlockLabel';
-import { hasFailedCheck, toExtracted } from '@/features/knowledge/items';
+import { figuresOf, hasFailedCheck, toExtracted } from '@/features/knowledge/items';
 import { cn } from '@/lib/cn';
 import { CheckList } from './CheckList';
+import { ItemFigures } from './ItemFigures';
 import { KnowledgeItemBody } from './KnowledgeItemBody';
 import { statusTone } from './statusTone';
 
 type KnowledgeItemCardProps = {
   item: KnowledgeItem;
   source: TopicSource;
+  /** Topic folder under `/content/`, for figure images. */
+  topicDir: string;
   active: boolean;
   onSelect: (id: string) => void;
 };
 
-export function KnowledgeItemCard({ item, source, active, onSelect }: KnowledgeItemCardProps) {
+export function KnowledgeItemCard({
+  item,
+  source,
+  topicDir,
+  active,
+  onSelect,
+}: KnowledgeItemCardProps) {
   const { t } = useTranslation();
   const blockLabel = useBlockLabel();
   const extracted = toExtracted(item);
   const failed = hasFailedCheck(item);
+  const figures = figuresOf(item, source);
 
   return (
     <article
@@ -58,17 +68,22 @@ export function KnowledgeItemCard({ item, source, active, onSelect }: KnowledgeI
         ) : null}
       </header>
 
-      <div className="min-w-0 text-foreground">
-        {extracted ? (
-          <KnowledgeItemBody item={extracted} />
-        ) : (
-          <div className="flex flex-col gap-1">
-            <p className="text-xs text-destructive">{t('knowledge.rawContent')}</p>
-            <pre className="overflow-x-auto rounded-sm bg-muted p-2 font-mono text-xs">
-              {JSON.stringify(item.content, null, 2)}
-            </pre>
-          </div>
-        )}
+      <div className="flex min-w-0 flex-col gap-3">
+        <div className="min-w-0 text-foreground">
+          {extracted ? (
+            <KnowledgeItemBody item={extracted} />
+          ) : (
+            <div className="flex flex-col gap-1">
+              <p className="text-xs text-destructive">{t('knowledge.rawContent')}</p>
+              <pre className="overflow-x-auto rounded-sm bg-muted p-2 font-mono text-xs">
+                {JSON.stringify(item.content, null, 2)}
+              </pre>
+            </div>
+          )}
+        </div>
+        {figures.length ? (
+          <ItemFigures figures={figures} topicDir={topicDir} onSelect={() => onSelect(item.id)} />
+        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5 text-xs">
