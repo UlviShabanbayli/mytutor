@@ -3,7 +3,7 @@ export {
   colors,
   duration,
   fontSize,
-  palette,
+  fontFamily,
   radius,
   touchTarget,
   type ColorSchemeName,

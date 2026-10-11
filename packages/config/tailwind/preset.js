@@ -1,7 +1,7 @@
 // Shared Tailwind preset (NativeWind v4 / Tailwind CSS v3).
 // Semantic colors resolve to CSS variables so light/dark is switched once at the root
 // (see apps/mobile/src/theme/ThemeProvider.tsx) instead of `dark:` on every element.
-const { colors, radius, fontSize, touchTarget } = require('./tokens');
+const { colors, radius, fontSize, fontFamily, touchTarget } = require('./tokens');
 
 const colorNames = Object.keys(colors.light);
 
@@ -37,6 +37,14 @@ module.exports = {
           [px(size), { lineHeight: px(lineHeight) }],
         ]),
       ),
+      // Separate families per weight (custom fonts ignore fontWeight on Android).
+      // Use `font-sans-bold` etc.; never combine with `font-bold`/`font-semibold`.
+      fontFamily: {
+        sans: [fontFamily.regular],
+        'sans-medium': [fontFamily.medium],
+        'sans-bold': [fontFamily.bold],
+        'sans-black': [fontFamily.black],
+      },
       minHeight: { touch: px(touchTarget) },
       minWidth: { touch: px(touchTarget) },
     },

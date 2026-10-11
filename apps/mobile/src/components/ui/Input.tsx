@@ -35,8 +35,8 @@ export function Input({
         accessibilityHint={message}
         placeholderTextColor={colors['muted-foreground']}
         className={cn(
-          'min-h-touch rounded-md border bg-card px-4 text-base text-foreground',
-          error ? 'border-destructive' : focused ? 'border-ring border-2' : 'border-input',
+          'min-h-touch rounded-md border-2 bg-card px-4 font-sans text-base text-foreground',
+          error ? 'border-destructive' : focused ? 'border-ring' : 'border-input',
         )}
         onFocus={(e) => {
           setFocused(true);
