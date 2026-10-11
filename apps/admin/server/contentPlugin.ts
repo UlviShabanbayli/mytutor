@@ -73,8 +73,8 @@ const BOOK = /^\/books\/([^/]+)\/?$/;
 const EXTRACT_SOURCE = /^\/books\/([^/]+)\/topics\/([^/]+)\/source\/?$/;
 const RESTORE_BOOK = /^\/trash\/([^/]+)\/restore\/?$/;
 const TRASH_ENTRY = /^\/trash\/([^/]+)\/?$/;
-const CURRICULA = /^\/standard-sets\/?$/;
-const CURRICULUM = /^\/standard-sets\/([^/]+)\/?$/;
+const STANDARD_SETS = /^\/standard-sets\/?$/;
+const STANDARD_SET = /^\/standard-sets\/([^/]+)\/?$/;
 const TOPIC_REVIEW = /^\/books\/([^/]+)\/topics\/([^/]+)\/review\/?$/;
 const BOOK_LINKS = /^\/books\/([^/]+)\/standard-links\/?$/;
 
@@ -126,14 +126,14 @@ export function contentPlugin(root: string): Plugin {
       if (book) return json(res, 200, await deleteBook({ root, bookId: segment(book[1]) }));
       const entry = TRASH_ENTRY.exec(path);
       if (entry) return json(res, 200, await purgeTrash({ root, trashId: segment(entry[1]) }));
-      const standardSet = CURRICULUM.exec(path);
+      const standardSet = STANDARD_SET.exec(path);
       if (standardSet)
         return json(res, 200, await deleteStandardSet({ root, id: segment(standardSet[1]) }));
       return apiError(res, 404, 'not_found', 'Unknown action');
     }
-    if (CURRICULA.test(path))
+    if (STANDARD_SETS.test(path))
       return json(res, 201, await createStandardSet({ root, body: await readJsonBody(req) }));
-    const standardSet = CURRICULUM.exec(path);
+    const standardSet = STANDARD_SET.exec(path);
     if (standardSet) {
       const id = segment(standardSet[1]);
       return json(res, 200, await saveStandardSet({ root, id, body: await readJsonBody(req) }));
