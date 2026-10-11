@@ -4,3 +4,4 @@ dist
 .expo
 .turbo
 apps/api/drizzle
+**/out

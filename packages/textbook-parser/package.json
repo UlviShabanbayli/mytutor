@@ -15,10 +15,12 @@
     "split": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run"
+    "test": "vitest run",
+    "source": "tsx src/sourceCli.ts"
   },
   "dependencies": {
     "@mytutor/schemas": "workspace:*",
+    "@napi-rs/canvas": "^1.0.10",
     "pdfjs-dist": "^6.4.299",
     "zod": "^4.6.5"
   },

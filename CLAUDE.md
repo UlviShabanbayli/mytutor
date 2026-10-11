@@ -116,6 +116,9 @@ apps/
       i18n/                   # az only for now (keys kept so locales can be added)
   api/
     src/ routes/ services/ db/ middleware/
+  admin/                      # web content panel (Vite + React, same tokens): textbook → source → knowledge review
+    server/                   # dev-only plugin: `/content/` serves pipeline outputs, `/content-api/` runs actions (add, delete and restore a book, extract source)
+    src/ routes/ components/ features/ i18n/ lib/
   lesson-engine/              # later: Remotion whiteboard pipeline
 packages/
   types/                      # shared domain types (User, Lesson, Question, Answer, ...)

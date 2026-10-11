@@ -20,7 +20,13 @@
       "name": "api",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@mytutor/api", "dev"],
-      "port": 3000
+      "port": 4000
+    },
+    {
+      "name": "admin",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@mytutor/admin", "dev"],
+      "port": 5180
     }
   ]
 }
