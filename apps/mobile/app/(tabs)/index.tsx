@@ -1,7 +1,9 @@
 import { Link } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { ContinueTestCard } from '@/components/home/ContinueTestCard';
 import { DailyGoalCard } from '@/components/home/DailyGoalCard';
+import { HomeHeader } from '@/components/home/HomeHeader';
 import { RecommendedTestCard } from '@/components/home/RecommendedTestCard';
 import { SubjectGrid } from '@/components/tests/SubjectGrid';
 import { ErrorState, LoadingState, Screen, Text } from '@/components/ui';
@@ -16,18 +18,18 @@ export default function HomeScreen() {
 
   return (
     <Screen>
-      <View className="gap-1">
-        <Text variant="title">{t('home.greeting')}</Text>
-        <Text tone="muted">{t('home.subtitle')}</Text>
-      </View>
-      <DailyGoalCard />
+      <HomeHeader />
       {recommended.data ? <RecommendedTestCard topic={recommended.data} /> : null}
-      <View className="gap-3">
+      <ContinueTestCard />
+      <DailyGoalCard />
+      <View className="gap-2.5">
         <View className="flex-row items-center justify-between">
-          <Text variant="heading">{t('home.subjectsTitle')}</Text>
+          <Text variant="subheading" accessibilityRole="header">
+            {t('home.subjectsTitle')}
+          </Text>
           <Link
             href="/tests"
-            className="min-h-touch px-2 py-3 font-sans-bold text-base text-primary"
+            className="min-h-touch px-2 py-3 font-sans-black text-sm text-primary"
           >
             {t('home.seeAll')}
           </Link>

@@ -8,6 +8,8 @@ type IconButtonProps = {
   accessibilityLabel: string;
   onPress: () => void;
   color?: keyof SemanticColors;
+  /** `outlined`: a round white button with a hairline border (headers on a grey ground). */
+  variant?: 'plain' | 'outlined';
   className?: string;
 };
 
@@ -16,7 +18,8 @@ export function IconButton({
   icon,
   accessibilityLabel,
   onPress,
-  color = 'muted-foreground',
+  color = 'foreground',
+  variant = 'plain',
   className,
 }: IconButtonProps) {
   return (
@@ -26,10 +29,11 @@ export function IconButton({
       onPress={onPress}
       className={cn(
         'min-h-touch min-w-touch items-center justify-center rounded-full active:bg-muted',
+        variant === 'outlined' && 'border border-border bg-card',
         className,
       )}
     >
-      <Icon name={icon} size={26} color={color} />
+      <Icon name={icon} size={24} color={color} />
     </Pressable>
   );
 }

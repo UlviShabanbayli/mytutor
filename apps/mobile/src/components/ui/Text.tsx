@@ -1,4 +1,4 @@
-import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
+import { Text as RNText, type TextProps as RNTextProps, StyleSheet } from 'react-native';
 import { cn } from '@/lib/cn';
 
 type TextVariant = 'display' | 'title' | 'heading' | 'subheading' | 'body' | 'label' | 'caption';
@@ -7,12 +7,12 @@ type TextTone =
 
 const variantClasses: Record<TextVariant, string> = {
   display: 'font-sans-black text-4xl',
-  title: 'font-sans-black text-3xl',
-  heading: 'font-sans-bold text-xl',
-  subheading: 'font-sans-bold text-lg',
+  title: 'font-sans-black text-2xl',
+  heading: 'font-sans-black text-lg',
+  subheading: 'font-sans-black text-base',
   body: 'font-sans text-base',
-  label: 'font-sans-medium text-sm',
-  caption: 'font-sans text-xs',
+  label: 'font-sans-bold text-sm',
+  caption: 'font-sans-medium text-xs',
 };
 
 const toneClasses: Record<TextTone, string> = {
@@ -25,19 +25,30 @@ const toneClasses: Record<TextTone, string> = {
   secondary: 'text-secondary-foreground',
 };
 
+// Plus Jakarta Sans turns "x" between digits into "×" (contextual alternates): in a maths app
+// "2x" must stay a variable. No className sets font features, hence this one style.
+const styles = StyleSheet.create({ text: { fontVariant: ['no-contextual'] } });
+
 type TextProps = RNTextProps & {
   variant?: TextVariant;
   tone?: TextTone;
   className?: string;
 };
 
-export function Text({ variant = 'body', tone = 'default', className, ...props }: TextProps) {
+export function Text({
+  variant = 'body',
+  tone = 'default',
+  className,
+  style,
+  ...props
+}: TextProps) {
   const isHeader = variant === 'display' || variant === 'title' || variant === 'heading';
 
   return (
     <RNText
       accessibilityRole={isHeader ? 'header' : undefined}
       className={cn(variantClasses[variant], toneClasses[tone], className)}
+      style={[styles.text, style]}
       {...props}
     />
   );

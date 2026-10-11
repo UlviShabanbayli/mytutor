@@ -1,3 +1,4 @@
+export { Avatar } from './Avatar';
 export { Badge } from './Badge';
 export { Button } from './Button';
 export { Card } from './Card';
@@ -6,9 +7,11 @@ export { ErrorState } from './ErrorState';
 export { Icon, type IconName } from './Icon';
 export { IconButton } from './IconButton';
 export { Input } from './Input';
+export { ListRow } from './ListRow';
 export { LoadingState } from './LoadingState';
 export { PressableCard } from './PressableCard';
 export { ProgressBar } from './ProgressBar';
 export { Screen } from './Screen';
+export { SegmentedControl } from './SegmentedControl';
 export { ScreenHeader } from './ScreenHeader';
 export { Text } from './Text';

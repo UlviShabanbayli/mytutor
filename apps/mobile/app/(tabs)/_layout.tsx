@@ -1,25 +1,30 @@
 import { Tabs } from 'expo-router/js-tabs';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AskTabButton } from '@/components/navigation/AskTabButton';
 import { Icon, type IconName } from '@/components/ui';
 import { fontFamily, useThemeColors } from '@/theme';
 
+const TAB_BAR_HEIGHT = 68;
+
 /** Filled icon for the active tab, outline otherwise. */
 function tabIcon(active: IconName, inactive: IconName) {
-  return function TabIcon({ focused, size }: { focused: boolean; size: number }) {
+  return function TabIcon({ focused }: { focused: boolean }) {
     return (
       <Icon
         name={focused ? active : inactive}
-        size={size}
+        size={24}
         color={focused ? 'primary' : 'muted-foreground'}
       />
     );
   };
 }
 
-// Tab bar background and border come from the navigation theme set in ThemeProvider.
+// Five tabs with "Ask" as the raised action in the middle (design A1).
 export default function TabsLayout() {
   const { t } = useTranslation();
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -27,7 +32,14 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors['muted-foreground'],
-        tabBarLabelStyle: { fontFamily: fontFamily.bold },
+        tabBarLabelStyle: { fontFamily: fontFamily.bold, fontSize: 11 },
+        // Tall enough for the round Ask button (design: 84pt bar including the home indicator).
+        tabBarStyle: {
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
+          height: TAB_BAR_HEIGHT + insets.bottom,
+          paddingTop: 6,
+        },
       }}
     >
       <Tabs.Screen
@@ -36,18 +48,31 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="tests"
-        options={{ title: t('tabs.tests'), tabBarIcon: tabIcon('layers', 'layers-outline') }}
-      />
-      <Tabs.Screen
-        name="results"
         options={{
-          title: t('tabs.results'),
-          tabBarIcon: tabIcon('stats-chart', 'stats-chart-outline'),
+          title: t('tabs.tests'),
+          tabBarIcon: tabIcon('clipboard', 'clipboard-outline'),
         }}
       />
       <Tabs.Screen
-        name="profile"
-        options={{ title: t('tabs.profile'), tabBarIcon: tabIcon('person', 'person-outline') }}
+        name="ask"
+        options={{
+          title: t('tabs.ask'),
+          tabBarButton: (props) => <AskTabButton {...props} label={t('tabs.ask')} />,
+        }}
+      />
+      <Tabs.Screen
+        name="lessons"
+        options={{
+          title: t('tabs.lessons'),
+          tabBarIcon: tabIcon('play-circle', 'play-circle-outline'),
+        }}
+      />
+      <Tabs.Screen
+        name="progress"
+        options={{
+          title: t('tabs.progress'),
+          tabBarIcon: tabIcon('stats-chart', 'stats-chart-outline'),
+        }}
       />
     </Tabs>
   );

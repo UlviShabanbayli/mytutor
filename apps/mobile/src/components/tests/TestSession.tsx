@@ -10,7 +10,7 @@ import { DEMO_SOURCE } from '@/features/tests/demoData';
 import { useTestSessionStore } from '@/features/tests/sessionStore';
 import { FeedbackPanel } from './FeedbackPanel';
 import { OptionButton, type OptionState } from './OptionButton';
-import { SegmentedProgress } from './SegmentedProgress';
+import { SessionProgress } from './SessionProgress';
 
 function optionState(
   question: Question,
@@ -57,27 +57,16 @@ export function TestSession({ test }: TestSessionProps) {
 
   return (
     <SafeAreaView edges={['top', 'bottom', 'left', 'right']} className="flex-1 bg-background">
-      <View className="flex-row items-center gap-2 px-2 pb-2">
+      <View className="flex-row items-center gap-2 pb-1 pl-2 pr-5">
         <IconButton icon="close" accessibilityLabel={t('common.close')} onPress={router.back} />
-        <SegmentedProgress
-          test={test}
-          answers={active.answers}
-          index={active.index}
-          checked={active.checked}
-        />
-        <View className="w-3" />
+        <SessionProgress title={test.title} index={active.index} total={test.questions.length} />
       </View>
-      <ScrollView contentContainerClassName="gap-5 px-4 py-4">
-        <View className="flex-row items-center gap-2">
-          <Text variant="label" tone="muted">
-            {t('session.progress', { current: active.index + 1, total: test.questions.length })}
-          </Text>
-          {question.source === DEMO_SOURCE ? <Badge label={t('demo.badge')} tone="accent" /> : null}
-        </View>
-        <Text variant="heading" className="text-2xl">
+      <ScrollView contentContainerClassName="gap-5 px-5 py-5">
+        {question.source === DEMO_SOURCE ? <Badge label={t('demo.badge')} tone="accent" /> : null}
+        <Text variant="title" className="leading-8">
           {question.stem}
         </Text>
-        <View accessibilityRole="radiogroup" className="gap-3">
+        <View accessibilityRole="radiogroup" className="gap-2.5">
           {question.options.map((option) => (
             <OptionButton
               key={option.key}
@@ -100,7 +89,7 @@ export function TestSession({ test }: TestSessionProps) {
           onContinue={onContinue}
         />
       ) : (
-        <View className="border-t-2 border-border px-4 pb-2 pt-4">
+        <View className="px-5 pb-2 pt-3">
           <Button label={t('session.check')} disabled={!selected} onPress={onCheck} />
         </View>
       )}

@@ -26,7 +26,7 @@ export function ProgressBar({
       accessibilityRole="progressbar"
       accessibilityLabel={accessibilityLabel}
       accessibilityValue={{ min: 0, max: 100, now: percent }}
-      className={cn('h-3 overflow-hidden rounded-full bg-muted', className)}
+      className={cn('h-1.5 overflow-hidden rounded-full bg-muted', className)}
     >
       {/* Width is data-driven, so it cannot be a static className. */}
       <View

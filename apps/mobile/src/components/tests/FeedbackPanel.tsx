@@ -25,14 +25,14 @@ export function FeedbackPanel({ question, correct, isLast, onContinue }: Feedbac
       <View
         accessibilityLiveRegion="polite"
         className={cn(
-          'gap-3 rounded-t-xl px-4 pb-4 pt-5',
-          correct ? 'bg-success-muted' : 'bg-destructive-muted',
+          'gap-3 rounded-t-xl border-t-4 bg-card px-5 pb-3 pt-4 shadow-lg',
+          correct ? 'border-success' : 'border-destructive',
         )}
       >
         <View className="flex-row items-center gap-2">
           <Icon
             name={correct ? 'checkmark-circle' : 'close-circle'}
-            size={28}
+            size={26}
             color={correct ? 'success' : 'destructive'}
           />
           <Text variant="heading" tone={correct ? 'success' : 'destructive'}>
@@ -49,9 +49,10 @@ export function FeedbackPanel({ question, correct, isLast, onContinue }: Feedbac
           <Text>{question.explanation}</Text>
         </View>
         <SourceLine source={question.source} />
+        {/* Moving on after a mistake is calm (dark), not another red alarm. */}
         <Button
           label={isLast ? t('session.finish') : t('session.next')}
-          variant={correct ? 'success' : 'destructive'}
+          variant={correct ? 'primary' : 'neutral'}
           onPress={onContinue}
         />
       </View>
