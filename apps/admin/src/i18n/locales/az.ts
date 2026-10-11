@@ -227,6 +227,8 @@ export const az = {
     sources: 'Mənbə',
     sourceRef: '{{block}} · {{page}}',
     lineCount: '{{count}} sətir',
+    figures: 'Mətnin istinad etdiyi fiqurlar',
+    figureAlt: 'Fiqur {{id}}',
     checks: 'Yoxlamalar',
     check: {
       source_ids: 'Mənbə ID-ləri',

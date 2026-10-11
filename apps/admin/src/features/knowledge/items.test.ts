@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { KnowledgeItem } from '@mytutor/types';
-import { filterItems, toExtracted } from './items';
+import type { KnowledgeItem, SourceFigure, TopicSource } from '@mytutor/types';
+import { figuresOf, filterItems, toExtracted } from './items';
 
 const item = (over: Partial<KnowledgeItem>): KnowledgeItem => ({
   id: 'k001',
@@ -51,5 +51,30 @@ describe('filterItems', () => {
     expect(ids({ status: 'unverified', type: null, failedOnly: false })).toEqual(['k2']);
     expect(ids({ status: null, type: 'term', failedOnly: false })).toEqual(['k3']);
     expect(ids({ status: null, type: null, failedOnly: true })).toEqual(['k2']);
+  });
+});
+
+describe('figuresOf', () => {
+  const figure = (id: string): SourceFigure => ({
+    id,
+    kind: 'vector',
+    region: { page: 85, printedPage: 83, bbox: { x: 0, y: 0, width: 1, height: 1 } },
+    labels: [],
+    image: `figures/${id}.png`,
+  });
+  // Only the figures matter here.
+  const source = { figures: [figure('f01'), figure('f02')] } as TopicSource;
+  const ref = (figureId: string | null) => ({
+    blockId: 'b03',
+    lineIds: [],
+    figureId,
+    regions: [{ page: 85, printedPage: 83, bbox: { x: 0, y: 0, width: 1, height: 1 } }],
+    crops: [],
+  });
+
+  it('lists the cited figures once, in citation order, skipping unknown ids', () => {
+    const cited = item({ sources: [ref('f02'), ref(null), ref('f01'), ref('f02'), ref('f99')] });
+    expect(figuresOf(cited, source).map((f) => f.id)).toEqual(['f02', 'f01']);
+    expect(figuresOf(item({}), source)).toEqual([]);
   });
 });

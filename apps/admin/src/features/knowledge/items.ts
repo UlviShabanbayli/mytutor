@@ -5,6 +5,8 @@ import type {
   KnowledgeItem,
   KnowledgeItemType,
   KnowledgeStatus,
+  SourceFigure,
+  TopicSource,
 } from '@mytutor/types';
 
 /**
@@ -24,6 +26,14 @@ export function toExtracted(item: KnowledgeItem): ExtractedItem | null {
 }
 
 export const hasFailedCheck = (item: KnowledgeItem) => item.checks.some((c) => c.result === 'fail');
+
+/** The figures an item cites (by the model or linked by rule), in citation order. */
+export function figuresOf(item: KnowledgeItem, source: TopicSource): SourceFigure[] {
+  const ids = [...new Set(item.sources.flatMap((s) => (s.figureId ? [s.figureId] : [])))];
+  return ids
+    .map((id) => source.figures.find((f) => f.id === id))
+    .filter((f): f is SourceFigure => f !== undefined);
+}
 
 export type KnowledgeFilter = {
   status: KnowledgeStatus | null;
