@@ -62,18 +62,14 @@ export function OptionButton({ option, state, disabled, onPress }: OptionButtonP
       )}
     >
       <View className={cn('h-8 w-8 items-center justify-center rounded-full', s.badge)}>
-        {/* Icons make correctness clear without relying on color alone. */}
-        {state === 'correct' ? (
-          <Icon name="checkmark" size={18} color="success-foreground" />
-        ) : state === 'incorrect' ? (
-          <Icon name="close" size={18} color="destructive-foreground" />
-        ) : (
-          <Text className={cn('font-sans-black text-sm', s.badgeText)}>{option.key}</Text>
-        )}
+        <Text className={cn('font-sans-black text-sm', s.badgeText)}>{option.key}</Text>
       </View>
       <Text variant="body" className="flex-1 font-sans-medium text-lg">
         {option.text}
       </Text>
+      {/* Icons make correctness clear without relying on color alone. */}
+      {state === 'correct' ? <Icon name="checkmark" size={22} color="success" /> : null}
+      {state === 'incorrect' ? <Icon name="close" size={22} color="destructive" /> : null}
     </Pressable>
   );
 }

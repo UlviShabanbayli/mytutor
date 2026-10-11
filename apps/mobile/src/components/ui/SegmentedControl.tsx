@@ -39,7 +39,7 @@ export function SegmentedControl<T extends string>({
             onPress={() => onChange(segment.value)}
             className={cn(
               'min-h-touch flex-1 flex-row items-center justify-center gap-1.5 rounded-sm px-2',
-              selected ? 'border border-border bg-card' : 'active:bg-card/60',
+              selected ? 'border border-primary bg-card' : 'active:bg-card/60',
             )}
           >
             {segment.icon ? (

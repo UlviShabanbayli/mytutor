@@ -13,10 +13,13 @@ type ContinueTestCardProps = {
 function ContinueTest({ testId }: ContinueTestCardProps) {
   const { t } = useTranslation();
   const test = useTest(testId);
-  const index = useTestSessionStore((s) => s.session?.index ?? 0);
+  // The current question counts as done once its answer has been checked.
+  const done = useTestSessionStore((s) =>
+    s.session ? s.session.index + (s.session.checked ? 1 : 0) : 0,
+  );
   if (!test.data) return null;
   const total = test.data.questions.length;
-  const progress = t('home.continueProgress', { done: index, total });
+  const progress = t('home.continueProgress', { done, total });
 
   return (
     <View className="gap-2.5">
@@ -35,7 +38,11 @@ function ContinueTest({ testId }: ContinueTestCardProps) {
           <Text className="font-sans-black" numberOfLines={1}>
             {test.data.title}
           </Text>
-          <ProgressBar value={total ? index / total : 0} accessibilityLabel={progress} />
+          <ProgressBar
+            value={total ? done / total : 0}
+            accessibilityLabel={progress}
+            className="bg-secondary"
+          />
           <Text variant="caption" tone="muted">
             {progress}
           </Text>

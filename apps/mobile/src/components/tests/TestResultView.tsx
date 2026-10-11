@@ -45,8 +45,16 @@ export function TestResultView({ test, result }: TestResultViewProps) {
           </Text>
         </View>
         <View className="flex-row gap-2">
-          <StatTile value={String(result.correct)} label={t('result.correctLabel')} />
-          <StatTile value={String(mistakes.length)} label={t('result.wrongLabel')} />
+          <StatTile
+            value={String(result.correct)}
+            label={t('result.correctLabel')}
+            tone="success"
+          />
+          <StatTile
+            value={String(mistakes.length)}
+            label={t('result.wrongLabel')}
+            tone="destructive"
+          />
           <StatTile value={`${score}%`} label={t('result.percentLabel')} />
         </View>
         <View className="gap-2.5">

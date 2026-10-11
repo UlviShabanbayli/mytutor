@@ -61,11 +61,11 @@ const colors = {
     success: '#3FC98A',
     'success-foreground': '#04251A',
     'success-muted': '#0E2D22',
-    'success-shadow': '#157A55',
+    'success-shadow': '#6FD9A8',
     destructive: '#F47C72',
     'destructive-foreground': '#2A0907',
     'destructive-muted': '#3A1614',
-    'destructive-shadow': '#B42318',
+    'destructive-shadow': '#F89A92',
     ring: '#7AA0FF',
   },
 };

@@ -9,7 +9,7 @@ type SessionProgressProps = {
   total: number;
 };
 
-/** The test's title, "4 / 10" and a thin bar of questions answered so far. */
+/** The test's title, the current question's position ("4 / 10") and a thin bar for it. */
 export function SessionProgress({ title, index, total }: SessionProgressProps) {
   const { t } = useTranslation();
   const label = t('session.progress', { current: index + 1, total });

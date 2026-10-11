@@ -2,8 +2,9 @@ import { Tabs } from 'expo-router/js-tabs';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AskTabButton } from '@/components/navigation/AskTabButton';
-import { Icon, type IconName } from '@/components/ui';
-import { fontFamily, useThemeColors } from '@/theme';
+import { Icon, type IconName, Text } from '@/components/ui';
+import { cn } from '@/lib/cn';
+import { useThemeColors } from '@/theme';
 
 const TAB_BAR_HEIGHT = 68;
 
@@ -32,7 +33,18 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors['muted-foreground'],
-        tabBarLabelStyle: { fontFamily: fontFamily.bold, fontSize: 11 },
+        tabBarLabel: ({ focused, children }) => (
+          <Text
+            numberOfLines={1}
+            tone={focused ? 'primary' : 'muted'}
+            className={cn(
+              'text-center text-[11px]',
+              focused ? 'font-sans-black' : 'font-sans-medium',
+            )}
+          >
+            {children}
+          </Text>
+        ),
         // Tall enough for the round Ask button (design: 84pt bar including the home indicator).
         tabBarStyle: {
           backgroundColor: colors.card,

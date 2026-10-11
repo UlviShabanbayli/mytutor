@@ -29,7 +29,7 @@ export default function HomeScreen() {
           </Text>
           <Link
             href="/tests"
-            className="min-h-touch px-2 py-3 font-sans-black text-sm text-primary"
+            className="-mr-2 min-h-touch px-2 py-3 font-sans-black text-sm text-primary"
           >
             {t('home.seeAll')}
           </Link>

@@ -45,6 +45,8 @@ module.exports = {
         'sans-bold': [fontFamily.bold],
         'sans-black': [fontFamily.black],
       },
+      // NativeWind sets 1rem = 14pt on native: the 56pt main controls are pinned in px.
+      spacing: { 14: px(56) },
       minHeight: { touch: px(touchTarget) },
       minWidth: { touch: px(touchTarget) },
     },

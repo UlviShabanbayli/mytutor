@@ -56,16 +56,18 @@ export function TestSession({ test }: TestSessionProps) {
   };
 
   return (
-    <SafeAreaView edges={['top', 'bottom', 'left', 'right']} className="flex-1 bg-background">
+    // The feedback panel runs to the bottom edge and pads for the home indicator itself.
+    <SafeAreaView
+      edges={active.checked ? ['top', 'left', 'right'] : ['top', 'bottom', 'left', 'right']}
+      className="flex-1 bg-background"
+    >
       <View className="flex-row items-center gap-2 pb-1 pl-2 pr-5">
         <IconButton icon="close" accessibilityLabel={t('common.close')} onPress={router.back} />
         <SessionProgress title={test.title} index={active.index} total={test.questions.length} />
       </View>
       <ScrollView contentContainerClassName="gap-5 px-5 py-5">
         {question.source === DEMO_SOURCE ? <Badge label={t('demo.badge')} tone="accent" /> : null}
-        <Text variant="title" className="leading-8">
-          {question.stem}
-        </Text>
+        <Text variant="title">{question.stem}</Text>
         <View accessibilityRole="radiogroup" className="gap-2.5">
           {question.options.map((option) => (
             <OptionButton

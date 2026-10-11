@@ -5,14 +5,27 @@ import { cn } from '@/lib/cn';
 
 type AskTabButtonProps = BottomTabBarButtonProps & { label: string };
 
-/** The middle tab: a round cobalt camera button instead of an icon and label. */
-export function AskTabButton({ onPress, accessibilityState, label }: AskTabButtonProps) {
+/**
+ * The middle tab: a round cobalt camera button instead of an icon and label. It keeps the role,
+ * selected state and handlers the tab bar passes, so screen readers hear it as the other tabs.
+ */
+export function AskTabButton({
+  onPress,
+  onLongPress,
+  testID,
+  role,
+  'aria-selected': selected,
+  'aria-label': ariaLabel,
+  label,
+}: AskTabButtonProps) {
   return (
     <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={accessibilityState}
+      role={role}
+      aria-label={ariaLabel ?? label}
+      aria-selected={selected}
       onPress={onPress}
+      onLongPress={onLongPress}
+      testID={testID}
       className="flex-1 items-center justify-center"
     >
       {({ pressed }) => (

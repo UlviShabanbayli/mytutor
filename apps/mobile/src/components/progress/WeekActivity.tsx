@@ -35,13 +35,16 @@ export function WeekActivity() {
               })}
               className="items-center gap-1.5"
             >
-              <View
-                className={cn(
-                  'h-8 w-8 rounded-full',
-                  active ? 'bg-primary' : 'bg-muted',
-                  i === today && 'border-2 border-primary',
-                )}
-              />
+              {/* Today keeps a halo, visible whether or not the dot is filled. */}
+              <View className={cn('rounded-full p-[3px]', i === today && 'bg-secondary')}>
+                <View
+                  className={cn(
+                    'h-8 w-8 rounded-full',
+                    active ? 'bg-primary' : 'bg-muted',
+                    i === today && 'border-2 border-primary',
+                  )}
+                />
+              </View>
               <Text variant="caption" tone={i === today ? 'default' : 'muted'}>
                 {day}
               </Text>
