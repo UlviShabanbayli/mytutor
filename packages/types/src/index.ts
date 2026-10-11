@@ -9,21 +9,13 @@ import type {
   phoneNumberSchema,
   practiceTestSchema,
   questionSchema,
-  bboxSchema,
-  sourceBlockKindSchema,
-  sourceBlockSchema,
-  sourceFigureSchema,
-  sourceLineSchema,
-  sourcePageSchema,
   sourceRefSchema,
-  sourceRegionSchema,
   subjectSchema,
   textbookBlockKindSchema,
   textbookBlockSchema,
   textbookStructureSchema,
   textbookTopicSchema,
   textbookUnitSchema,
-  topicSourceSchema,
   topicSchema,
 } from '@mytutor/schemas';
 
@@ -61,12 +53,3 @@ export type TestResult = {
   answers: TestAnswers;
   finishedAt: string;
 };
-
-export type BBox = z.output<typeof bboxSchema>;
-export type SourceRegion = z.output<typeof sourceRegionSchema>;
-export type SourcePage = z.output<typeof sourcePageSchema>;
-export type SourceLine = z.output<typeof sourceLineSchema>;
-export type SourceFigure = z.output<typeof sourceFigureSchema>;
-export type SourceBlockKind = z.output<typeof sourceBlockKindSchema>;
-export type SourceBlock = z.output<typeof sourceBlockSchema>;
-export type TopicSource = z.output<typeof topicSourceSchema>;
