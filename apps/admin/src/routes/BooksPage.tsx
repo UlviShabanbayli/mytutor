@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AddBookDialog } from '@/components/books/AddBookDialog';
 import { BookCard } from '@/components/books/BookCard';
-import { DeletedBooks } from '@/components/books/DeletedBooks';
 import { Button, CommandHint, EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { useContentIndex } from '@/features/content/queries';
 import { commands } from '@/lib/commands';
@@ -49,7 +48,6 @@ export function BooksPage() {
           ))}
         </div>
       )}
-      {index.data ? <DeletedBooks entries={index.data.trash} /> : null}
     </div>
   );
 }

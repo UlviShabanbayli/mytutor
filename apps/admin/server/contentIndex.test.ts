@@ -38,6 +38,7 @@ describe('buildContentIndex', () => {
         structure: 'split/structure.json',
         canExtract: false,
         links: null,
+        curriculumId: null,
         topics: [
           {
             number: '4.1',

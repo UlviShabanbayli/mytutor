@@ -12,6 +12,7 @@ import type {
 
 // Only the fields the index needs; full validation happens in the browser when a file is opened.
 const structureHead = z.object({ source: z.object({ file: z.string() }) });
+const linksHead = z.object({ curriculumId: z.string().nullable() });
 const sourceHead = z.object({
   book: z.object({ file: z.string() }),
   topic: z.object({ number: z.string() }),
@@ -84,6 +85,7 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
         canExtract: false,
         topics: [],
         links: null,
+        curriculumId: null,
         pdf: null,
         folder: null,
         folders: [],
@@ -157,6 +159,7 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
       if (!(await exists(file))) continue;
       book.linksFile = file;
       book.links = toPosix(relative(root, file));
+      book.curriculumId = (await readJson(file, linksHead))?.curriculumId ?? null;
       break;
     }
     const home = book.folder ?? metaDirs.get(book) ?? book.folders[0];

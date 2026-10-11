@@ -1,6 +1,7 @@
 import { GraduationCap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, Outlet } from 'react-router';
+import { AppNav } from './AppNav';
 import { ThemeToggle } from './ThemeToggle';
 
 export function AppShell() {
@@ -25,9 +26,14 @@ export function AppShell() {
           <ThemeToggle />
         </div>
       </header>
-      <main className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6">
-        <Outlet />
-      </main>
+      <div className="mx-auto flex max-w-screen-2xl flex-col lg:flex-row">
+        <aside className="border-b border-border px-4 py-2 sm:px-6 lg:sticky lg:top-14 lg:h-[calc(100dvh-3.5rem)] lg:w-60 lg:shrink-0 lg:border-b-0 lg:border-r lg:py-6">
+          <AppNav />
+        </aside>
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

@@ -27,6 +27,8 @@ export const contentBookEntrySchema = z.object({
   topics: z.array(contentTopicEntrySchema),
   /** The book's `curriculum-links.json` (relative to the root), null when none is saved yet. */
   links: z.string().nullable(),
+  /** The curriculum the book's links point to (read from that file), when it has links. */
+  curriculumId: z.string().nullable(),
 });
 
 /** A book deleted from the panel: its folders wait in `<root>/.trash/<id>/` until restored. */

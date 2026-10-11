@@ -92,11 +92,9 @@ export async function deleteCurriculum({ root, id }: DeleteCurriculumInput) {
   return exclusive(`curriculum:${id}`, async () => {
     const file = curriculumFile(root, id);
     if (!(await exists(file))) throw noCurriculum();
-    const users: string[] = [];
-    for (const book of await scanBooks(root)) {
-      const links = book.linksFile && book.links ? await readLinks(book.linksFile) : null;
-      if (links?.curriculumId === id) users.push(book.title ?? book.id);
-    }
+    const users = (await scanBooks(root))
+      .filter((book) => book.curriculumId === id)
+      .map((book) => book.title ?? book.id);
     if (users.length)
       throw new PipelineError(409, 'curriculum_in_use', `Linked from: ${users.join(', ')}`);
     await rm(file, { force: true });

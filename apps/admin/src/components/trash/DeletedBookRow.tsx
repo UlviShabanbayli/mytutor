@@ -1,16 +1,19 @@
-import { LoaderCircle, RotateCcw } from 'lucide-react';
+import { LoaderCircle, RotateCcw, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TrashEntry } from '@mytutor/types';
 import { Button } from '@/components/ui';
 import { useRestoreBook } from '@/features/content/mutations';
-import { ActionError } from './ActionError';
+import { PurgeBookDialog } from './PurgeBookDialog';
+import { ActionError } from '@/components/books/ActionError';
 
 type DeletedBookRowProps = { entry: TrashEntry };
 
-/** One deleted book: what it held, when it was deleted, and a way back. */
+/** One deleted book: what it held, when it was deleted, a way back and a way out for good. */
 export function DeletedBookRow({ entry }: DeletedBookRowProps) {
   const { t, i18n } = useTranslation();
   const restore = useRestoreBook();
+  const [purging, setPurging] = useState(false);
   const title = entry.title ?? entry.bookId;
   // Numeric parts only: browsers without Azerbaijani month names print "M10" for them.
   const date = new Intl.DateTimeFormat(i18n.language, {
@@ -52,6 +55,17 @@ export function DeletedBookRow({ entry }: DeletedBookRowProps) {
         </span>
         <span className="sr-only"> ({title})</span>
       </Button>
+      <Button
+        variant="ghost"
+        className="min-h-9 px-3 text-xs text-destructive hover:bg-destructive-muted hover:text-destructive"
+        disabled={restore.isPending}
+        onClick={() => setPurging(true)}
+      >
+        <Trash2 className="size-4" />
+        {t('trash.purge')}
+        <span className="sr-only"> ({title})</span>
+      </Button>
+      <PurgeBookDialog entry={entry} open={purging} onClose={() => setPurging(false)} />
     </li>
   );
 }

@@ -79,6 +79,9 @@ export const curriculumLinksInputSchema = curriculumLinksSchema.omit({ updatedAt
 /** Response of the panel's "create curriculum" action. */
 export const createCurriculumResponseSchema = z.object({ id: z.string() });
 
+/** Response of the panel's "delete curriculum" action. */
+export const deleteCurriculumResponseSchema = z.object({ id: z.string() });
+
 /** Response of the "save" actions: when the file was written. */
 export const savedResponseSchema = z.object({ updatedAt: z.string() });
 

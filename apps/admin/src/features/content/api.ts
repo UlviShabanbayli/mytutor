@@ -8,6 +8,7 @@ import {
   deleteBookResponseSchema,
   extractSourceResponseSchema,
   knowledgeDocumentSchema,
+  purgeTrashResponseSchema,
   restoreBookResponseSchema,
   textbookStructureSchema,
   topicSourceSchema,
@@ -25,7 +26,7 @@ export function contentUrl(...parts: string[]): string {
     .join('/')}`;
 }
 
-async function getJson<S extends z.ZodType>(path: string, schema: S): Promise<z.output<S>> {
+export async function getJson<S extends z.ZodType>(path: string, schema: S): Promise<z.output<S>> {
   const res = await fetch(contentUrl(path));
   if (!res.ok) throw new Error(`${res.status} ${path}`);
   return schema.parse(await res.json());
@@ -51,7 +52,7 @@ export function actionUrl(...parts: string[]): string {
   return `/content-api/${parts.map(encodeURIComponent).join('/')}`;
 }
 
-async function runAction<S extends z.ZodType>(
+export async function runAction<S extends z.ZodType>(
   parts: string[],
   schema: S,
   init: RequestInit = {},
@@ -97,3 +98,7 @@ export const deleteBook = (bookId: string) =>
 /** Puts a deleted book back on the shelf. */
 export const restoreBook = (trashId: string) =>
   runAction(['trash', trashId, 'restore'], restoreBookResponseSchema);
+
+/** Erases a deleted book and all its files for good. */
+export const purgeTrash = (trashId: string) =>
+  runAction(['trash', trashId], purgeTrashResponseSchema, { method: 'DELETE' });
