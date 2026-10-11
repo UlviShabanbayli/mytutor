@@ -22,6 +22,10 @@ import type {
   knowledgeSourceIdSchema,
   knowledgeSourceRefSchema,
   knowledgeStatusSchema,
+  lessonActionSchema,
+  lessonColorSchema,
+  lessonScriptSchema,
+  lessonStepSchema,
   localeSchema,
   optionKeySchema,
   otpCodeSchema,
@@ -116,3 +120,7 @@ export type ExtractSourceResponse = z.output<typeof extractSourceResponseSchema>
 export type TrashEntry = z.output<typeof trashEntrySchema>;
 export type DeleteBookResponse = z.output<typeof deleteBookResponseSchema>;
 export type RestoreBookResponse = z.output<typeof restoreBookResponseSchema>;
+export type LessonColor = z.output<typeof lessonColorSchema>;
+export type LessonAction = z.output<typeof lessonActionSchema>;
+export type LessonStep = z.output<typeof lessonStepSchema>;
+export type LessonScript = z.output<typeof lessonScriptSchema>;

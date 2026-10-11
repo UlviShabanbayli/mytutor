@@ -6,3 +6,4 @@ export * from './textbook';
 export * from './source';
 export * from './knowledge';
 export * from './content';
+export * from './lesson';
