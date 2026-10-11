@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { curriculumEntrySchema } from './curriculum';
 import { standardSetEntrySchema, standardLinksSchema } from './standards';
 import { knowledgeSummarySchema, reviewProgressSchema } from './review';
 
@@ -51,6 +52,7 @@ export const contentIndexSchema = z.object({
   /** Newest first. */
   trash: z.array(trashEntrySchema),
   standardSets: z.array(standardSetEntrySchema),
+  curricula: z.array(curriculumEntrySchema),
 });
 
 /** `book.json` next to a book's outputs: written by the panel on upload, or by hand. */
@@ -87,6 +89,8 @@ export const contentActionErrorCodeSchema = z.enum([
   'no_standard_set',
   'unknown_standard',
   'standard_set_in_use',
+  'no_curriculum',
+  'curriculum_not_empty',
   'no_knowledge',
   'network',
   'internal',

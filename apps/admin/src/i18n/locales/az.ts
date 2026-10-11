@@ -494,6 +494,9 @@ export const az = {
     no_standard_set: 'Standart dəsti tapılmadı. Ola bilsin, silinib.',
     unknown_standard: 'Bu standart seçilmiş dəstdə yoxdur.',
     no_knowledge: 'Bu mövzunun bilik sənədi yoxdur.',
+    no_curriculum: 'Kurikulum tapılmadı. Ola bilsin, silinib.',
+    curriculum_not_empty:
+      'Bu kurikulumda dərsliklər var. Silmək üçün əvvəlcə dərslikləri kurikulumdan çıxarın.',
     standard_set_in_use:
       'Bu dəstə bağlı dərsliklər var. Əvvəlcə həmin dərsliklərdə başqa dəst seçin.',
     network: 'Serverə qoşulmaq alınmadı. Admin panelin serveri işləyirmi?',

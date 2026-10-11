@@ -6,6 +6,13 @@ import type { Plugin } from 'vite';
 import type { ContentActionErrorCode } from '@mytutor/types';
 import { buildContentIndex, resolveContentPath } from './contentIndex';
 import {
+  addCurriculumTextbook,
+  createCurriculum,
+  deleteCurriculum,
+  removeCurriculumTextbook,
+  saveCurriculum,
+} from './curricula';
+import {
   createStandardSet,
   deleteStandardSet,
   saveStandardSet,
@@ -73,6 +80,10 @@ const BOOK = /^\/books\/([^/]+)\/?$/;
 const EXTRACT_SOURCE = /^\/books\/([^/]+)\/topics\/([^/]+)\/source\/?$/;
 const RESTORE_BOOK = /^\/trash\/([^/]+)\/restore\/?$/;
 const TRASH_ENTRY = /^\/trash\/([^/]+)\/?$/;
+const CURRICULA = /^\/curricula\/?$/;
+const CURRICULUM = /^\/curricula\/([^/]+)\/?$/;
+const CURRICULUM_TEXTBOOKS = /^\/curricula\/([^/]+)\/textbooks\/?$/;
+const CURRICULUM_TEXTBOOK = /^\/curricula\/([^/]+)\/textbooks\/([^/]+)\/?$/;
 const STANDARD_SETS = /^\/standard-sets\/?$/;
 const STANDARD_SET = /^\/standard-sets\/([^/]+)\/?$/;
 const TOPIC_REVIEW = /^\/books\/([^/]+)\/topics\/([^/]+)\/review\/?$/;
@@ -124,12 +135,33 @@ export function contentPlugin(root: string): Plugin {
     if (req.method === 'DELETE') {
       const book = BOOK.exec(path);
       if (book) return json(res, 200, await deleteBook({ root, bookId: segment(book[1]) }));
+      const textbook = CURRICULUM_TEXTBOOK.exec(path);
+      if (textbook) {
+        const [id, bookId] = [segment(textbook[1]), segment(textbook[2])];
+        return json(res, 200, await removeCurriculumTextbook({ root, id, bookId }));
+      }
+      const curriculum = CURRICULUM.exec(path);
+      if (curriculum)
+        return json(res, 200, await deleteCurriculum({ root, id: segment(curriculum[1]) }));
       const entry = TRASH_ENTRY.exec(path);
       if (entry) return json(res, 200, await purgeTrash({ root, trashId: segment(entry[1]) }));
       const standardSet = STANDARD_SET.exec(path);
       if (standardSet)
         return json(res, 200, await deleteStandardSet({ root, id: segment(standardSet[1]) }));
       return apiError(res, 404, 'not_found', 'Unknown action');
+    }
+    if (CURRICULA.test(path))
+      return json(res, 201, await createCurriculum({ root, body: await readJsonBody(req) }));
+    const curriculumTextbooks = CURRICULUM_TEXTBOOKS.exec(path);
+    if (curriculumTextbooks) {
+      const id = segment(curriculumTextbooks[1]);
+      const body = await readJsonBody(req);
+      return json(res, 200, await addCurriculumTextbook({ root, id, body }));
+    }
+    const curriculum = CURRICULUM.exec(path);
+    if (curriculum) {
+      const id = segment(curriculum[1]);
+      return json(res, 200, await saveCurriculum({ root, id, body: await readJsonBody(req) }));
     }
     if (STANDARD_SETS.test(path))
       return json(res, 201, await createStandardSet({ root, body: await readJsonBody(req) }));

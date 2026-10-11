@@ -58,6 +58,7 @@ describe('buildContentIndex', () => {
       books: [],
       trash: [],
       standardSets: [],
+      curricula: [],
     });
   });
 });
