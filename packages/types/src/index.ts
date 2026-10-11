@@ -10,10 +10,18 @@ import type {
   contentBookEntrySchema,
   contentIndexSchema,
   contentTopicEntrySchema,
+  createCurriculumResponseSchema,
+  curriculumEntrySchema,
+  curriculumInputSchema,
+  curriculumLinksInputSchema,
+  curriculumLinksSchema,
+  curriculumSchema,
+  curriculumStandardSchema,
   deleteBookResponseSchema,
   extractSourceResponseSchema,
   extractedItemSchema,
   healthResponseSchema,
+  itemStandardLinkSchema,
   knowledgeCheckSchema,
   knowledgeDocumentSchema,
   knowledgeExtractionSchema,
@@ -31,8 +39,10 @@ import type {
   otpCodeSchema,
   phoneNumberSchema,
   practiceTestSchema,
+  purgeTrashResponseSchema,
   questionSchema,
   restoreBookResponseSchema,
+  savedResponseSchema,
   sourceBlockKindSchema,
   sourceBlockSchema,
   sourceFigureSchema,
@@ -124,3 +134,13 @@ export type LessonColor = z.output<typeof lessonColorSchema>;
 export type LessonAction = z.output<typeof lessonActionSchema>;
 export type LessonStep = z.output<typeof lessonStepSchema>;
 export type LessonScript = z.output<typeof lessonScriptSchema>;
+export type CurriculumStandard = z.output<typeof curriculumStandardSchema>;
+export type CurriculumInput = z.output<typeof curriculumInputSchema>;
+export type Curriculum = z.output<typeof curriculumSchema>;
+export type CurriculumEntry = z.output<typeof curriculumEntrySchema>;
+export type ItemStandardLink = z.output<typeof itemStandardLinkSchema>;
+export type CurriculumLinks = z.output<typeof curriculumLinksSchema>;
+export type CurriculumLinksInput = z.output<typeof curriculumLinksInputSchema>;
+export type CreateCurriculumResponse = z.output<typeof createCurriculumResponseSchema>;
+export type SavedResponse = z.output<typeof savedResponseSchema>;
+export type PurgeTrashResponse = z.output<typeof purgeTrashResponseSchema>;

@@ -114,6 +114,11 @@ export const az = {
     forbidden: 'Bu əməliyyata icazə verilmir.',
     method: 'Bu sorğu dəstəklənmir.',
     not_found: 'Belə əməliyyat yoxdur.',
+    bad_request: 'Göndərilən məlumat düzgün deyil.',
+    no_curriculum: 'Kurikulum tapılmadı. Ola bilsin, silinib.',
+    unknown_standard: 'Bu standart seçilmiş kurikulumda yoxdur.',
+    curriculum_in_use:
+      'Bu kurikuluma bağlı dərsliklər var. Əvvəlcə həmin dərsliklərdə başqa kurikulum seçin.',
     network: 'Serverə qoşulmaq alınmadı. Admin panelin serveri işləyirmi?',
     internal: 'Gözlənilməz xəta baş verdi.',
     details: 'Texniki məlumat',

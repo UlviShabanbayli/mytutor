@@ -37,6 +37,7 @@ describe('buildContentIndex', () => {
         title: 'Riyaziyyat 7',
         structure: 'split/structure.json',
         canExtract: false,
+        links: null,
         topics: [
           {
             number: '4.1',
@@ -50,7 +51,11 @@ describe('buildContentIndex', () => {
   });
 
   it('returns no books for a missing root', async () => {
-    expect(await buildContentIndex(join(root, 'nope'))).toEqual({ books: [], trash: [] });
+    expect(await buildContentIndex(join(root, 'nope'))).toEqual({
+      books: [],
+      trash: [],
+      curricula: [],
+    });
   });
 });
 

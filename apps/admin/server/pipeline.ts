@@ -85,6 +85,10 @@ const AZ: Record<string, string> = {
   Ü: 'U',
 };
 
+/** Azerbaijani letters as their closest ASCII letter ("Ədədlər" → "Ededler"). */
+export const transliterate = (text: string) =>
+  text.normalize('NFC').replace(/[əƏıİşŞçÇğĞöÖüÜ]/g, (c) => AZ[c] ?? c);
+
 /**
  * A safe file name for an uploaded textbook: Azerbaijani letters transliterated, anything else
  * outside [A-Za-z0-9._-] replaced, ".pdf" kept. Null when nothing usable is left.
@@ -92,10 +96,7 @@ const AZ: Record<string, string> = {
 export function safePdfName(name: string): string | null {
   const base = name.split(/[\\/]/).pop() ?? '';
   if (!/\.pdf$/i.test(base)) return null;
-  const stem = base
-    .slice(0, -4)
-    .normalize('NFC')
-    .replace(/[əƏıİşŞçÇğĞöÖüÜ]/g, (c) => AZ[c] ?? c)
+  const stem = transliterate(base.slice(0, -4))
     .replace(/[^A-Za-z0-9._-]+/g, '-')
     .replace(/^[-.]+|[-.]+$/g, '')
     .slice(0, 100);
@@ -114,11 +115,11 @@ export const TOPIC_NUMBER = /^\d{1,2}\.\d{1,2}$/;
 const running = new Set<string>();
 
 /** Lower-case: on case-insensitive disks "A.pdf" and "a.pdf" share one folder. */
-const bookKey = (bookId: string) => `book:${bookId.toLowerCase()}`;
+export const bookKey = (bookId: string) => `book:${bookId.toLowerCase()}`;
 const topicKey = (bookId: string, topic: string) => `topic:${bookId}:${topic}`;
 
 /** One action per key at a time (the same book or topic is never written twice at once). */
-async function exclusive<T>(key: string, work: () => Promise<T>): Promise<T> {
+export async function exclusive<T>(key: string, work: () => Promise<T>): Promise<T> {
   if (running.has(key)) throw new PipelineError(409, 'busy', `${key} is already being processed`);
   running.add(key);
   try {
@@ -157,7 +158,7 @@ const structureTopics = z.object({
   ),
 });
 
-async function topicNumbers(structurePath: string): Promise<string[]> {
+export async function topicNumbers(structurePath: string): Promise<string[]> {
   try {
     const parsed = structureTopics.parse(JSON.parse(await readFile(structurePath, 'utf8')));
     return parsed.units.flatMap((u) =>
@@ -314,7 +315,7 @@ async function dropEntryIfEmpty(entry: string) {
 }
 
 /** A folder name a trash entry may name: a plain, visible child of the root. */
-const isPlainName = (name: string) => /^[^./\\][^/\\]*$/.test(name);
+export const isPlainName = (name: string) => /^[^./\\][^/\\]*$/.test(name);
 
 /** "2026-10-10T18:15:00.000Z" + "riyaziyyat 7" → "2026-10-10T18-15-00-000Z-riyaziyyat-7-". */
 const trashPrefix = (bookId: string, at: string) =>
@@ -405,5 +406,23 @@ export async function restoreBook({ root, trashId }: RestoreBookInput) {
     await moveAll(moves);
     await dropEntryIfEmpty(entry);
     return { bookId: meta.bookId };
+  });
+}
+
+export type PurgeTrashInput = { root: string; trashId: string };
+
+/** Erases a deleted book for good: its trash entry and everything moved into it. */
+export async function purgeTrash({ root, trashId }: PurgeTrashInput) {
+  const notFound = () => new PipelineError(404, 'no_trash', 'No such deleted book');
+  // A plain name keeps the erase inside `<root>/.trash/`.
+  if (!isPlainName(trashId)) throw notFound();
+  const entry = join(root, TRASH_DIR, trashId);
+  const found = await readTrashMeta(entry);
+  if (!found) throw notFound();
+  return exclusive(bookKey(found.bookId), async () => {
+    // Checked again under the lock: the entry may have been restored meanwhile.
+    if (!(await readTrashMeta(entry))) throw notFound();
+    await rm(entry, { recursive: true, force: true });
+    return { trashId };
   });
 }
