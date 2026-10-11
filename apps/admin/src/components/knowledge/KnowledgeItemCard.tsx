@@ -68,8 +68,8 @@ export function KnowledgeItemCard({
         ) : null}
       </header>
 
-      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start">
-        <div className="min-w-0 flex-1 text-foreground">
+      <div className="flex min-w-0 flex-col gap-3">
+        <div className="min-w-0 text-foreground">
           {extracted ? (
             <KnowledgeItemBody item={extracted} />
           ) : (
@@ -81,7 +81,9 @@ export function KnowledgeItemCard({
             </div>
           )}
         </div>
-        {figures.length ? <ItemFigures figures={figures} topicDir={topicDir} /> : null}
+        {figures.length ? (
+          <ItemFigures figures={figures} topicDir={topicDir} onSelect={() => onSelect(item.id)} />
+        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5 text-xs">

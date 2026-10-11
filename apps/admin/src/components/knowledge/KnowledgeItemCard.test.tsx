@@ -91,10 +91,18 @@ const render = (it: KnowledgeItem) =>
   );
 
 describe('KnowledgeItemCard', () => {
-  it('shows the figure the text relies on next to the text', () => {
+  it('shows the figure the text relies on with the text', () => {
     const html = render(item);
     expect(html).toContain('koordinatları şəkildə verilib');
     expect(html).toContain('<img src="/content/book/topics/1.4/figures/f01.png" alt="Fiqur f01"');
+    // f01 is 156pt x 135pt: shown at its printed size, with its height reserved before loading.
+    expect(html).toContain('width="208" style="aspect-ratio:156 / 135"');
+    expect(html).not.toContain('<section');
+    expect(html).toContain('role="group" aria-label="Mətnin istinad etdiyi fiqurlar"');
+    // The id is in the alt text; the visible caption is not read twice.
+    expect(html).toContain('<figcaption aria-hidden="true"');
+    // Clicking the figure selects the item, so the source panel shows it full size.
+    expect(html).toContain('<button type="button" title="Mənbə panelində böyük göstər"');
     // The new check is listed under its Azerbaijani name.
     expect(html).toMatch(/>Fiqur<\/span><span[^>]*> — qayda ilə bağlandı/);
   });

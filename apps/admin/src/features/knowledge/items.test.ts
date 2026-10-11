@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { KnowledgeItem, SourceFigure, TopicSource } from '@mytutor/types';
-import { figuresOf, filterItems, toExtracted } from './items';
+import { figureWidth, figuresOf, filterItems, toExtracted } from './items';
 
 const item = (over: Partial<KnowledgeItem>): KnowledgeItem => ({
   id: 'k001',
@@ -76,5 +76,17 @@ describe('figuresOf', () => {
     const cited = item({ sources: [ref('f02'), ref(null), ref('f01'), ref('f02'), ref('f99')] });
     expect(figuresOf(cited, source).map((f) => f.id)).toEqual(['f02', 'f01']);
     expect(figuresOf(item({}), source)).toEqual([]);
+  });
+});
+
+describe('figureWidth', () => {
+  it('shows a figure at its printed size, narrower when it would be taller than the cap', () => {
+    // 525pt x 64pt number line: 700px wide (the card then caps it), 85px tall.
+    expect(figureWidth({ x: 0, y: 0, width: 525, height: 64 })).toBe(700);
+    // 156pt x 135pt picture: printed 180px tall would fit, so 208px wide.
+    expect(figureWidth({ x: 0, y: 0, width: 156, height: 135 })).toBe(208);
+    // 100pt x 300pt: printed 400px tall, narrowed to 64px wide for 192px.
+    expect(figureWidth({ x: 0, y: 0, width: 100, height: 300 })).toBe(64);
+    expect(figureWidth({ x: 0, y: 0, width: 30, height: 0 })).toBe(40);
   });
 });

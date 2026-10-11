@@ -229,6 +229,7 @@ export const az = {
     lineCount: '{{count}} sətir',
     figures: 'Mətnin istinad etdiyi fiqurlar',
     figureAlt: 'Fiqur {{id}}',
+    showFigure: 'Mənbə panelində böyük göstər',
     checks: 'Yoxlamalar',
     check: {
       source_ids: 'Mənbə ID-ləri',
