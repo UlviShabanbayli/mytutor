@@ -119,6 +119,18 @@ export function findGraphicMarkers(g: PageGraphics): GraphicMarker[] {
 }
 
 /** Exercise numbers sit in small filled circles in the left gutter. */
+/** Relative luminance (0–1) of a "#rrggbb" fill; unknown formats count as dark. */
+function luminance(hex: string): number {
+  const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
+  if (!m) return 0;
+  const [r, g, b] = [m[1], m[2], m[3]].map((c) => parseInt(c ?? '0', 16) / 255);
+  return 0.2126 * (r ?? 0) + 0.7152 * (g ?? 0) + 0.0722 * (b ?? 0);
+}
+
+/**
+ * Exercise number badges: filled, saturated circles (~18pt) in the left gutter. Pale, smaller
+ * circles (~14.6pt, e.g. #fffad8) mark the order of operations inside an exercise, not a task.
+ */
 export function findNumberCircles(
   g: PageGraphics,
 ): { page: number; bbox: PageGraphics['paths'][number]['bbox'] }[] {
@@ -127,10 +139,11 @@ export function findNumberCircles(
       const { x, width, height } = p.bbox;
       return (
         p.filled &&
+        luminance(p.fill) < 0.85 &&
         x < 120 &&
-        width >= 13 &&
+        width >= 16 &&
         width <= 24 &&
-        height >= 13 &&
+        height >= 16 &&
         height <= 24 &&
         Math.abs(width - height) <= 3
       );
