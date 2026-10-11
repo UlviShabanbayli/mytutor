@@ -32,5 +32,5 @@ pnpm lint
 pnpm test
 pnpm format      # prettier --write
 pnpm --filter @mytutor/mobile dev    # Expo dev server (i / a / w for iOS / Android / web)
-pnpm --filter @mytutor/api dev       # API on http://localhost:3000 (copy apps/api/.env.example to .env)
+pnpm --filter @mytutor/api dev       # API on http://localhost:4000 (copy apps/api/.env.example to .env)
 ```
