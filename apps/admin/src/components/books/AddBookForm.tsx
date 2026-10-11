@@ -9,9 +9,13 @@ import type { useAddBook } from '@/features/content/mutations';
 import { ActionError } from './ActionError';
 import { PdfDropZone } from './PdfDropZone';
 
-type AddBookFormProps = { add: ReturnType<typeof useAddBook>; onClose: () => void };
+type AddBookFormProps = {
+  add: ReturnType<typeof useAddBook>;
+  onClose: () => void;
+  onAdded?: (bookId: string) => void;
+};
 
-export function AddBookForm({ add, onClose }: AddBookFormProps) {
+export function AddBookForm({ add, onClose, onAdded }: AddBookFormProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const titleId = useId();
@@ -33,7 +37,8 @@ export function AddBookForm({ add, onClose }: AddBookFormProps) {
           {
             onSuccess: ({ bookId }) => {
               onClose();
-              void navigate(`/books/${encodeURIComponent(bookId)}`);
+              if (onAdded) onAdded(bookId);
+              else void navigate(`/books/${encodeURIComponent(bookId)}`);
             },
           },
         );

@@ -33,8 +33,10 @@ export const guide = {
       'Bütün dərsliklər. Altında hər kitab ayrıca: qırmızı rəqəm qərar gözləyən yoxlanmalı elementlərdir, «1/22» isə mənbəsi çıxarılmış mövzular.',
     review:
       'Review gözləyən və davam edən mövzular. Qırmızı rəqəm: qərar gözləyən yoxlanmalı elementlər.',
+    curricula:
+      'Fənn və sinif üzrə kurs (məsələn, «Riyaziyyat — 7-ci sinif»). Boş yaranır, ona dərsliklər əlavə olunur; mövzular, dərslər və ssenarilər onun içində yığılacaq.',
     standards:
-      'Komandanın daxil etdiyi rəsmi standart dəstləri (məsələn, ART\u0130): yalnız uyğunluğu ölçmək üçün.',
+      'Komandanın daxil etdiyi rəsmi standart dəstləri (məsələn, ARTİ): yalnız uyğunluğu ölçmək üçün.',
     later: '«Sonra» altındakılar hələ hazır deyil.',
     guide: 'Bu səhifə.',
     trash: 'Silinmiş kitablar: geri qaytarmaq və ya birdəfəlik silmək üçün.',

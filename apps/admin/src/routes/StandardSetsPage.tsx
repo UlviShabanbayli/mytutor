@@ -2,8 +2,9 @@ import { ListChecks, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { STANDARD_SET_TITLE_MAX } from '@mytutor/schemas';
 import { StandardSetCard } from '@/components/standards/StandardSetCard';
-import { StandardSetMetaDialog } from '@/components/standards/StandardSetMetaDialog';
+import { MetaDialog } from '@/components/forms/MetaDialog';
 import { Button, EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { useContentIndex } from '@/features/content/queries';
 import { useCreateStandardSet } from '@/features/standards/mutations';
@@ -12,6 +13,12 @@ import { usePageCrumbs } from '@/features/layout/crumbs';
 /** The standard sets the team entered; books link their topics to their standards. */
 export function StandardSetsPage() {
   const { t } = useTranslation();
+  const metaTexts = {
+    newTitle: t('standardSets.newTitle'),
+    editTitle: t('standardSets.editTitle'),
+    newBody: t('standardSets.newBody'),
+    titlePlaceholder: t('standardSets.titlePlaceholder'),
+  };
   usePageCrumbs([{ label: t('nav.overview'), to: '/' }, { label: t('standardSets.title') }]);
   const navigate = useNavigate();
   const index = useContentIndex();
@@ -58,7 +65,9 @@ export function StandardSetsPage() {
           ))}
         </div>
       )}
-      <StandardSetMetaDialog
+      <MetaDialog
+        texts={metaTexts}
+        titleMax={STANDARD_SET_TITLE_MAX}
         open={creating}
         pending={create.isPending}
         error={create.error}

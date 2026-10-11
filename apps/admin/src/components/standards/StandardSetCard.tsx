@@ -2,7 +2,7 @@ import { ChevronRight, ListChecks } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { StandardSetEntry } from '@mytutor/types';
-import { standardSetSubtitle } from '@/features/standards/labels';
+import { subjectAndGrade } from '@/lib/grades';
 
 type StandardSetCardProps = { entry: StandardSetEntry; bookCount: number };
 
@@ -24,7 +24,7 @@ export function StandardSetCard({ entry, bookCount }: StandardSetCardProps) {
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="truncate font-sans-bold text-base text-foreground">{entry.title}</span>
         <span className="truncate text-xs text-muted-foreground">
-          {[standardSetSubtitle(t, entry), ...details].filter(Boolean).join(' · ')}
+          {[subjectAndGrade(t, entry), ...details].filter(Boolean).join(' · ')}
         </span>
       </span>
       <ChevronRight

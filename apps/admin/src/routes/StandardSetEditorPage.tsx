@@ -2,20 +2,27 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
-import { StandardSetMetaDialog } from '@/components/standards/StandardSetMetaDialog';
+import { STANDARD_SET_TITLE_MAX } from '@mytutor/schemas';
+import { MetaDialog } from '@/components/forms/MetaDialog';
 import { DeleteStandardSetDialog } from '@/components/standards/DeleteStandardSetDialog';
 import { StandardsEditor } from '@/components/standards/StandardsEditor';
 import { Badge, Button, ErrorState, LoadingState } from '@/components/ui';
 import { usePageCrumbs } from '@/features/layout/crumbs';
 import { bookTitle } from '@/features/content/pages';
 import { useContentIndex } from '@/features/content/queries';
-import { standardSetSubtitle } from '@/features/standards/labels';
+import { subjectAndGrade } from '@/lib/grades';
 import { useSaveStandardSet } from '@/features/standards/mutations';
 import { useStandardSet } from '@/features/standards/queries';
 import { NotFoundPage } from './NotFoundPage';
 
 export function StandardSetEditorPage() {
   const { t } = useTranslation();
+  const metaTexts = {
+    newTitle: t('standardSets.newTitle'),
+    editTitle: t('standardSets.editTitle'),
+    newBody: t('standardSets.newBody'),
+    titlePlaceholder: t('standardSets.titlePlaceholder'),
+  };
   const navigate = useNavigate();
   const { standardSetId = '' } = useParams();
   const index = useContentIndex();
@@ -46,7 +53,7 @@ export function StandardSetEditorPage() {
         <div className="flex min-w-0 flex-col gap-2">
           <h1 className="font-sans-black text-3xl text-foreground">{entry.title}</h1>
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            {standardSetSubtitle(t, entry) ? <span>{standardSetSubtitle(t, entry)}</span> : null}
+            {subjectAndGrade(t, entry) ? <span>{subjectAndGrade(t, entry)}</span> : null}
             <Badge tone="primary">
               {t('standardSets.standards', { count: entry.standardCount })}
             </Badge>
@@ -78,7 +85,9 @@ export function StandardSetEditorPage() {
         <StandardsEditor standardSet={standardSet.data} />
       )}
       {standardSet.data ? (
-        <StandardSetMetaDialog
+        <MetaDialog
+          texts={metaTexts}
+          titleMax={STANDARD_SET_TITLE_MAX}
           open={dialog === 'meta'}
           initial={entry}
           pending={save.isPending}

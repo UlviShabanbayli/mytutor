@@ -4,6 +4,7 @@ import {
   Clapperboard,
   Copy,
   Inbox,
+  Layers,
   LayoutGrid,
   ListChecks,
   Search,
@@ -60,6 +61,10 @@ export function BasicsGuide() {
             </>
           ),
           text: t('guide.basics.review'),
+        },
+        {
+          sample: nav(<Layers className="size-4" />, t('nav.curricula')),
+          text: t('guide.basics.curricula'),
         },
         {
           sample: nav(<ListChecks className="size-4" />, t('nav.standards')),
