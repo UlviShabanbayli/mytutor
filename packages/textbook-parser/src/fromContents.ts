@@ -3,7 +3,7 @@ import { hasWord, type HeadingEvent } from './classify';
 import type { Contents, ContentsEntry } from './contents';
 import { isSuspicious } from './repair';
 import { buildStructure, similarity } from './structure';
-import type { TextLine } from './types';
+import { heightOf, type PageHeight, type TextLine } from './types';
 
 /** Headings are set larger than body text; unit openers larger still. */
 const HEADING = 1.05;
@@ -82,7 +82,7 @@ type Input = {
   body: number;
   /** pdfPage − printedPage. */
   offset: number;
-  pageHeight: number;
+  pageHeight: PageHeight;
   lastPage: number;
 };
 
@@ -112,7 +112,7 @@ export function structureFromContents({
   const events: HeadingEvent[] = [];
   let prev: Position = { page: 0, y: Infinity, top: 0 };
   const inOrder = (p: Position) => p.page > prev.page || (p.page === prev.page && p.y <= prev.y);
-  const topOf = (page: number): Position => ({ page, y: pageHeight, top: 0 });
+  const topOf = (page: number): Position => ({ page, y: heightOf(pageHeight, page), top: 0 });
   const push = (event: HeadingEvent) => {
     events.push(event);
     prev = { page: event.page, y: event.y, top: event.top };
@@ -135,7 +135,11 @@ export function structureFromContents({
         `səh. ${page}: "${entry.title}" başlığı mətndə tapılmadı; mündəricatdakı səhifədən başladı`,
       );
     const at = found
-      ? { page: found.page, y: found.y, top: Math.max(0, pageHeight - found.y - found.size * 1.2) }
+      ? {
+          page: found.page,
+          y: found.y,
+          top: Math.max(0, heightOf(pageHeight, found.page) - found.y - found.size * 1.2),
+        }
       : topOf(page);
     const title = found && isSuspicious(entry.title) ? found.text : entry.title;
     return { ...ordered(at, entry.title), title };

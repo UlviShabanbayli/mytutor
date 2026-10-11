@@ -86,4 +86,18 @@ describe('splitExtracted', () => {
     ]);
     expect(structure.validation.warnings).toEqual([]);
   });
+
+  it("measures positions on each page's own height when a cover is taller", () => {
+    // The cover is 800 high, the text pages 700: a heading at y 644 lies 39.2 from the top.
+    const taller = {
+      ...book(),
+      pageHeight: 800,
+      pageHeights: { 1: 800 } as Record<number, number>,
+    };
+    for (let page = 2; page <= 18; page++) taller.pageHeights[page] = 700;
+    const topic = splitExtracted(taller).units[0]?.items[0];
+    expect(topic && [topic.startPage, topic.startY, topic.endPage, topic.endY]).toEqual([
+      5, 39.2, 6, 700,
+    ]);
+  });
 });

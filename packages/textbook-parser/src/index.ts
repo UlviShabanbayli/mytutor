@@ -32,14 +32,15 @@ type Split = Pick<TextbookStructure, 'units' | 'backMatter' | 'validation'> & {
  */
 export function splitExtracted(pdf: ExtractedPdf): TextbookStructure {
   const body = bodySize(pdf.items);
-  const numbers = readPageNumbers(pdf.items, pdf.pageHeight, body);
+  const height = (page: number) => pdf.pageHeights?.[page] ?? pdf.pageHeight;
+  const numbers = readPageNumbers(pdf.items, height, body);
   const lines = groupLines(pdf.items, repairHeading);
   const lastPage = numbers.lastNumberedPage ?? pdf.pageCount;
-  const byHeadings = splitByHeadings(pdf, lines, body, numbers.offset, lastPage);
+  const byHeadings = splitByHeadings(pdf, lines, body, numbers.offset, lastPage, height);
 
   let split = byHeadings;
   if (Object.keys(byHeadings.validation.tocTopicCounts).length === 0) {
-    const byContents = splitByContents(pdf, lines, body, numbers.offset, lastPage);
+    const byContents = splitByContents(pdf, lines, body, numbers.offset, lastPage, height);
     const listed = byContents ? topicCount(byContents.units) : 0;
     if (byContents && listed >= 3 && topicCount(byHeadings.units) < listed / 2) split = byContents;
   }
@@ -58,15 +59,16 @@ function splitByHeadings(
   body: number,
   offset: number | null,
   lastPage: number,
+  height: (page: number) => number,
 ): Split {
   const toc = readToc(pdf.items);
   const labels = pdf.items.filter((i) => i.isLabel && i.size >= body * 1.6);
   const events = classifyHeadings(lines, labels, body, {
     from: (toc.page ?? 0) + 1,
     to: lastPage,
-    height: pdf.pageHeight,
+    height,
   });
-  const built = buildStructure({ events, pageHeight: pdf.pageHeight, lastPage });
+  const built = buildStructure({ events, pageHeight: height, lastPage });
   const numbering = applyToc(built.units, built.backMatter, toc.entries, offset);
   // Headings the contents re-titled no longer need an "unreadable heading" warning.
   const headingWarnings = built.warnings.filter(
@@ -93,6 +95,7 @@ function splitByContents(
   body: number,
   printedOffset: number | null,
   lastPage: number,
+  height: (page: number) => number,
 ): Split | null {
   const contents = readContents(pdf.items, pdf.pageCount);
   if (!contents.units.length) return null;
@@ -103,7 +106,7 @@ function splitByContents(
     lines,
     body,
     offset,
-    pageHeight: pdf.pageHeight,
+    pageHeight: height,
     lastPage,
   });
   const checked = validate(built.units, built.counts);
