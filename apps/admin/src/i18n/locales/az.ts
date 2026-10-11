@@ -287,6 +287,7 @@ export const az = {
     bad_request: 'Göndərilən məlumat düzgün deyil.',
     no_curriculum: 'Kurikulum tapılmadı. Ola bilsin, silinib.',
     unknown_standard: 'Bu standart seçilmiş kurikulumda yoxdur.',
+    no_knowledge: 'Bu mövzunun bilik sənədi yoxdur.',
     curriculum_in_use:
       'Bu kurikuluma bağlı dərsliklər var. Əvvəlcə həmin dərsliklərdə başqa kurikulum seçin.',
     network: 'Serverə qoşulmaq alınmadı. Admin panelin serveri işləyirmi?',

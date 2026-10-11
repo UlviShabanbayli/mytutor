@@ -116,7 +116,7 @@ const running = new Set<string>();
 
 /** Lower-case: on case-insensitive disks "A.pdf" and "a.pdf" share one folder. */
 export const bookKey = (bookId: string) => `book:${bookId.toLowerCase()}`;
-const topicKey = (bookId: string, topic: string) => `topic:${bookId}:${topic}`;
+export const topicKey = (bookId: string, topic: string) => `topic:${bookId}:${topic}`;
 
 /** One action per key at a time (the same book or topic is never written twice at once). */
 export async function exclusive<T>(key: string, work: () => Promise<T>): Promise<T> {

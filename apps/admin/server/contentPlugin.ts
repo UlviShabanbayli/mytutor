@@ -20,6 +20,7 @@ import {
   purgeTrash,
   restoreBook,
 } from './pipeline';
+import { saveTopicReview } from './review';
 
 const TYPES: Record<string, string> = {
   '.json': 'application/json; charset=utf-8',
@@ -74,6 +75,7 @@ const RESTORE_BOOK = /^\/trash\/([^/]+)\/restore\/?$/;
 const TRASH_ENTRY = /^\/trash\/([^/]+)\/?$/;
 const CURRICULA = /^\/curricula\/?$/;
 const CURRICULUM = /^\/curricula\/([^/]+)\/?$/;
+const TOPIC_REVIEW = /^\/books\/([^/]+)\/topics\/([^/]+)\/review\/?$/;
 const BOOK_LINKS = /^\/books\/([^/]+)\/curriculum-links\/?$/;
 
 /** Curricula and links are small; anything bigger than this is not what the panel sends. */
@@ -135,6 +137,12 @@ export function contentPlugin(root: string): Plugin {
     if (curriculum) {
       const id = segment(curriculum[1]);
       return json(res, 200, await saveCurriculum({ root, id, body: await readJsonBody(req) }));
+    }
+    const review = TOPIC_REVIEW.exec(path);
+    if (review) {
+      const [bookId, topic] = [segment(review[1]), segment(review[2])];
+      const body = await readJsonBody(req);
+      return json(res, 200, await saveTopicReview({ root, bookId, topic, body }));
     }
     const links = BOOK_LINKS.exec(path);
     if (links) {

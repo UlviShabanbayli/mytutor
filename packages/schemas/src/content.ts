@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { curriculumEntrySchema, curriculumLinksSchema } from './curriculum';
+import { knowledgeSummarySchema, reviewProgressSchema } from './review';
 
 /**
  * Index of pipeline outputs available to the admin panel: which books were split and which
@@ -13,6 +14,10 @@ export const contentTopicEntrySchema = z.object({
   dir: z.string(),
   source: z.string().nullable(),
   knowledge: z.string().nullable(),
+  /** Counts from the knowledge document; null without one. */
+  summary: knowledgeSummarySchema.nullable(),
+  /** How far the editors' review got (`<dir>/review.json`); null without knowledge. */
+  review: reviewProgressSchema.nullable(),
 });
 
 export const contentBookEntrySchema = z.object({
@@ -82,6 +87,7 @@ export const contentActionErrorCodeSchema = z.enum([
   'no_curriculum',
   'unknown_standard',
   'curriculum_in_use',
+  'no_knowledge',
   'network',
   'internal',
 ]);

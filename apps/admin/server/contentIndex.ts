@@ -14,6 +14,7 @@ import type {
   CurriculumEntry,
   TrashEntry,
 } from '@mytutor/types';
+import { topicStatus } from './topicStatus';
 
 // Only the fields the index needs; full validation happens in the browser when a file is opened.
 const structureHead = z.object({ source: z.object({ file: z.string() }) });
@@ -127,11 +128,15 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
       files.add(head.book.file);
       if (book.topics.some((t) => t.number === head.topic.number)) continue;
       const knowledge = join(topicDir, 'knowledge', 'knowledge.json');
+      const hasKnowledge = await exists(knowledge);
       const entry: ContentTopicEntry = {
         number: head.topic.number,
         dir: rel(topicDir),
         source: rel(join(topicDir, 'source.json')),
-        knowledge: (await exists(knowledge)) ? rel(knowledge) : null,
+        knowledge: hasKnowledge ? rel(knowledge) : null,
+        ...(hasKnowledge
+          ? await topicStatus(topicDir, knowledge)
+          : { summary: null, review: null }),
       };
       book.topics.push(entry);
     }

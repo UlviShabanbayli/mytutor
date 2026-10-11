@@ -14,6 +14,13 @@ import type {
   curriculumEntrySchema,
   curriculumInputSchema,
   curriculumLinksInputSchema,
+  itemReviewSchema,
+  blockReviewSchema,
+  topicReviewSchema,
+  topicReviewInputSchema,
+  reviewDecisionSchema,
+  knowledgeSummarySchema,
+  reviewProgressSchema,
   curriculumLinksSchema,
   curriculumSchema,
   curriculumStandardSchema,
@@ -144,3 +151,10 @@ export type CurriculumLinksInput = z.output<typeof curriculumLinksInputSchema>;
 export type CreateCurriculumResponse = z.output<typeof createCurriculumResponseSchema>;
 export type SavedResponse = z.output<typeof savedResponseSchema>;
 export type PurgeTrashResponse = z.output<typeof purgeTrashResponseSchema>;
+export type ReviewDecision = z.output<typeof reviewDecisionSchema>;
+export type ItemReview = z.output<typeof itemReviewSchema>;
+export type BlockReview = z.output<typeof blockReviewSchema>;
+export type TopicReview = z.output<typeof topicReviewSchema>;
+export type TopicReviewInput = z.output<typeof topicReviewInputSchema>;
+export type KnowledgeSummary = z.output<typeof knowledgeSummarySchema>;
+export type ReviewProgress = z.output<typeof reviewProgressSchema>;

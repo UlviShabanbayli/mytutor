@@ -8,7 +8,7 @@ import { curriculumFile, exists, readCurriculum, scanBooks } from './contentInde
 import { bookKey, exclusive, PipelineError, topicNumbers, transliterate } from './pipeline';
 
 /** Writes JSON through a temporary file, so a crash never leaves half a file behind. */
-async function writeJson(path: string, data: unknown) {
+export async function writeJson(path: string, data: unknown) {
   await mkdir(dirname(path), { recursive: true });
   const temp = `${path}.${randomBytes(4).toString('hex')}.tmp`;
   try {
@@ -20,7 +20,7 @@ async function writeJson(path: string, data: unknown) {
   }
 }
 
-function parse<T extends z.ZodTypeAny>(schema: T, body: unknown): z.output<T> {
+export function parseBody<T extends z.ZodTypeAny>(schema: T, body: unknown): z.output<T> {
   const result = schema.safeParse(body);
   if (result.success) return result.data;
   const issue = result.error.issues[0];
@@ -53,7 +53,7 @@ export async function createCurriculum({
   body,
   now = () => new Date(),
 }: CreateCurriculumInput) {
-  const input = parse(curriculumInputSchema, body);
+  const input = parseBody(curriculumInputSchema, body);
   const id = newCurriculumId(input.title);
   const curriculum: Curriculum = { id, ...input, updatedAt: now().toISOString() };
   await writeJson(curriculumFile(root, id), curriculum);
@@ -69,7 +69,7 @@ export async function saveCurriculum({
   now = () => new Date(),
 }: SaveCurriculumInput) {
   if (!CURRICULUM_ID.test(id)) throw noCurriculum();
-  const input = parse(curriculumInputSchema, body);
+  const input = parseBody(curriculumInputSchema, body);
   return exclusive(`curriculum:${id}`, async () => {
     if (!(await exists(curriculumFile(root, id)))) throw noCurriculum();
     const updatedAt = now().toISOString();
@@ -116,7 +116,7 @@ export async function saveCurriculumLinks({
   body,
   now = () => new Date(),
 }: SaveCurriculumLinksInput) {
-  const input = parse(curriculumLinksInputSchema, body);
+  const input = parseBody(curriculumLinksInputSchema, body);
   return exclusive(bookKey(bookId), async () => {
     const book = (await scanBooks(root)).find((b) => b.id === bookId);
     if (!book?.linksFile) throw new PipelineError(404, 'no_book', 'Unknown book');

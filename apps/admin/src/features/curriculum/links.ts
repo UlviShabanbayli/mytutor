@@ -1,3 +1,4 @@
+import { itemFingerprint } from '@mytutor/schemas';
 import type {
   CurriculumLinks,
   CurriculumLinksInput,
@@ -18,27 +19,6 @@ export const toInput = (links: CurriculumLinks | CurriculumLinksInput): Curricul
   items: links.items,
 });
 
-/** Stable JSON: object keys sorted, so equal content always prints the same. */
-function stable(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(stable).join(',')}]`;
-  if (value && typeof value === 'object')
-    return `{${Object.keys(value)
-      .sort()
-      .map((k) => `${JSON.stringify(k)}:${stable((value as Record<string, unknown>)[k])}`)
-      .join(',')}}`;
-  return JSON.stringify(value) ?? 'null';
-}
-
-/** FNV-1a of the item's type and content: finds the item again after ids are renumbered. */
-export function fingerprint(item: KnowledgeItem): string {
-  let hash = 0x811c9dc5;
-  for (const char of `${item.type}|${stable(item.content)}`) {
-    hash ^= char.codePointAt(0) ?? 0;
-    hash = Math.imul(hash, 0x01000193) >>> 0;
-  }
-  return hash.toString(16).padStart(8, '0');
-}
-
 export type ResolvedItemLinks = {
   /** Item id → linked codes, for items found by id and content, or by content alone. */
   byItem: Map<string, string[]>;
@@ -51,7 +31,7 @@ export function resolveItemLinks(
   links: ItemStandardLink[],
   items: KnowledgeItem[],
 ): ResolvedItemLinks {
-  const prints = new Map(items.map((item) => [item.id, fingerprint(item)]));
+  const prints = new Map(items.map((item) => [item.id, itemFingerprint(item)]));
   const byItem = new Map<string, string[]>();
   const orphans: ItemStandardLink[] = [];
   for (const link of links) {
@@ -93,7 +73,7 @@ export function withItemCodes(
   const current = items.flatMap((item) => {
     const itemCodes = byItem.get(item.id);
     return itemCodes?.length
-      ? [{ topic, itemId: item.id, fingerprint: fingerprint(item), codes: itemCodes }]
+      ? [{ topic, itemId: item.id, fingerprint: itemFingerprint(item), codes: itemCodes }]
       : [];
   });
   return {
