@@ -118,7 +118,7 @@ describe('saveCurriculumLinks', () => {
       updatedAt: AT.toISOString(),
     });
     const [entry] = (await buildContentIndex(root)).books;
-    expect(entry).toMatchObject({ links: 'r7/curriculum-links.json', curriculumId: id });
+    expect(entry?.curriculumLinks).toEqual(await read('r7/curriculum-links.json'));
   });
 
   it('refuses unknown books, topics, curricula and standards', async () => {

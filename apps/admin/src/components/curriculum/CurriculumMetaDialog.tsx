@@ -1,9 +1,10 @@
 import { LoaderCircle } from 'lucide-react';
-import { useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CURRICULUM_TITLE_MAX } from '@mytutor/schemas';
 import { ActionError } from '@/components/books/ActionError';
 import { Button, Dialog, Input } from '@/components/ui';
+import { GRADES, gradeLabel } from '@/features/curriculum/labels';
 
 export type CurriculumMeta = { title: string; subject: string; grade: number | null };
 
@@ -16,8 +17,6 @@ type CurriculumMetaDialogProps = {
   onSubmit: (meta: CurriculumMeta) => void;
   onClose: () => void;
 };
-
-const GRADES = Array.from({ length: 11 }, (_, i) => i + 1);
 
 /** Title, subject and grade of a curriculum: asked when it is created, editable later. */
 export function CurriculumMetaDialog(props: CurriculumMetaDialogProps) {
@@ -39,7 +38,6 @@ export function CurriculumMetaDialog(props: CurriculumMetaDialogProps) {
 function MetaForm({ initial, pending, error, onSubmit, onClose }: CurriculumMetaDialogProps) {
   const { t } = useTranslation();
   const ids = { title: useId(), subject: useId(), grade: useId() };
-  const titleRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState(initial?.title ?? '');
   const [subject, setSubject] = useState(initial?.subject ?? '');
   const [grade, setGrade] = useState(initial?.grade?.toString() ?? '');
@@ -65,8 +63,7 @@ function MetaForm({ initial, pending, error, onSubmit, onClose }: CurriculumMeta
         </label>
         <Input
           id={ids.title}
-          ref={titleRef}
-          autoFocus
+          data-autofocus
           value={title}
           maxLength={CURRICULUM_TITLE_MAX}
           placeholder={t('curricula.titlePlaceholder')}
@@ -102,7 +99,7 @@ function MetaForm({ initial, pending, error, onSubmit, onClose }: CurriculumMeta
             <option value="">{t('curricula.gradeNone')}</option>
             {GRADES.map((g) => (
               <option key={g} value={g}>
-                {t('curricula.grade', { grade: g })}
+                {gradeLabel(t, g)}
               </option>
             ))}
           </select>

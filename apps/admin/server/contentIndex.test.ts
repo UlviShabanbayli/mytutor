@@ -37,8 +37,7 @@ describe('buildContentIndex', () => {
         title: 'Riyaziyyat 7',
         structure: 'split/structure.json',
         canExtract: false,
-        links: null,
-        curriculumId: null,
+        curriculumLinks: null,
         topics: [
           {
             number: '4.1',

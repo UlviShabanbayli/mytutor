@@ -58,7 +58,7 @@ function PasteForm({ current, pending, error, onImport, onClose }: PasteStandard
           </label>
           <Textarea
             id={inputId}
-            autoFocus
+            data-autofocus
             rows={16}
             value={text}
             placeholder={t('paste.placeholder')}

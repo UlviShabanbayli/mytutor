@@ -1,4 +1,5 @@
 import { Camera, FileText, TriangleAlert } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { KnowledgeItem, TopicSource } from '@mytutor/types';
 import { Badge } from '@/components/ui';
@@ -17,6 +18,8 @@ type KnowledgeItemCardProps = {
   topicDir: string;
   active: boolean;
   onSelect: (id: string) => void;
+  /** The item's curriculum standards, when the book has a curriculum. */
+  standards?: ReactNode;
 };
 
 export function KnowledgeItemCard({
@@ -25,6 +28,7 @@ export function KnowledgeItemCard({
   topicDir,
   active,
   onSelect,
+  standards,
 }: KnowledgeItemCardProps) {
   const { t } = useTranslation();
   const blockLabel = useBlockLabel();
@@ -109,6 +113,8 @@ export function KnowledgeItemCard({
           );
         })}
       </div>
+
+      {standards}
 
       <details open={failed} className="group">
         <summary

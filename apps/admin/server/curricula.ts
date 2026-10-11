@@ -2,13 +2,9 @@ import { randomBytes } from 'node:crypto';
 import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { z } from 'zod';
-import {
-  curriculumInputSchema,
-  curriculumLinksInputSchema,
-  curriculumLinksSchema,
-} from '@mytutor/schemas';
+import { curriculumInputSchema, curriculumLinksInputSchema } from '@mytutor/schemas';
 import type { Curriculum, CurriculumLinks } from '@mytutor/types';
-import { curriculumFile, exists, readCurriculum, readJson, scanBooks } from './contentIndex';
+import { curriculumFile, exists, readCurriculum, scanBooks } from './contentIndex';
 import { bookKey, exclusive, PipelineError, topicNumbers, transliterate } from './pipeline';
 
 /** Writes JSON through a temporary file, so a crash never leaves half a file behind. */
@@ -82,8 +78,6 @@ export async function saveCurriculum({
   });
 }
 
-const readLinks = (file: string) => readJson(file, curriculumLinksSchema);
-
 export type DeleteCurriculumInput = { root: string; id: string };
 
 /** Deletes a curriculum no book links to; a linked one is refused, so no links lose meaning. */
@@ -93,7 +87,7 @@ export async function deleteCurriculum({ root, id }: DeleteCurriculumInput) {
     const file = curriculumFile(root, id);
     if (!(await exists(file))) throw noCurriculum();
     const users = (await scanBooks(root))
-      .filter((book) => book.curriculumId === id)
+      .filter((book) => book.curriculumLinks?.curriculumId === id)
       .map((book) => book.title ?? book.id);
     if (users.length)
       throw new PipelineError(409, 'curriculum_in_use', `Linked from: ${users.join(', ')}`);
@@ -146,7 +140,7 @@ export async function saveCurriculumLinks({
       const curriculum = await readCurriculum(root, input.curriculumId);
       if (!curriculum) throw noCurriculum();
       const known = new Set(curriculum.standards.map((s) => s.code));
-      const saved = await readLinks(book.linksFile);
+      const saved = book.curriculumLinks;
       if (saved?.curriculumId === input.curriculumId) {
         for (const code of Object.values(saved.topics).flat()) known.add(code);
         for (const code of saved.items.flatMap((i) => i.codes)) known.add(code);

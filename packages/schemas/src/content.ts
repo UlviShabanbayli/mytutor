@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { curriculumEntrySchema } from './curriculum';
+import { curriculumEntrySchema, curriculumLinksSchema } from './curriculum';
 
 /**
  * Index of pipeline outputs available to the admin panel: which books were split and which
@@ -25,10 +25,8 @@ export const contentBookEntrySchema = z.object({
   /** The PDF is on disk, so topics can be extracted from the panel. */
   canExtract: z.boolean(),
   topics: z.array(contentTopicEntrySchema),
-  /** The book's `curriculum-links.json` (relative to the root), null when none is saved yet. */
-  links: z.string().nullable(),
-  /** The curriculum the book's links point to (read from that file), when it has links. */
-  curriculumId: z.string().nullable(),
+  /** The book's links to a curriculum (its `curriculum-links.json`), null until saved. */
+  curriculumLinks: curriculumLinksSchema.nullable(),
 });
 
 /** A book deleted from the panel: its folders wait in `<root>/.trash/<id>/` until restored. */

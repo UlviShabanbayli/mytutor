@@ -1,7 +1,12 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { basename, extname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { z } from 'zod';
-import { bookMetaSchema, contentIndexSchema, curriculumSchema } from '@mytutor/schemas';
+import {
+  bookMetaSchema,
+  contentIndexSchema,
+  curriculumLinksSchema,
+  curriculumSchema,
+} from '@mytutor/schemas';
 import type {
   ContentBookEntry,
   ContentIndex,
@@ -12,7 +17,6 @@ import type {
 
 // Only the fields the index needs; full validation happens in the browser when a file is opened.
 const structureHead = z.object({ source: z.object({ file: z.string() }) });
-const linksHead = z.object({ curriculumId: z.string().nullable() });
 const sourceHead = z.object({
   book: z.object({ file: z.string() }),
   topic: z.object({ number: z.string() }),
@@ -24,7 +28,7 @@ export const exists = (path: string) =>
     () => false,
   );
 
-export async function readJson<T>(path: string, schema: z.ZodType<T>): Promise<T | null> {
+async function readJson<T>(path: string, schema: z.ZodType<T>): Promise<T | null> {
   try {
     return schema.parse(JSON.parse(await readFile(path, 'utf8')));
   } catch {
@@ -84,8 +88,7 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
         structure: null,
         canExtract: false,
         topics: [],
-        links: null,
-        curriculumId: null,
+        curriculumLinks: null,
         pdf: null,
         folder: null,
         folders: [],
@@ -158,8 +161,7 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
       const file = join(dir, LINKS_FILE);
       if (!(await exists(file))) continue;
       book.linksFile = file;
-      book.links = toPosix(relative(root, file));
-      book.curriculumId = (await readJson(file, linksHead))?.curriculumId ?? null;
+      book.curriculumLinks = await readJson(file, curriculumLinksSchema);
       break;
     }
     const home = book.folder ?? metaDirs.get(book) ?? book.folders[0];

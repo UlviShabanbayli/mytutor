@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { CurriculumInput, CurriculumLinksInput } from '@mytutor/types';
+import type { ContentIndex, CurriculumInput, CurriculumLinksInput } from '@mytutor/types';
 import { createCurriculum, deleteCurriculum, saveCurriculum, saveCurriculumLinks } from './api';
 
 const contentKey = ['content'] as const;
+const indexKey = ['content', 'index'] as const;
 
 export function useCreateCurriculum() {
   const queryClient = useQueryClient();
@@ -32,6 +33,20 @@ export function useSaveCurriculumLinks(bookId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (links: CurriculumLinksInput) => saveCurriculumLinks(bookId, links),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: contentKey }),
+    onSuccess: ({ updatedAt }, links) => {
+      // The saved links count at once: an edit made before the index reloads starts from them,
+      // so it never brings back what the previous save changed.
+      queryClient.setQueryData<ContentIndex>(indexKey, (index) =>
+        index
+          ? {
+              ...index,
+              books: index.books.map((book) =>
+                book.id === bookId ? { ...book, curriculumLinks: { ...links, updatedAt } } : book,
+              ),
+            }
+          : index,
+      );
+      return queryClient.invalidateQueries({ queryKey: contentKey });
+    },
   });
 }

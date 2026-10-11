@@ -1,15 +1,26 @@
-import { ListTree } from 'lucide-react';
+import { ListChecks, ListTree } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 import { DeleteBookButton } from '@/components/books/DeleteBookButton';
 import { UnitSection } from '@/components/books/UnitSection';
-import { Breadcrumbs, CommandHint, EmptyState, ErrorState, LoadingState } from '@/components/ui';
+import { BookCurriculumTab } from '@/components/links/BookCurriculumTab';
+import {
+  Breadcrumbs,
+  CommandHint,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  TabNav,
+} from '@/components/ui';
 import { bookTitle } from '@/features/content/pages';
 import { useBook, useStructure } from '@/features/content/queries';
 import { commands } from '@/lib/commands';
 import { NotFoundPage } from './NotFoundPage';
 
-export function BookPage() {
+type BookPageProps = { tab: 'topics' | 'curriculum' };
+
+/** A book: its units and topics, or its links to a curriculum. */
+export function BookPage({ tab }: BookPageProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { bookId = '' } = useParams();
@@ -20,6 +31,40 @@ export function BookPage() {
   if (book.isError) return <ErrorState onRetry={() => void book.refetch()} />;
   if (!book.data) return <NotFoundPage />;
   const entry = book.data;
+  const base = `/books/${encodeURIComponent(entry.id)}`;
+
+  const content = () => {
+    if (!entry.structure)
+      return (
+        <EmptyState
+          icon={<ListTree className="size-6" />}
+          title={t('bookPage.noStructureTitle')}
+          body={t('bookPage.noStructureBody')}
+        >
+          <CommandHint command={commands.split} />
+        </EmptyState>
+      );
+    if (structure.isPending) return <LoadingState />;
+    if (structure.isError)
+      return (
+        <ErrorState onRetry={() => void structure.refetch()} detail={structure.error.message} />
+      );
+    if (tab === 'curriculum') return <BookCurriculumTab book={entry} structure={structure.data} />;
+    return (
+      <div className="flex flex-col gap-4">
+        {structure.data.units.map((unit) => (
+          <UnitSection
+            key={unit.index}
+            bookId={entry.id}
+            unit={unit}
+            offset={structure.data.source.printedPageOffset}
+            topics={entry.topics}
+            canExtract={entry.canExtract}
+          />
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -32,32 +77,23 @@ export function BookPage() {
         {/* Replaces the history entry, so Back never lands on the deleted book's page. */}
         <DeleteBookButton book={entry} onDeleted={() => void navigate('/', { replace: true })} />
       </header>
-      {!entry.structure ? (
-        <EmptyState
-          icon={<ListTree className="size-6" />}
-          title={t('bookPage.noStructureTitle')}
-          body={t('bookPage.noStructureBody')}
-        >
-          <CommandHint command={commands.split} />
-        </EmptyState>
-      ) : structure.isPending ? (
-        <LoadingState />
-      ) : structure.isError ? (
-        <ErrorState onRetry={() => void structure.refetch()} detail={structure.error.message} />
-      ) : (
-        <div className="flex flex-col gap-4">
-          {structure.data.units.map((unit) => (
-            <UnitSection
-              key={unit.index}
-              bookId={entry.id}
-              unit={unit}
-              offset={structure.data.source.printedPageOffset}
-              topics={entry.topics}
-              canExtract={entry.canExtract}
-            />
-          ))}
-        </div>
-      )}
+      <TabNav
+        label={bookTitle(entry)}
+        tabs={[
+          {
+            to: base,
+            end: true,
+            label: t('bookPage.tabs.topics'),
+            icon: <ListTree className="size-4" />,
+          },
+          {
+            to: `${base}/curriculum`,
+            label: t('bookPage.tabs.curriculum'),
+            icon: <ListChecks className="size-4" />,
+          },
+        ]}
+      />
+      {content()}
     </div>
   );
 }

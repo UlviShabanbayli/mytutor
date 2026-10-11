@@ -108,6 +108,10 @@ export const withoutItemLink = (
   orphan: ItemStandardLink,
 ): CurriculumLinksInput => ({ ...links, items: links.items.filter((link) => link !== orphan) });
 
+/** Every topic and item link, counted once per standard. */
+export const linkCount = (links: CurriculumLinksInput) =>
+  Object.values(links.topics).flat().length + links.items.flatMap((l) => l.codes).length;
+
 export type Coverage = {
   /** Standard code → topics linking it (directly or through one of their items). */
   topicsByCode: Map<string, string[]>;

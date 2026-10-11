@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { ExtractSourceButton } from '@/components/books/ExtractSourceButton';
 import { KnowledgeMissing } from '@/components/knowledge/KnowledgeMissing';
-import { KnowledgeTab } from '@/components/knowledge/KnowledgeTab';
 import { LessonTab } from '@/components/lesson/LessonTab';
+import { LinkedKnowledgeTab } from '@/components/links/LinkedKnowledgeTab';
+import { TopicStandards } from '@/components/links/TopicStandards';
 import { SourceTab } from '@/components/source/SourceTab';
 import {
   Badge,
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui';
 import { bookTitle } from '@/features/content/pages';
 import { useBook, useKnowledge, useTopicSource } from '@/features/content/queries';
+import { useBookCurriculum } from '@/features/curriculum/useBookCurriculum';
 import { commands } from '@/lib/commands';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -31,6 +33,7 @@ export function TopicPage() {
   const entry = book.data?.topics.find((topic) => topic.number === number) ?? null;
   const source = useTopicSource(entry?.source ?? null);
   const knowledge = useKnowledge(entry?.knowledge ?? null);
+  const bc = useBookCurriculum(book.data);
 
   if (book.isPending) return <LoadingState />;
   if (book.isError) return <ErrorState onRetry={() => void book.refetch()} />;
@@ -77,7 +80,15 @@ export function TopicPage() {
         <ErrorState onRetry={() => void knowledge.refetch()} detail={knowledge.error.message} />
       );
     }
-    return <KnowledgeTab doc={knowledge.data} source={source.data} topicDir={entry.dir} />;
+    return (
+      <LinkedKnowledgeTab
+        doc={knowledge.data}
+        source={source.data}
+        topicDir={entry.dir}
+        topic={number}
+        bc={bc}
+      />
+    );
   };
 
   return (
@@ -92,6 +103,7 @@ export function TopicPage() {
         ) : null}
         <h1 className="font-sans-black text-3xl text-foreground">{title}</h1>
       </header>
+      <TopicStandards bookId={bookId} topic={number} title={title} bc={bc} />
       <TabNav
         label={title}
         tabs={[

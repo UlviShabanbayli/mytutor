@@ -49,7 +49,9 @@ export function CurriculaPage() {
             <CurriculumCard
               key={entry.id}
               entry={entry}
-              bookCount={index.data.books.filter((b) => b.curriculumId === entry.id).length}
+              bookCount={
+                index.data.books.filter((b) => b.curriculumLinks?.curriculumId === entry.id).length
+              }
             />
           ))}
         </div>

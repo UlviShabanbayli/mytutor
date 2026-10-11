@@ -1,0 +1,186 @@
+/** The «Bələdçi» page: what every page, button, colour and mark of the panel means. */
+export const guide = {
+  title: 'Bələdçi',
+  subtitle:
+    'Paneldəki hər səhifənin, düymənin, rəngin və işarənin mənası. Lazım olan bölməni aşağıdakı siyahıdan seçin.',
+  toc: 'Bölmələr',
+  workflow: {
+    title: 'İş ardıcıllığı',
+    intro:
+      'Dərslik paneldə bu addımlarla hazırlanır. İlk iki addım AI istifadə etmir və pulsuzdur.',
+    add: 'Dərsliyin PDF faylını yükləyirsiniz. Panel onu avtomatik bölmə və mövzulara bölür.',
+    source:
+      'Mövzunun səhifələri bloklara, sətirlərə və fiqurlara ayrılır. Bu, dərslikdə nəyin harada yazıldığının dəqiq xəritəsidir; sonrakı hər şey ona istinad edir.',
+    knowledge:
+      'AI mənbədən tərif, qayda, düstur, nümunə və tapşırıqları çıxarır, sonra hər element avtomatik yoxlanılır. Pullu addımdır və hələlik terminaldan işə salınır.',
+    review:
+      'Komanda «Bilik» bölməsində elementləri dərsliklə müqayisə edir: status, yoxlamalar və səhifədəki yer göstərilir.',
+    curriculum:
+      'Mövzular və bilik elementləri kurikulum standartlarına bağlanır ki, hansı standartın harada öyrədildiyi görünsün.',
+    lesson: 'Hələ hazır deyil: bilik sənədi təsdiqləndikdən sonra yaradılacaq.',
+  },
+  colors: {
+    primary: 'Mavi',
+    success: 'Yaşıl',
+    accent: 'Narıncı',
+    destructive: 'Qırmızı',
+    neutral: 'Boz',
+  },
+  basics: {
+    title: 'Menyu, tema və rənglər',
+    books: 'Bütün dərsliklər. Yanındakı rəqəm dərsliklərin sayıdır.',
+    curricula: 'Komandanın daxil etdiyi kurikulumlar və onların standartları.',
+    trash: 'Silinmiş kitablar: geri qaytarmaq və ya birdəfəlik silmək üçün.',
+    guide: 'Bu səhifə.',
+    theme: 'Sağ yuxarıdakı düymələr: açıq tema, cihazın temasına uyğun, tünd tema.',
+    colorsIntro: 'Rənglər paneldə hər yerdə eyni mənanı verir:',
+    primary: 'Əsas məlumat, seçilmiş element, element növü, izah blokları.',
+    success: 'Hazırdır, keçdi, dərslikdən təsdiqlənib.',
+    accent:
+      'Diqqət tələb edir, amma xəta deyil: xəbərdarlıq, törəmə element, bağlanmamış standart, nümunə blokları.',
+    destructive: 'Xəta, keçməyən yoxlama, təsdiqlənməyən element, silmə.',
+    neutral: 'Neytral məlumat, hələ edilməyib, tapşırıq blokları.',
+    error: 'Əməliyyat alınmadı. «Texniki məlumat» açılanda proqramçılar üçün dəqiq səbəb görünür.',
+    command: 'Bu addımı terminaldan işə salmaq üçün əmr. «Kopyala» ilə götürün.',
+  },
+  books: {
+    title: 'Dərsliklər və kitab səhifəsi',
+    units: 'Kitabda neçə bölmə var.',
+    topics: 'Kitabda neçə mövzu var.',
+    sources: 'Neçə mövzunun mənbəyi artıq çıxarılıb.',
+    noStructure: 'Kitab hələ bölmə və mövzulara bölünməyib.',
+    delete: 'Kitabı silir. Kitab «Silinmişlər» səhifəsinə düşür, oradan geri qaytarmaq olar.',
+    tabs: 'Kitab səhifəsinin iki bölməsi: bölmə və mövzular, bir də kurikulum bağlantıları.',
+    stageReady: 'Bu addım hazırdır (yaşıl, işarəli).',
+    stageMissing: 'Bu addım hələ edilməyib (boz, xətli).',
+    stages:
+      'Mövzunun üç addımı: Mənbə (səhifələr bloklara ayrılıb), Bilik (bilik sənədi yaradılıb), Dərs planı (hələ yoxdur).',
+    extract: 'Mövzunun mənbəyini PDF-dən çıxarır. Bir neçə saniyə çəkir, pulsuzdur.',
+    dimmed:
+      'Solğun mövzu sətri: mənbə çıxarılmayıb və kitabın PDF faylı diskdə yoxdur, ona görə yalnız terminaldan çıxarmaq olar.',
+    restore: 'Silinmiş kitabı bütün faylları ilə geri qaytarır.',
+    purge:
+      'Kitabı diskdən birdəfəlik silir. Geri qaytarmaq olmur, ona görə əvvəlcə kitabın adını yazmaq lazımdır.',
+  },
+  source: {
+    title: 'Mövzu: Mənbə',
+    intro:
+      'Dərslik səhifəsinin şəkli və onun üzərində rəngli çərçivələr: hər çərçivə bir blokdur. Çərçivəyə və ya siyahıdakı bloka toxunanda yanda onun mətni, kəsiyi və fiqurları açılır.',
+    stats:
+      'Mövzuda neçə səhifə, blok, sətir və fiqur tapıldığı. «Xəbərdarlıq» narıncıdırsa, parser bir şeydən şübhələnib: siyahını yoxlayın.',
+    solid: 'Adi blok.',
+    dashed: 'İçində başqa bloklar olan qrup (Çalışmalar, Məsələ həlli).',
+    selected: 'Seçilmiş blok.',
+    kinds:
+      'Çərçivənin və nişanın rəngi blokun qrupunu göstərir. Aşağıda hər blok növü öz rəngi ilə:',
+    kind: {
+      title: 'Mövzunun başlığı.',
+      inquiry: 'Mövzunun girişindəki araşdırma və ya müzakirə sualı.',
+      section: 'Əsas izah mətni.',
+      example: 'Həlli göstərilən məsələ.',
+      theorem: 'Teorem və ya xassə.',
+      think: 'Düşünməyə çağıran qutu.',
+      remember: 'Vacib qayda və ya düstur qutusu.',
+      find_mistake: 'Səhv həll verilir, onu tapmaq lazımdır.',
+      history: 'Tarixi məlumat qutusu.',
+      keywords: 'Mövzunun yeni terminləri.',
+      exercises: 'Tapşırıqlar qrupu (içində tək tapşırıqlar var).',
+      problems: 'Məsələlər qrupu (içində tək məsələlər var).',
+      exercise: 'Tək tapşırıq və ya məsələ.',
+      callout: 'Parser bu qutunun növünü tanımadı: qırmızıdır, çünki yoxlanmalıdır.',
+    },
+    hasMath: 'Blokda düstur var.',
+    hasFigure: 'Blokda fiqur var (şəkil, cədvəl, qrafik).',
+    lowQuality:
+      'Blokun mətn qatı zəifdir: PDF-dəki mətn düzgün oxunmayıb, düsturlar şəkildən oxunmalıdır.',
+    mathLine: 'Sətirdə riyazi işarələr var.',
+    weakLine: 'Sətir düzgün oxunmayıb: tanınmayan simvollar var.',
+    ids: 'Kodlar: b01 blok, l001 sətir, f01 fiqur, k001 bilik elementi. Hər şey bu kodlarla dərsliyə qədər izlənir.',
+  },
+  knowledge: {
+    title: 'Mövzu: Bilik',
+    intro:
+      'AI-nin mənbədən çıxardığı elementlər. Elementin koduna toxunanda yanda onun dərslikdəki yeri, kəsiyi və sətirləri açılır.',
+    textbook: 'Dərslikdə yazıldığı kimi olduğu təsdiqlənib.',
+    derived:
+      'AI dərslikdəki məlumatı özü strukturlaşdırıb (məsələn, addımlara bölüb); dərslikdə hərfi belə yazılmayıb.',
+    unverified: 'Yoxlamalardan keçməyib və ya təsdiqlənə bilməyib: mütləq baxılmalıdır.',
+    failed:
+      '«Uğursuz yoxlama»: ən azı bir yoxlaması keçməyən elementlərin sayı. Altdakı sətir: sxemə uyğun gəlmədiyi üçün atılan elementlər.',
+    imageFormulas:
+      '«Şəkildən düstur»: düsturu PDF mətnindən yox, səhifənin şəklindən oxunan elementlər.',
+    aiCalls:
+      '«AI çağırışı»: AI-yə neçə dəfə müraciət olunub. «cache»: əvvəlki nəticə yenidən istifadə olunub, pulsuzdur.',
+    cost: '«Xərc»: bu sənədin AI xərci (dollarla) və token sayı.',
+    code: 'Elementin kodu. Toxunanda elementin mənbəyi yanda açılır.',
+    type: {
+      definition: 'Dərslikdə verilən tərif.',
+      rule: 'Sözlə ifadə olunan qayda və ya xassə.',
+      formula: 'Adlı və ya çərçivəyə alınmış düstur.',
+      worked_example: 'Həlli ilə birlikdə nümunə.',
+      exercise: 'Nömrəli tapşırıq.',
+      question: 'Açıq sual (Araşdırma, Fikirləş!).',
+      figure: 'İzahın istinad etdiyi şəkil, qrafik və ya cədvəl.',
+      term: 'Dərsliyin təqdim etdiyi termin.',
+      prerequisite: 'Mövzunun əsaslandığı əvvəlki bilik.',
+    },
+    readImage: 'AI elementi səhifənin şəklindən oxuyub.',
+    readText: 'AI elementi PDF-in mətn qatından oxuyub.',
+    claimed: 'AI bunu dərslikdə yazıldığı kimi təqdim edib, amma yoxlamalar bunu təsdiqləmədi.',
+    sources: 'Elementin götürüldüyü yer: blok kodu, blokun adı, sətir sayı, fiqur, səhifə.',
+    figures: 'Mətn şəklə istinad edirsə, həmin şəkil elementin altında göstərilir.',
+    panel:
+      'Yandakı panel: seçilmiş elementin səhifədəki yeri (çərçivə statusun rəngindədir), kəsiklər və istinad etdiyi sətirlər.',
+    statusRule:
+      'Status necə təyin olunur: Mənbə ID-ləri, LaTeX sintaksisi və ya Riyazi eynilik keçməsə — Təsdiqlənməyib. AI elementi özü strukturlaşdırıbsa — Törəmə. Şəkil yoxlaması keçibsə (şəkil yoxlaması olmayan mətn elementində isə mətnə uyğunluq keçibsə) — Dərslik. Qalan hallarda — Təsdiqlənməyib.',
+  },
+  checks: {
+    title: 'Yoxlamalar',
+    intro:
+      'Hər elementin altında «Yoxlamalar» siyahısı var. Keçməyən yoxlama olanda siyahı özü açılır və başlığı qırmızı olur.',
+    pass: 'Yoxlama keçdi.',
+    fail: 'Yoxlama keçmədi: elementə baxın.',
+    skip: 'Bu yoxlama bu elementə aid deyil (məsələn, düsturu olmayan elementdə LaTeX yoxlaması).',
+    source_ids: 'AI-nin istinad etdiyi blok, sətir və fiqur kodları mənbədə həqiqətən var.',
+    block_kind:
+      'Element düzgün blokdan götürülüb: həll nümunəsi eyni nömrəli «Nümunə» blokundan, tapşırıq eyni nömrəli tapşırıqdan, sual Araşdırma və ya Fikirləş! blokundan.',
+    text_grounding:
+      'Mətndən oxunan elementin sözlərinin ən azı 80%-i istinad etdiyi sətirlərdə var.',
+    latex_syntax: 'Düsturlar düzgün yazılıb və ekranda göstərilə bilir.',
+    identity: 'Bərabərliklər bir neçə ədəd yerinə qoyulub hesablanıb və doğru çıxıb.',
+    image_verification:
+      'Ayrıca AI çağırışı elementi səhifənin şəkli ilə tutuşdurub: uyğundursa keçir.',
+    figure_link:
+      'Mətn şəklə istinad edirsə («şəkildə», «qrafikdə», «cədvəldə»…), uyğun fiqur elementə bağlanıb.',
+  },
+  curriculum: {
+    title: 'Kurikulum',
+    card: 'Kurikulumun neçə standartı olduğu və neçə dərsliyin ona bağlı olduğu.',
+    paste:
+      'Sənəddən mətni yapışdırın: kodla başlayan sətirlər standart, «1. Ədədlər və əməllər» kimi sətirlər məzmun xətti sayılır. Yanda nəyin oxunduğunu görürsünüz.',
+    added: 'Bu qədər yeni standart əlavə olunacaq.',
+    updated: 'Bu qədər mövcud standartın mətni dəyişəcək (eyni kod təkrar yapışdırılıb).',
+    parent: 'Qalın sətir əsas standartdır.',
+    child: 'Girintili sətir onun alt standartıdır.',
+    edit: 'Standartı dəyiş.',
+    remove: 'Standartı sil; ikinci dəfə «Bəli» ilə təsdiqlənir.',
+    deleteCurriculum: 'Kurikulumu yalnız heç bir dərslik ona bağlı deyilsə silmək olar.',
+  },
+  links: {
+    title: 'Kurikuluma bağlama',
+    intro:
+      'Kitab səhifəsinin «Kurikulum» bölməsində əvvəlcə kitabın kurikulumu seçilir, sonra mövzular standartlara bağlanır. Bilik elementləri isə mövzunun «Bilik» bölməsində, hər elementin altında bağlanır.',
+    topics: 'Ən azı bir standartı olan mövzuların sayı / bütün mövzular.',
+    covered: 'Kitabın əhatə etdiyi standartlar / kurikulumdakı bütün standartlar.',
+    uncovered: 'Kitabda heç bir mövzuya bağlanmayan standartlar: boşluq ola bilər.',
+    items: 'Bilik elementlərinə edilən bağlantıların sayı.',
+    link: 'Seçim pəncərəsini açır: axtarın, uyğun standartları işarələyin, yadda saxlayın.',
+    code: 'Bağlı standart və onun mətni.',
+    removed:
+      'Qırmızı kod: standart kurikulumdan silinib, amma bağlantı qalıb. Seçim pəncərəsində işarəsini götürüb silin.',
+    notLinked: '«Standartlar üzrə» görünüşdə: bu standart heç bir mövzuya bağlanmayıb.',
+    topicChip: 'Bu standartı öyrədən mövzu; toxunanda mövzu açılır.',
+    orphan:
+      'Bilik sənədi yenidən yaradılanda element dəyişib və ya yox olub. Bağlantı itmir: uyğun elementi yenidən bağlayın, köhnəsini silin.',
+  },
+} as const;

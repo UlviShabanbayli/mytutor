@@ -26,7 +26,9 @@ export function CurriculumEditorPage() {
   if (index.isPending) return <LoadingState />;
   if (index.isError) return <ErrorState onRetry={() => void index.refetch()} />;
   if (!entry) return <NotFoundPage />;
-  const linkedBooks = index.data.books.filter((b) => b.curriculumId === entry.id).map(bookTitle);
+  const linkedBooks = index.data.books
+    .filter((b) => b.curriculumLinks?.curriculumId === entry.id)
+    .map(bookTitle);
   const close = () => {
     save.reset();
     setDialog(null);

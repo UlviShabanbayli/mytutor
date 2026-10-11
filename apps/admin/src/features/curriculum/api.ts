@@ -1,6 +1,5 @@
 import {
   createCurriculumResponseSchema,
-  curriculumLinksSchema,
   curriculumSchema,
   deleteCurriculumResponseSchema,
   savedResponseSchema,
@@ -9,7 +8,6 @@ import type { CurriculumInput, CurriculumLinksInput } from '@mytutor/types';
 import { getJson, runAction } from '@/features/content/api';
 
 export const fetchCurriculum = (path: string) => getJson(path, curriculumSchema);
-export const fetchCurriculumLinks = (path: string) => getJson(path, curriculumLinksSchema);
 
 const jsonBody = (body: unknown): RequestInit => ({
   body: JSON.stringify(body),
