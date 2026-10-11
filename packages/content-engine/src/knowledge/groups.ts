@@ -3,7 +3,8 @@ import type { SourceBlock, TopicSource } from '@mytutor/types';
 /** One AI call's worth of blocks. Groups are deterministic so results can be cached per group. */
 export type CallGroup = { id: string; blockIds: string[] };
 
-const CONTAINERS = new Set(['exercises', 'problems']);
+/** Blocks that only hold numbered exercises (Çalışma, Məsələ həlli). */
+export const CONTAINERS = new Set(['exercises', 'problems']);
 const EXERCISES_PER_CALL = 6;
 const SMALL_BOX_LINES = 6;
 

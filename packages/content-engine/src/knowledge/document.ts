@@ -12,6 +12,7 @@ import type {
 import { EXTRACT_PROMPT_VERSION, EXTRACT_SYSTEM } from './prompts/extract.v2';
 import { VERIFY_PROMPT_VERSION, VERIFY_SYSTEM } from './prompts/verify.v1';
 import { canonicalSha256 } from './canonical';
+import { linkFigures } from './figureLinks';
 import { checkItem, statusOf } from './validate';
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -55,7 +56,9 @@ export function buildDocument(
   const items: KnowledgeItem[] = groups.flatMap((g) =>
     g.items.map((item) => {
       const verdict = g.verdicts.find((v) => v.ref === item.ref);
-      const checks = checkItem(item, source, verdict);
+      // Linked here rather than in the pipeline, so documents rebuilt from cache get it too.
+      const figureLinks = linkFigures(item, source);
+      const checks = checkItem(item, source, verdict, figureLinks);
       const { type, ref, origin, sources, readFrom, ...content } = item;
       n += 1;
       return {
@@ -64,7 +67,7 @@ export function buildDocument(
         status: statusOf(item, checks),
         claimedOrigin: origin,
         readFrom,
-        sources: resolveSources(item, source),
+        sources: resolveSources({ ...item, sources: [...sources, ...figureLinks] }, source),
         content,
         checks,
       };

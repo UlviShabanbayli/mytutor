@@ -235,6 +235,7 @@ export const az = {
       latex_syntax: 'LaTeX sintaksisi',
       identity: 'Riyazi eynilik',
       image_verification: 'Şəkil yoxlaması',
+      figure_link: 'Fiqur',
     },
     result: {
       pass: 'keçdi',
