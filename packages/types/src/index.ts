@@ -24,13 +24,7 @@ import type {
   phoneNumberSchema,
   practiceTestSchema,
   questionSchema,
-  sourceBlockKindSchema,
-  sourceBlockSchema,
-  sourceFigureSchema,
-  sourceLineSchema,
-  sourcePageSchema,
   sourceRefSchema,
-  sourceRegionSchema,
   subjectSchema,
   textbookBlockKindSchema,
   textbookBlockSchema,
@@ -77,30 +71,3 @@ export type TestResult = {
   answers: TestAnswers;
   finishedAt: string;
 };
-
-export type BBox = z.output<typeof bboxSchema>;
-export type SourceRegion = z.output<typeof sourceRegionSchema>;
-export type SourcePage = z.output<typeof sourcePageSchema>;
-export type SourceLine = z.output<typeof sourceLineSchema>;
-export type SourceFigure = z.output<typeof sourceFigureSchema>;
-export type SourceBlockKind = z.output<typeof sourceBlockKindSchema>;
-export type SourceBlock = z.output<typeof sourceBlockSchema>;
-export type TopicSource = z.output<typeof topicSourceSchema>;
-
-export type KnowledgeItemType = z.output<typeof knowledgeItemTypeSchema>;
-export type KnowledgeSourceId = z.output<typeof knowledgeSourceIdSchema>;
-export type ExtractedItem = z.output<typeof extractedItemSchema>;
-export type KnowledgeExtraction = z.output<typeof knowledgeExtractionSchema>;
-export type WireItem = z.output<typeof wireItemSchema>;
-export type VerificationVerdict = z.output<typeof verificationVerdictSchema>;
-export type KnowledgeStatus = z.output<typeof knowledgeStatusSchema>;
-export type KnowledgeCheck = z.output<typeof knowledgeCheckSchema>;
-export type KnowledgeSourceRef = z.output<typeof knowledgeSourceRefSchema>;
-export type KnowledgeItem = z.output<typeof knowledgeItemSchema>;
-export type AiCall = z.output<typeof aiCallSchema>;
-export type KnowledgeDocument = z.output<typeof knowledgeDocumentSchema>;
-
-export type ContentTopicEntry = z.output<typeof contentTopicEntrySchema>;
-export type ContentBookEntry = z.output<typeof contentBookEntrySchema>;
-export type ContentIndex = z.output<typeof contentIndexSchema>;
-export type BookMeta = z.output<typeof bookMetaSchema>;
