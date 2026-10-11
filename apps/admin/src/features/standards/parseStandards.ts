@@ -1,8 +1,8 @@
-import type { CurriculumStandard } from '@mytutor/types';
+import type { OfficialStandard } from '@mytutor/types';
 import { compareCodes } from './standards';
 
 export type ParsedStandards = {
-  standards: CurriculumStandard[];
+  standards: OfficialStandard[];
   /** Codes that appeared more than once; the first text is kept. */
   duplicates: string[];
   /** Lines before the first code or heading: titles, page numbers. */
@@ -26,16 +26,16 @@ function join(text: string, next: string) {
 }
 
 /**
- * Reads standards pasted from a curriculum document. Content-line headings ("1. Ədədlər və
+ * Reads standards pasted from a standard set document. Content-line headings ("1. Ədədlər və
  * əməllər") set the line of the standards below them; a line without a code continues the
  * previous standard or heading, as text copied from a PDF wraps.
  */
 export function parseStandards(text: string): ParsedStandards {
-  const found = new Map<string, CurriculumStandard>();
+  const found = new Map<string, OfficialStandard>();
   const duplicates = new Set<string>();
   const ignored: string[] = [];
   let line: string | null = null;
-  let last: { kind: 'heading' } | { kind: 'standard'; standard: CurriculumStandard } | null = null;
+  let last: { kind: 'heading' } | { kind: 'standard'; standard: OfficialStandard } | null = null;
 
   for (const raw of text.split(/\r?\n/)) {
     const row = raw.replace(/\s+/g, ' ').trim();
@@ -67,12 +67,12 @@ export function parseStandards(text: string): ParsedStandards {
   };
 }
 
-export type MergedStandards = { standards: CurriculumStandard[]; added: number; updated: number };
+export type MergedStandards = { standards: OfficialStandard[]; added: number; updated: number };
 
-/** Adds pasted standards to a curriculum: a code it already has gets the pasted text. */
+/** Adds pasted standards to a standard set: a code it already has gets the pasted text. */
 export function mergeStandards(
-  current: CurriculumStandard[],
-  pasted: CurriculumStandard[],
+  current: OfficialStandard[],
+  pasted: OfficialStandard[],
 ): MergedStandards {
   const byCode = new Map(current.map((s) => [s.code, s]));
   let added = 0;

@@ -1,16 +1,16 @@
 import { useTranslation } from 'react-i18next';
-import type { CurriculumStandard } from '@mytutor/types';
+import type { OfficialStandard } from '@mytutor/types';
 import { cn } from '@/lib/cn';
 
 type LinkedStandardsProps = {
   codes: string[];
-  standards: CurriculumStandard[];
+  standards: OfficialStandard[];
   compact?: boolean;
 };
 
 /**
  * Linked standards with their text, so no hovering is needed to know what a code means. A code
- * no longer in the curriculum is shown in red until someone removes the link.
+ * no longer in the standard set is shown in red until someone removes the link.
  */
 export function LinkedStandards({ codes, standards, compact = false }: LinkedStandardsProps) {
   const { t } = useTranslation();

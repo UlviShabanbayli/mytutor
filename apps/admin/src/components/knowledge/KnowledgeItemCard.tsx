@@ -18,7 +18,7 @@ type KnowledgeItemCardProps = {
   topicDir: string;
   active: boolean;
   onSelect: (id: string) => void;
-  /** The item's curriculum standards, when the book has a curriculum. */
+  /** The item's standard set standards, when the book has a standard set. */
   standards?: ReactNode;
 };
 

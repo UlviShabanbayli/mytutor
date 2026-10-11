@@ -18,7 +18,7 @@ import {
 } from '@/components/ui';
 import { bookTitle } from '@/features/content/pages';
 import { useBook, useKnowledge, useTopicSource } from '@/features/content/queries';
-import { useBookCurriculum } from '@/features/curriculum/useBookCurriculum';
+import { useBookStandards } from '@/features/standards/useBookStandards';
 import { usePageCrumbs } from '@/features/layout/crumbs';
 import { commands } from '@/lib/commands';
 import { NotFoundPage } from './NotFoundPage';
@@ -34,7 +34,7 @@ export function TopicPage() {
   const entry = book.data?.topics.find((topic) => topic.number === number) ?? null;
   const source = useTopicSource(entry?.source ?? null);
   const knowledge = useKnowledge(entry?.knowledge ?? null);
-  const bc = useBookCurriculum(book.data);
+  const bs = useBookStandards(book.data);
   const title = source.data ? `${number}. ${source.data.topic.title}` : number;
   usePageCrumbs([
     { label: t('nav.overview'), to: '/' },
@@ -88,7 +88,7 @@ export function TopicPage() {
         source={source.data}
         topicDir={entry.dir}
         topic={number}
-        bc={bc}
+        bs={bs}
       />
     );
   };
@@ -111,7 +111,7 @@ export function TopicPage() {
           </Link>
         ) : null}
       </header>
-      <TopicStandards bookId={bookId} topic={number} title={title} bc={bc} />
+      <TopicStandards bookId={bookId} topic={number} title={title} bs={bs} />
       <TabNav
         label={title}
         tabs={[

@@ -15,8 +15,8 @@ export const guide = {
       'AI mənbədən tərif, qayda, düstur, nümunə və tapşırıqları çıxarır, sonra hər element avtomatik yoxlanılır. Pullu addımdır və hələlik terminaldan işə salınır.',
     review:
       'Redaktor «Review» ekranında hər bloku dərsliklə tutuşdurur və hər elementə qərar verir: təsdiqlə, düzəliş lazımdır və ya rədd et.',
-    curriculum:
-      'Mövzular və bilik elementləri kurikulum standartlarına bağlanır ki, hansı standartın harada öyrədildiyi görünsün.',
+    standards:
+      'İstəyə bağlı: mövzular rəsmi standartlara bağlanır ki, kursun standartları nə qədər əhatə etdiyi ölçülsün. Bu, heç bir addımı bloklamır.',
     lesson: 'Hələ hazır deyil: bilik sənədi təsdiqləndikdən sonra yaradılacaq.',
   },
   colors: {
@@ -33,7 +33,8 @@ export const guide = {
       'Bütün dərsliklər. Altında hər kitab ayrıca: qırmızı rəqəm qərar gözləyən yoxlanmalı elementlərdir, «1/22» isə mənbəsi çıxarılmış mövzular.',
     review:
       'Review gözləyən və davam edən mövzular. Qırmızı rəqəm: qərar gözləyən yoxlanmalı elementlər.',
-    curricula: 'Komandanın daxil etdiyi kurikulumlar və onların standartları.',
+    standards:
+      'Komandanın daxil etdiyi rəsmi standart dəstləri (məsələn, ART\u0130): yalnız uyğunluğu ölçmək üçün.',
     later: '«Sonra» altındakılar hələ hazır deyil.',
     guide: 'Bu səhifə.',
     trash: 'Silinmiş kitablar: geri qaytarmaq və ya birdəfəlik silmək üçün.',
@@ -55,7 +56,7 @@ export const guide = {
     steps:
       'Kitabların hamısı üzrə 5 addım: neçə mövzunun hansı addımda olduğu. Narıncı çərçivəli addımda iş gözləyir.',
     recommended:
-      'Növbəti ən faydalı iş: başlanmış review, sonra pulsuz mənbə çıxarma, sonra kurikulum işi. Bir düymə ilə başlayır.',
+      'Növbəti ən faydalı iş: başlanmış review, sonra pulsuz mənbə çıxarma, sonra standartlar. Bir düymə ilə başlayır.',
     spine: 'Kitabın sinfi və hissəsi (adından oxunur).',
     cells:
       'Hər kvadrat bir mövzudur, bölmələr arasında boşluq var. Kvadrata toxunanda mövzu açılır.',
@@ -68,15 +69,15 @@ export const guide = {
     extractAll:
       'Kitabın mənbəsi olmayan bütün mövzularını bir-bir çıxarır. Pulsuzdur; bu vaxt paneldə işləməyə davam edə bilərsiniz.',
     bookSteps:
-      'Kitab səhifəsində bu kitabın 5 addımı: yaşıl hazırdır, narıncı çərçivəli indiki addımdır. «Kurikulum»a toxunanda bağlantılar açılır.',
+      'Kitab səhifəsində bu kitabın 5 addımı: yaşıl hazırdır, narıncı çərçivəli indiki addımdır. «Standartlar»a toxunanda standart bağlantıları açılır.',
     filter: 'Mövzuları addıma görə süzür; qutu yalnız yoxlanmalı elementi olan mövzuları saxlayır.',
     unit: 'Bölmə sətri: toxunanda bölmənin mövzuları cədvəl kimi açılır və ya bağlanır.',
-    bar: 'Mövzunun 5 addımı kiçik zolaq kimi: Mənbə → Bilik → Review → Kurikulum → Dərs planı.',
+    bar: 'Mövzunun 5 addımı kiçik zolaq kimi: Mənbə → Bilik → Review → Standartlar → Dərs planı.',
     barDone: 'Bu addım hazırdır.',
     barCurrent: 'Bu addım davam edir.',
     barQueued: 'Bu addım sıradadır (əvvəlki hazırdır).',
     action: 'Mövzu ilə indi ediləcək iş: mənbəni çıxar, review-a başla, davam et və ya bax.',
-    more: '«Digər əməliyyatlar»: kurikulum bağlantıları və kitabı silmək.',
+    more: '«Digər əməliyyatlar»: standart bağlantıları və kitabı silmək.',
     restore: 'Silinmiş kitabı bütün faylları ilə geri qaytarır.',
     purge:
       'Kitabı diskdən birdəfəlik silir. Geri qaytarmaq olmur, ona görə əvvəlcə kitabın adını yazmaq lazımdır.',
@@ -188,9 +189,9 @@ export const guide = {
     figure_link:
       'Mətn şəklə istinad edirsə («şəkildə», «qrafikdə», «cədvəldə»…), uyğun fiqur elementə bağlanıb.',
   },
-  curriculum: {
-    title: 'Kurikulum',
-    card: 'Kurikulumun neçə standartı olduğu və neçə dərsliyin ona bağlı olduğu.',
+  standards: {
+    title: 'Rəsmi standartlar',
+    card: 'Dəstin neçə standartı olduğu və neçə dərsliyin ona bağlı olduğu.',
     paste:
       'Sənəddən mətni yapışdırın: kodla başlayan sətirlər standart, «1. Ədədlər və əməllər» kimi sətirlər məzmun xətti sayılır. Yanda nəyin oxunduğunu görürsünüz.',
     added: 'Bu qədər yeni standart əlavə olunacaq.',
@@ -199,20 +200,20 @@ export const guide = {
     child: 'Girintili sətir onun alt standartıdır.',
     edit: 'Standartı dəyiş.',
     remove: 'Standartı sil; ikinci dəfə «Bəli» ilə təsdiqlənir.',
-    deleteCurriculum: 'Kurikulumu yalnız heç bir dərslik ona bağlı deyilsə silmək olar.',
+    deleteStandardSet: 'Dəsti yalnız heç bir dərslik ona bağlı deyilsə silmək olar.',
   },
   links: {
-    title: 'Kurikuluma bağlama',
+    title: 'Standartlara bağlama',
     intro:
-      'Kitab səhifəsinin «Kurikulum» bölməsində əvvəlcə kitabın kurikulumu seçilir, sonra mövzular standartlara bağlanır. Bilik elementləri isə mövzunun «Bilik» bölməsində, hər elementin altında bağlanır.',
+      'Kitabın «Standart bağlantıları» səhifəsində əvvəlcə standart dəsti seçilir, sonra mövzular standartlara bağlanır. Bilik elementləri isə mövzunun «Bilik» bölməsində, hər elementin altında bağlanır.',
     topics: 'Ən azı bir standartı olan mövzuların sayı / bütün mövzular.',
-    covered: 'Kitabın əhatə etdiyi standartlar / kurikulumdakı bütün standartlar.',
+    covered: 'Kitabın əhatə etdiyi standartlar / dəstdəki bütün standartlar.',
     uncovered: 'Kitabda heç bir mövzuya bağlanmayan standartlar: boşluq ola bilər.',
     items: 'Bilik elementlərinə edilən bağlantıların sayı.',
     link: 'Seçim pəncərəsini açır: axtarın, uyğun standartları işarələyin, yadda saxlayın.',
     code: 'Bağlı standart və onun mətni.',
     removed:
-      'Qırmızı kod: standart kurikulumdan silinib, amma bağlantı qalıb. Seçim pəncərəsində işarəsini götürüb silin.',
+      'Qırmızı kod: standart dəstdən silinib, amma bağlantı qalıb. Seçim pəncərəsində işarəsini götürüb silin.',
     notLinked: '«Standartlar üzrə» görünüşdə: bu standart heç bir mövzuya bağlanmayıb.',
     topicChip: 'Bu standartı öyrədən mövzu; toxunanda mövzu açılır.',
     orphan:

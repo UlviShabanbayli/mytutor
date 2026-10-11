@@ -17,7 +17,7 @@ type ItemDecisionCardProps = {
   actions: ReviewActions;
   /** False once the block is approved: take the block back first. */
   canUndo: boolean;
-  /** The item's curriculum standards, when the book has a curriculum. */
+  /** The item's standard set standards, when the book has a standard set. */
   standards?: ReactNode;
 };
 

@@ -5,7 +5,7 @@ import { ReviewWorkspace } from '@/components/review/ReviewWorkspace';
 import { ErrorState, LoadingState } from '@/components/ui';
 import { bookTitle } from '@/features/content/pages';
 import { useBook, useKnowledge, useTopicSource } from '@/features/content/queries';
-import { useBookCurriculum } from '@/features/curriculum/useBookCurriculum';
+import { useBookStandards } from '@/features/standards/useBookStandards';
 import { usePageCrumbs } from '@/features/layout/crumbs';
 import { useReviewActions, useTopicReview } from '@/features/review/useTopicReview';
 import { NotFoundPage } from './NotFoundPage';
@@ -20,7 +20,7 @@ export function ReviewPage() {
   const knowledge = useKnowledge(entry?.knowledge ?? null);
   const review = useTopicReview(bookId, entry);
   const actions = useReviewActions(bookId, number);
-  const bc = useBookCurriculum(book.data);
+  const bs = useBookStandards(book.data);
   const bookUrl = `/books/${encodeURIComponent(bookId)}`;
   usePageCrumbs([
     { label: t('nav.overview'), to: '/' },
@@ -46,7 +46,7 @@ export function ReviewPage() {
       doc={knowledge.data}
       review={review.data ?? null}
       actions={actions}
-      bc={bc}
+      bs={bs}
     />
   );
 }

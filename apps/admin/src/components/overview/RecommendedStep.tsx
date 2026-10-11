@@ -14,7 +14,7 @@ const STEP_NUMBER: Record<NextStep['kind'], number> = {
   extract: 1,
   knowledge: 2,
   review: 3,
-  curricula: 4,
+  standards: 4,
   link: 4,
 };
 
@@ -59,12 +59,12 @@ export function RecommendedStep({ step }: RecommendedStepProps) {
     title = t('next.knowledge', { book, count: step.count });
     body = t('next.knowledgeBody');
     action = <CommandHint command={commands.knowledge(t('next.topicDir'))} />;
-  } else if (step.kind === 'curricula') {
-    title = t('next.curricula');
-    body = t('next.curriculaBody');
+  } else if (step.kind === 'standards') {
+    title = t('next.standardSets');
+    body = t('next.standardSetsBody');
     action = (
-      <Link to="/curricula" className={buttonClass('primary')}>
-        {t('curricula.add')}
+      <Link to="/standards" className={buttonClass('primary')}>
+        {t('standardSets.add')}
       </Link>
     );
   } else {
@@ -72,7 +72,7 @@ export function RecommendedStep({ step }: RecommendedStepProps) {
     body = t('next.linkBody');
     action = (
       <Link
-        to={`/books/${encodeURIComponent(step.book.book.id)}/curriculum`}
+        to={`/books/${encodeURIComponent(step.book.book.id)}/standards`}
         className={buttonClass('primary')}
       >
         {t('next.linkAction')}

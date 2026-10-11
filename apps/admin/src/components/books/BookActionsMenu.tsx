@@ -56,11 +56,11 @@ export function BookActionsMenu({ book, onDeleted }: BookActionsMenuProps) {
         >
           <Link
             role="menuitem"
-            to={`/books/${encodeURIComponent(book.id)}/curriculum`}
+            to={`/books/${encodeURIComponent(book.id)}/standards`}
             className={`${item} text-foreground hover:bg-muted`}
           >
             <ListChecks className="size-4" aria-hidden />
-            {t('bookPage.curriculumLinks')}
+            {t('bookPage.standardLinks')}
           </Link>
           <button
             type="button"

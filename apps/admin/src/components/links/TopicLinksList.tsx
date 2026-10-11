@@ -1,16 +1,16 @@
 import { useTranslation } from 'react-i18next';
-import type { Curriculum, TextbookUnit } from '@mytutor/types';
+import type { StandardSet, TextbookUnit } from '@mytutor/types';
 import { Card } from '@/components/ui';
-import { withTopicCodes } from '@/features/curriculum/links';
-import type { BookCurriculum } from '@/features/curriculum/useBookCurriculum';
+import { withTopicCodes } from '@/features/standards/links';
+import type { BookStandards } from '@/features/standards/useBookStandards';
 import { StandardLinkEditor } from './StandardLinkEditor';
 
-type TopicLinksListProps = { units: TextbookUnit[]; curriculum: Curriculum; bc: BookCurriculum };
+type TopicLinksListProps = { units: TextbookUnit[]; standardSet: StandardSet; bs: BookStandards };
 
 /** Every topic of the book with the standards it is linked to, unit by unit. */
-export function TopicLinksList({ units, curriculum, bc }: TopicLinksListProps) {
+export function TopicLinksList({ units, standardSet, bs }: TopicLinksListProps) {
   const { t } = useTranslation();
-  const itemLinks = (topic: string) => bc.links.items.filter((l) => l.topic === topic).length;
+  const itemLinks = (topic: string) => bs.links.items.filter((l) => l.topic === topic).length;
 
   return (
     <div className="flex flex-col gap-4">
@@ -44,10 +44,10 @@ export function TopicLinksList({ units, curriculum, bc }: TopicLinksListProps) {
                       <StandardLinkEditor
                         className="flex-1"
                         subject={`${item.number}. ${item.title}`}
-                        codes={bc.links.topics[item.number] ?? []}
-                        standards={curriculum.standards}
-                        save={bc.save}
-                        apply={(codes) => withTopicCodes(bc.links, item.number, codes)}
+                        codes={bs.links.topics[item.number] ?? []}
+                        standards={standardSet.standards}
+                        save={bs.save}
+                        apply={(codes) => withTopicCodes(bs.links, item.number, codes)}
                       />
                     </li>,
                   ]

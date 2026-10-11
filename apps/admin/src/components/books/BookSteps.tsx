@@ -38,9 +38,9 @@ export function BookSteps({ bookId, stats, linkedTopics }: BookStepsProps) {
       state: state(2),
     },
     {
-      label: t('bookPage.steps.curriculum', { done: linkedTopics, total: n }),
+      label: t('bookPage.steps.standards', { done: linkedTopics, total: n }),
       state: state(3),
-      to: `/books/${encodeURIComponent(bookId)}/curriculum`,
+      to: `/books/${encodeURIComponent(bookId)}/standards`,
     },
     { label: t('bookPage.steps.lesson'), state: 'later' },
   ];

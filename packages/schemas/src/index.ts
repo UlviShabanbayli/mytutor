@@ -6,6 +6,6 @@ export * from './textbook';
 export * from './source';
 export * from './knowledge';
 export * from './review';
-export * from './curriculum';
+export * from './standards';
 export * from './content';
 export * from './lesson';

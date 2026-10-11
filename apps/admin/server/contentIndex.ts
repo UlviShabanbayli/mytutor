@@ -4,14 +4,14 @@ import { z } from 'zod';
 import {
   bookMetaSchema,
   contentIndexSchema,
-  curriculumLinksSchema,
-  curriculumSchema,
+  standardLinksSchema,
+  standardSetSchema,
 } from '@mytutor/schemas';
 import type {
   ContentBookEntry,
   ContentIndex,
   ContentTopicEntry,
-  CurriculumEntry,
+  StandardSetEntry,
   TrashEntry,
 } from '@mytutor/types';
 import { topicStatus } from './topicStatus';
@@ -63,14 +63,16 @@ export type ScannedBook = ContentBookEntry & {
   /** Every folder under the root that holds any of this book's outputs (absolute paths). */
   folders: string[];
   /**
-   * Where the panel saves the book's curriculum links: the file already holding them, else one in
+   * Where the panel saves the book's standard set links: the file already holding them, else one in
    * the folder of the book's PDF (or of any book.json naming it), else in its first output folder.
    */
   linksFile: string | null;
 };
 
-/** A book's links to a curriculum, saved in its home folder. */
-export const LINKS_FILE = 'curriculum-links.json';
+/** A book's links to a standard set, saved in its home folder. */
+export const LINKS_FILE = 'standard-links.json';
+/** Where links were saved before standard sets were renamed; still read, never rewritten. */
+export const LEGACY_LINKS_FILE = 'curriculum-links.json';
 
 /**
  * Scans `<root>/<folder>/` for parser outputs (`structure.json`, `topics/<n>/source.json`,
@@ -89,7 +91,7 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
         structure: null,
         canExtract: false,
         topics: [],
-        curriculumLinks: null,
+        standardLinks: null,
         pdf: null,
         folder: null,
         folders: [],
@@ -162,13 +164,15 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
 
   for (const book of books.values()) {
     book.topics.sort((a, b) => a.number.localeCompare(b.number, undefined, { numeric: true }));
-    for (const dir of book.folders) {
-      const file = join(dir, LINKS_FILE);
-      if (!(await exists(file))) continue;
-      book.linksFile = file;
-      book.curriculumLinks = await readJson(file, curriculumLinksSchema);
-      break;
-    }
+    found: for (const dir of book.folders)
+      for (const name of [LINKS_FILE, LEGACY_LINKS_FILE]) {
+        const file = join(dir, name);
+        if (!(await exists(file))) continue;
+        // Saves always go to the current file name, which then shadows a legacy file.
+        book.linksFile = join(dir, LINKS_FILE);
+        book.standardLinks = await readJson(file, standardLinksSchema);
+        break found;
+      }
     const home = book.folder ?? metaDirs.get(book) ?? book.folders[0];
     book.linksFile ??= home ? join(home, LINKS_FILE) : null;
   }
@@ -207,30 +211,53 @@ export async function scanTrash(root: string): Promise<TrashEntry[]> {
   return entries.sort((a, b) => b.deletedAt.localeCompare(a.deletedAt));
 }
 
-/** Curricula the team enters in the panel; a dot folder, so never scanned as a book. */
-export const CURRICULA_DIR = '.curricula';
+/** Official standard sets the team enters in the panel; dot folders, never scanned as books. */
+export const STANDARDS_DIR = '.standards';
+/**
+ * Where standard sets were saved while they were called curricula. Still read, never
+ * rewritten: saving one writes it to STANDARDS_DIR, which then takes precedence.
+ */
+export const LEGACY_STANDARDS_DIR = '.curricula';
 
-export const curriculumFile = (root: string, id: string) => join(root, CURRICULA_DIR, `${id}.json`);
+/** Where a standard set is written. */
+export const standardSetFile = (root: string, id: string) =>
+  join(root, STANDARDS_DIR, `${id}.json`);
 
-export const readCurriculum = (root: string, id: string) =>
-  readJson(curriculumFile(root, id), curriculumSchema);
+const legacyStandardSetFile = (root: string, id: string) =>
+  join(root, LEGACY_STANDARDS_DIR, `${id}.json`);
 
-/** Every curriculum, by title. */
-export async function scanCurricula(root: string): Promise<CurriculumEntry[]> {
-  const dir = join(root, CURRICULA_DIR);
-  const names = await readdir(dir).catch(() => [] as string[]);
-  const entries: CurriculumEntry[] = [];
-  for (const name of names.filter((n) => n.endsWith('.json')).sort()) {
-    const curriculum = await readJson(join(dir, name), curriculumSchema);
-    if (!curriculum || `${curriculum.id}.json` !== name) continue;
-    const { standards, ...entry } = curriculum;
-    entries.push({
-      ...entry,
-      standardCount: standards.length,
-      path: toPosix(relative(root, join(dir, name))),
-    });
+/** Every file a standard set may be stored in, current location first. */
+export const standardSetFiles = (root: string, id: string) => [
+  standardSetFile(root, id),
+  legacyStandardSetFile(root, id),
+];
+
+export async function readStandardSet(root: string, id: string) {
+  for (const file of standardSetFiles(root, id)) {
+    const set = await readJson(file, standardSetSchema);
+    if (set) return set;
   }
-  return entries.sort((a, b) => a.title.localeCompare(b.title, 'az'));
+  return null;
+}
+
+/** Every standard set, by title; one saved in both locations is listed once, from the current. */
+export async function scanStandardSets(root: string): Promise<StandardSetEntry[]> {
+  const entries = new Map<string, StandardSetEntry>();
+  for (const dir of [join(root, STANDARDS_DIR), join(root, LEGACY_STANDARDS_DIR)]) {
+    const names = await readdir(dir).catch(() => [] as string[]);
+    for (const name of names.filter((n) => n.endsWith('.json')).sort()) {
+      const standardSet = await readJson(join(dir, name), standardSetSchema);
+      if (!standardSet || `${standardSet.id}.json` !== name || entries.has(standardSet.id))
+        continue;
+      const { standards, ...entry } = standardSet;
+      entries.set(standardSet.id, {
+        ...entry,
+        standardCount: standards.length,
+        path: toPosix(relative(root, join(dir, name))),
+      });
+    }
+  }
+  return [...entries.values()].sort((a, b) => a.title.localeCompare(b.title, 'az'));
 }
 
 export async function buildContentIndex(root: string): Promise<ContentIndex> {
@@ -240,7 +267,7 @@ export async function buildContentIndex(root: string): Promise<ContentIndex> {
       ({ pdf: _pdf, folder: _folder, folders: _folders, linksFile: _linksFile, ...book }) => book,
     ),
     trash: await scanTrash(root),
-    curricula: await scanCurricula(root),
+    standardSets: await scanStandardSets(root),
   });
 }
 

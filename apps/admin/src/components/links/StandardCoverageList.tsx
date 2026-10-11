@@ -1,20 +1,22 @@
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import type { Curriculum } from '@mytutor/types';
+import type { StandardSet } from '@mytutor/types';
 import { Badge } from '@/components/ui';
-import type { Coverage } from '@/features/curriculum/links';
-import { groupStandards } from '@/features/curriculum/standards';
+import type { Coverage } from '@/features/standards/links';
+import { groupStandards } from '@/features/standards/standards';
 import { cn } from '@/lib/cn';
 
-type StandardCoverageListProps = { bookId: string; curriculum: Curriculum; coverage: Coverage };
+type StandardCoverageListProps = { bookId: string; standardSet: StandardSet; coverage: Coverage };
 
-/** The curriculum seen from the book: which topics cover each standard, and the gaps. */
-export function StandardCoverageList({ bookId, curriculum, coverage }: StandardCoverageListProps) {
+/** The standard set seen from the book: which topics cover each standard, and the gaps. */
+export function StandardCoverageList({ bookId, standardSet, coverage }: StandardCoverageListProps) {
   const { t } = useTranslation();
   const checkId = useId();
   const [gapsOnly, setGapsOnly] = useState(false);
-  const shown = curriculum.standards.filter((s) => !gapsOnly || !coverage.topicsByCode.has(s.code));
+  const shown = standardSet.standards.filter(
+    (s) => !gapsOnly || !coverage.topicsByCode.has(s.code),
+  );
   const topicUrl = (topic: string) =>
     `/books/${encodeURIComponent(bookId)}/topics/${encodeURIComponent(topic)}/source`;
 

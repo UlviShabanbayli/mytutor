@@ -11,7 +11,7 @@ const fill: Record<Segment, string> = {
   none: 'bg-border',
 };
 
-/** A topic's five steps (source, knowledge, review, curriculum, lesson) as a small bar. */
+/** A topic's five steps (source, knowledge, review, standard set, lesson) as a small bar. */
 export function topicSegments(topic: TopicRowData, linked: boolean): Segment[] {
   const order = ['none', 'source', 'knowledge', 'review', 'approved'];
   const at = order.indexOf(topic.stage);

@@ -1,15 +1,15 @@
 import { useTranslation } from 'react-i18next';
-import type { CurriculumStandard } from '@mytutor/types';
+import type { OfficialStandard } from '@mytutor/types';
 import { StatCard } from '@/components/ui';
-import type { Coverage } from '@/features/curriculum/links';
+import type { Coverage } from '@/features/standards/links';
 
 type CoverageStatsProps = {
   coverage: Coverage;
   topicCount: number;
-  standards: CurriculumStandard[];
+  standards: OfficialStandard[];
 };
 
-/** How much of the book is linked, and how much of the curriculum the book covers. */
+/** How much of the book is linked, and how much of the standard set the book covers. */
 export function CoverageStats({ coverage, topicCount, standards }: CoverageStatsProps) {
   const { t } = useTranslation();
   const covered = standards.filter((s) => coverage.topicsByCode.has(s.code)).length;

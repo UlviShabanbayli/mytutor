@@ -62,8 +62,8 @@ export function BasicsGuide() {
           text: t('guide.basics.review'),
         },
         {
-          sample: nav(<ListChecks className="size-4" />, t('nav.curricula')),
-          text: t('guide.basics.curricula'),
+          sample: nav(<ListChecks className="size-4" />, t('nav.standards')),
+          text: t('guide.basics.standards'),
         },
         {
           sample: nav(<Clapperboard className="size-4" />, t('nav.lessons')),

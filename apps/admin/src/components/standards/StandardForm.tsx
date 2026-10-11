@@ -1,17 +1,17 @@
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { STANDARD_CODE_MAX, STANDARD_TEXT_MAX } from '@mytutor/schemas';
-import type { CurriculumStandard } from '@mytutor/types';
+import type { OfficialStandard } from '@mytutor/types';
 import { Button, Input, Textarea } from '@/components/ui';
 
 type StandardFormProps = {
-  initial?: CurriculumStandard;
-  /** Content lines already in the curriculum, offered as suggestions. */
+  initial?: OfficialStandard;
+  /** Content lines already in the standard set, offered as suggestions. */
   lines: string[];
   /** Codes taken by other standards. */
   takenCodes: Set<string>;
   busy: boolean;
-  onSubmit: (standard: CurriculumStandard) => void;
+  onSubmit: (standard: OfficialStandard) => void;
   onCancel: () => void;
 };
 

@@ -1,32 +1,32 @@
 import { LoaderCircle } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CURRICULUM_TITLE_MAX } from '@mytutor/schemas';
+import { STANDARD_SET_TITLE_MAX } from '@mytutor/schemas';
 import { ActionError } from '@/components/books/ActionError';
 import { Button, Dialog, Input } from '@/components/ui';
-import { GRADES, gradeLabel } from '@/features/curriculum/labels';
+import { GRADES, gradeLabel } from '@/lib/grades';
 
-export type CurriculumMeta = { title: string; subject: string; grade: number | null };
+export type StandardSetMeta = { title: string; subject: string; grade: number | null };
 
-type CurriculumMetaDialogProps = {
+type StandardSetMetaDialogProps = {
   open: boolean;
-  /** Present when editing; a new curriculum starts empty. */
-  initial?: CurriculumMeta;
+  /** Present when editing; a new standard set starts empty. */
+  initial?: StandardSetMeta;
   pending: boolean;
   error: unknown;
-  onSubmit: (meta: CurriculumMeta) => void;
+  onSubmit: (meta: StandardSetMeta) => void;
   onClose: () => void;
 };
 
-/** Title, subject and grade of a curriculum: asked when it is created, editable later. */
-export function CurriculumMetaDialog(props: CurriculumMetaDialogProps) {
+/** Title, subject and grade of a standard set: asked when it is created, editable later. */
+export function StandardSetMetaDialog(props: StandardSetMetaDialogProps) {
   const { t } = useTranslation();
   const { open, initial, pending, onClose } = props;
   return (
     <Dialog
       open={open}
-      title={initial ? t('curricula.editTitle') : t('curricula.newTitle')}
-      closeLabel={t('curricula.close')}
+      title={initial ? t('standardSets.editTitle') : t('standardSets.newTitle')}
+      closeLabel={t('standardSets.close')}
       dismissible={!pending}
       onClose={onClose}
     >
@@ -35,7 +35,7 @@ export function CurriculumMetaDialog(props: CurriculumMetaDialogProps) {
   );
 }
 
-function MetaForm({ initial, pending, error, onSubmit, onClose }: CurriculumMetaDialogProps) {
+function MetaForm({ initial, pending, error, onSubmit, onClose }: StandardSetMetaDialogProps) {
   const { t } = useTranslation();
   const ids = { title: useId(), subject: useId(), grade: useId() };
   const [title, setTitle] = useState(initial?.title ?? '');
@@ -56,17 +56,17 @@ function MetaForm({ initial, pending, error, onSubmit, onClose }: CurriculumMeta
           });
       }}
     >
-      {initial ? null : <p className="text-muted-foreground">{t('curricula.newBody')}</p>}
+      {initial ? null : <p className="text-muted-foreground">{t('standardSets.newBody')}</p>}
       <div className="flex flex-col gap-1.5">
         <label htmlFor={ids.title} className="font-sans-bold text-foreground">
-          {t('curricula.titleLabel')}
+          {t('standardSets.titleLabel')}
         </label>
         <Input
           id={ids.title}
           data-autofocus
           value={title}
-          maxLength={CURRICULUM_TITLE_MAX}
-          placeholder={t('curricula.titlePlaceholder')}
+          maxLength={STANDARD_SET_TITLE_MAX}
+          placeholder={t('standardSets.titlePlaceholder')}
           onChange={(e) => setTitle(e.target.value)}
           disabled={pending}
         />
@@ -74,20 +74,20 @@ function MetaForm({ initial, pending, error, onSubmit, onClose }: CurriculumMeta
       <div className="grid gap-4 sm:grid-cols-[1fr_10rem]">
         <div className="flex flex-col gap-1.5">
           <label htmlFor={ids.subject} className="font-sans-bold text-foreground">
-            {t('curricula.subjectLabel')}
+            {t('standardSets.subjectLabel')}
           </label>
           <Input
             id={ids.subject}
             value={subject}
             maxLength={80}
-            placeholder={t('curricula.subjectPlaceholder')}
+            placeholder={t('standardSets.subjectPlaceholder')}
             onChange={(e) => setSubject(e.target.value)}
             disabled={pending}
           />
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor={ids.grade} className="font-sans-bold text-foreground">
-            {t('curricula.gradeLabel')}
+            {t('standardSets.gradeLabel')}
           </label>
           <select
             id={ids.grade}
@@ -96,7 +96,7 @@ function MetaForm({ initial, pending, error, onSubmit, onClose }: CurriculumMeta
             disabled={pending}
             className="min-h-11 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <option value="">{t('curricula.gradeNone')}</option>
+            <option value="">{t('standardSets.gradeNone')}</option>
             {GRADES.map((g) => (
               <option key={g} value={g}>
                 {gradeLabel(t, g)}
@@ -108,13 +108,13 @@ function MetaForm({ initial, pending, error, onSubmit, onClose }: CurriculumMeta
       {error ? <ActionError error={error} /> : null}
       <div className="flex flex-wrap justify-end gap-2">
         <Button variant="ghost" onClick={onClose} disabled={pending}>
-          {t('curricula.cancel')}
+          {t('standardSets.cancel')}
         </Button>
         <Button type="submit" disabled={!ready || pending} aria-busy={pending}>
           {pending ? (
             <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
           ) : null}
-          {initial ? t('curricula.save') : t('curricula.create')}
+          {initial ? t('standardSets.save') : t('standardSets.create')}
         </Button>
       </div>
     </form>

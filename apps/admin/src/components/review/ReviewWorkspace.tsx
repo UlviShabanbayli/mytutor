@@ -5,7 +5,7 @@ import { ActionError } from '@/components/books/ActionError';
 import { ItemStandards } from '@/components/links/ItemStandards';
 import { nextOpenBlock, reviewQueue } from '@/features/review/queue';
 import type { ReviewActions } from '@/features/review/useTopicReview';
-import type { BookCurriculum } from '@/features/curriculum/useBookCurriculum';
+import type { BookStandards } from '@/features/standards/useBookStandards';
 import { useSearchParam } from '@/lib/useSearchParam';
 import { BlockCard } from './BlockCard';
 import { PagePanel } from './PagePanel';
@@ -21,7 +21,7 @@ type ReviewWorkspaceProps = {
   doc: KnowledgeDocument;
   review: TopicReview | null;
   actions: ReviewActions;
-  bc: BookCurriculum;
+  bs: BookStandards;
 };
 
 /** The page on the left, the current block and its items on the right, the queue below. */
@@ -33,7 +33,7 @@ export function ReviewWorkspace({
   doc,
   review,
   actions,
-  bc,
+  bs,
 }: ReviewWorkspaceProps) {
   const { t } = useTranslation();
   const [blockParam, setParams] = useSearchParam('block');
@@ -50,7 +50,7 @@ export function ReviewWorkspace({
     if (!blockParam && current) setParams({ block: current.id });
   }, [blockParam, current, setParams]);
   const approvedCount = queue.filter((b) => b.approved).length;
-  const curriculum = bc.curriculum;
+  const standardSet = bs.standardSet;
   const upcoming = queue.filter((b) => !b.approved && b.id !== current?.id).slice(0, 2);
 
   return (
@@ -90,18 +90,18 @@ export function ReviewWorkspace({
               next={next?.id ?? null}
               onNext={() => next && select(next.id)}
               itemStandards={
-                curriculum
+                standardSet
                   ? (item) => (
                       <ItemStandards
                         topic={topic}
                         item={item}
                         items={doc.items}
                         codes={
-                          bc.links.items.find((l) => l.topic === topic && l.itemId === item.id)
+                          bs.links.items.find((l) => l.topic === topic && l.itemId === item.id)
                             ?.codes ?? []
                         }
-                        curriculum={curriculum}
-                        bc={bc}
+                        standardSet={standardSet}
+                        bs={bs}
                       />
                     )
                   : undefined

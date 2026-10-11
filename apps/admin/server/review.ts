@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { topicReviewInputSchema } from '@mytutor/schemas';
 import type { TopicReview } from '@mytutor/types';
 import { scanBooks } from './contentIndex';
-import { parseBody, writeJson } from './curricula';
+import { parseBody, writeJson } from './json';
 import { exclusive, PipelineError, topicKey } from './pipeline';
 import { REVIEW_FILE } from './topicStatus';
 

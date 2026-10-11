@@ -14,7 +14,7 @@ type KnowledgeTabProps = {
   doc: KnowledgeDocument;
   source: TopicSource;
   topicDir: string;
-  /** Curriculum standards of an item, when the book has a curriculum. */
+  /** StandardSet standards of an item, when the book has a standard set. */
   itemStandards?: (item: KnowledgeItem) => ReactNode;
   /** Shown above the filters, e.g. links whose item is gone. */
   notice?: ReactNode;
