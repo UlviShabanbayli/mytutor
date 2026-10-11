@@ -221,3 +221,13 @@ describe('groupSourceLines', () => {
     expect(lines.map((l) => l.text)).toEqual(['(a + b)^2 = a^2']);
   });
 });
+
+describe('parserVersion', () => {
+  it('is the release plus a hash of the parser code', async () => {
+    const { parserVersion, PARSER_RELEASE } = await import('./version');
+    expect(parserVersion()).toMatch(
+      new RegExp(`^${PARSER_RELEASE.replace(/\./g, '\\.')}\\+[0-9a-f]{8}$`),
+    );
+    expect(parserVersion()).toBe(parserVersion());
+  });
+});
