@@ -1,0 +1,39 @@
+{
+  "name": "@mytutor/lesson-engine",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "tsx scripts/render.ts",
+    "studio": "remotion studio src/video/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@expo-google-fonts/caveat": "^0.4.2",
+    "@expo-google-fonts/nunito": "^0.4.2",
+    "@mytutor/schemas": "workspace:*",
+    "@mytutor/types": "workspace:*",
+    "@remotion/bundler": "4.0.533",
+    "@remotion/cli": "4.0.533",
+    "@remotion/fonts": "4.0.533",
+    "@remotion/paths": "4.0.533",
+    "@remotion/renderer": "4.0.533",
+    "opentype.js": "^2.0.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.533",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@mytutor/config": "workspace:*",
+    "@types/node": "^24.0.0",
+    "@types/opentype.js": "*",
+    "@types/react": "~19.2.2",
+    "eslint": "^9.39.0",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.3"
+  }
+}
