@@ -1,5 +1,6 @@
-import type { SourceBlockKind } from '@mytutor/types';
-import type { PageGraphics } from './graphics';
+import type { BBox, SourceBlockKind } from '@mytutor/types';
+import { centerInside, union } from './assign';
+import type { PageGraphics, PagePath } from './graphics';
 
 /**
  * Visual markers of the TRİMS textbook template (InDesign, 2024+ editions).
@@ -17,6 +18,13 @@ type BadgeSignature = {
 };
 /** An icon matches when all of its characteristic image sizes are present. */
 type IconSignature = { kind: SourceBlockKind; label: string; pixels: string[] };
+
+const matchesBadge = (b: BadgeSignature, p: PagePath) =>
+  b.fill === p.fill &&
+  p.bbox.width >= b.width[0] &&
+  p.bbox.width <= b.width[1] &&
+  p.bbox.height >= b.height[0] &&
+  p.bbox.height <= b.height[1];
 
 const BADGES: BadgeSignature[] = [
   { kind: 'section', label: 'Öyrənmə', fill: '#2faca9', width: [45, 70], height: [14, 22] },
@@ -71,16 +79,9 @@ const LEFT_ZONE = 160; // badges and icons sit in the left part of the text colu
 export function findGraphicMarkers(g: PageGraphics): GraphicMarker[] {
   const markers: GraphicMarker[] = [];
   for (const p of g.paths) {
-    const { x, y, width, height } = p.bbox;
+    const { x, y, height } = p.bbox;
     if (!p.filled || x > LEFT_ZONE || p.fill === '#ffffff') continue;
-    const badge = BADGES.find(
-      (b) =>
-        b.fill === p.fill &&
-        width >= b.width[0] &&
-        width <= b.width[1] &&
-        height >= b.height[0] &&
-        height <= b.height[1],
-    );
+    const badge = BADGES.find((b) => matchesBadge(b, p));
     if (badge) markers.push({ kind: badge.kind, label: badge.label, page: g.page, x, y, height });
   }
 
@@ -117,6 +118,112 @@ export function findGraphicMarkers(g: PageGraphics): GraphicMarker[] {
       ),
   );
 }
+
+/**
+ * Side boxes: a pale panel narrower than the text column with a coloured label pill on its top
+ * edge and an icon left of the pill, printed beside the main text. The label is drawn as
+ * outlines, not text, so the icon tells which box it is.
+ */
+const SIDE_BOXES: IconSignature[] = [
+  { kind: 'keywords', label: 'Açar sözlər', pixels: ['32x27', '2x27'] },
+];
+
+/** A box beside the text column; `frame` when its graphics are template decoration. */
+export type SideBox = {
+  kind: SourceBlockKind;
+  label: string | null;
+  number: string | null;
+  page: number;
+  bbox: BBox;
+  /** What the box is drawn as (panel, label strip): it holds what lies inside one of them. */
+  parts: BBox[];
+  frame: boolean;
+};
+
+/** The side box holding something whose centre is at `b`, if any. */
+export const sideBoxAt = (boxes: SideBox[], page: number, b: BBox) =>
+  boxes.find((x) => x.page === page && x.parts.some((part) => centerInside(b, part)));
+
+const PALE = 0.85; // panel fills are lighter than this, label pills darker
+
+/**
+ * Pale filled panels narrower than half the page: side boxes, notes, formula and drawing
+ * backgrounds. Full-width boxes (Fikirləş!, Yadda saxla!) are wider.
+ */
+export function findPanels(g: PageGraphics, pageWidth: number): BBox[] {
+  return g.paths
+    .filter(
+      ({ filled, fill, bbox: b }) =>
+        filled &&
+        fill !== '#ffffff' &&
+        luminance(fill) >= PALE &&
+        b.width >= 60 &&
+        b.height >= 20 &&
+        b.width <= pageWidth * 0.5,
+    )
+    .map((p) => p.bbox);
+}
+
+/**
+ * Labelled side panels on a page. A box whose icon is unknown is still a box (as `callout`), so
+ * its lines stay together and a person checks the label.
+ */
+export function findSideBoxes(g: PageGraphics, pageWidth: number): SideBox[] {
+  const boxes: SideBox[] = [];
+  for (const p of findPanels(g, pageWidth)) {
+    if (sideBoxAt(boxes, g.page, p)) continue; // the same panel painted twice
+    const pill = g.paths.find(
+      ({ filled, fill, bbox: b }) =>
+        filled &&
+        luminance(fill) < PALE &&
+        b.height >= 10 &&
+        b.height <= 24 &&
+        b.width >= 40 &&
+        b.y < p.y &&
+        b.y + b.height > p.y &&
+        b.x >= p.x - 4 &&
+        b.x + b.width <= p.x + p.width + 4,
+    );
+    // Template badges (Fikirləş!, …) open full-width boxes through their markers instead.
+    if (!pill || BADGES.some((s) => matchesBadge(s, pill))) continue;
+    const icon = g.images.filter(
+      ({ bbox: b }) =>
+        b.x >= p.x - 40 && b.x + b.width <= pill.bbox.x + 2 && Math.abs(b.y - pill.bbox.y) < 20,
+    );
+    const pixels = new Set(icon.map((i) => `${i.pixels.width}x${i.pixels.height}`));
+    const signature = SIDE_BOXES.find((s) => s.pixels.every((px) => pixels.has(px)));
+    // The disc and ring painted behind the icon belong to the box too.
+    const iconArea = union(icon.map((i) => i.bbox));
+    const disc = iconArea
+      ? g.paths.filter((q) => contains(grow(iconArea, 6), q.bbox)).map((q) => q.bbox)
+      : [];
+    // The label strip sticks out above (and the disc left of) the panel; text beside it is not
+    // the box's, so the box is the panel plus the strip, not their bounding rectangle.
+    const strip = union([pill.bbox, ...icon.map((i) => i.bbox), ...disc]) ?? pill.bbox;
+    boxes.push({
+      kind: signature?.kind ?? 'callout',
+      label: signature?.label ?? null,
+      number: null,
+      page: g.page,
+      bbox: union([p, strip]) ?? p,
+      parts: [p, strip],
+      frame: true,
+    });
+  }
+  return boxes;
+}
+
+const grow = (b: BBox, d: number): BBox => ({
+  x: b.x - d,
+  y: b.y - d,
+  width: b.width + 2 * d,
+  height: b.height + 2 * d,
+});
+const contains = (outer: BBox, inner: BBox) =>
+  inner.x >= outer.x &&
+  inner.y >= outer.y &&
+  inner.x + inner.width <= outer.x + outer.width &&
+  inner.y + inner.height <= outer.y + outer.height;
 
 /** Exercise numbers sit in small filled circles in the left gutter. */
 /** Relative luminance (0–1) of a "#rrggbb" fill; unknown formats count as dark. */

@@ -1,5 +1,6 @@
 import type { SourceBlockKind } from '@mytutor/types';
 import type { Marker } from './markers';
+import type { SideBox } from './template';
 
 /** A position in the topic: page plus distance from the top of the page (points). */
 export type Pos = { page: number; top: number };
@@ -12,6 +13,8 @@ export type DraftBlock = {
   parent: DraftBlock | null;
   /** Spans in reading order; a block interrupted by another box resumes in a new span. */
   spans: { from: Pos; to: Pos }[];
+  /** Set for side boxes: the block is their panel, not a full-width span of the column. */
+  box?: SideBox;
 };
 
 const TOP_LEVEL: SourceBlockKind[] = [
@@ -22,11 +25,13 @@ const TOP_LEVEL: SourceBlockKind[] = [
   'remember',
   'find_mistake',
   'history',
+  'keywords',
   'exercises',
   'problems',
   'callout',
 ];
 const CONTAINERS: SourceBlockKind[] = ['exercises', 'problems'];
+const LEAVES: SourceBlockKind[] = ['example', 'theorem']; // never hold other blocks
 
 const before = (a: Pos, b: Pos) => a.page < b.page || (a.page === b.page && a.top < b.top);
 
@@ -115,4 +120,39 @@ export function buildBlocks(markers: Marker[], start: Pos, end: Pos): DraftBlock
   }
   close(0, end);
   return blocks;
+}
+
+const depth = (b: DraftBlock): number => (b.parent ? depth(b.parent) + 1 : 0);
+
+/**
+ * Adds side boxes in reading order, each after the block open at its top. A NÜMUNƏ or Teorem
+ * box is a child of that block, like its full-width form. Never before the first block: a box
+ * at the top of the page can start level with the topic heading.
+ */
+export function withSideBoxes(blocks: DraftBlock[], boxes: SideBox[]): DraftBlock[] {
+  const out = [...blocks];
+  for (const x of [...boxes].sort((a, b) => a.page - b.page || a.bbox.y - b.bbox.y)) {
+    const at = { page: x.page, top: x.bbox.y };
+    const open = out.filter(
+      (b) =>
+        !b.box &&
+        !LEAVES.includes(b.kind) &&
+        b.spans.some((s) => !before(at, s.from) && before(at, s.to)),
+    );
+    const parent = TOP_LEVEL.includes(x.kind) ? null : (open.at(-1) ?? null);
+    const level = parent ? depth(parent) + 1 : 0;
+    const next = out.findIndex(
+      (b, i) => i > 0 && depth(b) <= level && !!b.spans[0] && before(at, b.spans[0].from),
+    );
+    out.splice(next === -1 ? out.length : next, 0, {
+      kind: x.kind,
+      label: x.label,
+      title: null,
+      number: x.number,
+      parent,
+      spans: [{ from: at, to: { page: x.page, top: x.bbox.y + x.bbox.height } }],
+      box: x,
+    });
+  }
+  return out;
 }
