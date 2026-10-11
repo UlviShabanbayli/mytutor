@@ -5,8 +5,10 @@ import {
   apiErrorSchema,
   contentActionErrorCodeSchema,
   contentIndexSchema,
+  deleteBookResponseSchema,
   extractSourceResponseSchema,
   knowledgeDocumentSchema,
+  restoreBookResponseSchema,
   textbookStructureSchema,
   topicSourceSchema,
 } from '@mytutor/schemas';
@@ -49,14 +51,14 @@ export function actionUrl(...parts: string[]): string {
   return `/content-api/${parts.map(encodeURIComponent).join('/')}`;
 }
 
-async function postAction<S extends z.ZodType>(
+async function runAction<S extends z.ZodType>(
   parts: string[],
   schema: S,
   init: RequestInit = {},
 ): Promise<z.output<S>> {
   let res: Response;
   try {
-    res = await fetch(actionUrl(...parts), { ...init, method: 'POST' });
+    res = await fetch(actionUrl(...parts), { method: 'POST', ...init });
   } catch {
     throw new ContentActionError('network', 'Network error');
   }
@@ -74,7 +76,7 @@ async function postAction<S extends z.ZodType>(
 
 /** Uploads a textbook PDF; the server stores it and splits it into units and topics. */
 export const addBook = (file: File, title: string) =>
-  postAction(['books'], addBookResponseSchema, {
+  runAction(['books'], addBookResponseSchema, {
     body: file,
     headers: {
       'Content-Type': 'application/pdf',
@@ -86,4 +88,12 @@ export const addBook = (file: File, title: string) =>
 
 /** Extracts one topic's source layer from the book's PDF (no AI, a few seconds). */
 export const extractTopicSource = (bookId: string, topic: string) =>
-  postAction(['books', bookId, 'topics', topic, 'source'], extractSourceResponseSchema);
+  runAction(['books', bookId, 'topics', topic, 'source'], extractSourceResponseSchema);
+
+/** Moves the book's folders to the trash on disk; `restoreBook` brings them back. */
+export const deleteBook = (bookId: string) =>
+  runAction(['books', bookId], deleteBookResponseSchema, { method: 'DELETE' });
+
+/** Puts a deleted book back on the shelf. */
+export const restoreBook = (trashId: string) =>
+  runAction(['trash', trashId, 'restore'], restoreBookResponseSchema);
