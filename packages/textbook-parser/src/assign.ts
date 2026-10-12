@@ -29,7 +29,7 @@ export function ownerOf(blocks: RegionedBlock[], el: Placed): RegionedBlock | un
     })[0];
 }
 
-const union = (boxes: BBox[]): BBox | null => {
+export const union = (boxes: BBox[]): BBox | null => {
   if (boxes.length === 0) return null;
   const x = Math.min(...boxes.map((b) => b.x));
   const y = Math.min(...boxes.map((b) => b.y));
@@ -40,6 +40,12 @@ const union = (boxes: BBox[]): BBox | null => {
     height: Math.max(...boxes.map((b) => b.y + b.height)) - y,
   };
 };
+
+export function centerInside(a: BBox, b: BBox): boolean {
+  const cx = a.x + a.width / 2;
+  const cy = a.y + a.height / 2;
+  return cx >= b.x && cx <= b.x + b.width && cy >= b.y && cy <= b.y + b.height;
+}
 
 /**
  * Shrinks each region to what the block (and its children) actually contain, keeping the

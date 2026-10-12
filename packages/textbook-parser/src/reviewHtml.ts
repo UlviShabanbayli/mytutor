@@ -11,6 +11,7 @@ const KIND: Record<SourceBlockKind, { label: string; color: string }> = {
   remember: { label: 'Yadda saxla!', color: '#9333ea' },
   find_mistake: { label: 'Səhvi düzəlt!', color: '#16a34a' },
   history: { label: 'Riyaziyyat tarixindən', color: '#ca8a04' },
+  keywords: { label: 'Açar sözlər', color: '#0891b2' },
   exercises: { label: 'Çalışma', color: '#64748b' },
   problems: { label: 'Məsələ həlli', color: '#e11d48' },
   exercise: { label: 'Tapşırıq', color: '#ea580c' },
