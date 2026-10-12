@@ -31,6 +31,14 @@ export function rectPaths(id: string, box: Box): StrokePath[] {
   ];
 }
 
+/** A filled point: a small circle traced once round, then filled in. */
+export function dotPath(at: { x: number; y: number }, radius: number): StrokePath {
+  const { x, y } = at;
+  return stroke(
+    `M ${x - radius} ${y} A ${radius} ${radius} 0 1 0 ${x + radius} ${y} A ${radius} ${radius} 0 1 0 ${x - radius} ${y} Z`,
+  );
+}
+
 /** A slightly curved underline below a text box. */
 export function underlinePath(target: Box): StrokePath {
   const y = target.y + target.height + 18;

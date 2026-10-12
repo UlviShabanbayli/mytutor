@@ -46,6 +46,14 @@ export const lessonActionSchema = z.discriminatedUnion('type', [
     height: z.number().positive(),
     color: lessonColorSchema,
   }),
+  /** A filled point, e.g. a number marked on a number line. */
+  z.object({
+    type: z.literal('dot'),
+    id: idSchema,
+    at: pointSchema,
+    radius: z.number().positive().default(9),
+    color: lessonColorSchema,
+  }),
   /** Underlines an earlier `write` action. */
   z.object({
     type: z.literal('underline'),
@@ -59,6 +67,8 @@ export const lessonStepSchema = z.object({
   id: idSchema,
   /** Spoken text in Azerbaijani, written as it should be read aloud ("a kvadrat", not "a²"). */
   narration: z.string().min(1),
+  /** Wipes the board before this step: the next part of the lesson starts on a clean board. */
+  clear: z.boolean().default(false),
   actions: z.array(lessonActionSchema),
 });
 

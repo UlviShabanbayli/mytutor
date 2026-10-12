@@ -58,3 +58,60 @@ describe('tokenize', () => {
     expect(tokenize('b^2').map((t) => `${t.char}${t.sup ? '↑' : ''}`)).toEqual(['b', '2↑']);
   });
 });
+
+describe('dots and clean boards', () => {
+  const twoBoards = lessonScriptSchema.parse({
+    version: 1,
+    topic: { number: '1.1', title: 'Rasional ədədlər' },
+    source: { title: 'Riyaziyyat 7', printedPages: [9] },
+    theme: 'blackboard',
+    steps: [
+      {
+        id: 'first',
+        narration: 'Birinci lövhə.',
+        actions: [
+          {
+            type: 'write',
+            id: 'word',
+            text: 'a',
+            at: { x: 200, y: 200 },
+            size: 60,
+            color: 'chalk',
+          },
+          { type: 'dot', id: 'point', at: { x: 400, y: 300 }, color: 'pink' },
+        ],
+      },
+      {
+        id: 'second',
+        narration: 'Təmiz lövhə.',
+        clear: true,
+        actions: [
+          {
+            type: 'line',
+            id: 'axis',
+            from: { x: 100, y: 500 },
+            to: { x: 900, y: 500 },
+            color: 'chalk',
+          },
+        ],
+      },
+    ],
+  });
+  const prepared = prepareLesson(twoBoards, font);
+  const second = prepared.steps[1];
+
+  it('draws a dot as a small filled circle', () => {
+    const dot = prepared.actions.find((a) => a.id === 'point');
+    expect(dot?.kind === 'stroke' && dot.filled).toBe(true);
+    expect(dot?.box).toEqual({ x: 391, y: 291, width: 18, height: 18 });
+  });
+
+  it('wipes what was drawn before a clearing step, and draws after the wipe', () => {
+    expect(second?.clear).toBe(true);
+    for (const id of ['word', 'point'])
+      expect(prepared.actions.find((a) => a.id === id)?.until).toBe(second?.from);
+    const axis = prepared.actions.find((a) => a.id === 'axis');
+    expect(axis?.until).toBeUndefined();
+    expect(axis?.from).toBeGreaterThan((second?.from ?? 0) + 0.4 * FPS);
+  });
+});

@@ -1,5 +1,6 @@
-import { interpolate, useCurrentFrame } from 'remotion';
+import { interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
 import type { PreparedAction } from '../prepare/types';
+import { wipeOpacity } from '../prepare/wipe';
 import { actionProgress, pathProgress } from './progress';
 
 type StrokeActionProps = {
@@ -10,7 +11,9 @@ type StrokeActionProps = {
 /** Draws each path like chalk on the board; text glyphs fill in right after their outline. */
 export function StrokeAction({ action, color }: StrokeActionProps) {
   const frame = useCurrentFrame();
-  if (frame < action.from) return null;
+  const { fps } = useVideoConfig();
+  const opacity = wipeOpacity(frame, action.until, fps);
+  if (frame < action.from || opacity <= 0) return null;
   const parts = pathProgress(
     action.paths,
     actionProgress(frame, action.from, action.to),
@@ -19,7 +22,7 @@ export function StrokeAction({ action, color }: StrokeActionProps) {
   );
 
   return (
-    <g>
+    <g opacity={opacity}>
       {parts.map(({ path, progress, doneAt }, i) =>
         progress <= 0 ? null : (
           <g key={i}>

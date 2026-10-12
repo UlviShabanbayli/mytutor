@@ -1,8 +1,9 @@
 import type { LessonAction, LessonScript } from '@mytutor/types';
 import type { Font } from 'opentype.js';
 import { layoutText } from './handwriting';
-import { linePath, rectPaths, underlinePath } from './shapes';
+import { dotPath, linePath, rectPaths, underlinePath } from './shapes';
 import type { Box, PreparedAction, PreparedLesson, StrokePath } from './types';
+import { WIPE_SECONDS } from './wipe';
 
 export const FPS = 30;
 /** Speaking-rate estimate used until real TTS durations are available. */
@@ -69,6 +70,17 @@ function resolve(action: LessonAction, font: Font, written: Map<string, Box>): R
         box,
       };
     }
+    case 'dot': {
+      const r = action.radius;
+      return {
+        kind: 'stroke',
+        id: action.id,
+        color: action.color,
+        paths: [dotPath(action.at, r)],
+        filled: true,
+        box: { x: action.at.x - r, y: action.at.y - r, width: 2 * r, height: 2 * r },
+      };
+    }
     case 'fill':
       return {
         kind: 'hatch',
@@ -103,13 +115,21 @@ export function prepareLesson(
   const written = new Map<string, Box>();
   const steps: PreparedLesson['steps'] = [];
   const actions: PreparedAction[] = [];
+  /** Actions on the board since it was last wiped. */
+  let board: PreparedAction[] = [];
   let cursor = 0;
 
   for (const step of script.steps) {
     const seconds = durations[step.id] ?? estimateSeconds(step.narration);
     const from = cursor;
     const to = from + Math.round(seconds * FPS);
-    steps.push({ id: step.id, narration: step.narration, from, to });
+    steps.push({ id: step.id, narration: step.narration, from, to, clear: step.clear });
+    if (step.clear) {
+      for (const a of board) a.until = from;
+      board = [];
+      // Underlines on the new board cannot point at words that were wiped.
+      written.clear();
+    }
 
     const resolved = step.actions.map((a) => resolve(a, font, written));
     const total = resolved.reduce((sum, a) => sum + weight(a), 0);
@@ -118,10 +138,13 @@ export function prepareLesson(
       Math.max((total / DRAW_SPEED) * FPS, stepFrames * MIN_DRAW_SHARE),
       stepFrames * MAX_DRAW_SHARE,
     );
-    let at = from + Math.round(0.2 * FPS);
+    // After a wipe the chalk waits for the board to clear.
+    let at = from + Math.round((step.clear ? WIPE_SECONDS + 0.1 : 0.2) * FPS);
     for (const a of resolved) {
       const frames = Math.max(4, Math.round((weight(a) / Math.max(total, 1)) * drawFrames));
-      actions.push({ ...a, from: at, to: at + frames });
+      const prepared: PreparedAction = { ...a, from: at, to: at + frames };
+      actions.push(prepared);
+      board.push(prepared);
       at += frames;
     }
     cursor = to + Math.round(GAP_SECONDS * FPS);

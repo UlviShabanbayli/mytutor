@@ -1,13 +1,25 @@
-// Usage: pnpm --filter @mytutor/lesson-engine render [lessons/<name>.json] [--theme blackboard|whiteboard]
+// Usage: pnpm --filter @mytutor/lesson-engine render [<lesson or scenario>.json] [--theme blackboard|whiteboard] [--preview]
 // Validates the lesson script, prepares frames, and renders an MP4 into out/.
+// A scenario (topics/<n>/scenarios/<id>.json, beside the topic's knowledge) is laid out first,
+// and only when every knowledge item it cites is approved; --preview renders it anyway, as a
+// draft marked "QARALAMA", for the editor reviewing it.
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { basename, dirname, extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
-import { lessonScriptSchema } from '@mytutor/schemas';
+import {
+  knowledgeDocumentSchema,
+  lessonScenarioSchema,
+  lessonScriptSchema,
+  topicReviewSchema,
+} from '@mytutor/schemas';
+import type { LessonScript } from '@mytutor/types';
 import opentype from 'opentype.js';
+import { unapprovedSources } from '../src/compile/approval';
+import { compileScenario } from '../src/compile/compileScenario';
+import { layoutText } from '../src/prepare/handwriting';
 import { prepareLesson } from '../src/prepare/prepareLesson';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -22,10 +34,6 @@ async function main() {
     args.find((a) => a.endsWith('.json')) ?? 'lessons/cemin-kvadrati.json',
   );
   const themeArg = args[args.indexOf('--theme') + 1];
-  const script = lessonScriptSchema.parse(JSON.parse(await readFile(lessonPath, 'utf8')));
-  if (args.includes('--theme') && (themeArg === 'blackboard' || themeArg === 'whiteboard'))
-    script.theme = themeArg;
-
   const handwriting = await readFile(
     fontFile('@expo-google-fonts/caveat', '600SemiBold/Caveat_600SemiBold.ttf'),
   );
@@ -35,11 +43,19 @@ async function main() {
       handwriting.byteOffset + handwriting.byteLength,
     ),
   );
+  const raw: unknown = JSON.parse(await readFile(lessonPath, 'utf8'));
+  const script =
+    raw && typeof raw === 'object' && 'scenes' in raw
+      ? await fromScenario(raw, lessonPath, font, args.includes('--preview'))
+      : lessonScriptSchema.parse(raw);
+  if (args.includes('--theme') && (themeArg === 'blackboard' || themeArg === 'whiteboard'))
+    script.theme = themeArg;
   const lesson = prepareLesson(script, font);
 
   const outDir = join(root, 'out');
   const name = `${basename(lessonPath, extname(lessonPath))}-${script.theme}`;
   await mkdir(outDir, { recursive: true });
+  await writeFile(join(outDir, `${name}.lesson.json`), `${JSON.stringify(script, null, 2)}\n`);
   await writeFile(join(outDir, `${name}.prepared.json`), JSON.stringify(lesson));
 
   const publicDir = join(root, 'public');
@@ -77,6 +93,39 @@ async function main() {
     logLevel: process.env.RENDER_LOG === 'verbose' ? 'verbose' : 'info',
   });
   console.log(`Hazırdır: ${outputLocation}`);
+}
+
+/** Lays a scenario out, after checking it cites only approved knowledge of its topic. */
+async function fromScenario(
+  raw: unknown,
+  path: string,
+  font: opentype.Font,
+  preview: boolean,
+): Promise<LessonScript> {
+  const scenario = lessonScenarioSchema.parse(raw);
+  const topicDir = resolve(dirname(path), '..');
+  const doc = knowledgeDocumentSchema.parse(
+    JSON.parse(await readFile(join(topicDir, 'knowledge', 'knowledge.json'), 'utf8')),
+  );
+  const review = await readFile(join(topicDir, 'review.json'), 'utf8').then(
+    (text) => topicReviewSchema.parse(JSON.parse(text)),
+    () => null,
+  );
+  const { missing, unapproved } = unapprovedSources(scenario, doc, review);
+  if (missing.length) throw new Error(`Mövzuda olmayan bilik elementləri: ${missing.join(', ')}`);
+  if (unapproved.length && !preview)
+    throw new Error(
+      `Təsdiqlənməmiş bilik elementləri: ${unapproved.join(', ')}. Review-da təsdiqləyin, ` +
+        'və ya --preview ilə qaralama render edin.',
+    );
+  const measure = (text: string, size: number) =>
+    layoutText(font, text, { x: 0, y: 0 }, size, 'left').box.width;
+  const script = compileScenario(scenario, measure);
+  if (unapproved.length) {
+    console.log(`QARALAMA: ${unapproved.length} element təsdiqlənməyib (${unapproved.join(', ')})`);
+    script.source = { ...script.source, title: `${script.source.title} · QARALAMA` };
+  }
+  return script;
 }
 
 main().catch((error: unknown) => {

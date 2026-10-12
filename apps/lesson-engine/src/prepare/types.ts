@@ -17,10 +17,27 @@ export type PreparedAction =
       box: Box;
       from: number;
       to: number;
+      /** Frame the board is wiped at (a later step clears it); absent: stays to the end. */
+      until?: number;
     }
-  | { kind: 'hatch'; id: string; color: LessonColor; box: Box; from: number; to: number };
+  | {
+      kind: 'hatch';
+      id: string;
+      color: LessonColor;
+      box: Box;
+      from: number;
+      to: number;
+      until?: number;
+    };
 
-export type PreparedStep = { id: string; narration: string; from: number; to: number };
+export type PreparedStep = {
+  id: string;
+  narration: string;
+  from: number;
+  to: number;
+  /** The board is wiped as this step starts. */
+  clear: boolean;
+};
 
 /** Everything the Remotion composition needs; serializable as input props. */
 export type PreparedLesson = {

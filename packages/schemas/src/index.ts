@@ -11,3 +11,4 @@ export * from './curriculum';
 export * from './content';
 export * from './lesson';
 export * from './inlineMath';
+export * from './scenario';

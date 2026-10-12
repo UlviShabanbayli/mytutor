@@ -44,6 +44,7 @@ import type {
   knowledgeStatusSchema,
   lessonActionSchema,
   lessonColorSchema,
+  lessonScenarioSchema,
   lessonScriptSchema,
   lessonStepSchema,
   localeSchema,
@@ -168,3 +169,6 @@ export type CurriculumEntry = z.output<typeof curriculumEntrySchema>;
 export type CurriculumInput = z.output<typeof curriculumInputSchema>;
 export type CurriculumTextbook = z.output<typeof curriculumTextbookSchema>;
 export type CreateCurriculumResponse = z.output<typeof createCurriculumResponseSchema>;
+export type LessonScenario = z.output<typeof lessonScenarioSchema>;
+export type ScenarioScene = LessonScenario['scenes'][number];
+export type ScenarioElement = ScenarioScene['board'][number];

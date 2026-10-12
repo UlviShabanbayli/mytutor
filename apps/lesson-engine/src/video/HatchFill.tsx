@@ -1,5 +1,6 @@
-import { useCurrentFrame } from 'remotion';
+import { useCurrentFrame, useVideoConfig } from 'remotion';
 import type { PreparedAction } from '../prepare/types';
+import { wipeOpacity } from '../prepare/wipe';
 import { actionProgress } from './progress';
 
 type HatchFillProps = {
@@ -10,14 +11,16 @@ type HatchFillProps = {
 /** Diagonal chalk hatching over an area, revealed left to right. */
 export function HatchFill({ action, color }: HatchFillProps) {
   const frame = useCurrentFrame();
-  if (frame < action.from) return null;
+  const { fps } = useVideoConfig();
+  const opacity = wipeOpacity(frame, action.until, fps);
+  if (frame < action.from || opacity <= 0) return null;
   const progress = actionProgress(frame, action.from, action.to);
   const { x, y, width, height } = action.box;
   const patternId = `hatch-${action.id}`;
   const clipId = `clip-${action.id}`;
 
   return (
-    <g>
+    <g opacity={opacity}>
       <defs>
         <pattern
           id={patternId}
