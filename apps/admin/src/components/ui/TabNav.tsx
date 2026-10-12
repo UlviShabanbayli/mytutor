@@ -2,7 +2,14 @@ import type { ReactNode } from 'react';
 import { NavLink } from 'react-router';
 import { cn } from '@/lib/cn';
 
-type Tab = { to: string; label: string; icon?: ReactNode; badge?: ReactNode };
+type Tab = {
+  to: string;
+  label: string;
+  icon?: ReactNode;
+  badge?: ReactNode;
+  /** Active only on this exact path, not on paths below it. */
+  end?: boolean;
+};
 
 type TabNavProps = { label: string; tabs: Tab[] };
 
@@ -14,6 +21,7 @@ export function TabNav({ label, tabs }: TabNavProps) {
         <NavLink
           key={tab.to}
           to={tab.to}
+          end={tab.end}
           replace
           className={({ isActive }) =>
             cn(

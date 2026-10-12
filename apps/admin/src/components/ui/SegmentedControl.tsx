@@ -9,6 +9,8 @@ type SegmentedControlProps<T extends string> = {
   options: Option<T>[];
   onChange: (value: T) => void;
   iconOnly?: boolean;
+  /** Options share the full width equally. */
+  stretch?: boolean;
 };
 
 export function SegmentedControl<T extends string>({
@@ -17,12 +19,16 @@ export function SegmentedControl<T extends string>({
   options,
   onChange,
   iconOnly = false,
+  stretch = false,
 }: SegmentedControlProps<T>) {
   return (
     <div
       role="radiogroup"
       aria-label={label}
-      className="inline-flex max-w-full flex-wrap gap-1 rounded-md bg-muted p-1"
+      className={cn(
+        'max-w-full gap-1 rounded-md bg-muted p-1',
+        stretch ? 'grid auto-cols-fr grid-flow-col' : 'inline-flex flex-wrap',
+      )}
     >
       {options.map((o) => {
         const selected = o.value === value;
@@ -36,7 +42,7 @@ export function SegmentedControl<T extends string>({
             title={iconOnly ? o.label : undefined}
             onClick={() => onChange(o.value)}
             className={cn(
-              'inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-sm px-2.5 font-sans-medium text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'inline-flex min-h-8 cursor-pointer items-center justify-center gap-1.5 rounded-sm px-2.5 font-sans-medium text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               selected
                 ? 'bg-card text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground',

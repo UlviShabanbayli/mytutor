@@ -1,5 +1,5 @@
 import type { TextbookBlockKind } from '@mytutor/types';
-import type { TextItem, TextLine } from './types';
+import { heightOf, type PageHeight, type TextItem, type TextLine } from './types';
 
 /** `y` is the PDF baseline (bottom-left origin); `top` is the heading's top edge (top-left origin). */
 type At = { page: number; y: number; top: number };
@@ -7,7 +7,8 @@ type At = { page: number; y: number; top: number };
 export type HeadingEvent =
   | ({ type: 'unit'; title: string } & At)
   | ({ type: 'topic'; title: string } & At)
-  | ({ type: 'block'; kind: TextbookBlockKind; title: string } & At)
+  /** `bookLevel`: back matter of the whole book (answers, cross-unit reviews), not of a unit. */
+  | ({ type: 'block'; kind: TextbookBlockKind; title: string; bookLevel?: true } & At)
   | ({ type: 'section'; title: string } & At);
 
 /** Heading sizes relative to body text, calibrated on the TRİMS layout (body 12pt). */
@@ -45,7 +46,7 @@ export function bodySize(items: TextItem[]): number {
 const isCaps = (s: string) => s === s.toLocaleUpperCase('az') && /\p{Lu}/u.test(s);
 const isQuoted = (s: string) => /^["«].+["»]$/.test(s.trim());
 /** Real headings contain a word; large math letters ("a", "b") and figure labels do not. */
-const hasWord = (s: string) => /\p{L}{3,}/u.test(s);
+export const hasWord = (s: string) => /\p{L}{3,}/u.test(s);
 const labelKey = (s: string) =>
   s
     .toLocaleLowerCase('az')
@@ -60,7 +61,7 @@ export function classifyHeadings(
   lines: TextLine[],
   labels: TextItem[],
   body: number,
-  pages: { from: number; to: number; height: number },
+  pages: { from: number; to: number; height: PageHeight },
 ): HeadingEvent[] {
   const headings = lines
     .filter((l) => l.page >= pages.from && l.page <= pages.to)
@@ -99,11 +100,12 @@ export function classifyHeadings(
     }
     title = title.replace(/\s+/g, ' ').trim();
     const ratio = line.size / body;
+    const height = heightOf(pages.height, line.page);
     const kind = blockKind(title);
     const at = {
       page: line.page,
       y: line.y,
-      top: Math.max(0, pages.height - line.y - line.size * 1.2),
+      top: Math.max(0, height - line.y - line.size * 1.2),
     };
 
     if (ratio >= UNIT) {
@@ -111,7 +113,7 @@ export function classifyHeadings(
         const named = steamTitles.get(line.page);
         // The page starts at whichever is higher: the banner or its title.
         const y = Math.max(line.y, named?.y ?? 0);
-        const top = Math.max(0, pages.height - y - line.size * 1.2);
+        const top = Math.max(0, height - y - line.size * 1.2);
         events.push({
           type: 'block',
           kind,
@@ -122,7 +124,7 @@ export function classifyHeadings(
         });
       } else {
         // Unit openers are full pages: the unit starts at the top even if the title sits lower.
-        events.push({ type: 'unit', title, page: line.page, y: pages.height, top: 0 });
+        events.push({ type: 'unit', title, page: line.page, y: height, top: 0 });
       }
     } else if (ratio >= TITLE) {
       const numbered = labels.some(

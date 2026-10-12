@@ -1,5 +1,10 @@
 import type { z } from 'zod';
 import type {
+  curriculumSchema,
+  curriculumEntrySchema,
+  curriculumInputSchema,
+  curriculumTextbookSchema,
+  createCurriculumResponseSchema,
   addBookResponseSchema,
   aiCallSchema,
   answerOptionSchema,
@@ -10,10 +15,25 @@ import type {
   contentBookEntrySchema,
   contentIndexSchema,
   contentTopicEntrySchema,
+  createStandardSetResponseSchema,
+  standardSetEntrySchema,
+  standardSetInputSchema,
+  standardLinksInputSchema,
+  itemReviewSchema,
+  blockReviewSchema,
+  topicReviewSchema,
+  topicReviewInputSchema,
+  reviewDecisionSchema,
+  knowledgeSummarySchema,
+  reviewProgressSchema,
+  standardLinksSchema,
+  standardSetSchema,
+  officialStandardSchema,
   deleteBookResponseSchema,
   extractSourceResponseSchema,
   extractedItemSchema,
   healthResponseSchema,
+  itemStandardLinkSchema,
   knowledgeCheckSchema,
   knowledgeDocumentSchema,
   knowledgeExtractionSchema,
@@ -31,8 +51,10 @@ import type {
   otpCodeSchema,
   phoneNumberSchema,
   practiceTestSchema,
+  purgeTrashResponseSchema,
   questionSchema,
   restoreBookResponseSchema,
+  savedResponseSchema,
   sourceBlockKindSchema,
   sourceBlockSchema,
   sourceFigureSchema,
@@ -124,3 +146,25 @@ export type LessonColor = z.output<typeof lessonColorSchema>;
 export type LessonAction = z.output<typeof lessonActionSchema>;
 export type LessonStep = z.output<typeof lessonStepSchema>;
 export type LessonScript = z.output<typeof lessonScriptSchema>;
+export type OfficialStandard = z.output<typeof officialStandardSchema>;
+export type StandardSetInput = z.output<typeof standardSetInputSchema>;
+export type StandardSet = z.output<typeof standardSetSchema>;
+export type StandardSetEntry = z.output<typeof standardSetEntrySchema>;
+export type ItemStandardLink = z.output<typeof itemStandardLinkSchema>;
+export type StandardLinks = z.output<typeof standardLinksSchema>;
+export type StandardLinksInput = z.output<typeof standardLinksInputSchema>;
+export type CreateStandardSetResponse = z.output<typeof createStandardSetResponseSchema>;
+export type SavedResponse = z.output<typeof savedResponseSchema>;
+export type PurgeTrashResponse = z.output<typeof purgeTrashResponseSchema>;
+export type ReviewDecision = z.output<typeof reviewDecisionSchema>;
+export type ItemReview = z.output<typeof itemReviewSchema>;
+export type BlockReview = z.output<typeof blockReviewSchema>;
+export type TopicReview = z.output<typeof topicReviewSchema>;
+export type TopicReviewInput = z.output<typeof topicReviewInputSchema>;
+export type KnowledgeSummary = z.output<typeof knowledgeSummarySchema>;
+export type ReviewProgress = z.output<typeof reviewProgressSchema>;
+export type Curriculum = z.output<typeof curriculumSchema>;
+export type CurriculumEntry = z.output<typeof curriculumEntrySchema>;
+export type CurriculumInput = z.output<typeof curriculumInputSchema>;
+export type CurriculumTextbook = z.output<typeof curriculumTextbookSchema>;
+export type CreateCurriculumResponse = z.output<typeof createCurriculumResponseSchema>;

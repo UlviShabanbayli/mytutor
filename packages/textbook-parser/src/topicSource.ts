@@ -7,13 +7,15 @@ import type {
   TextbookTopic,
   TopicSource,
 } from '@mytutor/types';
-import { ownerOf, trimRegions, type Placed, type RegionedBlock } from './assign';
-import { buildBlocks, type DraftBlock, type Pos } from './blocks';
+import { centerInside, ownerOf, trimRegions, type Placed, type RegionedBlock } from './assign';
+import { buildBlocks, withSideBoxes, type DraftBlock, type Pos } from './blocks';
 import { findFigures } from './figures';
 import type { PageGraphics } from './graphics';
 import { groupSourceLines } from './lines';
-import { findMarkers } from './markers';
+import { findLayoutMarkers } from './layoutMarkers';
+import { findMarkers, type Marker } from './markers';
 import { isSuspicious, repairBody } from './repair';
+import { findPanels, findSideBoxes, sideBoxAt, type SideBox } from './template';
 import type { TextItem, TextLine } from './types';
 import { validateBlocks } from './validate';
 
@@ -65,23 +67,85 @@ export function buildTopicSource(input: TopicSourceInput): TopicSourceDraft {
     height: l.size * 1.25,
   });
 
+  const graphics = input.graphics.filter((g) => pages.includes(g.page));
+  // Side boxes (e.g. "Açar sözlər") stand beside the text column, so full-width spans cannot
+  // hold them: they become blocks of their own, cut out by their panel.
+  const boxes: SideBox[] = graphics.flatMap((g) =>
+    findSideBoxes(g, page.width).filter((x) => {
+      const w = window(x.page);
+      const middle = x.bbox.y + x.bbox.height / 2;
+      return middle >= w.top - SLACK && middle < w.bottom;
+    }),
+  );
+  const panels = graphics.flatMap((g) =>
+    findPanels(g, page.width).map((bbox) => ({ page: g.page, bbox })),
+  );
+  const boxAt = (p: number, b: BBox) => sideBoxAt(boxes, p, b);
+  const itemBox = (i: TextItem): BBox => ({
+    x: i.x,
+    y: H - i.y - i.size,
+    width: i.width,
+    height: i.size,
+  });
+
   const items = input.items.filter((i) => {
     const w = window(i.page);
     const top = H - i.y - i.size;
     return pages.includes(i.page) && top >= w.top - SLACK && top < w.bottom;
   });
-  const lines = groupSourceLines(items, repairBody, body).sort(
-    (a, b) => a.page - b.page || lineTop(a) - lineTop(b) || a.x - b.x,
-  );
-  const graphics = input.graphics.filter((g) => pages.includes(g.page));
+  // A box's text is grouped on its own, so no line runs across the panel edge.
+  const groupLines = () =>
+    [undefined, ...boxes]
+      .flatMap((x) =>
+        groupSourceLines(
+          items.filter((i) => boxAt(i.page, itemBox(i)) === x),
+          repairBody,
+          body,
+        ),
+      )
+      .sort((a, b) => a.page - b.page || lineTop(a) - lineTop(b) || a.x - b.x);
+  let lines = groupLines();
 
+  const columnLines = lines.filter((l) => !boxAt(l.page, lineBox(l)));
+  const template = findMarkers({
+    lines: columnLines,
+    items,
+    graphics,
+    body,
+    pageHeight: H,
+    panels,
+  });
+  // A book outside the TRİMS template shows few of its labels, badges or number circles (a
+  // "Teorem 1." may match): its blocks are found by label vocabulary and layout instead, when
+  // that finds clearly more of them.
+  const specific = (ms: Marker[]) => ms.filter((m) => m.kind !== 'title' && m.kind !== 'section');
+  const layout = findLayoutMarkers({
+    lines: columnLines,
+    items,
+    body,
+    pageHeight: H,
+    topicTitle: topic.title,
+    graphics,
+  });
+  const found = specific(layout).length > 2 * specific(template).length ? layout : template;
+  // A label printed in a narrow panel (a NÜMUNƏ beside the text) makes the panel a side box.
+  for (const m of found) {
+    if (m.box && !boxAt(m.page, m.box)) {
+      const { kind, label, number, page: p, box: bbox } = m;
+      boxes.push({ kind, label, number, page: p, bbox, parts: [bbox], frame: false });
+    }
+  }
+  if (found.some((m) => m.box)) lines = groupLines();
   // A topic has one title, its heading; other large glyphs (e.g. a big "a/b" in a drawing) are content.
-  const markers = findMarkers({ lines, items, graphics, body, pageHeight: H }).filter(
-    (m, i, all) => m.kind !== 'title' || all.findIndex((x) => x.kind === 'title') === i,
-  );
+  const markers = found
+    .filter((m) => !m.box)
+    .filter((m, i, all) => m.kind !== 'title' || all.findIndex((x) => x.kind === 'title') === i);
   const title = markers.find((m) => m.kind === 'title');
   if (title) title.title = topic.title; // the badge number glyphs are not part of the title
-  const drafts = buildBlocks(markers, { ...start, top: start.top - SLACK }, end);
+  const drafts = withSideBoxes(
+    buildBlocks(markers, { ...start, top: start.top - SLACK }, end),
+    boxes,
+  );
 
   // Small images in the left gutter are template icons, not figures.
   const icons = graphics.flatMap((g) =>
@@ -91,8 +155,15 @@ export function buildTopicSource(input: TopicSourceInput): TopicSourceDraft {
   );
   const textBoxes = (p: number) =>
     lines.filter((l) => l.page === p && l.text.length > 3).map(lineBox);
+  // A template box's panel, pill and icon are its frame, not a drawing.
+  const framed = (p: number, b: BBox) => boxAt(p, b)?.frame === true;
+  const outsideBoxes = (g: PageGraphics): PageGraphics => ({
+    ...g,
+    images: g.images.filter((i) => !framed(g.page, i.bbox)),
+    paths: g.paths.filter((q) => !framed(g.page, q.bbox)),
+  });
   const figures = graphics.flatMap((g) =>
-    findFigures(g, window(g.page), page, icons, textBoxes(g.page)),
+    findFigures(outsideBoxes(g), window(g.page), page, icons, textBoxes(g.page)),
   );
 
   // Raw regions: each span split per page across the text column; trimmed to content below.
@@ -120,13 +191,24 @@ export function buildTopicSource(input: TopicSourceInput): TopicSourceDraft {
         }),
     );
   const ordered: RegionedBlock[] = drafts
-    .map((d) => ({ d, regions: rawRegions(d) }))
+    .map((d) => ({
+      d,
+      regions: d.box
+        ? [{ page: d.box.page, printedPage: printed(d.box.page), bbox: round(d.box.bbox) }]
+        : rawRegions(d),
+    }))
     .filter((b) => b.regions.length > 0);
   const id = new Map(ordered.map((b, i) => [b.d, `b${String(i + 1).padStart(2, '0')}`]));
 
+  // A side box owns what lies inside its panel; everything else goes by the full-width spans.
+  const column = ordered.filter((b) => !b.d.box);
+  const owner = (p: Placed) => {
+    const box = boxAt(p.page, p.bbox);
+    return box ? drafts.find((d) => d.box === box) : ownerOf(column, p)?.d;
+  };
   const placedLines = lines.map((l, i) => {
     const placed: Placed = { page: l.page, bbox: lineBox(l) };
-    return { l, i, placed, owner: ownerOf(ordered, placed)?.d };
+    return { l, i, placed, owner: owner(placed) };
   });
   const placedFigures = figures.map((f, i) => {
     const placed: Placed = { page: f.page, bbox: f.bbox };
@@ -134,10 +216,10 @@ export function buildTopicSource(input: TopicSourceInput): TopicSourceDraft {
       f,
       i,
       placed,
-      owner: ownerOf(ordered, {
+      owner: owner({
         page: f.page,
         bbox: { ...f.bbox, height: 4, y: f.bbox.y + f.bbox.height / 2 },
-      })?.d,
+      }),
     };
   });
 
@@ -148,7 +230,7 @@ export function buildTopicSource(input: TopicSourceInput): TopicSourceDraft {
       const content = [...placedLines, ...placedFigures]
         .filter((x) => within(x.owner, b.d))
         .map((x) => x.placed);
-      return [b.d, trimRegions(b, content)];
+      return [b.d, b.d.box ? b.regions : trimRegions(b, content)];
     }),
   );
 
@@ -221,12 +303,6 @@ export function buildTopicSource(input: TopicSourceInput): TopicSourceDraft {
     figures: sourceFigures,
     warnings: validateBlocks(blocks),
   };
-}
-
-function centerInside(a: BBox, b: BBox): boolean {
-  const cx = a.x + a.width / 2;
-  const cy = a.y + a.height / 2;
-  return cx >= b.x && cx <= b.x + b.width && cy >= b.y && cy <= b.y + b.height;
 }
 
 function round(b: BBox): BBox {

@@ -1,6 +1,7 @@
 import type { TextbookBlock, TextbookStructure, TextbookTopic, TextbookUnit } from '@mytutor/types';
 import type { HeadingEvent } from './classify';
 import type { TocEntry } from './toc';
+import { heightOf, type PageHeight } from './types';
 import { isSuspicious } from './repair';
 
 type Node = { page: number; y: number; top: number; setEnd: (page: number, y: number) => void };
@@ -8,7 +9,7 @@ type Ranged = { startPage: number; endPage: number; startY?: number; endY?: numb
 
 type BuildInput = {
   events: HeadingEvent[];
-  pageHeight: number;
+  pageHeight: PageHeight;
   /** Last page that belongs to the book body (back cover excluded). */
   lastPage: number;
 };
@@ -16,7 +17,7 @@ type BuildInput = {
 const round = (n: number) => Math.round(n * 10) / 10;
 
 /** A heading this close to the top starts on a fresh page, so the previous node ends earlier. */
-const TOP_OF_PAGE = 0.78;
+const TOP_OF_PAGE = 0.85;
 
 /**
  * Builds the unit → topic/block → section tree from heading events and assigns page ranges.
@@ -83,9 +84,9 @@ export function buildStructure({ events, pageHeight, lastPage }: BuildInput) {
         startPage: e.page,
         endPage: e.page,
       };
-      if (unit && !closed) unit.items.push(block);
+      if (unit && !closed && !e.bookLevel) unit.items.push(block);
       else backMatter.push(block);
-      if (e.kind === 'steam') closed = true;
+      if (e.kind === 'steam' || e.bookLevel) closed = true;
       topic = null;
       track(e, block, true);
     } else if (topic) {
@@ -95,9 +96,10 @@ export function buildStructure({ events, pageHeight, lastPage }: BuildInput) {
 
   nodes.forEach((node, i) => {
     const next = nodes[i + 1];
-    if (!next) return node.setEnd(lastPage, pageHeight);
+    if (!next) return node.setEnd(lastPage, heightOf(pageHeight, lastPage));
     // A node that starts at the top of a page leaves the previous page to its predecessor.
-    if (next.y >= pageHeight * TOP_OF_PAGE) node.setEnd(next.page - 1, pageHeight);
+    if (next.y >= heightOf(pageHeight, next.page) * TOP_OF_PAGE)
+      node.setEnd(next.page - 1, heightOf(pageHeight, next.page - 1));
     else node.setEnd(next.page, next.top);
   });
   for (const u of units) u.endPage = Math.max(u.startPage, ...u.items.map((i) => i.endPage));
@@ -108,7 +110,7 @@ export function buildStructure({ events, pageHeight, lastPage }: BuildInput) {
 const letters = (s: string) => s.toLocaleLowerCase('az').replace(/[^\p{L}\p{N}]/gu, '');
 
 /** Letter-bigram overlap (Dice) of two titles, ignoring case, spaces and punctuation. */
-function similarity(a: string, b: string): number {
+export function similarity(a: string, b: string): number {
   const grams = (s: string) => {
     const t = letters(s);
     return new Map(

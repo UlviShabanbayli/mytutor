@@ -175,10 +175,13 @@ export async function extractPdf(file: string): Promise<ExtractedPdf> {
   const pdf = await task.promise;
   const pages: PageText[] = [];
   let pageHeight = 0;
+  const pageHeights: Record<number, number> = {};
 
   for (let n = 1; n <= pdf.numPages; n++) {
     const page = await pdf.getPage(n);
-    pageHeight = Math.max(pageHeight, page.view[3] ?? 0);
+    const height = page.view[3] ?? 0;
+    pageHeights[n] = height;
+    pageHeight = Math.max(pageHeight, height);
     const content = await page.getTextContent();
     const glyphs = drawnGlyphs(await page.getOperatorList(), (id) => fontInfo(page, id));
     for (const g of glyphs)
@@ -248,5 +251,5 @@ export async function extractPdf(file: string): Promise<ExtractedPdf> {
 
   const pageCount = pdf.numPages;
   await task.destroy();
-  return { file, pageCount, pageHeight, items };
+  return { file, pageCount, pageHeight, pageHeights, items };
 }

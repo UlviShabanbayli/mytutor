@@ -1,14 +1,15 @@
 import { BookText, BrainCircuit, Clapperboard, FileSearch } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
-import { ExtractSourceButton } from '@/components/curriculum/ExtractSourceButton';
+import { Link, useParams } from 'react-router';
+import { ExtractSourceButton } from '@/components/books/ExtractSourceButton';
 import { KnowledgeMissing } from '@/components/knowledge/KnowledgeMissing';
-import { KnowledgeTab } from '@/components/knowledge/KnowledgeTab';
 import { LessonTab } from '@/components/lesson/LessonTab';
+import { LinkedKnowledgeTab } from '@/components/links/LinkedKnowledgeTab';
+import { TopicStandards } from '@/components/links/TopicStandards';
 import { SourceTab } from '@/components/source/SourceTab';
 import {
   Badge,
-  Breadcrumbs,
+  buttonClass,
   CommandHint,
   EmptyState,
   ErrorState,
@@ -17,6 +18,8 @@ import {
 } from '@/components/ui';
 import { bookTitle } from '@/features/content/pages';
 import { useBook, useKnowledge, useTopicSource } from '@/features/content/queries';
+import { useBookStandards } from '@/features/standards/useBookStandards';
+import { usePageCrumbs } from '@/features/layout/crumbs';
 import { commands } from '@/lib/commands';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -31,21 +34,24 @@ export function TopicPage() {
   const entry = book.data?.topics.find((topic) => topic.number === number) ?? null;
   const source = useTopicSource(entry?.source ?? null);
   const knowledge = useKnowledge(entry?.knowledge ?? null);
+  const bs = useBookStandards(book.data);
+  const title = source.data ? `${number}. ${source.data.topic.title}` : number;
+  usePageCrumbs([
+    { label: t('nav.overview'), to: '/' },
+    {
+      label: book.data ? bookTitle(book.data) : t('nav.books'),
+      to: `/books/${encodeURIComponent(bookId)}`,
+    },
+    { label: title },
+  ]);
 
   if (book.isPending) return <LoadingState />;
   if (book.isError) return <ErrorState onRetry={() => void book.refetch()} />;
   if (!book.data || !isTab(tab)) return <NotFoundPage />;
 
-  const crumbs = [
-    { label: t('books.title'), to: '/' },
-    { label: bookTitle(book.data), to: `/books/${encodeURIComponent(bookId)}` },
-    { label: number },
-  ];
-
   if (!entry) {
     return (
       <div className="flex flex-col gap-6">
-        <Breadcrumbs items={crumbs} />
         <EmptyState
           icon={<FileSearch className="size-6" />}
           title={t('topic.notReadyTitle')}
@@ -62,7 +68,6 @@ export function TopicPage() {
   }
 
   const base = `/books/${encodeURIComponent(bookId)}/topics/${encodeURIComponent(number)}`;
-  const title = source.data ? `${number}. ${source.data.topic.title}` : number;
   const content = () => {
     if (source.isPending) return <LoadingState />;
     if (source.isError) {
@@ -77,21 +82,36 @@ export function TopicPage() {
         <ErrorState onRetry={() => void knowledge.refetch()} detail={knowledge.error.message} />
       );
     }
-    return <KnowledgeTab doc={knowledge.data} source={source.data} topicDir={entry.dir} />;
+    return (
+      <LinkedKnowledgeTab
+        doc={knowledge.data}
+        source={source.data}
+        topicDir={entry.dir}
+        topic={number}
+        bs={bs}
+      />
+    );
   };
 
   return (
     <div className="flex flex-col gap-5">
-      <Breadcrumbs items={crumbs.map((c, i) => (i === crumbs.length - 1 ? { label: title } : c))} />
-      <header className="flex flex-col gap-1">
-        {source.data ? (
-          <p className="font-sans-bold text-sm text-primary">
-            {t('curriculum.unit', { index: source.data.topic.unit.index })} ·{' '}
-            {source.data.topic.unit.title}
-          </p>
+      <header className="flex flex-wrap items-end gap-4">
+        <div className="flex min-w-0 flex-[1_1_24rem] flex-col gap-1">
+          {source.data ? (
+            <p className="font-sans-bold text-sm text-primary">
+              {t('bookPage.unit', { index: source.data.topic.unit.index })} ·{' '}
+              {source.data.topic.unit.title}
+            </p>
+          ) : null}
+          <h1 className="font-sans-black text-3xl text-foreground">{title}</h1>
+        </div>
+        {entry.knowledge ? (
+          <Link to={`${base}/review`} className={buttonClass('primary')}>
+            {t('topic.openReview')}
+          </Link>
         ) : null}
-        <h1 className="font-sans-black text-3xl text-foreground">{title}</h1>
       </header>
+      <TopicStandards bookId={bookId} topic={number} title={title} bs={bs} />
       <TabNav
         label={title}
         tabs={[

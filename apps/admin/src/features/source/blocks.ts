@@ -13,6 +13,7 @@ const CATEGORY: Record<SourceBlockKind, BlockCategory> = {
   remember: 'box',
   find_mistake: 'box',
   history: 'box',
+  keywords: 'box',
   exercises: 'task',
   problems: 'task',
   exercise: 'task',

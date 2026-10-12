@@ -37,12 +37,16 @@ describe('buildContentIndex', () => {
         title: 'Riyaziyyat 7',
         structure: 'split/structure.json',
         canExtract: false,
+        standardLinks: null,
         topics: [
           {
             number: '4.1',
             dir: 'riyaziyyat-7/topics/4.1',
             source: 'riyaziyyat-7/topics/4.1/source.json',
             knowledge: 'riyaziyyat-7/topics/4.1/knowledge/knowledge.json',
+            // The placeholder knowledge file is not a valid document: no counts.
+            summary: null,
+            review: null,
           },
         ],
       },
@@ -50,7 +54,12 @@ describe('buildContentIndex', () => {
   });
 
   it('returns no books for a missing root', async () => {
-    expect(await buildContentIndex(join(root, 'nope'))).toEqual({ books: [], trash: [] });
+    expect(await buildContentIndex(join(root, 'nope'))).toEqual({
+      books: [],
+      trash: [],
+      standardSets: [],
+      curricula: [],
+    });
   });
 });
 

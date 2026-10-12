@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { curriculumEntrySchema } from './curriculum';
+import { standardSetEntrySchema, standardLinksSchema } from './standards';
+import { knowledgeSummarySchema, reviewProgressSchema } from './review';
 
 /**
  * Index of pipeline outputs available to the admin panel: which books were split and which
@@ -12,6 +15,10 @@ export const contentTopicEntrySchema = z.object({
   dir: z.string(),
   source: z.string().nullable(),
   knowledge: z.string().nullable(),
+  /** Counts from the knowledge document; null without one. */
+  summary: knowledgeSummarySchema.nullable(),
+  /** How far the editors' review got (`<dir>/review.json`); null without knowledge. */
+  review: reviewProgressSchema.nullable(),
 });
 
 export const contentBookEntrySchema = z.object({
@@ -24,6 +31,8 @@ export const contentBookEntrySchema = z.object({
   /** The PDF is on disk, so topics can be extracted from the panel. */
   canExtract: z.boolean(),
   topics: z.array(contentTopicEntrySchema),
+  /** The book's links to a standard set (its `standard-links.json`), null until saved. */
+  standardLinks: standardLinksSchema.nullable(),
 });
 
 /** A book deleted from the panel: its folders wait in `<root>/.trash/<id>/` until restored. */
@@ -42,6 +51,8 @@ export const contentIndexSchema = z.object({
   books: z.array(contentBookEntrySchema),
   /** Newest first. */
   trash: z.array(trashEntrySchema),
+  standardSets: z.array(standardSetEntrySchema),
+  curricula: z.array(curriculumEntrySchema),
 });
 
 /** `book.json` next to a book's outputs: written by the panel on upload, or by hand. */
@@ -74,6 +85,13 @@ export const contentActionErrorCodeSchema = z.enum([
   'forbidden',
   'method',
   'not_found',
+  'bad_request',
+  'no_standard_set',
+  'unknown_standard',
+  'standard_set_in_use',
+  'no_curriculum',
+  'curriculum_not_empty',
+  'no_knowledge',
   'network',
   'internal',
 ]);

@@ -1,5 +1,5 @@
 import { numberText, repairBody } from './repair';
-import type { TextItem } from './types';
+import { heightOf, type PageHeight, type TextItem } from './types';
 
 const TOC_NUMBER = /^(\d+)\.(\d+)\.?$/;
 const PAGE_NUMBER = /^\d{1,3}$/;
@@ -163,16 +163,17 @@ export function readToc(items: TextItem[]): {
 /** Printed page numbers sit in the top/bottom margin; offset = pdfPage - printed. */
 export function readPageNumbers(
   items: TextItem[],
-  pageHeight: number,
+  pageHeight: PageHeight,
   body: number,
 ): { offset: number | null; lastNumberedPage: number | null } {
-  const margin = pageHeight * 0.09;
+  const margin = (page: number) => heightOf(pageHeight, page) * 0.09;
   // Page numbers are set at body size or smaller; cover art digits are huge.
   items = items.filter((i) => i.size <= body * 1.2);
   const offsets = new Map<number, number>();
   let lastNumberedPage: number | null = null;
   for (const i of items) {
-    if (i.y > margin && i.y < pageHeight - margin) continue;
+    const m = margin(i.page);
+    if (i.y > m && i.y < heightOf(pageHeight, i.page) - m) continue;
     const text = numberText(i).trim();
     if (!/^\d{1,3}$/.test(text)) continue;
     const offset = i.page - Number(text);
@@ -183,7 +184,9 @@ export function readPageNumbers(
   if (!best || best[1] < 5) return { offset: null, lastNumberedPage };
   for (const i of items) {
     const text = numberText(i).trim();
-    if ((i.y <= margin || i.y >= pageHeight - margin) && Number(text) === i.page - best[0]) {
+    const m = margin(i.page);
+    const inMargin = i.y <= m || i.y >= heightOf(pageHeight, i.page) - m;
+    if (inMargin && Number(text) === i.page - best[0]) {
       lastNumberedPage = Math.max(lastNumberedPage ?? 0, i.page);
     }
   }

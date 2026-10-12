@@ -40,6 +40,11 @@ export function renderReport(s: TextbookStructure): string {
     '',
   );
 
+  if (s.validation.method === 'contents')
+    out.push(
+      'Bölmə və mövzular mündəricatdan götürüldü; hər mövzunun başlanğıcı mətndə başlığına görə tapıldı.',
+      '',
+    );
   for (const [unit, count] of Object.entries(s.validation.detectedTopicCounts)) {
     const toc = s.validation.tocTopicCounts[unit];
     const ok = toc === count;

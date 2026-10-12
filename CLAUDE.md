@@ -80,6 +80,9 @@ API (`apps/api`):
 
 - Node + TypeScript, Hono
 - PostgreSQL + Drizzle ORM. No flat JSON storage in this project; it must scale.
+  This is the target architecture. For the MVP, content authoring is temporarily file-based
+  (admin panel over `packages/textbook-parser/out/`) and new data follows the rules in
+  `docs/decisions/0001-storage-and-content-model.md` so the move stays mechanical.
 
 Authentication and verification are SEPARATE concerns and SEPARATE libraries:
 
@@ -117,7 +120,7 @@ apps/
   api/
     src/ routes/ services/ db/ middleware/
   admin/                      # web content panel (Vite + React, same tokens): textbook → source → knowledge review
-    server/                   # dev-only plugin: `/content/` serves pipeline outputs, `/content-api/` runs actions (add, delete and restore a book, extract source)
+    server/                   # dev-only plugin: `/content/` serves pipeline outputs, `/content-api/` runs actions (books, sources, curricula and links, reviews, trash)
     src/ routes/ components/ features/ i18n/ lib/
   lesson-engine/              # later: Remotion whiteboard pipeline
 packages/

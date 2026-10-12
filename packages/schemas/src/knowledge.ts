@@ -170,6 +170,8 @@ export const knowledgeCheckSchema = z.object({
     'latex_syntax',
     'identity',
     'image_verification',
+    // Text that relies on a picture carries it (added later: older documents lack it).
+    'figure_link',
   ]),
   result: z.enum(['pass', 'fail', 'skip']),
   detail: z.string().nullable(),

@@ -7,12 +7,12 @@ type TextTone =
 
 const variantClasses: Record<TextVariant, string> = {
   display: 'font-sans-black text-4xl',
-  title: 'font-sans-black text-3xl',
-  heading: 'font-sans-bold text-xl',
-  subheading: 'font-sans-bold text-lg',
+  title: 'font-sans-black text-2xl',
+  heading: 'font-sans-black text-lg',
+  subheading: 'font-sans-black text-base',
   body: 'font-sans text-base',
-  label: 'font-sans-medium text-sm',
-  caption: 'font-sans text-xs',
+  label: 'font-sans-bold text-sm',
+  caption: 'font-sans-medium text-xs',
 };
 
 const toneClasses: Record<TextTone, string> = {
