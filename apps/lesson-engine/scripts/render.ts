@@ -1,10 +1,13 @@
 // Usage: pnpm --filter @mytutor/lesson-engine render [<lesson or scenario>.json] [--theme blackboard|whiteboard]
-//          [--preview] [--quick] [--gl swangle|angle]
+//          [--preview] [--quick] [--gl swangle|angle] [--voice]
 // Validates the lesson script, prepares frames, and renders an MP4 into out/.
 // A scenario (topics/<n>/scenarios/<id>.json, beside the topic's knowledge) is laid out first,
 // and only when every knowledge item it cites is approved; --preview renders it anyway, as a
 // draft marked "QARALAMA", for the editor reviewing it. --quick renders at half size to check a
 // lesson fast; --gl angle draws with the GPU (the default, swangle, draws in software).
+// --voice narrates each step with ElevenLabs (ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID in the
+// repo-root .env; ELEVENLABS_MODEL defaults to eleven_v3) and times the step by its audio;
+// speech is cached in .voice-cache, so a render pays only for narration it has not heard.
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { basename, dirname, extname, join, resolve } from 'node:path';
@@ -23,6 +26,7 @@ import { unapprovedSources } from '../src/compile/approval';
 import { compileScenario } from '../src/compile/compileScenario';
 import { missingGlyphs, textWidth } from '../src/prepare/handwriting';
 import { prepareLesson } from '../src/prepare/prepareLesson';
+import { cachedSpeech, elevenLabs } from '../src/voice/elevenlabs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
@@ -60,16 +64,17 @@ async function main() {
     throw new Error(
       `Lövhə şrifti bu simvolları çəkə bilmir: ${missing.join(' ')}. Onları sözlə yazın.`,
     );
-  const lesson = prepareLesson(script, font);
-
-  const outDir = join(root, 'out');
   const quick = args.includes('--quick');
   const name = `${basename(lessonPath, extname(lessonPath))}-${script.theme}${quick ? '-quick' : ''}`;
+  const publicDir = join(root, 'public');
+  const voice = args.includes('--voice') ? await narrate(script, name, publicDir) : null;
+  const lesson = prepareLesson(script, font, voice?.durations, voice?.audio);
+
+  const outDir = join(root, 'out');
   await mkdir(outDir, { recursive: true });
   await writeFile(join(outDir, `${name}.lesson.json`), `${JSON.stringify(script, null, 2)}\n`);
   await writeFile(join(outDir, `${name}.prepared.json`), JSON.stringify(lesson));
 
-  const publicDir = join(root, 'public');
   await mkdir(join(publicDir, 'fonts'), { recursive: true });
   await copyFile(
     fontFile('@expo-google-fonts/nunito', '600SemiBold/Nunito_600SemiBold.ttf'),
@@ -119,6 +124,38 @@ async function main() {
     logLevel: process.env.RENDER_LOG === 'verbose' ? 'verbose' : 'info',
   });
   console.log(`Hazırdır: ${outputLocation}`);
+}
+
+/** Speaks every step with ElevenLabs into public/voice/<name>/; returns lengths and files. */
+async function narrate(script: LessonScript, name: string, publicDir: string) {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  const voiceId = process.env.ELEVENLABS_VOICE_ID;
+  if (!apiKey || !voiceId)
+    throw new Error(
+      '--voice: ELEVENLABS_API_KEY və ELEVENLABS_VOICE_ID repo kökündəki .env-də olmalıdır',
+    );
+  const model = process.env.ELEVENLABS_MODEL ?? 'eleven_v3';
+  const speak = cachedSpeech(
+    elevenLabs({ apiKey, voiceId, model, language: process.env.ELEVENLABS_LANGUAGE }),
+    join(root, '.voice-cache'),
+    `${voiceId}|${model}`,
+  );
+  const dir = join(publicDir, 'voice', name);
+  await mkdir(dir, { recursive: true });
+  const durations: Record<string, number> = {};
+  const audio: Record<string, string> = {};
+  for (const step of script.steps) {
+    const speech = await speak(step.narration);
+    await writeFile(join(dir, `${step.id}.mp3`), speech.audio);
+    durations[step.id] = speech.seconds;
+    audio[step.id] = `voice/${name}/${step.id}.mp3`;
+  }
+  console.log(
+    `Səs: ${script.steps.length} addım, ${Object.values(durations)
+      .reduce((a, b) => a + b, 0)
+      .toFixed(1)} s`,
+  );
+  return { durations, audio };
 }
 
 /** Lays a scenario out, after checking it cites only approved knowledge of its topic. */

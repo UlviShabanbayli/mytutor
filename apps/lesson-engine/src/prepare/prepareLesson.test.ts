@@ -100,6 +100,20 @@ describe('dots and clean boards', () => {
   const prepared = prepareLesson(twoBoards, font);
   const second = prepared.steps[1];
 
+  it('times a step by its narration audio and names the file', () => {
+    const voiced = prepareLesson(
+      twoBoards,
+      font,
+      { first: 3, second: 4.5 },
+      { first: 'voice/x/first.mp3' },
+    );
+    const [first, second2] = voiced.steps;
+    expect(first?.audio).toBe('voice/x/first.mp3');
+    expect(second2?.audio).toBeUndefined();
+    expect((first?.to ?? 0) - (first?.from ?? 0)).toBe(3 * FPS);
+    expect((second2?.to ?? 0) - (second2?.from ?? 0)).toBe(4.5 * FPS);
+  });
+
   it('draws a dot as a small filled circle', () => {
     const dot = prepared.actions.find((a) => a.id === 'point');
     expect(dot?.kind === 'stroke' && dot.filled).toBe(true);

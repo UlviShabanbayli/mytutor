@@ -37,6 +37,8 @@ export type PreparedStep = {
   to: number;
   /** The board is wiped as this step starts. */
   clear: boolean;
+  /** Narration audio: a file in the bundle's public folder. */
+  audio?: string;
 };
 
 /** Everything the Remotion composition needs; serializable as input props. */

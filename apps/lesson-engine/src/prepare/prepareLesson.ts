@@ -106,11 +106,13 @@ function resolve(action: LessonAction, font: Font, written: Map<string, Box>): R
 /**
  * Turns a lesson script into frame-accurate actions. Each step lasts as long as its narration
  * (`durations` from TTS when available, otherwise an estimate); its drawing is spread over it.
+ * `audio` names each step's narration file, played from the step's first frame.
  */
 export function prepareLesson(
   script: LessonScript,
   font: Font,
   durations: Record<string, number> = {},
+  audio: Record<string, string> = {},
 ): PreparedLesson {
   const written = new Map<string, Box>();
   const steps: PreparedLesson['steps'] = [];
@@ -123,7 +125,14 @@ export function prepareLesson(
     const seconds = durations[step.id] ?? estimateSeconds(step.narration);
     const from = cursor;
     const to = from + Math.round(seconds * FPS);
-    steps.push({ id: step.id, narration: step.narration, from, to, clear: step.clear });
+    steps.push({
+      id: step.id,
+      narration: step.narration,
+      from,
+      to,
+      clear: step.clear,
+      ...(audio[step.id] ? { audio: audio[step.id] } : {}),
+    });
     if (step.clear) {
       for (const a of board) a.until = from;
       board = [];

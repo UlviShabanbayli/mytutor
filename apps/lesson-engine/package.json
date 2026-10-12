@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "render": "tsx scripts/render.ts",
+    "render": "tsx --env-file-if-exists=../../.env scripts/render.ts",
     "studio": "remotion studio src/video/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",

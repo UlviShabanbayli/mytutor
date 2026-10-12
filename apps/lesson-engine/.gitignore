@@ -1,2 +1,4 @@
 out/
 public/fonts/
+.voice-cache/
+public/voice/

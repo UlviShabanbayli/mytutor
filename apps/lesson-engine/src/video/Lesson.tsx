@@ -1,4 +1,4 @@
-import { AbsoluteFill } from 'remotion';
+import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
 import type { PreparedLesson } from '../prepare/types';
 import { Captions } from './Captions';
 import { Chalk } from './Chalk';
@@ -47,6 +47,13 @@ export function Lesson({ lesson }: LessonProps) {
       <div style={{ ...label, left: 48 }}>{lesson.title}</div>
       <div style={{ ...label, right: 48 }}>{lesson.source}</div>
       <Captions steps={lesson.steps} background={theme.caption} color={theme.captionText} />
+      {lesson.steps.map((step) =>
+        step.audio ? (
+          <Sequence key={step.id} from={step.from} durationInFrames={step.to - step.from}>
+            <Audio src={staticFile(step.audio)} />
+          </Sequence>
+        ) : null,
+      )}
     </AbsoluteFill>
   );
 }
