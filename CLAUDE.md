@@ -120,7 +120,7 @@ apps/
   api/
     src/ routes/ services/ db/ middleware/
   admin/                      # web content panel (Vite + React, same tokens): textbook → source → knowledge review
-    server/                   # dev-only plugin: `/content/` serves pipeline outputs, `/content-api/` runs actions (add, delete and restore a book, extract source)
+    server/                   # dev-only plugin: `/content/` serves pipeline outputs, `/content-api/` runs actions (books, sources, curricula and links, reviews, trash)
     src/ routes/ components/ features/ i18n/ lib/
   lesson-engine/              # later: Remotion whiteboard pipeline
 packages/

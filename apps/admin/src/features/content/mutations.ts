@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addBook, deleteBook, extractTopicSource, restoreBook } from './api';
+import { addBook, deleteBook, extractTopicSource, purgeTrash, restoreBook } from './api';
 
 /** Everything under ['content'] is derived from files the actions write. */
 const contentKey = ['content'] as const;
@@ -36,6 +36,15 @@ export function useRestoreBook() {
   return useMutation({
     mutationFn: (trashId: string) => restoreBook(trashId),
     // Also on error: "already restored" or "added again" means the shelf is stale.
+    onSettled: () => queryClient.invalidateQueries({ queryKey: contentKey }),
+  });
+}
+
+export function usePurgeTrash() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (trashId: string) => purgeTrash(trashId),
+    // Also on error: "no such deleted book" means the list is stale.
     onSettled: () => queryClient.invalidateQueries({ queryKey: contentKey }),
   });
 }

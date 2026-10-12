@@ -9,7 +9,10 @@ type DialogProps = {
   /** False while work is running: Esc, the backdrop and the close button do nothing. */
   dismissible?: boolean;
   onClose: () => void;
-  /** Focused when the dialog opens (default: the first focusable element, the close button). */
+  /**
+   * Focused when the dialog opens; otherwise an element marked `data-autofocus`, otherwise the
+   * first focusable element (the close button).
+   */
   initialFocus?: RefObject<HTMLElement | null>;
   children: ReactNode;
   className?: string;
@@ -37,7 +40,8 @@ export function Dialog({
     if (!dialog) return;
     if (open && !dialog.open) {
       dialog.showModal();
-      initialFocus?.current?.focus();
+      // React's autoFocus runs before showModal() moves the focus, so fields ask for it this way.
+      (initialFocus?.current ?? dialog.querySelector<HTMLElement>('[data-autofocus]'))?.focus();
     }
     if (!open && dialog.open) dialog.close();
   }, [open, initialFocus]);

@@ -1,7 +1,7 @@
 import { BrainCircuit, MousePointerClick } from 'lucide-react';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { KnowledgeDocument, TopicSource } from '@mytutor/types';
+import type { KnowledgeDocument, KnowledgeItem, TopicSource } from '@mytutor/types';
 import { Card, EmptyState } from '@/components/ui';
 import { filterItems, type KnowledgeFilter } from '@/features/knowledge/items';
 import { useSearchParam } from '@/lib/useSearchParam';
@@ -10,9 +10,17 @@ import { KnowledgeFilters } from './KnowledgeFilters';
 import { KnowledgeItemCard } from './KnowledgeItemCard';
 import { KnowledgeStats } from './KnowledgeStats';
 
-type KnowledgeTabProps = { doc: KnowledgeDocument; source: TopicSource; topicDir: string };
+type KnowledgeTabProps = {
+  doc: KnowledgeDocument;
+  source: TopicSource;
+  topicDir: string;
+  /** Curriculum standards of an item, when the book has a curriculum. */
+  itemStandards?: (item: KnowledgeItem) => ReactNode;
+  /** Shown above the filters, e.g. links whose item is gone. */
+  notice?: ReactNode;
+};
 
-export function KnowledgeTab({ doc, source, topicDir }: KnowledgeTabProps) {
+export function KnowledgeTab({ doc, source, topicDir, itemStandards, notice }: KnowledgeTabProps) {
   const { t } = useTranslation();
   const [itemId, setParams] = useSearchParam('item');
   const [filter, setFilter] = useState<KnowledgeFilter>({
@@ -35,6 +43,7 @@ export function KnowledgeTab({ doc, source, topicDir }: KnowledgeTabProps) {
           date: new Date(doc.createdAt).toLocaleString('az-AZ'),
         })}
       </p>
+      {notice}
       <KnowledgeFilters items={doc.items} filter={filter} onChange={setFilter} />
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,560px)]">
@@ -48,6 +57,7 @@ export function KnowledgeTab({ doc, source, topicDir }: KnowledgeTabProps) {
                 topicDir={topicDir}
                 active={item.id === itemId}
                 onSelect={select}
+                standards={itemStandards?.(item)}
               />
             ))
           ) : (
