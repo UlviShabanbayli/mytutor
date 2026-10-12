@@ -1,38 +1,38 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { ContentIndex, CurriculumInput, CurriculumLinksInput } from '@mytutor/types';
-import { createCurriculum, deleteCurriculum, saveCurriculum, saveCurriculumLinks } from './api';
+import type { ContentIndex, StandardSetInput, StandardLinksInput } from '@mytutor/types';
+import { createStandardSet, deleteStandardSet, saveStandardSet, saveStandardLinks } from './api';
 
 const contentKey = ['content'] as const;
 const indexKey = ['content', 'index'] as const;
 
-export function useCreateCurriculum() {
+export function useCreateStandardSet() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: CurriculumInput) => createCurriculum(input),
+    mutationFn: (input: StandardSetInput) => createStandardSet(input),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: contentKey }),
   });
 }
 
-export function useSaveCurriculum(id: string) {
+export function useSaveStandardSet(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: CurriculumInput) => saveCurriculum(id, input),
+    mutationFn: (input: StandardSetInput) => saveStandardSet(id, input),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: contentKey }),
   });
 }
 
-export function useDeleteCurriculum() {
+export function useDeleteStandardSet() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteCurriculum(id),
+    mutationFn: (id: string) => deleteStandardSet(id),
     onSettled: () => void queryClient.invalidateQueries({ queryKey: contentKey }),
   });
 }
 
-export function useSaveCurriculumLinks(bookId: string) {
+export function useSaveStandardLinks(bookId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (links: CurriculumLinksInput) => saveCurriculumLinks(bookId, links),
+    mutationFn: (links: StandardLinksInput) => saveStandardLinks(bookId, links),
     onSuccess: ({ updatedAt }, links) => {
       // The saved links count at once: an edit made before the index reloads starts from them,
       // so it never brings back what the previous save changed.
@@ -41,7 +41,7 @@ export function useSaveCurriculumLinks(bookId: string) {
           ? {
               ...index,
               books: index.books.map((book) =>
-                book.id === bookId ? { ...book, curriculumLinks: { ...links, updatedAt } } : book,
+                book.id === bookId ? { ...book, standardLinks: { ...links, updatedAt } } : book,
               ),
             }
           : index,

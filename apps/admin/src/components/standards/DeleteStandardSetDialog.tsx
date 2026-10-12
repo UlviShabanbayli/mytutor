@@ -1,13 +1,13 @@
 import { LoaderCircle, Trash2 } from 'lucide-react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CurriculumEntry } from '@mytutor/types';
+import type { StandardSetEntry } from '@mytutor/types';
 import { ActionError } from '@/components/books/ActionError';
 import { Button, Dialog } from '@/components/ui';
-import { useDeleteCurriculum } from '@/features/curriculum/mutations';
+import { useDeleteStandardSet } from '@/features/standards/mutations';
 
-type DeleteCurriculumDialogProps = {
-  entry: CurriculumEntry;
+type DeleteStandardSetDialogProps = {
+  entry: StandardSetEntry;
   /** Titles of books linked to it: then it cannot be deleted. */
   linkedBooks: string[];
   open: boolean;
@@ -15,15 +15,15 @@ type DeleteCurriculumDialogProps = {
   onDeleted: () => void;
 };
 
-export function DeleteCurriculumDialog({
+export function DeleteStandardSetDialog({
   entry,
   linkedBooks,
   open,
   onClose,
   onDeleted,
-}: DeleteCurriculumDialogProps) {
+}: DeleteStandardSetDialogProps) {
   const { t } = useTranslation();
-  const remove = useDeleteCurriculum();
+  const remove = useDeleteStandardSet();
   const cancelRef = useRef<HTMLButtonElement>(null);
   const blocked = linkedBooks.length > 0;
   const close = () => {
@@ -34,8 +34,8 @@ export function DeleteCurriculumDialog({
   return (
     <Dialog
       open={open}
-      title={t('curricula.deleteTitle')}
-      closeLabel={t('curricula.close')}
+      title={t('standardSets.deleteTitle')}
+      closeLabel={t('standardSets.close')}
       dismissible={!remove.isPending}
       initialFocus={cancelRef}
       onClose={close}
@@ -43,7 +43,7 @@ export function DeleteCurriculumDialog({
       <div className="flex flex-col gap-4 text-sm">
         {blocked ? (
           <>
-            <p className="text-foreground">{t('curricula.deleteBlocked')}</p>
+            <p className="text-foreground">{t('standardSets.deleteBlocked')}</p>
             <ul className="list-disc pl-5 text-muted-foreground">
               {linkedBooks.map((title) => (
                 <li key={title}>{title}</li>
@@ -52,13 +52,13 @@ export function DeleteCurriculumDialog({
           </>
         ) : (
           <p className="text-foreground">
-            {t('curricula.deleteBody', { title: entry.title, count: entry.standardCount })}
+            {t('standardSets.deleteBody', { title: entry.title, count: entry.standardCount })}
           </p>
         )}
         {remove.isError ? <ActionError error={remove.error} /> : null}
         <div className="flex flex-wrap justify-end gap-2">
           <Button ref={cancelRef} variant="ghost" onClick={close} disabled={remove.isPending}>
-            {t('curricula.cancel')}
+            {t('standardSets.cancel')}
           </Button>
           {blocked ? null : (
             <Button
@@ -72,7 +72,7 @@ export function DeleteCurriculumDialog({
               ) : (
                 <Trash2 className="size-4" />
               )}
-              {t('curricula.delete')}
+              {t('standardSets.delete')}
             </Button>
           )}
         </div>

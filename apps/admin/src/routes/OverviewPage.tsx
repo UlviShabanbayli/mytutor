@@ -7,7 +7,7 @@ import { StageLegend } from '@/components/books/StageLegend';
 import { NextSteps } from '@/components/overview/NextSteps';
 import { StepStrip } from '@/components/overview/StepStrip';
 import { Button, EmptyState, ErrorState, LoadingState } from '@/components/ui';
-import { linkCount } from '@/features/curriculum/links';
+import { linkCount } from '@/features/standards/links';
 import { usePageCrumbs } from '@/features/layout/crumbs';
 import { addStats, bookStats } from '@/features/progress/stages';
 import { useLibrary } from '@/features/progress/useLibrary';
@@ -24,7 +24,7 @@ export function OverviewPage() {
     return <ErrorState onRetry={() => void index.refetch()} detail={index.error.message} />;
   const stats = library.map((b) => b.stats).reduce(addStats, bookStats([]));
   const links = index.data.books.reduce(
-    (sum, b) => sum + (b.curriculumLinks ? linkCount(b.curriculumLinks) : 0),
+    (sum, b) => sum + (b.standardLinks ? linkCount(b.standardLinks) : 0),
     0,
   );
   const addButton = (
@@ -54,8 +54,8 @@ export function OverviewPage() {
         </EmptyState>
       ) : (
         <>
-          <StepStrip stats={stats} links={links} curricula={index.data.curricula.length} />
-          <NextSteps library={library} curricula={index.data.curricula} />
+          <StepStrip stats={stats} links={links} standardSets={index.data.standardSets.length} />
+          <NextSteps library={library} standardSets={index.data.standardSets} />
           <section aria-labelledby="books-lanes" className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-3">
               <h2 id="books-lanes" className="flex-1 font-sans-black text-lg text-foreground">

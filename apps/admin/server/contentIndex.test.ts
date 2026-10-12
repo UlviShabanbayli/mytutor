@@ -37,7 +37,7 @@ describe('buildContentIndex', () => {
         title: 'Riyaziyyat 7',
         structure: 'split/structure.json',
         canExtract: false,
-        curriculumLinks: null,
+        standardLinks: null,
         topics: [
           {
             number: '4.1',
@@ -57,7 +57,7 @@ describe('buildContentIndex', () => {
     expect(await buildContentIndex(join(root, 'nope'))).toEqual({
       books: [],
       trash: [],
-      curricula: [],
+      standardSets: [],
     });
   });
 });

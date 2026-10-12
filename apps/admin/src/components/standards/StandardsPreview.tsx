@@ -1,8 +1,8 @@
-import type { CurriculumStandard } from '@mytutor/types';
-import { groupStandards } from '@/features/curriculum/standards';
+import type { OfficialStandard } from '@mytutor/types';
+import { groupStandards } from '@/features/standards/standards';
 import { cn } from '@/lib/cn';
 
-type StandardsPreviewProps = { standards: CurriculumStandard[]; emptyText: string };
+type StandardsPreviewProps = { standards: OfficialStandard[]; emptyText: string };
 
 /** Read-only list of standards grouped by content line, as the paste parser understood them. */
 export function StandardsPreview({ standards, emptyText }: StandardsPreviewProps) {

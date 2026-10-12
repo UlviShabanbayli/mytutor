@@ -1,9 +1,9 @@
 import { Link2, Pencil } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CurriculumLinksInput, CurriculumStandard } from '@mytutor/types';
+import type { StandardLinksInput, OfficialStandard } from '@mytutor/types';
 import { Button } from '@/components/ui';
-import type { BookCurriculum } from '@/features/curriculum/useBookCurriculum';
+import type { BookStandards } from '@/features/standards/useBookStandards';
 import { cn } from '@/lib/cn';
 import { LinkedStandards } from './LinkedStandards';
 import { StandardPickerDialog } from './StandardPickerDialog';
@@ -12,10 +12,10 @@ type StandardLinkEditorProps = {
   /** Shown in the picker: what the standards are linked to. */
   subject: string;
   codes: string[];
-  standards: CurriculumStandard[];
-  save: BookCurriculum['save'];
+  standards: OfficialStandard[];
+  save: BookStandards['save'];
   /** The book's links with this topic's or item's codes replaced. */
-  apply: (codes: string[]) => CurriculumLinksInput;
+  apply: (codes: string[]) => StandardLinksInput;
   compact?: boolean;
   className?: string;
 };

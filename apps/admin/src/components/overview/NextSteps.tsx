@@ -1,7 +1,7 @@
 import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import type { CurriculumEntry } from '@mytutor/types';
+import type { StandardSetEntry } from '@mytutor/types';
 import { ExtractMissingButton } from '@/components/books/ExtractMissingButton';
 import { buttonClass, CommandHint } from '@/components/ui';
 import { bookTitle } from '@/features/content/pages';
@@ -11,12 +11,12 @@ import type { LibraryBook } from '@/features/progress/useLibrary';
 import { commands } from '@/lib/commands';
 import { RecommendedStep } from './RecommendedStep';
 
-type NextStepsProps = { library: LibraryBook[]; curricula: CurriculumEntry[] };
+type NextStepsProps = { library: LibraryBook[]; standardSets: StandardSetEntry[] };
 
 /** One recommended next step, large, and up to two other useful ones. */
-export function NextSteps({ library, curricula }: NextStepsProps) {
+export function NextSteps({ library, standardSets }: NextStepsProps) {
   const { t } = useTranslation();
-  const [first, ...rest] = nextSteps(library, curricula);
+  const [first, ...rest] = nextSteps(library, standardSets);
   if (!first) return null;
 
   const side = (step: NextStep) => {
@@ -36,23 +36,23 @@ export function NextSteps({ library, curricula }: NextStepsProps) {
           title: t('next.knowledge', { book, count: step.count }),
           action: <CommandHint command={commands.knowledge(t('next.topicDir'))} />,
         };
-      case 'curricula':
+      case 'standards':
         return {
-          tag: t('next.tagCurriculum'),
-          title: t('next.curricula'),
+          tag: t('next.tagStandards'),
+          title: t('next.standardSets'),
           action: (
-            <Link to="/curricula" className={buttonClass('secondary')}>
-              {t('curricula.add')}
+            <Link to="/standards" className={buttonClass('secondary')}>
+              {t('standardSets.add')}
             </Link>
           ),
         };
       case 'link':
         return {
-          tag: t('next.tagCurriculum'),
+          tag: t('next.tagStandards'),
           title: t('next.link', { book }),
           action: (
             <Link
-              to={`/books/${encodeURIComponent(step.book.book.id)}/curriculum`}
+              to={`/books/${encodeURIComponent(step.book.book.id)}/standards`}
               className={buttonClass('secondary')}
             >
               {t('next.linkAction')}

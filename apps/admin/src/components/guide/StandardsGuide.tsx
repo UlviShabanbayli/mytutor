@@ -4,22 +4,22 @@ import { Badge } from '@/components/ui';
 import { GuideSection } from './GuideSection';
 import { SampleButton, SampleCode, SampleLabel } from './samples';
 
-export function CurriculumGuide() {
+export function StandardsGuide() {
   const { t } = useTranslation();
   return (
     <>
       <GuideSection
-        id="curriculum"
-        title={t('guide.curriculum.title')}
+        id="standards"
+        title={t('guide.standards.title')}
         rows={[
           {
             sample: (
               <>
-                <Badge tone="primary">{t('curricula.standards', { count: 120 })}</Badge>
-                <Badge tone="success">{t('curricula.books', { count: 2 })}</Badge>
+                <Badge tone="primary">{t('standardSets.standards', { count: 120 })}</Badge>
+                <Badge tone="success">{t('standardSets.books', { count: 2 })}</Badge>
               </>
             ),
-            text: t('guide.curriculum.card'),
+            text: t('guide.standards.card'),
           },
           {
             sample: (
@@ -28,15 +28,15 @@ export function CurriculumGuide() {
                 {t('standards.paste')}
               </SampleButton>
             ),
-            text: t('guide.curriculum.paste'),
+            text: t('guide.standards.paste'),
           },
           {
             sample: <Badge tone="success">{t('paste.added', { count: 12 })}</Badge>,
-            text: t('guide.curriculum.added'),
+            text: t('guide.standards.added'),
           },
           {
             sample: <Badge tone="accent">{t('paste.updated', { count: 3 })}</Badge>,
-            text: t('guide.curriculum.updated'),
+            text: t('guide.standards.updated'),
           },
           {
             sample: (
@@ -45,7 +45,7 @@ export function CurriculumGuide() {
                 <SampleLabel>…</SampleLabel>
               </>
             ),
-            text: t('guide.curriculum.parent'),
+            text: t('guide.standards.parent'),
           },
           {
             sample: (
@@ -53,26 +53,26 @@ export function CurriculumGuide() {
                 <SampleCode>1.1.1</SampleCode>
               </span>
             ),
-            text: t('guide.curriculum.child'),
+            text: t('guide.standards.child'),
           },
           {
             sample: <Pencil className="size-4 text-muted-foreground" />,
-            text: t('guide.curriculum.edit'),
+            text: t('guide.standards.edit'),
           },
           {
             sample: <Trash2 className="size-4 text-muted-foreground" />,
-            text: t('guide.curriculum.remove'),
+            text: t('guide.standards.remove'),
           },
           {
             sample: (
               <SampleButton variant="ghost">
                 <span className="flex items-center gap-1 text-destructive">
                   <Trash2 className="size-3.5" />
-                  {t('curricula.delete')}
+                  {t('standardSets.delete')}
                 </span>
               </SampleButton>
             ),
-            text: t('guide.curriculum.deleteCurriculum'),
+            text: t('guide.standards.deleteStandardSet'),
           },
         ]}
       />

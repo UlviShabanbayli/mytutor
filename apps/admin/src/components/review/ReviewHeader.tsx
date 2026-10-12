@@ -20,7 +20,7 @@ export function ReviewHeader({ exitTo, unit, title, blocks, items }: ReviewHeade
     { label: t('steps.source'), state: 'done' },
     { label: t('steps.knowledge'), state: 'done' },
     { label: t('review.stepNow'), state: 'now' },
-    { label: t('steps.curriculum'), state: 'later' },
+    { label: t('steps.standards'), state: 'later' },
     { label: t('steps.lesson'), state: 'later' },
   ] as const;
   const percent = blocks.total ? Math.round((blocks.done / blocks.total) * 100) : 0;

@@ -3,8 +3,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { AppShell } from './components/layout/AppShell';
 import { queryClient } from './lib/queryClient';
 import { BooksPage } from './routes/BooksPage';
-import { CurriculaPage } from './routes/CurriculaPage';
-import { CurriculumEditorPage } from './routes/CurriculumEditorPage';
+import { StandardSetsPage } from './routes/StandardSetsPage';
+import { StandardSetEditorPage } from './routes/StandardSetEditorPage';
 import { GuidePage } from './routes/GuidePage';
 import { BookPage } from './routes/BookPage';
 import { NotFoundPage } from './routes/NotFoundPage';
@@ -23,13 +23,13 @@ export function App() {
             <Route index element={<OverviewPage />} />
             <Route path="books" element={<BooksPage />} />
             <Route path="books/:bookId" element={<BookPage tab="topics" />} />
-            <Route path="books/:bookId/curriculum" element={<BookPage tab="curriculum" />} />
+            <Route path="books/:bookId/standards" element={<BookPage tab="standards" />} />
             <Route path="books/:bookId/topics/:number" element={<Navigate to="source" replace />} />
             <Route path="books/:bookId/topics/:number/review" element={<ReviewPage />} />
             <Route path="books/:bookId/topics/:number/:tab" element={<TopicPage />} />
             <Route path="review" element={<ReviewQueuePage />} />
-            <Route path="curricula" element={<CurriculaPage />} />
-            <Route path="curricula/:curriculumId" element={<CurriculumEditorPage />} />
+            <Route path="standards" element={<StandardSetsPage />} />
+            <Route path="standards/:standardSetId" element={<StandardSetEditorPage />} />
             <Route path="trash" element={<TrashPage />} />
             <Route path="guide" element={<GuidePage />} />
             <Route path="*" element={<NotFoundPage />} />

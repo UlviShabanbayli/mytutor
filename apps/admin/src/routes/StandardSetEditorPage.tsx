@@ -2,30 +2,30 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
-import { CurriculumMetaDialog } from '@/components/curriculum/CurriculumMetaDialog';
-import { DeleteCurriculumDialog } from '@/components/curriculum/DeleteCurriculumDialog';
-import { StandardsEditor } from '@/components/curriculum/StandardsEditor';
+import { StandardSetMetaDialog } from '@/components/standards/StandardSetMetaDialog';
+import { DeleteStandardSetDialog } from '@/components/standards/DeleteStandardSetDialog';
+import { StandardsEditor } from '@/components/standards/StandardsEditor';
 import { Badge, Button, ErrorState, LoadingState } from '@/components/ui';
 import { usePageCrumbs } from '@/features/layout/crumbs';
 import { bookTitle } from '@/features/content/pages';
 import { useContentIndex } from '@/features/content/queries';
-import { curriculumSubtitle } from '@/features/curriculum/labels';
-import { useSaveCurriculum } from '@/features/curriculum/mutations';
-import { useCurriculum } from '@/features/curriculum/queries';
+import { standardSetSubtitle } from '@/features/standards/labels';
+import { useSaveStandardSet } from '@/features/standards/mutations';
+import { useStandardSet } from '@/features/standards/queries';
 import { NotFoundPage } from './NotFoundPage';
 
-export function CurriculumEditorPage() {
+export function StandardSetEditorPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { curriculumId = '' } = useParams();
+  const { standardSetId = '' } = useParams();
   const index = useContentIndex();
-  const entry = index.data?.curricula.find((c) => c.id === curriculumId) ?? null;
-  const curriculum = useCurriculum(entry?.path ?? null);
-  const save = useSaveCurriculum(curriculumId);
+  const entry = index.data?.standardSets.find((c) => c.id === standardSetId) ?? null;
+  const standardSet = useStandardSet(entry?.path ?? null);
+  const save = useSaveStandardSet(standardSetId);
   const [dialog, setDialog] = useState<'meta' | 'delete' | null>(null);
   usePageCrumbs([
     { label: t('nav.overview'), to: '/' },
-    { label: t('curricula.title'), to: '/curricula' },
+    { label: t('standardSets.title'), to: '/standards' },
     { label: entry?.title ?? '…' },
   ]);
 
@@ -33,7 +33,7 @@ export function CurriculumEditorPage() {
   if (index.isError) return <ErrorState onRetry={() => void index.refetch()} />;
   if (!entry) return <NotFoundPage />;
   const linkedBooks = index.data.books
-    .filter((b) => b.curriculumLinks?.curriculumId === entry.id)
+    .filter((b) => b.standardLinks?.standardSetId === entry.id)
     .map(bookTitle);
   const close = () => {
     save.reset();
@@ -46,17 +46,19 @@ export function CurriculumEditorPage() {
         <div className="flex min-w-0 flex-col gap-2">
           <h1 className="font-sans-black text-3xl text-foreground">{entry.title}</h1>
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            {curriculumSubtitle(t, entry) ? <span>{curriculumSubtitle(t, entry)}</span> : null}
-            <Badge tone="primary">{t('curricula.standards', { count: entry.standardCount })}</Badge>
+            {standardSetSubtitle(t, entry) ? <span>{standardSetSubtitle(t, entry)}</span> : null}
+            <Badge tone="primary">
+              {t('standardSets.standards', { count: entry.standardCount })}
+            </Badge>
             <Badge tone={linkedBooks.length ? 'success' : 'neutral'}>
-              {t('curricula.books', { count: linkedBooks.length })}
+              {t('standardSets.books', { count: linkedBooks.length })}
             </Badge>
           </div>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={() => setDialog('meta')}>
             <Pencil className="size-4" />
-            {t('curricula.edit')}
+            {t('standardSets.edit')}
           </Button>
           <Button
             variant="ghost"
@@ -64,35 +66,35 @@ export function CurriculumEditorPage() {
             onClick={() => setDialog('delete')}
           >
             <Trash2 className="size-4" />
-            {t('curricula.delete')}
+            {t('standardSets.delete')}
           </Button>
         </div>
       </header>
-      {curriculum.isPending ? (
+      {standardSet.isPending ? (
         <LoadingState />
-      ) : curriculum.isError ? (
-        <ErrorState onRetry={() => void curriculum.refetch()} detail={curriculum.error.message} />
+      ) : standardSet.isError ? (
+        <ErrorState onRetry={() => void standardSet.refetch()} detail={standardSet.error.message} />
       ) : (
-        <StandardsEditor curriculum={curriculum.data} />
+        <StandardsEditor standardSet={standardSet.data} />
       )}
-      {curriculum.data ? (
-        <CurriculumMetaDialog
+      {standardSet.data ? (
+        <StandardSetMetaDialog
           open={dialog === 'meta'}
           initial={entry}
           pending={save.isPending}
           error={save.error}
           onSubmit={(meta) =>
-            save.mutate({ ...meta, standards: curriculum.data.standards }, { onSuccess: close })
+            save.mutate({ ...meta, standards: standardSet.data.standards }, { onSuccess: close })
           }
           onClose={close}
         />
       ) : null}
-      <DeleteCurriculumDialog
+      <DeleteStandardSetDialog
         entry={entry}
         linkedBooks={linkedBooks}
         open={dialog === 'delete'}
         onClose={close}
-        onDeleted={() => void navigate('/curricula', { replace: true })}
+        onDeleted={() => void navigate('/standards', { replace: true })}
       />
     </div>
   );

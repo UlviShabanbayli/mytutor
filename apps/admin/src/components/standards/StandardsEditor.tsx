@@ -1,25 +1,25 @@
 import { ClipboardPaste, ListChecks, Plus, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Curriculum, CurriculumStandard } from '@mytutor/types';
+import type { StandardSet, OfficialStandard } from '@mytutor/types';
 import { ActionError } from '@/components/books/ActionError';
 import { Button, EmptyState, Input } from '@/components/ui';
-import { useSaveCurriculum } from '@/features/curriculum/mutations';
-import { compareCodes, groupStandards, matchesQuery } from '@/features/curriculum/standards';
+import { useSaveStandardSet } from '@/features/standards/mutations';
+import { compareCodes, groupStandards, matchesQuery } from '@/features/standards/standards';
 import { PasteStandardsDialog } from './PasteStandardsDialog';
 import { StandardForm } from './StandardForm';
 import { StandardRow } from './StandardRow';
 
-type StandardsEditorProps = { curriculum: Curriculum };
+type StandardsEditorProps = { standardSet: StandardSet };
 
-/** The standards of a curriculum; every change is saved at once. */
-export function StandardsEditor({ curriculum }: StandardsEditorProps) {
+/** The standards of a standard set; every change is saved at once. */
+export function StandardsEditor({ standardSet }: StandardsEditorProps) {
   const { t } = useTranslation();
-  const save = useSaveCurriculum(curriculum.id);
+  const save = useSaveStandardSet(standardSet.id);
   const [query, setQuery] = useState('');
   const [adding, setAdding] = useState(false);
   const [pasting, setPasting] = useState(false);
-  const { standards } = curriculum;
+  const { standards } = standardSet;
   const codes = useMemo(() => new Set(standards.map((s) => s.code)), [standards]);
   const lines = useMemo(
     () => [...new Set(standards.flatMap((s) => (s.line ? [s.line] : [])))],
@@ -29,12 +29,12 @@ export function StandardsEditor({ curriculum }: StandardsEditorProps) {
     () => groupStandards(standards.filter((s) => matchesQuery(s, query))),
     [standards, query],
   );
-  const store = (next: CurriculumStandard[], onSuccess?: () => void) =>
+  const store = (next: OfficialStandard[], onSuccess?: () => void) =>
     save.mutate(
       {
-        title: curriculum.title,
-        subject: curriculum.subject,
-        grade: curriculum.grade,
+        title: standardSet.title,
+        subject: standardSet.subject,
+        grade: standardSet.grade,
         standards: [...next].sort((a, b) => compareCodes(a.code, b.code)),
       },
       { onSuccess },

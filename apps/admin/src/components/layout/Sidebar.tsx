@@ -79,11 +79,11 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         />
         <SidebarLink
           {...link}
-          to="/curricula"
-          label={t('nav.curricula')}
+          to="/standards"
+          label={t('nav.standards')}
           icon={<ListChecks className={icon} />}
-          active={under('/curricula')}
-          badge={<CountBadge value={index.data?.curricula.length ?? 0} />}
+          active={under('/standards')}
+          badge={<CountBadge value={index.data?.standardSets.length ?? 0} />}
         />
         <span className="px-3 pb-1 pt-3.5 text-[11px] font-sans-black uppercase tracking-wider text-muted-foreground">
           {t('nav.later')}

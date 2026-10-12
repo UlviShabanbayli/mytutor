@@ -7,7 +7,7 @@ import { BookSteps } from '@/components/books/BookSteps';
 import { ExtractMissingButton } from '@/components/books/ExtractMissingButton';
 import { matchesFilter, type TopicFilter, TopicFilterBar } from '@/components/books/TopicFilterBar';
 import { UnitAccordion } from '@/components/books/UnitAccordion';
-import { BookCurriculumTab } from '@/components/links/BookCurriculumTab';
+import { BookStandardsTab } from '@/components/links/BookStandardsTab';
 import { buttonClass, CommandHint, EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { bookTitle } from '@/features/content/pages';
 import { useStructure } from '@/features/content/queries';
@@ -17,9 +17,9 @@ import { useLibrary } from '@/features/progress/useLibrary';
 import { commands } from '@/lib/commands';
 import { NotFoundPage } from './NotFoundPage';
 
-type BookPageProps = { tab: 'topics' | 'curriculum' };
+type BookPageProps = { tab: 'topics' | 'standards' };
 
-/** A book's units and topics with the next action for each; or its curriculum links. */
+/** A book's units and topics with the next action for each; or its standard set links. */
 export function BookPage({ tab }: BookPageProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export function BookPage({ tab }: BookPageProps) {
     { label: t('nav.overview'), to: '/' },
     { label: t('nav.books'), to: '/books' },
     { label: title, to: base },
-    ...(tab === 'curriculum' ? [{ label: t('bookPage.tabs.curriculum') }] : []),
+    ...(tab === 'standards' ? [{ label: t('bookPage.tabs.standards') }] : []),
   ]);
 
   if (index.isPending) return <LoadingState />;
@@ -44,8 +44,8 @@ export function BookPage({ tab }: BookPageProps) {
   const { book, units, topics, stats } = item;
   const next = nextReviewTopic(topics);
   const missing = missingSources(topics).map((topic) => topic.number);
-  const linked = new Set(Object.keys(book.curriculumLinks?.topics ?? {}));
-  for (const link of book.curriculumLinks?.items ?? []) linked.add(link.topic);
+  const linked = new Set(Object.keys(book.standardLinks?.topics ?? {}));
+  for (const link of book.standardLinks?.items ?? []) linked.add(link.topic);
   // Opened by default: the unit of the topic to review next, else the first.
   const nextUnit = units.find((u) => u.topics.some((topic) => topic.number === next?.number));
   const open = opened ?? new Set([nextUnit?.index ?? units[0]?.index ?? 0]);
@@ -60,10 +60,10 @@ export function BookPage({ tab }: BookPageProps) {
     <header className="flex flex-wrap items-end gap-4">
       <div className="flex min-w-0 flex-[1_1_26rem] flex-col gap-1.5">
         <h1 className="font-sans-black text-3xl text-foreground">
-          {tab === 'curriculum' ? t('bookPage.curriculumLinks') : title}
+          {tab === 'standards' ? t('bookPage.standardLinks') : title}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {tab === 'curriculum'
+          {tab === 'standards'
             ? title
             : [
                 structure.data
@@ -124,8 +124,8 @@ export function BookPage({ tab }: BookPageProps) {
   return (
     <div className="flex flex-col gap-5">
       {header}
-      {tab === 'curriculum' ? (
-        <BookCurriculumTab book={book} structure={structure.data} />
+      {tab === 'standards' ? (
+        <BookStandardsTab book={book} structure={structure.data} />
       ) : (
         <>
           <BookSteps bookId={book.id} stats={stats} linkedTopics={linked.size} />

@@ -1,20 +1,20 @@
 import { itemFingerprint } from '@mytutor/schemas';
 import type {
-  CurriculumLinks,
-  CurriculumLinksInput,
+  StandardLinks,
+  StandardLinksInput,
   ItemStandardLink,
   KnowledgeItem,
 } from '@mytutor/types';
 
-export const emptyLinks = (curriculumId: string | null = null): CurriculumLinksInput => ({
-  curriculumId,
+export const emptyLinks = (standardSetId: string | null = null): StandardLinksInput => ({
+  standardSetId,
   topics: {},
   items: [],
 });
 
 /** What the panel sends back: the saved links without the server's stamp. */
-export const toInput = (links: CurriculumLinks | CurriculumLinksInput): CurriculumLinksInput => ({
-  curriculumId: links.curriculumId,
+export const toInput = (links: StandardLinks | StandardLinksInput): StandardLinksInput => ({
+  standardSetId: links.standardSetId,
   topics: links.topics,
   items: links.items,
 });
@@ -47,10 +47,10 @@ export function resolveItemLinks(
 
 /** Sets one topic's standards; an empty list removes the topic's entry. */
 export function withTopicCodes(
-  links: CurriculumLinksInput,
+  links: StandardLinksInput,
   topic: string,
   codes: string[],
-): CurriculumLinksInput {
+): StandardLinksInput {
   const topics = Object.fromEntries(Object.entries(links.topics).filter(([key]) => key !== topic));
   return { ...links, topics: codes.length ? { ...topics, [topic]: codes } : topics };
 }
@@ -60,12 +60,12 @@ export function withTopicCodes(
  * current document, so links found by content alone take their item's new id; orphans stay.
  */
 export function withItemCodes(
-  links: CurriculumLinksInput,
+  links: StandardLinksInput,
   topic: string,
   items: KnowledgeItem[],
   itemId: string,
   codes: string[],
-): CurriculumLinksInput {
+): StandardLinksInput {
   const mine = links.items.filter((link) => link.topic === topic);
   const { byItem, orphans } = resolveItemLinks(mine, items);
   if (codes.length) byItem.set(itemId, codes);
@@ -84,12 +84,12 @@ export function withItemCodes(
 
 /** Drops a link whose item is gone. */
 export const withoutItemLink = (
-  links: CurriculumLinksInput,
+  links: StandardLinksInput,
   orphan: ItemStandardLink,
-): CurriculumLinksInput => ({ ...links, items: links.items.filter((link) => link !== orphan) });
+): StandardLinksInput => ({ ...links, items: links.items.filter((link) => link !== orphan) });
 
 /** Every topic and item link, counted once per standard. */
-export const linkCount = (links: CurriculumLinksInput) =>
+export const linkCount = (links: StandardLinksInput) =>
   Object.values(links.topics).flat().length + links.items.flatMap((l) => l.codes).length;
 
 export type Coverage = {
@@ -99,7 +99,7 @@ export type Coverage = {
   itemLinks: number;
 };
 
-export function coverage(links: CurriculumLinksInput): Coverage {
+export function coverage(links: StandardLinksInput): Coverage {
   const topicsByCode = new Map<string, string[]>();
   const add = (code: string, topic: string) => {
     const topics = topicsByCode.get(code) ?? [];

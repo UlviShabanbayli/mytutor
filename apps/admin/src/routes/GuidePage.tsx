@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { BasicsGuide } from '@/components/guide/BasicsGuide';
 import { BooksGuide } from '@/components/guide/BooksGuide';
 import { ChecksGuide } from '@/components/guide/ChecksGuide';
-import { CurriculumGuide } from '@/components/guide/CurriculumGuide';
+import { StandardsGuide } from '@/components/guide/StandardsGuide';
 import { KnowledgeGuide } from '@/components/guide/KnowledgeGuide';
 import { ReviewGuide } from '@/components/guide/ReviewGuide';
 import { SourceGuide } from '@/components/guide/SourceGuide';
@@ -21,7 +21,7 @@ export function GuidePage() {
     { id: 'source', label: t('guide.source.title') },
     { id: 'knowledge', label: t('guide.knowledge.title') },
     { id: 'checks', label: t('guide.checks.title') },
-    { id: 'curriculum', label: t('guide.curriculum.title') },
+    { id: 'standards', label: t('guide.standards.title') },
     { id: 'links', label: t('guide.links.title') },
   ];
 
@@ -49,7 +49,7 @@ export function GuidePage() {
       <SourceGuide />
       <KnowledgeGuide />
       <ChecksGuide />
-      <CurriculumGuide />
+      <StandardsGuide />
     </div>
   );
 }

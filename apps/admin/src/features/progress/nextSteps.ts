@@ -1,4 +1,4 @@
-import type { CurriculumEntry } from '@mytutor/types';
+import type { StandardSetEntry } from '@mytutor/types';
 import { missingSources, nextReviewTopic, type TopicRowData } from './stages';
 import type { LibraryBook } from './useLibrary';
 
@@ -6,14 +6,14 @@ export type NextStep =
   | { kind: 'review'; book: LibraryBook; topic: TopicRowData }
   | { kind: 'extract'; book: LibraryBook; topics: string[] }
   | { kind: 'knowledge'; book: LibraryBook; count: number }
-  | { kind: 'curricula' }
+  | { kind: 'standards' }
   | { kind: 'link'; book: LibraryBook };
 
 /**
  * What to do next, most useful first: continue (or start) a review, extract missing sources
- * (free), build missing knowledge (terminal, paid), then curriculum work.
+ * (free), build missing knowledge (terminal, paid), then standard set work.
  */
-export function nextSteps(library: LibraryBook[], curricula: CurriculumEntry[]): NextStep[] {
+export function nextSteps(library: LibraryBook[], standardSets: StandardSetEntry[]): NextStep[] {
   const steps: NextStep[] = [];
   const started = library.find((b) => b.topics.some((t) => t.stage === 'review'));
   const reviewBook = started ?? library.find((b) => nextReviewTopic(b.topics));
@@ -30,10 +30,10 @@ export function nextSteps(library: LibraryBook[], curricula: CurriculumEntry[]):
     const count = book.topics.filter((t) => t.stage === 'source').length;
     if (count) steps.push({ kind: 'knowledge', book, count });
   }
-  if (curricula.length === 0) steps.push({ kind: 'curricula' });
+  if (standardSets.length === 0) steps.push({ kind: 'standards' });
   else {
     const unlinked = library.find(
-      (b) => b.stats.withKnowledge > 0 && !b.book.curriculumLinks?.curriculumId,
+      (b) => b.stats.withKnowledge > 0 && !b.book.standardLinks?.standardSetId,
     );
     if (unlinked) steps.push({ kind: 'link', book: unlinked });
   }

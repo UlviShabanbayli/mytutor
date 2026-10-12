@@ -55,7 +55,7 @@ const book: ContentBookEntry = {
   title: 'Riyaziyyat 7',
   structure: 'b/structure.json',
   canExtract: true,
-  curriculumLinks: null,
+  standardLinks: null,
   topics: [entry('1.1'), withKnowledge('1.2'), withKnowledge('2.1', progress(1, 3))],
 };
 

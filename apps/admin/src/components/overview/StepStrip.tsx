@@ -4,9 +4,9 @@ import { cn } from '@/lib/cn';
 
 type StepStripProps = {
   stats: BookStats;
-  /** Topic and item links to curricula across books. */
+  /** Topic and item links to standard sets across books. */
   links: number;
-  curricula: number;
+  standardSets: number;
 };
 
 type Step = {
@@ -21,7 +21,7 @@ type Step = {
 };
 
 /** The five steps from textbook to lesson, with how much is done and what waits. */
-export function StepStrip({ stats, links, curricula }: StepStripProps) {
+export function StepStrip({ stats, links, standardSets }: StepStripProps) {
   const { t } = useTranslation();
   const ratio = (done: number, total: number) => (total ? done / total : 0);
   const waiting = stats.topics - stats.withSource;
@@ -58,11 +58,13 @@ export function StepStrip({ stats, links, curricula }: StepStripProps) {
       attention: stats.withKnowledge > stats.approved,
     },
     {
-      title: t('steps.curriculum'),
-      body: t('steps.curriculumBody'),
+      title: t('steps.standards'),
+      body: t('steps.standardsBody'),
       value: String(links),
       unit: t('steps.links'),
-      footer: curricula ? t('steps.curricula', { count: curricula }) : t('steps.noCurricula'),
+      footer: standardSets
+        ? t('steps.standardSets', { count: standardSets })
+        : t('steps.noStandardSets'),
     },
     { title: t('steps.lesson'), body: t('steps.lessonBody'), value: null, later: true },
   ];

@@ -1,17 +1,17 @@
 import { LoaderCircle, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CurriculumStandard } from '@mytutor/types';
+import type { OfficialStandard } from '@mytutor/types';
 import { ActionError } from '@/components/books/ActionError';
 import { Button, Dialog, Input } from '@/components/ui';
-import { groupStandards, matchesQuery } from '@/features/curriculum/standards';
+import { groupStandards, matchesQuery } from '@/features/standards/standards';
 import { PickerRow } from './PickerRow';
 
 type StandardPickerDialogProps = {
   open: boolean;
   /** What is being linked, e.g. "1.2. Koordinat müstəvisi". */
   subject: string;
-  standards: CurriculumStandard[];
+  standards: OfficialStandard[];
   selected: string[];
   pending: boolean;
   error: unknown;

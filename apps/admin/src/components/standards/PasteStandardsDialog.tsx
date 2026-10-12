@@ -1,22 +1,22 @@
 import { ClipboardPaste, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { useDeferredValue, useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CurriculumStandard } from '@mytutor/types';
+import type { OfficialStandard } from '@mytutor/types';
 import { ActionError } from '@/components/books/ActionError';
 import { Badge, Button, Dialog, Textarea } from '@/components/ui';
-import { mergeStandards, parseStandards } from '@/features/curriculum/parseStandards';
+import { mergeStandards, parseStandards } from '@/features/standards/parseStandards';
 import { StandardsPreview } from './StandardsPreview';
 
 type PasteStandardsDialogProps = {
   open: boolean;
-  current: CurriculumStandard[];
+  current: OfficialStandard[];
   pending: boolean;
   error: unknown;
-  onImport: (standards: CurriculumStandard[]) => void;
+  onImport: (standards: OfficialStandard[]) => void;
   onClose: () => void;
 };
 
-/** Paste the standards from a curriculum document; what was read is shown before it is added. */
+/** Paste the standards from a standard set document; what was read is shown before it is added. */
 export function PasteStandardsDialog(props: PasteStandardsDialogProps) {
   const { t } = useTranslation();
   return (

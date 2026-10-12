@@ -6,11 +6,11 @@ import type { Plugin } from 'vite';
 import type { ContentActionErrorCode } from '@mytutor/types';
 import { buildContentIndex, resolveContentPath } from './contentIndex';
 import {
-  createCurriculum,
-  deleteCurriculum,
-  saveCurriculum,
-  saveCurriculumLinks,
-} from './curricula';
+  createStandardSet,
+  deleteStandardSet,
+  saveStandardSet,
+  saveStandardLinks,
+} from './standardSets';
 import {
   addBook,
   deleteBook,
@@ -73,12 +73,12 @@ const BOOK = /^\/books\/([^/]+)\/?$/;
 const EXTRACT_SOURCE = /^\/books\/([^/]+)\/topics\/([^/]+)\/source\/?$/;
 const RESTORE_BOOK = /^\/trash\/([^/]+)\/restore\/?$/;
 const TRASH_ENTRY = /^\/trash\/([^/]+)\/?$/;
-const CURRICULA = /^\/curricula\/?$/;
-const CURRICULUM = /^\/curricula\/([^/]+)\/?$/;
+const STANDARD_SETS = /^\/standard-sets\/?$/;
+const STANDARD_SET = /^\/standard-sets\/([^/]+)\/?$/;
 const TOPIC_REVIEW = /^\/books\/([^/]+)\/topics\/([^/]+)\/review\/?$/;
-const BOOK_LINKS = /^\/books\/([^/]+)\/curriculum-links\/?$/;
+const BOOK_LINKS = /^\/books\/([^/]+)\/standard-links\/?$/;
 
-/** Curricula and links are small; anything bigger than this is not what the panel sends. */
+/** Standard sets and links are small; anything bigger than this is not what the panel sends. */
 export const MAX_JSON_BYTES = 2 * 1024 * 1024;
 
 /** Reads a JSON request body, refusing other types and oversized bodies. */
@@ -126,17 +126,17 @@ export function contentPlugin(root: string): Plugin {
       if (book) return json(res, 200, await deleteBook({ root, bookId: segment(book[1]) }));
       const entry = TRASH_ENTRY.exec(path);
       if (entry) return json(res, 200, await purgeTrash({ root, trashId: segment(entry[1]) }));
-      const curriculum = CURRICULUM.exec(path);
-      if (curriculum)
-        return json(res, 200, await deleteCurriculum({ root, id: segment(curriculum[1]) }));
+      const standardSet = STANDARD_SET.exec(path);
+      if (standardSet)
+        return json(res, 200, await deleteStandardSet({ root, id: segment(standardSet[1]) }));
       return apiError(res, 404, 'not_found', 'Unknown action');
     }
-    if (CURRICULA.test(path))
-      return json(res, 201, await createCurriculum({ root, body: await readJsonBody(req) }));
-    const curriculum = CURRICULUM.exec(path);
-    if (curriculum) {
-      const id = segment(curriculum[1]);
-      return json(res, 200, await saveCurriculum({ root, id, body: await readJsonBody(req) }));
+    if (STANDARD_SETS.test(path))
+      return json(res, 201, await createStandardSet({ root, body: await readJsonBody(req) }));
+    const standardSet = STANDARD_SET.exec(path);
+    if (standardSet) {
+      const id = segment(standardSet[1]);
+      return json(res, 200, await saveStandardSet({ root, id, body: await readJsonBody(req) }));
     }
     const review = TOPIC_REVIEW.exec(path);
     if (review) {
@@ -150,7 +150,7 @@ export function contentPlugin(root: string): Plugin {
       return json(
         res,
         200,
-        await saveCurriculumLinks({ root, bookId, body: await readJsonBody(req) }),
+        await saveStandardLinks({ root, bookId, body: await readJsonBody(req) }),
       );
     }
     if (ADD_BOOK.test(path)) {

@@ -39,8 +39,8 @@ export function WorkflowGuide() {
           text: t('guide.workflow.review'),
         },
         {
-          sample: step(5, <ListChecks className="size-4" />, t('nav.curricula')),
-          text: t('guide.workflow.curriculum'),
+          sample: step(5, <ListChecks className="size-4" />, t('nav.standards')),
+          text: t('guide.workflow.standards'),
         },
         {
           sample: step(6, <Clapperboard className="size-4" />, t('topic.tabs.lesson')),

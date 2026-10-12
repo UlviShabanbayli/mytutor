@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { curriculumEntrySchema, curriculumLinksSchema } from './curriculum';
+import { standardSetEntrySchema, standardLinksSchema } from './standards';
 import { knowledgeSummarySchema, reviewProgressSchema } from './review';
 
 /**
@@ -30,8 +30,8 @@ export const contentBookEntrySchema = z.object({
   /** The PDF is on disk, so topics can be extracted from the panel. */
   canExtract: z.boolean(),
   topics: z.array(contentTopicEntrySchema),
-  /** The book's links to a curriculum (its `curriculum-links.json`), null until saved. */
-  curriculumLinks: curriculumLinksSchema.nullable(),
+  /** The book's links to a standard set (its `standard-links.json`), null until saved. */
+  standardLinks: standardLinksSchema.nullable(),
 });
 
 /** A book deleted from the panel: its folders wait in `<root>/.trash/<id>/` until restored. */
@@ -50,7 +50,7 @@ export const contentIndexSchema = z.object({
   books: z.array(contentBookEntrySchema),
   /** Newest first. */
   trash: z.array(trashEntrySchema),
-  curricula: z.array(curriculumEntrySchema),
+  standardSets: z.array(standardSetEntrySchema),
 });
 
 /** `book.json` next to a book's outputs: written by the panel on upload, or by hand. */
@@ -84,9 +84,9 @@ export const contentActionErrorCodeSchema = z.enum([
   'method',
   'not_found',
   'bad_request',
-  'no_curriculum',
+  'no_standard_set',
   'unknown_standard',
-  'curriculum_in_use',
+  'standard_set_in_use',
   'no_knowledge',
   'network',
   'internal',

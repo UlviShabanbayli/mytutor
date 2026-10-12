@@ -10,55 +10,55 @@ import {
   LoadingState,
   SegmentedControl,
 } from '@/components/ui';
-import { coverage as coverageOf } from '@/features/curriculum/links';
-import { useBookCurriculum } from '@/features/curriculum/useBookCurriculum';
+import { coverage as coverageOf } from '@/features/standards/links';
+import { useBookStandards } from '@/features/standards/useBookStandards';
 import { CoverageStats } from './CoverageStats';
-import { CurriculumSelect } from './CurriculumSelect';
+import { StandardSetSelect } from './StandardSetSelect';
 import { StandardCoverageList } from './StandardCoverageList';
 import { TopicLinksList } from './TopicLinksList';
 
-type BookCurriculumTabProps = { book: ContentBookEntry; structure: TextbookStructure };
+type BookStandardsTabProps = { book: ContentBookEntry; structure: TextbookStructure };
 
-/** Links the book's topics to the standards of its curriculum, and shows what is covered. */
-export function BookCurriculumTab({ book, structure }: BookCurriculumTabProps) {
+/** Links the book's topics to the standards of its standard set, and shows what is covered. */
+export function BookStandardsTab({ book, structure }: BookStandardsTabProps) {
   const { t } = useTranslation();
-  const bc = useBookCurriculum(book);
+  const bs = useBookStandards(book);
   const [view, setView] = useState<'topics' | 'standards'>('topics');
   const topicCount = structure.units.flatMap((u) =>
     u.items.filter((i) => i.type === 'topic'),
   ).length;
 
-  if (bc.curricula.length === 0 && !bc.links.curriculumId)
+  if (bs.standardSets.length === 0 && !bs.links.standardSetId)
     return (
       <EmptyState
         icon={<ListChecks className="size-6" />}
-        title={t('links.noCurriculaTitle')}
-        body={t('links.noCurriculaBody')}
+        title={t('links.noStandardSetsTitle')}
+        body={t('links.noStandardSetsBody')}
       >
-        <Link to="/curricula" className={buttonClass('primary')}>
-          {t('links.goToCurricula')}
+        <Link to="/standards" className={buttonClass('primary')}>
+          {t('links.goToStandardSets')}
         </Link>
       </EmptyState>
     );
 
   const body = () => {
-    if (!bc.links.curriculumId) return null;
-    if (!bc.entry)
+    if (!bs.links.standardSetId) return null;
+    if (!bs.entry)
       return (
         <p className="flex items-start gap-2 rounded-md bg-destructive-muted px-3 py-2 text-sm text-destructive">
           <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
-          {t('links.missingCurriculum')}
+          {t('links.missingStandardSet')}
         </p>
       );
-    if (bc.isPending) return <LoadingState />;
-    if (!bc.curriculum) return <ErrorState onRetry={bc.refetch} />;
-    const coverage = coverageOf(bc.links);
+    if (bs.isPending) return <LoadingState />;
+    if (!bs.standardSet) return <ErrorState onRetry={bs.refetch} />;
+    const coverage = coverageOf(bs.links);
     return (
       <>
         <CoverageStats
           coverage={coverage}
           topicCount={topicCount}
-          standards={bc.curriculum.standards}
+          standards={bs.standardSet.standards}
         />
         <SegmentedControl
           label={t('links.view')}
@@ -70,9 +70,9 @@ export function BookCurriculumTab({ book, structure }: BookCurriculumTabProps) {
           ]}
         />
         {view === 'topics' ? (
-          <TopicLinksList units={structure.units} curriculum={bc.curriculum} bc={bc} />
+          <TopicLinksList units={structure.units} standardSet={bs.standardSet} bs={bs} />
         ) : (
-          <StandardCoverageList bookId={book.id} curriculum={bc.curriculum} coverage={coverage} />
+          <StandardCoverageList bookId={book.id} standardSet={bs.standardSet} coverage={coverage} />
         )}
       </>
     );
@@ -80,7 +80,7 @@ export function BookCurriculumTab({ book, structure }: BookCurriculumTabProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <CurriculumSelect bc={bc} />
+      <StandardSetSelect bs={bs} />
       {body()}
     </div>
   );

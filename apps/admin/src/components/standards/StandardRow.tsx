@@ -1,18 +1,18 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CurriculumStandard } from '@mytutor/types';
+import type { OfficialStandard } from '@mytutor/types';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { StandardForm } from './StandardForm';
 
 type StandardRowProps = {
-  standard: CurriculumStandard;
+  standard: OfficialStandard;
   depth: number;
   lines: string[];
   takenCodes: Set<string>;
   busy: boolean;
-  onSave: (next: CurriculumStandard) => void;
+  onSave: (next: OfficialStandard) => void;
   onDelete: () => void;
 };
 
