@@ -10,3 +10,4 @@ export * from './standards';
 export * from './curriculum';
 export * from './content';
 export * from './lesson';
+export * from './inlineMath';

@@ -8,6 +8,7 @@ export { Input, inputClass, Textarea } from './Input';
 export { ErrorState } from './ErrorState';
 export { LoadingState } from './LoadingState';
 export { MathText } from './MathText';
+export { TextWithMath } from './TextWithMath';
 export { SegmentedControl } from './SegmentedControl';
 export { StatCard } from './StatCard';
 export { TabNav } from './TabNav';
