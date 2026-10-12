@@ -4,6 +4,7 @@ import {
   Clapperboard,
   Inbox,
   LayoutGrid,
+  Layers,
   ListChecks,
   Trash2,
 } from 'lucide-react';
@@ -40,6 +41,23 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           icon={<LayoutGrid className={icon} />}
           active={pathname === '/'}
         />
+        <SidebarLink
+          {...link}
+          to="/curricula"
+          label={t('nav.curricula')}
+          icon={<Layers className={icon} />}
+          active={pathname === '/curricula'}
+        />
+        {index.data?.curricula.map((curriculum) => (
+          <SidebarLink
+            {...link}
+            key={curriculum.id}
+            nested
+            to={`/curricula/${encodeURIComponent(curriculum.id)}`}
+            label={curriculum.title}
+            active={under(`/curricula/${encodeURIComponent(curriculum.id)}`)}
+          />
+        ))}
         <SidebarLink
           {...link}
           to="/books"

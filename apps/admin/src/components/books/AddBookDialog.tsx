@@ -3,10 +3,15 @@ import { Dialog } from '@/components/ui';
 import { useAddBook } from '@/features/content/mutations';
 import { AddBookForm } from './AddBookForm';
 
-type AddBookDialogProps = { open: boolean; onClose: () => void };
+type AddBookDialogProps = {
+  open: boolean;
+  onClose: () => void;
+  /** Runs instead of opening the new book's page, e.g. to add it to a curriculum. */
+  onAdded?: (bookId: string) => void;
+};
 
-/** Upload a textbook PDF; on success the new book's page opens. */
-export function AddBookDialog({ open, onClose }: AddBookDialogProps) {
+/** Upload a textbook PDF; on success the new book's page opens (or `onAdded` runs). */
+export function AddBookDialog({ open, onClose, onAdded }: AddBookDialogProps) {
   const { t } = useTranslation();
   // Owned here so the dialog cannot be dismissed while an upload is running.
   const add = useAddBook();
@@ -22,7 +27,7 @@ export function AddBookDialog({ open, onClose }: AddBookDialogProps) {
       dismissible={!add.isPending}
       onClose={close}
     >
-      <AddBookForm add={add} onClose={close} />
+      <AddBookForm add={add} onClose={close} onAdded={onAdded} />
     </Dialog>
   );
 }

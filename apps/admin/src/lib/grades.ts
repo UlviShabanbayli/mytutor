@@ -22,3 +22,11 @@ export function gradeLabel(t: TFunction, grade: number): string {
   const key = GRADE_KEYS[grade - 1];
   return key ? t(key) : String(grade);
 }
+
+/** "Riyaziyyat · 7-ci sinif", or whichever part is known. */
+export function subjectAndGrade(
+  t: TFunction,
+  { subject, grade }: { subject: string; grade: number | null },
+): string {
+  return [subject, grade ? gradeLabel(t, grade) : null].filter(Boolean).join(' · ');
+}

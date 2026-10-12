@@ -1,32 +1,43 @@
 import { LoaderCircle } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { STANDARD_SET_TITLE_MAX } from '@mytutor/schemas';
 import { ActionError } from '@/components/books/ActionError';
 import { Button, Dialog, Input } from '@/components/ui';
 import { GRADES, gradeLabel } from '@/lib/grades';
 
-export type StandardSetMeta = { title: string; subject: string; grade: number | null };
+/** Name, subject and grade: what both curricula and standard sets are described by. */
+export type Meta = { title: string; subject: string; grade: number | null };
 
-type StandardSetMetaDialogProps = {
+export type MetaTexts = {
+  /** Dialog title when creating and when editing. */
+  newTitle: string;
+  editTitle: string;
+  /** Shown above the fields when creating. */
+  newBody: string;
+  titlePlaceholder: string;
+};
+
+type MetaDialogProps = {
   open: boolean;
-  /** Present when editing; a new standard set starts empty. */
-  initial?: StandardSetMeta;
+  texts: MetaTexts;
+  titleMax: number;
+  /** Present when editing; a new one starts empty. */
+  initial?: Meta;
   pending: boolean;
   error: unknown;
-  onSubmit: (meta: StandardSetMeta) => void;
+  onSubmit: (meta: Meta) => void;
   onClose: () => void;
 };
 
-/** Title, subject and grade of a standard set: asked when it is created, editable later. */
-export function StandardSetMetaDialog(props: StandardSetMetaDialogProps) {
+/** Title, subject and grade: asked when something is created, editable later. */
+export function MetaDialog(props: MetaDialogProps) {
   const { t } = useTranslation();
-  const { open, initial, pending, onClose } = props;
+  const { open, texts, initial, pending, onClose } = props;
   return (
     <Dialog
       open={open}
-      title={initial ? t('standardSets.editTitle') : t('standardSets.newTitle')}
-      closeLabel={t('standardSets.close')}
+      title={initial ? texts.editTitle : texts.newTitle}
+      closeLabel={t('meta.close')}
       dismissible={!pending}
       onClose={onClose}
     >
@@ -35,7 +46,15 @@ export function StandardSetMetaDialog(props: StandardSetMetaDialogProps) {
   );
 }
 
-function MetaForm({ initial, pending, error, onSubmit, onClose }: StandardSetMetaDialogProps) {
+function MetaForm({
+  texts,
+  titleMax,
+  initial,
+  pending,
+  error,
+  onSubmit,
+  onClose,
+}: MetaDialogProps) {
   const { t } = useTranslation();
   const ids = { title: useId(), subject: useId(), grade: useId() };
   const [title, setTitle] = useState(initial?.title ?? '');
@@ -56,17 +75,17 @@ function MetaForm({ initial, pending, error, onSubmit, onClose }: StandardSetMet
           });
       }}
     >
-      {initial ? null : <p className="text-muted-foreground">{t('standardSets.newBody')}</p>}
+      {initial ? null : <p className="text-muted-foreground">{texts.newBody}</p>}
       <div className="flex flex-col gap-1.5">
         <label htmlFor={ids.title} className="font-sans-bold text-foreground">
-          {t('standardSets.titleLabel')}
+          {t('meta.titleLabel')}
         </label>
         <Input
           id={ids.title}
           data-autofocus
           value={title}
-          maxLength={STANDARD_SET_TITLE_MAX}
-          placeholder={t('standardSets.titlePlaceholder')}
+          maxLength={titleMax}
+          placeholder={texts.titlePlaceholder}
           onChange={(e) => setTitle(e.target.value)}
           disabled={pending}
         />
@@ -74,20 +93,20 @@ function MetaForm({ initial, pending, error, onSubmit, onClose }: StandardSetMet
       <div className="grid gap-4 sm:grid-cols-[1fr_10rem]">
         <div className="flex flex-col gap-1.5">
           <label htmlFor={ids.subject} className="font-sans-bold text-foreground">
-            {t('standardSets.subjectLabel')}
+            {t('meta.subjectLabel')}
           </label>
           <Input
             id={ids.subject}
             value={subject}
             maxLength={80}
-            placeholder={t('standardSets.subjectPlaceholder')}
+            placeholder={t('meta.subjectPlaceholder')}
             onChange={(e) => setSubject(e.target.value)}
             disabled={pending}
           />
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor={ids.grade} className="font-sans-bold text-foreground">
-            {t('standardSets.gradeLabel')}
+            {t('meta.gradeLabel')}
           </label>
           <select
             id={ids.grade}
@@ -96,7 +115,7 @@ function MetaForm({ initial, pending, error, onSubmit, onClose }: StandardSetMet
             disabled={pending}
             className="min-h-11 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <option value="">{t('standardSets.gradeNone')}</option>
+            <option value="">{t('meta.gradeNone')}</option>
             {GRADES.map((g) => (
               <option key={g} value={g}>
                 {gradeLabel(t, g)}
@@ -108,13 +127,13 @@ function MetaForm({ initial, pending, error, onSubmit, onClose }: StandardSetMet
       {error ? <ActionError error={error} /> : null}
       <div className="flex flex-wrap justify-end gap-2">
         <Button variant="ghost" onClick={onClose} disabled={pending}>
-          {t('standardSets.cancel')}
+          {t('meta.cancel')}
         </Button>
         <Button type="submit" disabled={!ready || pending} aria-busy={pending}>
           {pending ? (
             <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
           ) : null}
-          {initial ? t('standardSets.save') : t('standardSets.create')}
+          {initial ? t('meta.save') : t('meta.create')}
         </Button>
       </div>
     </form>

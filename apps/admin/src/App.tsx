@@ -3,6 +3,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { AppShell } from './components/layout/AppShell';
 import { queryClient } from './lib/queryClient';
 import { BooksPage } from './routes/BooksPage';
+import { CurriculaPage } from './routes/CurriculaPage';
+import { CurriculumPage } from './routes/CurriculumPage';
 import { StandardSetsPage } from './routes/StandardSetsPage';
 import { StandardSetEditorPage } from './routes/StandardSetEditorPage';
 import { GuidePage } from './routes/GuidePage';
@@ -28,6 +30,12 @@ export function App() {
             <Route path="books/:bookId/topics/:number/review" element={<ReviewPage />} />
             <Route path="books/:bookId/topics/:number/:tab" element={<TopicPage />} />
             <Route path="review" element={<ReviewQueuePage />} />
+            <Route path="curricula" element={<CurriculaPage />} />
+            <Route path="curricula/:curriculumId" element={<CurriculumPage tab="textbooks" />} />
+            <Route
+              path="curricula/:curriculumId/topics"
+              element={<CurriculumPage tab="topics" />}
+            />
             <Route path="standards" element={<StandardSetsPage />} />
             <Route path="standards/:standardSetId" element={<StandardSetEditorPage />} />
             <Route path="trash" element={<TrashPage />} />

@@ -4,6 +4,8 @@ import { z } from 'zod';
 import {
   bookMetaSchema,
   contentIndexSchema,
+  CURRICULUM_ID,
+  curriculumSchema,
   standardLinksSchema,
   standardSetSchema,
 } from '@mytutor/schemas';
@@ -11,6 +13,8 @@ import type {
   ContentBookEntry,
   ContentIndex,
   ContentTopicEntry,
+  Curriculum,
+  CurriculumEntry,
   StandardSetEntry,
   TrashEntry,
 } from '@mytutor/types';
@@ -260,6 +264,44 @@ export async function scanStandardSets(root: string): Promise<StandardSetEntry[]
   return [...entries.values()].sort((a, b) => a.title.localeCompare(b.title, 'az'));
 }
 
+/**
+ * Curricula live in `<root>/.curricula/<id>/curriculum.json`, one folder each, so lessons and
+ * scenarios can sit beside them later. Flat `.curricula/<id>.json` files in the same folder are
+ * standard sets saved before their rename; the two never collide.
+ */
+export const CURRICULA_DIR = '.curricula';
+const CURRICULUM_FILE = 'curriculum.json';
+
+export const curriculumFile = (root: string, id: string) =>
+  join(root, CURRICULA_DIR, id, CURRICULUM_FILE);
+
+export async function readCurriculum(root: string, id: string): Promise<Curriculum | null> {
+  if (!CURRICULUM_ID.test(id)) return null;
+  try {
+    const result = curriculumSchema.safeParse(
+      JSON.parse(await readFile(curriculumFile(root, id), 'utf8')),
+    );
+    return result.success ? result.data : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Every curriculum, by title. */
+export async function scanCurricula(root: string): Promise<CurriculumEntry[]> {
+  const dir = join(root, CURRICULA_DIR);
+  const folders = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  const entries: CurriculumEntry[] = [];
+  for (const folder of folders) {
+    if (!folder.isDirectory()) continue;
+    const curriculum = await readCurriculum(root, folder.name);
+    if (!curriculum || curriculum.id !== folder.name) continue;
+    const { schemaVersion: _version, createdAt: _created, ...entry } = curriculum;
+    entries.push({ ...entry, path: toPosix(relative(root, curriculumFile(root, curriculum.id))) });
+  }
+  return entries.sort((a, b) => a.title.localeCompare(b.title, 'az'));
+}
+
 export async function buildContentIndex(root: string): Promise<ContentIndex> {
   const books = await scanBooks(root);
   return contentIndexSchema.parse({
@@ -268,6 +310,7 @@ export async function buildContentIndex(root: string): Promise<ContentIndex> {
     ),
     trash: await scanTrash(root),
     standardSets: await scanStandardSets(root),
+    curricula: await scanCurricula(root),
   });
 }
 

@@ -1,5 +1,10 @@
 import type { z } from 'zod';
 import type {
+  curriculumSchema,
+  curriculumEntrySchema,
+  curriculumInputSchema,
+  curriculumTextbookSchema,
+  createCurriculumResponseSchema,
   addBookResponseSchema,
   aiCallSchema,
   answerOptionSchema,
@@ -158,3 +163,8 @@ export type TopicReview = z.output<typeof topicReviewSchema>;
 export type TopicReviewInput = z.output<typeof topicReviewInputSchema>;
 export type KnowledgeSummary = z.output<typeof knowledgeSummarySchema>;
 export type ReviewProgress = z.output<typeof reviewProgressSchema>;
+export type Curriculum = z.output<typeof curriculumSchema>;
+export type CurriculumEntry = z.output<typeof curriculumEntrySchema>;
+export type CurriculumInput = z.output<typeof curriculumInputSchema>;
+export type CurriculumTextbook = z.output<typeof curriculumTextbookSchema>;
+export type CreateCurriculumResponse = z.output<typeof createCurriculumResponseSchema>;
