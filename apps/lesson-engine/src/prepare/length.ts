@@ -13,18 +13,28 @@ function polylineLength(d: string): number {
   return total;
 }
 
+/** @remotion/paths' length, or NaN where it gives none or cannot read the path. */
+function lengthOf(d: string): number {
+  try {
+    return getLength(d);
+  } catch {
+    // Compact glyph data ("M9.5-.6" near the origin) can be more than its parser reads.
+    return Number.NaN;
+  }
+}
+
 /**
- * Path length that is always finite. Some glyph curves make @remotion/paths return NaN;
- * then each subpath is measured on its own, falling back to a polyline estimate.
+ * Path length that is always finite. Some glyph curves make @remotion/paths return NaN or
+ * throw; then each subpath is measured on its own, falling back to a polyline estimate.
  */
 export function safeLength(d: string): number {
-  const whole = getLength(d);
+  const whole = lengthOf(d);
   if (Number.isFinite(whole)) return whole;
   return d
     .split(/(?=M)/)
     .filter((sub) => sub.trim() !== '')
     .reduce((sum, sub) => {
-      const len = getLength(sub);
+      const len = lengthOf(sub);
       return sum + (Number.isFinite(len) ? len : polylineLength(sub));
     }, 0);
 }

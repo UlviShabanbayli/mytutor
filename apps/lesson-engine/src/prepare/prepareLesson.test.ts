@@ -5,7 +5,7 @@ import { lessonScriptSchema } from '@mytutor/schemas';
 import opentype from 'opentype.js';
 import { describe, expect, it } from 'vitest';
 import { estimateSeconds, FPS, prepareLesson } from './prepareLesson';
-import { missingGlyphs, tokenize } from './handwriting';
+import { layoutText, missingGlyphs, textWidth, tokenize } from './handwriting';
 
 const require = createRequire(import.meta.url);
 const fontPath = join(
@@ -119,5 +119,14 @@ describe('dots and clean boards', () => {
 describe('missingGlyphs', () => {
   it('names symbols the handwriting font cannot draw', () => {
     expect(missingGlyphs(font, ['N ⊂ Z ⊂ Q', 'a^2 ≠ b, |-3/4| = ¾'])).toEqual(['⊂']);
+  });
+});
+
+describe('handwriting near the origin', () => {
+  it('lays out and measures text drawn at (0, 0)', () => {
+    const text = 'Sıfırdan böyük ədədlər, müsbət kəsrlər';
+    const { paths, box } = layoutText(font, text, { x: 0, y: 0 }, 44, 'left');
+    for (const p of paths) expect(Number.isFinite(p.length)).toBe(true);
+    expect(textWidth(font, text, 44)).toBeCloseTo(box.width);
   });
 });

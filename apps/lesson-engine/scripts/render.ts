@@ -19,7 +19,7 @@ import type { LessonScript } from '@mytutor/types';
 import opentype from 'opentype.js';
 import { unapprovedSources } from '../src/compile/approval';
 import { compileScenario } from '../src/compile/compileScenario';
-import { layoutText, missingGlyphs } from '../src/prepare/handwriting';
+import { missingGlyphs, textWidth } from '../src/prepare/handwriting';
 import { prepareLesson } from '../src/prepare/prepareLesson';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -126,9 +126,7 @@ async function fromScenario(
       `Təsdiqlənməmiş bilik elementləri: ${unapproved.join(', ')}. Review-da təsdiqləyin, ` +
         'və ya --preview ilə qaralama render edin.',
     );
-  const measure = (text: string, size: number) =>
-    layoutText(font, text, { x: 0, y: 0 }, size, 'left').box.width;
-  const script = compileScenario(scenario, measure);
+  const script = compileScenario(scenario, (text, size) => textWidth(font, text, size));
   if (unapproved.length) {
     console.log(`QARALAMA: ${unapproved.length} element təsdiqlənməyib (${unapproved.join(', ')})`);
     script.source = { ...script.source, title: `${script.source.title} · QARALAMA` };

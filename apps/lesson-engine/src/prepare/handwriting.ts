@@ -20,6 +20,17 @@ export function tokenize(text: string): { char: string; sup: boolean }[] {
   return tokens;
 }
 
+/** Width of handwritten `text` at `size`, in board units, without drawing it. */
+export function textWidth(font: Font, text: string, size: number): number {
+  return tokenize(text).reduce(
+    (w, t) =>
+      w +
+      ((font.charToGlyph(t.char).advanceWidth ?? 0) * (t.sup ? size * SUPERSCRIPT_SCALE : size)) /
+        font.unitsPerEm,
+    0,
+  );
+}
+
 /** Lays out handwritten text as one outline path per glyph, in writing order. */
 export function layoutText(
   font: Font,
@@ -31,7 +42,7 @@ export function layoutText(
   const tokens = tokenize(text);
   const scale = (sup: boolean) => (sup ? size * SUPERSCRIPT_SCALE : size) / font.unitsPerEm;
   const advance = (char: string) => font.charToGlyph(char).advanceWidth ?? 0;
-  const width = tokens.reduce((w, t) => w + advance(t.char) * scale(t.sup), 0);
+  const width = textWidth(font, text, size);
 
   let x = align === 'center' ? at.x - width / 2 : at.x;
   const paths: StrokePath[] = [];
