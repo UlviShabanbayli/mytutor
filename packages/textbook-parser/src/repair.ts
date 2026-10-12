@@ -134,8 +134,8 @@ export function repairNumber(text: string): string {
 export const numberText = (item: { text: string; decoded: boolean }) =>
   item.decoded ? item.text : repairNumber(item.text);
 
-const ALLOWED = /^[\p{L}\p{N}\s.,:;!?()"'«»\-–—−+=/%°²³]*$/u;
-const AZ_LETTERS = /^[A-Za-zƏəÇçĞğIıİiÖöŞşÜü\s\d.,:;!?()"'«»\-–—−+=/%°²³]*$/;
+const ALLOWED = /^[\p{L}\p{N}\s.,:;!?()"'«»\-–—−+=/%°²³√]*$/u;
+const AZ_LETTERS = /^[A-Za-zƏəÇçĞğIıİiÖöŞşÜü\s\d.,:;!?()"'«»\-–—−+=/%°²³√]*$/;
 
 /** True when repaired text still contains glyphs that are not Azerbaijani text. */
 export function isSuspicious(text: string): boolean {
