@@ -111,10 +111,12 @@ export function buildBlocks(markers: Marker[], start: Pos, end: Pos): DraftBlock
       }
       openBlock(create(m, open[0] ?? null), at);
     } else {
-      // example / theorem: child of the innermost exercise or top-level block.
+      // example / theorem: child of the innermost exercise or top-level block. The topic title
+      // holds nothing: an example printed right after it stands on its own.
       const parentDepth = open.length >= 2 && open[1]?.kind === 'exercise' ? 2 : 1;
-      close(parentDepth, at);
-      const parent = open[parentDepth - 1] ?? null;
+      const underTitle = parentDepth === 1 && open[0]?.kind === 'title';
+      close(underTitle ? 0 : parentDepth, at);
+      const parent = underTitle ? null : (open[parentDepth - 1] ?? null);
       openBlock(create(m, parent), at);
     }
   }
