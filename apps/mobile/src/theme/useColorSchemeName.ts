@@ -1,7 +1,10 @@
 import { useColorScheme } from 'react-native';
+import { useThemeStore } from '@/features/settings/themeStore';
 import type { ColorSchemeName } from './tokens';
 
-/** System color scheme, defaulting to light when the platform reports none. */
+/** The student's chosen scheme, or the system one (light when the platform reports none). */
 export function useColorSchemeName(): ColorSchemeName {
-  return useColorScheme() === 'dark' ? 'dark' : 'light';
+  const system = useColorScheme() === 'dark' ? 'dark' : 'light';
+  const preference = useThemeStore((s) => s.preference);
+  return preference === 'system' ? system : preference;
 }

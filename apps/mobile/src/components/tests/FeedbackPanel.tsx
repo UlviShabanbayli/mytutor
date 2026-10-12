@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { Question } from '@mytutor/types';
 import { Button, Icon, Text } from '@/components/ui';
@@ -17,6 +18,7 @@ type FeedbackPanelProps = {
 /** Bottom panel shown after "Check": verdict, explanation and the cited source. */
 export function FeedbackPanel({ question, correct, isLast, onContinue }: FeedbackPanelProps) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   return (
     // Reanimated layout animations respect the system reduce-motion setting by default.
@@ -25,14 +27,16 @@ export function FeedbackPanel({ question, correct, isLast, onContinue }: Feedbac
       <View
         accessibilityLiveRegion="polite"
         className={cn(
-          'gap-3 rounded-t-xl px-4 pb-4 pt-5',
-          correct ? 'bg-success-muted' : 'bg-destructive-muted',
+          'gap-3 rounded-t-xl border-t-4 bg-card px-5 pt-4 shadow-lg',
+          correct ? 'border-success' : 'border-destructive',
         )}
+        // The sheet runs under the home indicator; its content stays above it.
+        style={{ paddingBottom: Math.max(insets.bottom, 12) }}
       >
         <View className="flex-row items-center gap-2">
           <Icon
             name={correct ? 'checkmark-circle' : 'close-circle'}
-            size={28}
+            size={26}
             color={correct ? 'success' : 'destructive'}
           />
           <Text variant="heading" tone={correct ? 'success' : 'destructive'}>
@@ -49,9 +53,10 @@ export function FeedbackPanel({ question, correct, isLast, onContinue }: Feedbac
           <Text>{question.explanation}</Text>
         </View>
         <SourceLine source={question.source} />
+        {/* Moving on after a mistake is calm (dark), not another red alarm. */}
         <Button
           label={isLast ? t('session.finish') : t('session.next')}
-          variant={correct ? 'success' : 'destructive'}
+          variant={correct ? 'primary' : 'neutral'}
           onPress={onContinue}
         />
       </View>

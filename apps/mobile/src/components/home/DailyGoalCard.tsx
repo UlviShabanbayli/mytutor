@@ -1,8 +1,9 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Icon, ProgressBar, Text } from '@/components/ui';
+import { Card, Icon, ProgressBar, Text } from '@/components/ui';
 import { DAILY_GOAL, answeredToday, useTestSessionStore } from '@/features/tests/sessionStore';
 
+/** "Today": questions answered against the daily goal. */
 export function DailyGoalCard() {
   const { t } = useTranslation();
   const results = useTestSessionStore((s) => s.results);
@@ -11,22 +12,40 @@ export function DailyGoalCard() {
   const progressLabel = t('home.dailyGoalProgress', { done, goal: DAILY_GOAL });
 
   return (
-    <View className="gap-3 rounded-lg bg-accent-muted p-4">
-      <View className="flex-row items-center gap-3">
-        <View className="h-11 w-11 items-center justify-center rounded-full bg-accent">
-          <Icon name="flame" size={24} color="accent-foreground" />
-        </View>
-        <View className="flex-1">
-          <Text variant="subheading">{t('home.dailyGoalTitle')}</Text>
-          <Text variant="label">{complete ? t('home.dailyGoalDone') : progressLabel}</Text>
-        </View>
+    <View className="gap-2.5">
+      <View className="flex-row items-baseline justify-between">
+        <Text variant="subheading" accessibilityRole="header">
+          {t('home.todayTitle')}
+        </Text>
+        <Text variant="label" tone="muted">
+          {progressLabel}
+        </Text>
       </View>
-      <ProgressBar
-        value={done / DAILY_GOAL}
-        tone="accent"
-        accessibilityLabel={progressLabel}
-        className="bg-card"
-      />
+      <Card className="flex-row items-center gap-3">
+        <View
+          className={
+            complete
+              ? 'h-10 w-10 items-center justify-center rounded-full bg-success'
+              : 'h-10 w-10 items-center justify-center rounded-full bg-accent-muted'
+          }
+        >
+          <Icon
+            name={complete ? 'checkmark' : 'flame'}
+            size={20}
+            color={complete ? 'success-foreground' : 'accent'}
+          />
+        </View>
+        <View className="flex-1 gap-2">
+          <Text variant="label">
+            {complete ? t('home.dailyGoalDone') : t('home.dailyGoalHint', { goal: DAILY_GOAL })}
+          </Text>
+          <ProgressBar
+            value={done / DAILY_GOAL}
+            tone={complete ? 'success' : 'primary'}
+            accessibilityLabel={progressLabel}
+          />
+        </View>
+      </Card>
     </View>
   );
 }

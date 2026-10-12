@@ -4,40 +4,47 @@ import { useThemeColors, type SemanticColors } from '@/theme';
 import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
 
-type ButtonVariant = 'primary' | 'secondary' | 'success' | 'destructive' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'success' | 'destructive' | 'neutral' | 'ghost';
 
-/** Face color, bottom "edge" color (the 3D depth) and content color per variant. */
+/** Fill (and its pressed tone) and content color per variant. */
 const variants: Record<
   ButtonVariant,
-  { face: string; edge: string; text: string; content: keyof SemanticColors }
+  { fill: string; pressed: string; text: string; content: keyof SemanticColors }
 > = {
   primary: {
-    face: 'bg-primary',
-    edge: 'bg-primary-shadow',
+    fill: 'bg-primary',
+    pressed: 'bg-primary-pressed',
     text: 'text-primary-foreground',
     content: 'primary-foreground',
   },
   secondary: {
-    face: 'bg-card border-2 border-border',
-    edge: 'bg-border',
-    text: 'text-primary',
-    content: 'primary',
+    fill: 'border border-border bg-card',
+    pressed: 'border border-border bg-muted',
+    text: 'text-foreground',
+    content: 'foreground',
   },
   success: {
-    face: 'bg-success',
-    edge: 'bg-success-shadow',
+    fill: 'bg-success',
+    pressed: 'bg-success-shadow',
     text: 'text-success-foreground',
     content: 'success-foreground',
   },
   destructive: {
-    face: 'bg-destructive',
-    edge: 'bg-destructive-shadow',
+    fill: 'bg-destructive',
+    pressed: 'bg-destructive-shadow',
     text: 'text-destructive-foreground',
     content: 'destructive-foreground',
   },
+  // Dark fill for "move on" after a wrong answer: calm, not alarming.
+  neutral: {
+    fill: 'bg-foreground',
+    pressed: 'bg-foreground/80',
+    text: 'text-background',
+    content: 'background',
+  },
   ghost: {
-    face: 'bg-transparent',
-    edge: 'bg-transparent',
+    fill: 'bg-transparent',
+    pressed: 'bg-muted',
     text: 'text-primary',
     content: 'primary',
   },
@@ -46,18 +53,18 @@ const variants: Record<
 type ButtonProps = Omit<PressableProps, 'children' | 'style'> & {
   label: string;
   variant?: ButtonVariant;
+  /** `lg` (56pt) for a screen's main action, `md` (48pt) for the rest. */
+  size?: 'lg' | 'md';
   icon?: IconName;
   loading?: boolean;
   className?: string;
 };
 
-/**
- * Tactile button: the face sits on a darker edge and sinks into it while pressed.
- * Pressing only translates the face, so layout never shifts.
- */
+/** Flat button; the fill darkens while pressed. */
 export function Button({
   label,
   variant = 'primary',
+  size = 'lg',
   icon,
   loading = false,
   disabled,
@@ -74,15 +81,16 @@ export function Button({
       accessibilityLabel={label}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
-      className={cn('rounded-lg pb-1', v.edge, isDisabled && 'opacity-50', className)}
+      className={className}
       {...props}
     >
       {({ pressed }) => (
         <View
           className={cn(
-            'min-h-touch flex-row items-center justify-center gap-2 rounded-lg px-5 py-3',
-            v.face,
-            pressed && !isDisabled && 'translate-y-1',
+            'flex-row items-center justify-center gap-2 rounded-md px-5',
+            size === 'lg' ? 'min-h-14 py-3' : 'min-h-touch py-2.5',
+            pressed && !isDisabled ? v.pressed : v.fill,
+            isDisabled && 'opacity-50',
           )}
         >
           {loading ? (
@@ -90,7 +98,7 @@ export function Button({
           ) : (
             icon && <Icon name={icon} size={20} color={v.content} />
           )}
-          <Text className={cn('font-sans-bold text-base', v.text)}>{label}</Text>
+          <Text className={cn('font-sans-black text-base', v.text)}>{label}</Text>
         </View>
       )}
     </Pressable>

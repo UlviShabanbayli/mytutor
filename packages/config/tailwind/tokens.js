@@ -2,8 +2,9 @@
 // Consumed by the Tailwind preset (className styling) and by apps/mobile/src/theme
 // (places that need raw values, e.g. navigation theme, icons, SVG, animated styles).
 //
-// Style: "tactile study" — violet brand, rounded surfaces, chunky 3D buttons
-// (a darker `*-shadow` bottom edge), green/red answer feedback, amber for streaks.
+// Style: "Kobalt" (design A1) — calm, clean study app: cool grey ground, white cards with
+// hairline borders, one cobalt accent, green/red answer feedback, orange for streaks. Flat
+// controls (no 3D edges); the `*-shadow` colors are the darker tone of each fill.
 
 /**
  * Semantic colors per color scheme. Keys become Tailwind color names
@@ -12,69 +13,69 @@
  */
 const colors = {
   light: {
-    background: '#F7F5FC',
-    foreground: '#1A1530',
+    background: '#F5F7FB',
+    foreground: '#0E1726',
     card: '#FFFFFF',
-    'card-foreground': '#1A1530',
-    muted: '#EFEBF8',
-    'muted-foreground': '#5B5675',
-    border: '#E4DEF2',
-    input: '#857F9E',
-    primary: '#7C3AED',
+    'card-foreground': '#0E1726',
+    muted: '#EEF1F6',
+    'muted-foreground': '#566173',
+    border: '#E3E8F0',
+    input: '#7A8598',
+    primary: '#1D4ED8',
     'primary-foreground': '#FFFFFF',
-    'primary-pressed': '#6D28D9',
-    'primary-shadow': '#5B21B6',
-    secondary: '#EDE9FE',
-    'secondary-foreground': '#5B21B6',
-    accent: '#F59E0B',
-    'accent-foreground': '#1A1530',
-    'accent-muted': '#FEF3C7',
-    success: '#15803D',
+    'primary-pressed': '#1E40AF',
+    'primary-shadow': '#1E3A8A',
+    secondary: '#EAF0FF',
+    'secondary-foreground': '#1D4ED8',
+    accent: '#EA580C',
+    'accent-foreground': '#0E1726',
+    'accent-muted': '#FFF4E0',
+    success: '#0F7A4E',
     'success-foreground': '#FFFFFF',
-    'success-muted': '#DCFCE7',
-    'success-shadow': '#166534',
-    destructive: '#C81E1E',
+    'success-muted': '#E5F5EC',
+    'success-shadow': '#0B5E3C',
+    destructive: '#B42318',
     'destructive-foreground': '#FFFFFF',
-    'destructive-muted': '#FEE2E2',
-    'destructive-shadow': '#991B1B',
-    ring: '#7C3AED',
+    'destructive-muted': '#FDECEA',
+    'destructive-shadow': '#8F1C13',
+    ring: '#1D4ED8',
   },
   dark: {
-    background: '#0E0B1A',
-    foreground: '#F5F3FF',
-    card: '#1A1530',
-    'card-foreground': '#F5F3FF',
-    muted: '#241E3D',
-    'muted-foreground': '#A9A3C4',
-    border: '#2E2750',
-    input: '#77719A',
-    primary: '#A78BFA',
-    'primary-foreground': '#1A1030',
-    'primary-pressed': '#C4B5FD',
-    'primary-shadow': '#6D28D9',
-    secondary: '#2E1F5E',
-    'secondary-foreground': '#DDD6FE',
-    accent: '#FBBF24',
-    'accent-foreground': '#1A1530',
-    'accent-muted': '#3A2A0A',
-    success: '#4ADE80',
-    'success-foreground': '#052E16',
-    'success-muted': '#10301E',
-    'success-shadow': '#15803D',
-    destructive: '#F87171',
-    'destructive-foreground': '#2A0A0A',
-    'destructive-muted': '#3A1418',
-    'destructive-shadow': '#B91C1C',
-    ring: '#A78BFA',
+    background: '#0A1020',
+    foreground: '#E9EEF7',
+    card: '#121A2C',
+    'card-foreground': '#E9EEF7',
+    muted: '#1B2437',
+    'muted-foreground': '#9BA7BB',
+    border: '#253047',
+    input: '#6E7B95',
+    primary: '#7AA0FF',
+    'primary-foreground': '#0A1020',
+    'primary-pressed': '#A5C0FF',
+    'primary-shadow': '#2F55C9',
+    secondary: '#182A55',
+    'secondary-foreground': '#C9D8FF',
+    accent: '#FB923C',
+    'accent-foreground': '#1C0D02',
+    'accent-muted': '#3A230F',
+    success: '#3FC98A',
+    'success-foreground': '#04251A',
+    'success-muted': '#0E2D22',
+    'success-shadow': '#6FD9A8',
+    destructive: '#F47C72',
+    'destructive-foreground': '#2A0907',
+    'destructive-muted': '#3A1614',
+    'destructive-shadow': '#F89A92',
+    ring: '#7AA0FF',
   },
 };
 
 /** Corner radii in points. */
 const radius = {
-  sm: 10,
-  md: 14,
+  sm: 12,
+  md: 16,
   lg: 20,
-  xl: 28,
+  xl: 24,
   full: 9999,
 };
 
@@ -90,12 +91,15 @@ const fontSize = {
   '4xl': [40, 48],
 };
 
-/** Font family names as registered with expo-font (Nunito covers all Azerbaijani letters). */
+/**
+ * Font family names as registered with expo-font. Plus Jakarta Sans stands in for the design's
+ * Manrope, which has no "Ə" or "₼"; it covers every Azerbaijani letter.
+ */
 const fontFamily = {
-  regular: 'Nunito_400Regular',
-  medium: 'Nunito_600SemiBold',
-  bold: 'Nunito_700Bold',
-  black: 'Nunito_900Black',
+  regular: 'PlusJakartaSans_400Regular',
+  medium: 'PlusJakartaSans_600SemiBold',
+  bold: 'PlusJakartaSans_700Bold',
+  black: 'PlusJakartaSans_800ExtraBold',
 };
 
 /** Minimum touch target (iOS 44pt; 48 also satisfies Android's 48dp). */

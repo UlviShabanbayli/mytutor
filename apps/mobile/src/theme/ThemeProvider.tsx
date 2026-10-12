@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { vars } from 'nativewind';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from 'expo-router';
@@ -33,7 +34,7 @@ type ThemeProviderProps = {
   children: ReactNode;
 };
 
-/** Applies semantic color CSS variables and the matching navigation theme. */
+/** Applies semantic color CSS variables, the matching navigation theme and status bar. */
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const scheme = useColorSchemeName();
 
@@ -41,6 +42,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     <NavigationThemeProvider value={navigationTheme(scheme)}>
       {/* `vars()` is NativeWind's mechanism for scoping CSS variables; it must go through `style`. */}
       <View style={cssVars[scheme]} className="flex-1 bg-background">
+        {/* Follows the app's scheme, which the student may set apart from the system. */}
+        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
         {children}
       </View>
     </NavigationThemeProvider>
