@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { KnowledgeDocument, TopicReview, TopicSource } from '@mytutor/types';
+import type { KnowledgeDocument, KnowledgeItem, TopicReview, TopicSource } from '@mytutor/types';
 import { ActionError } from '@/components/books/ActionError';
 import { ItemStandards } from '@/components/links/ItemStandards';
 import { nextOpenBlock, reviewQueue } from '@/features/review/queue';
@@ -8,6 +8,7 @@ import type { ReviewActions } from '@/features/review/useTopicReview';
 import type { BookStandards } from '@/features/standards/useBookStandards';
 import { useSearchParam } from '@/lib/useSearchParam';
 import { BlockCard } from './BlockCard';
+import { BlockZoomDialog } from './BlockZoomDialog';
 import { PagePanel } from './PagePanel';
 import { ReviewHeader } from './ReviewHeader';
 import { ReviewHelp } from './ReviewHelp';
@@ -37,6 +38,7 @@ export function ReviewWorkspace({
 }: ReviewWorkspaceProps) {
   const { t } = useTranslation();
   const [blockParam, setParams] = useSearchParam('block');
+  const [zoom, setZoom] = useState(false);
   const { queue, decisions } = useMemo(
     () => reviewQueue(source, doc.items, review),
     [source, doc.items, review],
@@ -51,6 +53,29 @@ export function ReviewWorkspace({
   }, [blockParam, current, setParams]);
   const approvedCount = queue.filter((b) => b.approved).length;
   const standardSet = bs.standardSet;
+  const blockProps = current
+    ? {
+        entry: current,
+        decisions,
+        actions,
+        next: next?.id ?? null,
+        onNext: () => next && select(next.id),
+        itemStandards: standardSet
+          ? (item: KnowledgeItem) => (
+              <ItemStandards
+                topic={topic}
+                item={item}
+                items={doc.items}
+                codes={
+                  bs.links.items.find((l) => l.topic === topic && l.itemId === item.id)?.codes ?? []
+                }
+                standardSet={standardSet}
+                bs={bs}
+              />
+            )
+          : undefined,
+      }
+    : null;
   const upcoming = queue.filter((b) => !b.approved && b.id !== current?.id).slice(0, 2);
 
   return (
@@ -80,33 +105,15 @@ export function ReviewWorkspace({
             />
           </div>
           <div className="flex min-w-0 flex-[999_1_32rem] flex-col gap-2.5">
-            <BlockCard
-              key={current.id}
-              entry={current}
-              source={source}
-              topicDir={topicDir}
-              decisions={decisions}
-              actions={actions}
-              next={next?.id ?? null}
-              onNext={() => next && select(next.id)}
-              itemStandards={
-                standardSet
-                  ? (item) => (
-                      <ItemStandards
-                        topic={topic}
-                        item={item}
-                        items={doc.items}
-                        codes={
-                          bs.links.items.find((l) => l.topic === topic && l.itemId === item.id)
-                            ?.codes ?? []
-                        }
-                        standardSet={standardSet}
-                        bs={bs}
-                      />
-                    )
-                  : undefined
-              }
-            />
+            {blockProps ? (
+              <BlockCard
+                key={current.id}
+                {...blockProps}
+                source={source}
+                topicDir={topicDir}
+                onZoom={() => setZoom(true)}
+              />
+            ) : null}
             {upcoming.length ? (
               <p className="rounded-md border border-border bg-card px-3.5 py-3 text-[13px] text-muted-foreground">
                 {t('review.upcoming')}{' '}
@@ -125,6 +132,15 @@ export function ReviewWorkspace({
       ) : (
         <p className="text-sm text-muted-foreground">{t('review.empty')}</p>
       )}
+      {blockProps ? (
+        <BlockZoomDialog
+          open={zoom}
+          {...blockProps}
+          source={source}
+          topicDir={topicDir}
+          onClose={() => setZoom(false)}
+        />
+      ) : null}
     </div>
   );
 }

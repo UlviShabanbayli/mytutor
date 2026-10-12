@@ -1,4 +1,4 @@
-import { Check, Wrench, X } from 'lucide-react';
+import { Check, Maximize2, MessageSquareWarning, Pencil, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui';
 import { GuideSection } from './GuideSection';
@@ -41,11 +41,29 @@ export function ReviewGuide() {
         {
           sample: (
             <SampleButton>
-              <Wrench className="size-3.5" />
+              <Pencil className="size-3.5" />
+              {t('review.correct')}
+            </SampleButton>
+          ),
+          text: t('guide.review.correct'),
+        },
+        {
+          sample: (
+            <SampleButton variant="ghost">
+              <MessageSquareWarning className="size-3.5" />
               {t('review.needsFix')}
             </SampleButton>
           ),
           text: t('guide.review.needsFix'),
+        },
+        {
+          sample: (
+            <SampleButton>
+              <Maximize2 className="size-3.5" />
+              {t('review.zoom')}
+            </SampleButton>
+          ),
+          text: t('guide.review.zoom'),
         },
         {
           sample: (

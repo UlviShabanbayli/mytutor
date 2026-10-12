@@ -125,4 +125,37 @@ describe('saveTopicReview', () => {
       await code(saveTopicReview({ root, bookId: 'r7', topic: '1.1', body: { items: 'x' } })),
     ).toBe('400 bad_request');
   });
+
+  it('keeps a valid correction, without unknown keys, and refuses one that does not fit', async () => {
+    await book();
+    const [k1] = items as [KnowledgeItem];
+    const corrected = (correction: unknown, decision = 'approved') => ({
+      items: [{ ...decision1(k1), decision, correction }],
+      blocks: [],
+    });
+    const fixed = { statement: 'Düzgün qayda', latex: 'a^2', junk: true };
+    await saveTopicReview({ root, bookId: 'r7', topic: '1.1', body: corrected(fixed) });
+    const saved = JSON.parse(await readFile(join(root, 'r7/topics/1.1/review.json'), 'utf8')) as {
+      items: { correction: unknown }[];
+    };
+    expect(saved.items[0]?.correction).toEqual({ statement: 'Düzgün qayda', latex: 'a^2' });
+    expect(
+      await code(
+        saveTopicReview({ root, bookId: 'r7', topic: '1.1', body: corrected({ latex: 'x' }) }),
+      ),
+    ).toBe('400 bad_request');
+    expect(
+      await code(
+        saveTopicReview({ root, bookId: 'r7', topic: '1.1', body: corrected(fixed, 'rejected') }),
+      ),
+    ).toBe('400 bad_request');
+  });
+});
+
+const decision1 = (i: KnowledgeItem) => ({
+  itemId: i.id,
+  fingerprint: itemFingerprint(i),
+  decision: 'approved' as const,
+  note: null,
+  decidedAt: '2026-10-11T10:00:00.000Z',
 });

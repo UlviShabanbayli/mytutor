@@ -1,14 +1,18 @@
-import { Check, Wrench, X } from 'lucide-react';
+import { Check, MessageSquareWarning, Pencil, X } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { REVIEW_NOTE_MAX } from '@mytutor/schemas';
 import type { ReviewDecision } from '@mytutor/types';
 import { Button, Textarea } from '@/components/ui';
 
-type DecisionButtonsProps = { onDecide: (decision: ReviewDecision, note: string | null) => void };
+type DecisionButtonsProps = {
+  onDecide: (decision: ReviewDecision, note: string | null) => void;
+  /** Opens the correction form: fix the item now instead of rejecting it. */
+  onCorrect: () => void;
+};
 
-/** Approve, ask for a fix (with what to fix), or reject; one click each, the note only for fixes. */
-export function DecisionButtons({ onDecide }: DecisionButtonsProps) {
+/** Approve, correct now, reject, or leave a note to fix later; the note only for the last. */
+export function DecisionButtons({ onDecide, onCorrect }: DecisionButtonsProps) {
   const { t } = useTranslation();
   const noteId = useId();
   const [fixing, setFixing] = useState(false);
@@ -52,9 +56,9 @@ export function DecisionButtons({ onDecide }: DecisionButtonsProps) {
         <Check className="size-4" />
         {t('review.approve')}
       </Button>
-      <Button variant="secondary" onClick={() => setFixing(true)}>
-        <Wrench className="size-4" />
-        {t('review.needsFix')}
+      <Button variant="secondary" onClick={onCorrect}>
+        <Pencil className="size-4" />
+        {t('review.correct')}
       </Button>
       <Button
         variant="secondary"
@@ -63,6 +67,10 @@ export function DecisionButtons({ onDecide }: DecisionButtonsProps) {
       >
         <X className="size-4" />
         {t('review.reject')}
+      </Button>
+      <Button variant="ghost" onClick={() => setFixing(true)}>
+        <MessageSquareWarning className="size-4" />
+        {t('review.needsFix')}
       </Button>
     </div>
   );
