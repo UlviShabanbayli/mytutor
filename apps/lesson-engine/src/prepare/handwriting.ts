@@ -5,6 +5,37 @@ import type { Box, StrokePath } from './types';
 const SUPERSCRIPT_SCALE = 0.6;
 const SUPERSCRIPT_RISE = 0.42;
 
+type PathCommand =
+  | { type: 'M' | 'L'; x: number; y: number }
+  | { type: 'Q'; x1: number; y1: number; x: number; y: number }
+  | { type: 'C'; x1: number; y1: number; x2: number; y2: number; x: number; y: number }
+  | { type: 'Z' };
+
+const n = (v: number) => `${Math.round(v * 10) / 10}`;
+
+/**
+ * SVG path data for a glyph outline. opentype.js' own toPathData writes "NaN" for some
+ * coordinates at some positions on the board, and compacts numbers ("M9.5-.6") in a way the
+ * path tools cannot read; every number here is written out and separated by a space.
+ */
+export function pathData(commands: PathCommand[]): string {
+  return commands
+    .map((c) => {
+      switch (c.type) {
+        case 'M':
+        case 'L':
+          return `${c.type}${n(c.x)} ${n(c.y)}`;
+        case 'Q':
+          return `Q${n(c.x1)} ${n(c.y1)} ${n(c.x)} ${n(c.y)}`;
+        case 'C':
+          return `C${n(c.x1)} ${n(c.y1)} ${n(c.x2)} ${n(c.y2)} ${n(c.x)} ${n(c.y)}`;
+        case 'Z':
+          return 'Z';
+      }
+    })
+    .join('');
+}
+
 /** "(a + b)^2" → characters with a superscript flag; `^` applies to the next character. */
 export function tokenize(text: string): { char: string; sup: boolean }[] {
   const tokens: { char: string; sup: boolean }[] = [];
@@ -53,7 +84,7 @@ export function layoutText(
     const fontSize = t.sup ? size * SUPERSCRIPT_SCALE : size;
     const baseline = t.sup ? at.y - size * SUPERSCRIPT_RISE : at.y;
     const path = glyph.getPath(x, baseline, fontSize);
-    const d = path.toPathData(1);
+    const d = pathData(path.commands as PathCommand[]);
     if (d) {
       const bb = path.getBoundingBox();
       top = Math.min(top, bb.y1);

@@ -122,6 +122,19 @@ describe('missingGlyphs', () => {
   });
 });
 
+describe('glyph path data', () => {
+  it('writes every coordinate as a number, wherever the glyph is drawn', () => {
+    // opentype.js' toPathData wrote "NaN" at some board positions (about one in eight).
+    for (let x = 0; x < 1900; x += 7.3) {
+      const { paths } = layoutText(font, 'Rasional ədədlər', { x, y: 190 }, 80, 'left');
+      for (const p of paths) {
+        expect(p.d).not.toContain('NaN');
+        expect(Number.isFinite(p.length)).toBe(true);
+      }
+    }
+  });
+});
+
 describe('handwriting near the origin', () => {
   it('lays out and measures text drawn at (0, 0)', () => {
     const text = 'Sıfırdan böyük ədədlər, müsbət kəsrlər';
