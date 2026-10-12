@@ -1,8 +1,10 @@
-// Usage: pnpm --filter @mytutor/lesson-engine render [<lesson or scenario>.json] [--theme blackboard|whiteboard] [--preview]
+// Usage: pnpm --filter @mytutor/lesson-engine render [<lesson or scenario>.json] [--theme blackboard|whiteboard]
+//          [--preview] [--quick] [--gl swangle|angle]
 // Validates the lesson script, prepares frames, and renders an MP4 into out/.
 // A scenario (topics/<n>/scenarios/<id>.json, beside the topic's knowledge) is laid out first,
 // and only when every knowledge item it cites is approved; --preview renders it anyway, as a
-// draft marked "QARALAMA", for the editor reviewing it.
+// draft marked "QARALAMA", for the editor reviewing it. --quick renders at half size to check a
+// lesson fast; --gl angle draws with the GPU (the default, swangle, draws in software).
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { basename, dirname, extname, join, resolve } from 'node:path';
@@ -61,7 +63,8 @@ async function main() {
   const lesson = prepareLesson(script, font);
 
   const outDir = join(root, 'out');
-  const name = `${basename(lessonPath, extname(lessonPath))}-${script.theme}`;
+  const quick = args.includes('--quick');
+  const name = `${basename(lessonPath, extname(lessonPath))}-${script.theme}${quick ? '-quick' : ''}`;
   await mkdir(outDir, { recursive: true });
   await writeFile(join(outDir, `${name}.lesson.json`), `${JSON.stringify(script, null, 2)}\n`);
   await writeFile(join(outDir, `${name}.prepared.json`), JSON.stringify(lesson));
@@ -78,7 +81,10 @@ async function main() {
   );
   const serveUrl = await bundle({ entryPoint: join(root, 'src/video/index.ts'), publicDir });
   const inputProps = { lesson };
-  const chromiumOptions = { gl: 'swangle' } as const;
+  const glArg = args[args.indexOf('--gl') + 1];
+  const gl =
+    args.includes('--gl') && (glArg === 'angle' || glArg === 'swangle') ? glArg : 'swangle';
+  const chromiumOptions = { gl } as const;
   // Optional: render with an installed Chrome when the bundled headless shell misbehaves.
   const browserExecutable = process.env.REMOTION_BROWSER ?? null;
   const composition = await selectComposition({
@@ -90,11 +96,23 @@ async function main() {
     logLevel: process.env.RENDER_LOG === 'verbose' ? 'verbose' : 'info',
   });
   const outputLocation = join(outDir, `${name}.mp4`);
+  let reported = -1;
   await renderMedia({
     composition,
     serveUrl,
     codec: 'h264',
     outputLocation,
+    scale: quick ? 0.5 : 1,
+    onProgress: ({ progress, renderedFrames, renderEstimatedTime }) => {
+      const percent = Math.floor(progress * 100);
+      if (percent < reported + 5 && percent < 100) return;
+      reported = percent;
+      const left = Math.ceil(renderEstimatedTime / 60000);
+      console.log(
+        `Render: ${percent}% · ${renderedFrames}/${composition.durationInFrames} kadr` +
+          (percent < 100 ? ` · qalan ~${left} dəq` : ''),
+      );
+    },
     inputProps,
     chromiumOptions,
     browserExecutable,
