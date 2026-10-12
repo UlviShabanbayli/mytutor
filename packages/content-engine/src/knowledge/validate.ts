@@ -1,12 +1,14 @@
 import type {
   ExtractedItem,
   KnowledgeCheck,
+  KnowledgeSourceId,
   KnowledgeStatus,
   SourceBlock,
   TopicSource,
   VerificationVerdict,
 } from '@mytutor/types';
 import { checkIdentity, latexSyntaxError, solutionsOf } from './latex';
+import { pictureNeed } from './pictureRefs';
 
 const QUESTION_BLOCKS = new Set(['inquiry', 'think', 'find_mistake', 'history']);
 const GROUNDING_PASS = 0.8;
@@ -20,7 +22,8 @@ const words = (s: string) =>
     .split(/\s+/)
     .filter((w) => w.length >= 3);
 
-function descendants(source: TopicSource, id: string): SourceBlock[] {
+/** The block and every block nested inside it, parents before children. */
+export function descendants(source: TopicSource, id: string): SourceBlock[] {
   const out = source.blocks.filter((b) => b.id === id);
   for (const b of source.blocks)
     if (b.parentId && out.some((o) => o.id === b.parentId)) out.push(b);
@@ -97,11 +100,15 @@ function proseOf(item: ExtractedItem): string | null {
   }
 }
 
-/** Deterministic checks plus the image verdict. */
+/**
+ * Deterministic checks plus the image verdict, on the item as the model returned it.
+ * `figureLinks` are the refs `linkFigures` added; only the figure check looks at them.
+ */
 export function checkItem(
   item: ExtractedItem,
   source: TopicSource,
   verdict?: VerificationVerdict,
+  figureLinks: KnowledgeSourceId[] = [],
 ): KnowledgeCheck[] {
   const checks: KnowledgeCheck[] = [];
   const blockIds = new Set(source.blocks.map((b) => b.id));
@@ -207,6 +214,28 @@ export function checkItem(
         ? `${verdict.verdict}${verdict.correction ? `: ${verdict.correction}` : ''}`
         : null,
   });
+
+  // 7. Text that relies on a picture carries it: cited by the model, or linked by rule.
+  const need = pictureNeed(item);
+  const isFigure = need[0] === 'figure';
+  const byModel = item.sources.flatMap((s) =>
+    s.figureId && figureIds.has(s.figureId) ? [s.figureId] : [],
+  );
+  const byRule = figureLinks.flatMap((s) => (s.figureId ? [s.figureId] : []));
+  let figure: Omit<KnowledgeCheck, 'name'> = { result: 'skip', detail: null };
+  if (byModel.length)
+    figure = { result: 'pass', detail: `model istinad edib: ${byModel.join(', ')}` };
+  else if (byRule.length)
+    figure = {
+      result: 'pass',
+      detail: `qayda ilə bağlandı (${isFigure ? 'fiqur elementi' : `"${need[0]}"`}): ${byRule.join(', ')}`,
+    };
+  else if (need.length)
+    figure = {
+      result: 'fail',
+      detail: `${isFigure ? 'fiqur elementidir' : `mətn şəklə istinad edir ("${need[0]}")`}, amma mənbə bloklarında uyğun fiqur tapılmadı`,
+    };
+  checks.push({ name: 'figure_link', ...figure });
   return checks;
 }
 
