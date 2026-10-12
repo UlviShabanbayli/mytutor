@@ -5,7 +5,7 @@ import { lessonScriptSchema } from '@mytutor/schemas';
 import opentype from 'opentype.js';
 import { describe, expect, it } from 'vitest';
 import { estimateSeconds, FPS, prepareLesson } from './prepareLesson';
-import { tokenize } from './handwriting';
+import { missingGlyphs, tokenize } from './handwriting';
 
 const require = createRequire(import.meta.url);
 const fontPath = join(
@@ -113,5 +113,11 @@ describe('dots and clean boards', () => {
     const axis = prepared.actions.find((a) => a.id === 'axis');
     expect(axis?.until).toBeUndefined();
     expect(axis?.from).toBeGreaterThan((second?.from ?? 0) + 0.4 * FPS);
+  });
+});
+
+describe('missingGlyphs', () => {
+  it('names symbols the handwriting font cannot draw', () => {
+    expect(missingGlyphs(font, ['N ⊂ Z ⊂ Q', 'a^2 ≠ b, |-3/4| = ¾'])).toEqual(['⊂']);
   });
 });

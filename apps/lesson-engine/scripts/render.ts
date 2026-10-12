@@ -19,7 +19,7 @@ import type { LessonScript } from '@mytutor/types';
 import opentype from 'opentype.js';
 import { unapprovedSources } from '../src/compile/approval';
 import { compileScenario } from '../src/compile/compileScenario';
-import { layoutText } from '../src/prepare/handwriting';
+import { layoutText, missingGlyphs } from '../src/prepare/handwriting';
 import { prepareLesson } from '../src/prepare/prepareLesson';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -50,6 +50,14 @@ async function main() {
       : lessonScriptSchema.parse(raw);
   if (args.includes('--theme') && (themeArg === 'blackboard' || themeArg === 'whiteboard'))
     script.theme = themeArg;
+  const texts = script.steps.flatMap((s) =>
+    s.actions.flatMap((a) => (a.type === 'write' ? [a.text] : [])),
+  );
+  const missing = missingGlyphs(font, texts);
+  if (missing.length)
+    throw new Error(
+      `Lövhə şrifti bu simvolları çəkə bilmir: ${missing.join(' ')}. Onları sözlə yazın.`,
+    );
   const lesson = prepareLesson(script, font);
 
   const outDir = join(root, 'out');

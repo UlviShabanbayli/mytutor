@@ -55,3 +55,15 @@ export function layoutText(
   const left = align === 'center' ? at.x - width / 2 : at.x;
   return { paths, box: { x: left, y: top, width, height: bottom - top } };
 }
+
+/**
+ * Characters in `texts` the handwriting font cannot draw: they would come out as empty boxes
+ * on the board, so a lesson that uses them is refused (write them in words instead).
+ */
+export function missingGlyphs(font: Font, texts: string[]): string[] {
+  const missing = new Set<string>();
+  for (const text of texts)
+    for (const { char } of tokenize(text))
+      if (char.trim() && font.charToGlyphIndex(char) === 0) missing.add(char);
+  return [...missing];
+}
