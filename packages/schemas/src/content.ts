@@ -33,6 +33,8 @@ export const contentBookEntrySchema = z.object({
   topics: z.array(contentTopicEntrySchema),
   /** The book's links to a standard set (its `standard-links.json`), null until saved. */
   standardLinks: standardLinksSchema.nullable(),
+  /** The book's answer key (`answers/answers.json`), once it has been read. */
+  answers: z.string().nullable().default(null),
 });
 
 /** A book deleted from the panel: its folders wait in `<root>/.trash/<id>/` until restored. */

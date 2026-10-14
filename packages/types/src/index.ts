@@ -11,6 +11,11 @@ import type {
   lessonTextEstimateSchema,
   lessonTextSchema,
   topicLessonSchema,
+  answerPartSchema,
+  answerSchema,
+  answerSourceSchema,
+  answersDocumentSchema,
+  extractedAnswerSchema,
   addBookResponseSchema,
   aiCallSchema,
   answerOptionSchema,
@@ -180,3 +185,8 @@ export type LessonText = z.output<typeof lessonTextSchema>;
 export type TopicLesson = z.output<typeof topicLessonSchema>;
 export type LessonEntry = z.output<typeof lessonEntrySchema>;
 export type LessonTextEstimate = z.output<typeof lessonTextEstimateSchema>;
+export type AnswerPart = z.output<typeof answerPartSchema>;
+export type ExtractedAnswer = z.output<typeof extractedAnswerSchema>;
+export type Answer = z.output<typeof answerSchema>;
+export type AnswerSource = z.output<typeof answerSourceSchema>;
+export type AnswersDocument = z.output<typeof answersDocumentSchema>;

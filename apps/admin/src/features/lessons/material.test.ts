@@ -94,3 +94,44 @@ describe('lessonMaterial', () => {
     expect(lessonMaterial([ex1], null, source)).toMatchObject({ exercises: [], approved: 0 });
   });
 });
+
+describe('answers to exercises', () => {
+  const ex = (id: string, number: string) =>
+    ({
+      id,
+      type: 'exercise',
+      status: 'textbook',
+      claimedOrigin: 'textbook',
+      readFrom: 'text',
+      sources: [
+        {
+          blockId: 'b01',
+          lineIds: [],
+          figureId: null,
+          regions: [{ page: 14, printedPage: 12, bbox: { x: 0, y: 0, width: 1, height: 1 } }],
+          crops: [],
+        },
+      ],
+      content: { number, instruction: 'Tapın.', items: [] },
+      checks: [],
+    }) as unknown as KnowledgeItem;
+  const key = (page: number, exercise: string, section: string | null = null) => ({
+    id: `a-${page}-${exercise}`,
+    page,
+    exercise,
+    section,
+    parts: [{ label: null, text: '2 1/3 m', latex: null }],
+    sourcePage: 141,
+    sourcePrintedPage: 139,
+    status: 'verified' as const,
+    correction: null,
+  });
+
+  it('gives an exercise the answers printed for its number and page', () => {
+    const items = [ex('k001', '17'), ex('k002', '18')];
+    const review = { items: items.map((i) => decide(i, 'approved')), blocks: [] };
+    const answers = [key(12, '17'), key(13, '17'), key(12, '17', 'Riyazi kaleydoskop')];
+    const material = lessonMaterial(items, review, { blocks: [{ id: 'b01' }] } as never, answers);
+    expect(material.exercises.map((e) => e.answers.map((a) => a.id))).toEqual([['a-12-17'], []]);
+  });
+});

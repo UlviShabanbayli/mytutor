@@ -9,6 +9,7 @@ import { Badge, buttonClass, EmptyState, ErrorState, LoadingState } from '@/comp
 import { bookTitle } from '@/features/content/pages';
 import { useKnowledge, useTopicSource } from '@/features/content/queries';
 import { usePageCrumbs } from '@/features/layout/crumbs';
+import { useAnswerKey } from '@/features/lessons/answers';
 import { itemPages, lessonMaterial, pageList } from '@/features/lessons/material';
 import { useLibrary } from '@/features/progress/useLibrary';
 import { useTopicReview } from '@/features/review/useTopicReview';
@@ -29,6 +30,7 @@ export function LessonPage() {
   const source = useTopicSource(entry?.source ?? null);
   const knowledge = useKnowledge(entry?.knowledge ?? null);
   const review = useTopicReview(bookId, entry);
+  const answerKey = useAnswerKey(book?.book.answers ?? null);
   const base = `/curricula/${encodeURIComponent(curriculumId)}`;
   const topicUrl = `/books/${encodeURIComponent(bookId)}/topics/${encodeURIComponent(number)}`;
   usePageCrumbs([
@@ -67,19 +69,26 @@ export function LessonPage() {
         </EmptyState>
       </div>
     );
-  if (source.isPending || knowledge.isPending || review.isPending) return <LoadingState />;
-  if (source.isError || knowledge.isError || review.isError)
+  if (source.isPending || knowledge.isPending || review.isPending || answerKey.isPending)
+    return <LoadingState />;
+  if (source.isError || knowledge.isError || review.isError || answerKey.isError)
     return (
       <ErrorState
         onRetry={() => {
           void source.refetch();
           void knowledge.refetch();
           void review.refetch();
+          void answerKey.refetch();
         }}
       />
     );
 
-  const material = lessonMaterial(knowledge.data.items, review.data, source.data);
+  const material = lessonMaterial(
+    knowledge.data.items,
+    review.data,
+    source.data,
+    answerKey.data?.answers,
+  );
   const pagesById = itemPages(knowledge.data.items);
   const pagesOf = (ids: string[]) =>
     [...new Set(ids.flatMap((id) => pagesById.get(id) ?? []))].sort((a, b) => a - b);
@@ -126,7 +135,13 @@ export function LessonPage() {
           body={t('lessons.noVideoBody')}
         />
       </LessonSection>
-      <LessonBookMaterial material={material} source={source.data} topicDir={entry.dir} />
+      <LessonBookMaterial
+        material={material}
+        source={source.data}
+        topicDir={entry.dir}
+        bookId={bookId}
+        hasAnswerKey={answerKey.data !== null}
+      />
     </div>
   );
 }

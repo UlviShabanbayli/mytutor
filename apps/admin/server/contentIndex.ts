@@ -23,6 +23,9 @@ import type {
 import { topicStatus } from './topicStatus';
 
 // Only the fields the index needs; full validation happens in the browser when a file is opened.
+/** The part of an answer key that names its book. */
+const answersHead = z.object({ book: z.object({ file: z.string() }) });
+
 const structureHead = z.object({ source: z.object({ file: z.string() }) });
 const sourceHead = z.object({
   book: z.object({ file: z.string() }),
@@ -98,6 +101,7 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
         canExtract: false,
         topics: [],
         standardLinks: null,
+        answers: null,
         pdf: null,
         folder: null,
         folders: [],
@@ -125,6 +129,13 @@ export async function scanBooks(root: string): Promise<ScannedBook[]> {
       holds(book, dir);
       book.structure ??= rel(join(dir, 'structure.json'));
       files.add(structure.source.file);
+    }
+
+    const answers = await readJson(join(dir, 'answers', 'answers.json'), answersHead);
+    if (answers) {
+      const book = bookFor(answers.book.file);
+      holds(book, dir);
+      book.answers ??= rel(join(dir, 'answers', 'answers.json'));
     }
 
     for (const number of await subdirs(join(dir, 'topics'))) {
