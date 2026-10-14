@@ -6,10 +6,17 @@ import { buttonClass, LoadingState } from '@/components/ui';
 import { bookTitle, printedPage } from '@/features/content/pages';
 import { useStructure } from '@/features/content/queries';
 import type { TopicStage } from '@/features/progress/stages';
+import type { LessonEntry } from '@mytutor/types';
 import type { LibraryBook } from '@/features/progress/useLibrary';
 import { cn } from '@/lib/cn';
+import { LessonTextChip } from './LessonTextChip';
 
-type CurriculumBookTopicsProps = { curriculumId: string; item: LibraryBook };
+type CurriculumBookTopicsProps = {
+  curriculumId: string;
+  item: LibraryBook;
+  /** The book's lessons in this curriculum that have a text or a draft. */
+  lessons: LessonEntry[];
+};
 
 const stageLook: Record<TopicStage, string> = {
   approved: 'bg-success-muted text-success',
@@ -20,7 +27,7 @@ const stageLook: Record<TopicStage, string> = {
 };
 
 /** One textbook's units and topics, each topic a lesson of the curriculum. */
-export function CurriculumBookTopics({ curriculumId, item }: CurriculumBookTopicsProps) {
+export function CurriculumBookTopics({ curriculumId, item, lessons }: CurriculumBookTopicsProps) {
   const { t } = useTranslation();
   const structure = useStructure(item.book.structure);
   const offset = structure.data?.source.printedPageOffset ?? null;
@@ -84,6 +91,7 @@ export function CurriculumBookTopics({ curriculumId, item }: CurriculumBookTopic
                         to: printedPage(topic.endPage, offset),
                       })}
                     </span>
+                    <LessonTextChip lesson={lessons.find((l) => l.number === topic.number)} />
                     <span
                       className={cn(
                         'rounded-full px-2.5 py-0.5 text-xs font-sans-bold',

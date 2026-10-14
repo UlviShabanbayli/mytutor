@@ -14,6 +14,7 @@
   "dependencies": {
     "@fontsource-variable/plus-jakarta-sans": "5.3.0",
     "@mytutor/config": "workspace:*",
+    "@mytutor/content-engine": "workspace:*",
     "@mytutor/schemas": "workspace:*",
     "@mytutor/textbook-parser": "workspace:*",
     "@mytutor/types": "workspace:*",

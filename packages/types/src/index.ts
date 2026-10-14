@@ -5,6 +5,12 @@ import type {
   curriculumInputSchema,
   curriculumTextbookSchema,
   createCurriculumResponseSchema,
+  lessonEntrySchema,
+  lessonParagraphSchema,
+  lessonSectionSchema,
+  lessonTextEstimateSchema,
+  lessonTextSchema,
+  topicLessonSchema,
   addBookResponseSchema,
   aiCallSchema,
   answerOptionSchema,
@@ -168,3 +174,9 @@ export type CurriculumEntry = z.output<typeof curriculumEntrySchema>;
 export type CurriculumInput = z.output<typeof curriculumInputSchema>;
 export type CurriculumTextbook = z.output<typeof curriculumTextbookSchema>;
 export type CreateCurriculumResponse = z.output<typeof createCurriculumResponseSchema>;
+export type LessonParagraph = z.output<typeof lessonParagraphSchema>;
+export type LessonSection = z.output<typeof lessonSectionSchema>;
+export type LessonText = z.output<typeof lessonTextSchema>;
+export type TopicLesson = z.output<typeof topicLessonSchema>;
+export type LessonEntry = z.output<typeof lessonEntrySchema>;
+export type LessonTextEstimate = z.output<typeof lessonTextEstimateSchema>;

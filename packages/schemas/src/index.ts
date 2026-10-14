@@ -8,6 +8,7 @@ export * from './knowledge';
 export * from './review';
 export * from './standards';
 export * from './curriculum';
+export * from './topicLesson';
 export * from './content';
 export * from './lesson';
 export * from './inlineMath';

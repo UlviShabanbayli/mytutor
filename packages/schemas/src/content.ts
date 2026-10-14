@@ -92,6 +92,10 @@ export const contentActionErrorCodeSchema = z.enum([
   'no_curriculum',
   'curriculum_not_empty',
   'no_knowledge',
+  'no_approved_items',
+  'no_api_key',
+  'ai_failed',
+  'no_draft',
   'network',
   'internal',
 ]);

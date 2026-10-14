@@ -62,6 +62,7 @@ describe('curricula', () => {
         id,
         ...input,
         textbooks: [],
+        lessons: [],
         path: `.curricula/${id}/curriculum.json`,
         updatedAt: AT.toISOString(),
       },

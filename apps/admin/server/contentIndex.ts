@@ -8,6 +8,7 @@ import {
   curriculumSchema,
   standardLinksSchema,
   standardSetSchema,
+  topicLessonSchema,
 } from '@mytutor/schemas';
 import type {
   ContentBookEntry,
@@ -15,6 +16,7 @@ import type {
   ContentTopicEntry,
   Curriculum,
   CurriculumEntry,
+  LessonEntry,
   StandardSetEntry,
   TrashEntry,
 } from '@mytutor/types';
@@ -287,6 +289,38 @@ export async function readCurriculum(root: string, id: string): Promise<Curricul
   }
 }
 
+const LESSONS_DIR = 'lessons';
+const LESSON_FILE = 'lesson.json';
+
+/** `.curricula/<id>/lessons/<bookId>/<number>/lesson.json`: one lesson per textbook topic. */
+export const lessonFile = (
+  root: string,
+  { curriculumId, bookId, number }: { curriculumId: string; bookId: string; number: string },
+) => join(root, CURRICULA_DIR, curriculumId, LESSONS_DIR, bookId, number, LESSON_FILE);
+
+/** A curriculum's lessons that have a text or a draft, for the content index. */
+export async function scanLessons(root: string, curriculumId: string): Promise<LessonEntry[]> {
+  const base = join(root, CURRICULA_DIR, curriculumId, LESSONS_DIR);
+  if (!(await exists(base))) return [];
+  const files = (await readdir(base, { recursive: true })).filter(
+    (file) => file.endsWith(`${sep}${LESSON_FILE}`) || file === LESSON_FILE,
+  );
+  const entries: LessonEntry[] = [];
+  for (const file of files) {
+    const lesson = await readJson(join(base, file), topicLessonSchema);
+    if (!lesson) continue;
+    entries.push({
+      bookId: lesson.topic.bookId,
+      number: lesson.topic.number,
+      path: toPosix(relative(root, join(base, file))),
+      text: lesson.text !== null,
+      draft: lesson.draft !== null,
+      updatedAt: lesson.updatedAt,
+    });
+  }
+  return entries;
+}
+
 /** Every curriculum, by title. */
 export async function scanCurricula(root: string): Promise<CurriculumEntry[]> {
   const dir = join(root, CURRICULA_DIR);
@@ -297,7 +331,11 @@ export async function scanCurricula(root: string): Promise<CurriculumEntry[]> {
     const curriculum = await readCurriculum(root, folder.name);
     if (!curriculum || curriculum.id !== folder.name) continue;
     const { schemaVersion: _version, createdAt: _created, ...entry } = curriculum;
-    entries.push({ ...entry, path: toPosix(relative(root, curriculumFile(root, curriculum.id))) });
+    entries.push({
+      ...entry,
+      lessons: await scanLessons(root, curriculum.id),
+      path: toPosix(relative(root, curriculumFile(root, curriculum.id))),
+    });
   }
   return entries.sort((a, b) => a.title.localeCompare(b.title, 'az'));
 }

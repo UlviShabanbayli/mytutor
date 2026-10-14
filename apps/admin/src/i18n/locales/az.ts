@@ -351,7 +351,19 @@ export const az = {
     text: 'Dərs mətni',
     noTextTitle: 'Dərs mətni hələ hazırlanmayıb',
     noTextBody:
-      'AI bu mövzunun təsdiqlənmiş biliklərindən mətn yazacaq, hər abzas kitabdakı yerinə istinad edəcək. Mətn redaktor təsdiqləyəndən sonra dərsdə görünür.',
+      'AI bu mövzunun təsdiqlənmiş biliklərindən mətn yazır, hər abzasın yanında kitabdakı səhifəsi göstərilir. Mətn redaktor təsdiqləyəndən sonra dərsdə görünür.',
+    noTextBlocked: 'Mətn təsdiqlənmiş biliklərdən yazılır: əvvəlcə Review-da təsdiqləyin.',
+    write: 'Dərs mətnini hazırla',
+    rewrite: 'Yenidən yaz',
+    writing: 'AI yazır… (1–2 dəqiqə)',
+    estimate: 'Təxmini xərc: ${{cost}} · Claude API',
+    draft: 'Qaralama · təsdiq gözləyir',
+    draftCost: 'Xərc: ${{cost}}',
+    draftBody:
+      'Mətni kitabla tutuşdurun. Təsdiqləyəndə dərsin mətni olur (əvvəlki təsdiqlənmiş mətn varsa, onu əvəz edir); ləğv etsəniz, qaralama silinir.',
+    approve: 'Təsdiqlə',
+    discard: 'Ləğv et',
+    approved: 'Təsdiqlənib',
     video: 'Video',
     noVideoTitle: 'Video hələ yoxdur',
     noVideoBody:
@@ -412,6 +424,8 @@ export const az = {
     topicsSummary: '{{topics}} mövzu · {{approved}} təsdiqlənib · {{items}} bilik elementi',
     bookTopicStats: '{{topics}} mövzu · {{approved}} təsdiqlənib',
     openBook: 'Kitabı aç',
+    textReady: 'Mətn hazırdır',
+    textDraft: 'Mətn təsdiq gözləyir',
     noStructure: 'Bu kitab hələ bölmə və mövzulara ayrılmayıb.',
   },
   standardSets: {
@@ -616,6 +630,12 @@ export const az = {
     no_standard_set: 'Standart dəsti tapılmadı. Ola bilsin, silinib.',
     unknown_standard: 'Bu standart seçilmiş dəstdə yoxdur.',
     no_knowledge: 'Bu mövzunun bilik sənədi yoxdur.',
+    no_approved_items:
+      'Bu mövzunun təsdiqlənmiş bilik elementi yoxdur. Əvvəlcə Review-da təsdiqləyin.',
+    no_api_key:
+      'Claude API açarı yoxdur: ANTHROPIC_API_KEY repo kökündəki .env faylına yazılmalıdır, sonra paneli yenidən başladın.',
+    ai_failed: 'AI-nin cavabı yoxlamadan keçmədi. Yenidən cəhd edin.',
+    no_draft: 'Təsdiqlənəcək qaralama yoxdur. Ola bilsin, artıq təsdiqlənib.',
     no_curriculum: 'Kurikulum tapılmadı. Ola bilsin, silinib.',
     curriculum_not_empty:
       'Bu kurikulumda dərsliklər var. Silmək üçün əvvəlcə dərslikləri kurikulumdan çıxarın.',

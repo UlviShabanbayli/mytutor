@@ -2,7 +2,7 @@ import { effectiveContent, itemDecisions } from '@mytutor/schemas';
 import type { KnowledgeItem, TopicReview, TopicSource } from '@mytutor/types';
 
 /** A textbook example or exercise as a lesson shows it: approved, corrected, with its pages. */
-export type LessonEntry = {
+export type MaterialEntry = {
   item: KnowledgeItem;
   /** Printed page numbers the item is read from, in order. */
   pages: number[];
@@ -10,8 +10,8 @@ export type LessonEntry = {
 
 export type LessonMaterial = {
   /** Worked examples with the book's own solutions. */
-  examples: LessonEntry[];
-  exercises: LessonEntry[];
+  examples: MaterialEntry[];
+  exercises: MaterialEntry[];
   /** Knowledge items of the topic, and how many of them are approved. */
   total: number;
   approved: number;
@@ -32,6 +32,10 @@ const pagesOf = (item: KnowledgeItem) =>
   [...new Set(item.sources.flatMap((s) => s.regions.map((r) => r.printedPage ?? r.page)))].sort(
     (a, b) => a - b,
   );
+
+/** Printed pages each item is read from, by item id. */
+export const itemPages = (items: KnowledgeItem[]) =>
+  new Map(items.map((item) => [item.id, pagesOf(item)]));
 
 /**
  * What a lesson takes from a topic's knowledge: only items an editor approved, with the

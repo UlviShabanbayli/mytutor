@@ -197,7 +197,7 @@ export const knowledgeItemSchema = z.object({
 
 export const aiCallSchema = z.object({
   id: z.string(),
-  stage: z.enum(['extract', 'verify']),
+  stage: z.enum(['extract', 'verify', 'lesson_text']),
   model: z.string(),
   promptVersion: z.string(),
   blockIds: z.array(z.string()),
