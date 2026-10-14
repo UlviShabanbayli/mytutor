@@ -1,6 +1,8 @@
+import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { LessonText } from '@mytutor/types';
-import { TextWithMath } from '@/components/ui';
+import { MathText } from '@/components/ui';
+import { dollarMath } from '@/features/lessons/dollarMath';
 import { pageList } from '@/features/lessons/material';
 
 type LessonTextBodyProps = {
@@ -23,7 +25,13 @@ export function LessonTextBody({ text, pagesOf }: LessonTextBodyProps) {
             const pages = pagesOf(paragraph.sources);
             return (
               <p key={p} className="text-[15px] leading-relaxed text-foreground">
-                <TextWithMath text={paragraph.text} />{' '}
+                {dollarMath(paragraph.text).map((part, i) =>
+                  part.math ? (
+                    <MathText key={i} latex={part.text} />
+                  ) : (
+                    <Fragment key={i}>{part.text}</Fragment>
+                  ),
+                )}{' '}
                 {pages.length ? (
                   <span className="whitespace-nowrap text-xs text-muted-foreground">
                     ({t('lessons.cite', { pages: pageList(pages) })})
