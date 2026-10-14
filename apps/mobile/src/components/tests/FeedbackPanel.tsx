@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { Question } from '@mytutor/types';
 import { Button, Icon, Text } from '@/components/ui';
+import { rightAnswer } from '@/features/tests/answers';
 import { cn } from '@/lib/cn';
 import { duration } from '@/theme';
 import { SourceLine } from './SourceLine';
@@ -15,7 +16,7 @@ type FeedbackPanelProps = {
   onContinue: () => void;
 };
 
-/** Bottom panel shown after "Check": verdict, explanation and the cited source. */
+/** Bottom panel shown after "Check": verdict, the right answer, any explanation and the source. */
 export function FeedbackPanel({ question, correct, isLast, onContinue }: FeedbackPanelProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -45,13 +46,16 @@ export function FeedbackPanel({ question, correct, isLast, onContinue }: Feedbac
         </View>
         {!correct ? (
           <Text variant="label" tone="destructive">
-            {t('session.correctAnswer', { key: question.correctKey })}
+            {t('session.correctAnswer', { key: rightAnswer(question) })}
           </Text>
         ) : null}
-        <View className="gap-1">
-          <Text variant="label">{t('session.explanationTitle')}</Text>
-          <Text>{question.explanation}</Text>
-        </View>
+        {/* Only the source's own explanation is shown; test books give none. */}
+        {question.explanation ? (
+          <View className="gap-1">
+            <Text variant="label">{t('session.explanationTitle')}</Text>
+            <Text>{question.explanation}</Text>
+          </View>
+        ) : null}
         <SourceLine source={question.source} />
         {/* Moving on after a mistake is calm (dark), not another red alarm. */}
         <Button

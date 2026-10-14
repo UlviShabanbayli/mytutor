@@ -11,6 +11,7 @@ export * from './curriculum';
 export * from './topicLesson';
 export * from './answers';
 export * from './testBook';
+export * from './testQuestion';
 export * from './content';
 export * from './lesson';
 export * from './inlineMath';

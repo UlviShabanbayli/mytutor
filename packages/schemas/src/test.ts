@@ -21,20 +21,51 @@ export const answerOptionSchema = z.object({
   text: z.string().min(1),
 });
 
+/**
+ * How a question is answered: "choice" picks one of the options, "open" types a number. Older
+ * questions have no type: they are choice questions.
+ */
+export const questionTypeSchema = z.enum(['choice', 'open']);
+
+/**
+ * One formula of a test, typeset as SVG (ink in `currentColor`); sizes are in em of the text
+ * around it, `depth` how far it reaches below the baseline.
+ */
+export const mathSvgSchema = z.object({
+  svg: z.string(),
+  width: z.number(),
+  height: z.number(),
+  depth: z.number(),
+});
+
 export const questionSchema = z
   .object({
     id: z.string(),
     topicId: z.string(),
+    type: questionTypeSchema.default('choice'),
+    /** The question; formulas between single dollar signs, typeset from the test's `math`. */
     stem: z.string().min(1),
-    options: z.array(answerOptionSchema).min(2).max(OPTION_KEYS.length),
-    correctKey: optionKeySchema,
-    explanation: z.string().min(1),
+    options: z.array(answerOptionSchema).max(OPTION_KEYS.length).default([]),
+    /** The right option of a choice question. */
+    correctKey: optionKeySchema.nullable().default(null),
+    /** The answer of an open question: a number as printed ("36", "2,8"). */
+    answer: z.string().nullable().default(null),
+    /** Only what the source itself explains; null when it gives no explanation. */
+    explanation: z.string().nullable().default(null),
+    /** Pictures the question needs, as paths the API serves. */
+    figures: z.array(z.string()).default([]),
     source: sourceRefSchema,
   })
-  .refine((q) => q.options.some((o) => o.key === q.correctKey), {
-    message: 'correctKey must match one of the options',
-    path: ['correctKey'],
-  });
+  .refine(
+    (q) =>
+      q.type === 'choice'
+        ? q.options.length >= 2 && q.options.some((o) => o.key === q.correctKey)
+        : q.answer !== null && q.answer.trim() !== '',
+    {
+      message: 'A choice question needs its correct option; an open question its answer',
+      path: ['correctKey'],
+    },
+  );
 
 export const subjectSchema = z.object({
   id: z.string(),
@@ -49,7 +80,8 @@ export const topicSchema = z.object({
   id: z.string(),
   subjectId: z.string(),
   title: z.string().min(1),
-  grade: z.number().int().min(1).max(11),
+  /** Null for a topic that is not one grade's, such as a test book's section. */
+  grade: z.number().int().min(1).max(11).nullable(),
   questionCount: z.number().int().nonnegative(),
 });
 
@@ -60,4 +92,18 @@ export const practiceTestSchema = z.object({
   subjectId: z.string(),
   title: z.string().min(1),
   questions: z.array(questionSchema).min(1),
+  /** Every formula in the test's questions, by its LaTeX. */
+  math: z.record(z.string(), mathSvgSchema).default({}),
+});
+
+/**
+ * One subject's tests as published for the app (`.published/tests/<subject>.json`): what the
+ * API serves. Built from editors' content, never written by hand.
+ */
+export const publishedTestsSchema = z.object({
+  schemaVersion: z.literal(1),
+  subject: subjectSchema,
+  topics: z.array(topicSchema),
+  tests: z.array(practiceTestSchema),
+  publishedAt: z.string(),
 });

@@ -19,6 +19,15 @@ import type {
   subjectIdSchema,
   testBookEntrySchema,
   testBookSchema,
+  testPageBandSchema,
+  testPageLayoutSchema,
+  testPagesSchema,
+  pageReadingSchema,
+  questionTopicLinkSchema,
+  testAnswerSchema,
+  testQuestionSchema,
+  testQuestionsDocumentSchema,
+  topicCatalogueSchema,
   addBookResponseSchema,
   aiCallSchema,
   answerOptionSchema,
@@ -65,6 +74,9 @@ import type {
   otpCodeSchema,
   phoneNumberSchema,
   practiceTestSchema,
+  questionTypeSchema,
+  mathSvgSchema,
+  publishedTestsSchema,
   purgeTrashResponseSchema,
   questionSchema,
   restoreBookResponseSchema,
@@ -103,6 +115,9 @@ export type Question = z.output<typeof questionSchema>;
 export type Subject = z.output<typeof subjectSchema>;
 export type Topic = z.output<typeof topicSchema>;
 export type PracticeTest = z.output<typeof practiceTestSchema>;
+export type QuestionType = z.output<typeof questionTypeSchema>;
+export type MathSvg = z.output<typeof mathSvgSchema>;
+export type PublishedTests = z.output<typeof publishedTestsSchema>;
 
 export type TextbookBlockKind = z.output<typeof textbookBlockKindSchema>;
 export type TextbookTopic = z.output<typeof textbookTopicSchema>;
@@ -110,8 +125,8 @@ export type TextbookBlock = z.output<typeof textbookBlockSchema>;
 export type TextbookUnit = z.output<typeof textbookUnitSchema>;
 export type TextbookStructure = z.output<typeof textbookStructureSchema>;
 
-/** The student's answers in one test session, keyed by question id. */
-export type TestAnswers = Record<string, OptionKey>;
+/** The student's answers in one test session, keyed by question id: an option key or a typed number. */
+export type TestAnswers = Record<string, string>;
 
 /** Outcome of a finished test session. */
 export type TestResult = {
@@ -196,3 +211,12 @@ export type AnswersDocument = z.output<typeof answersDocumentSchema>;
 export type SubjectId = z.output<typeof subjectIdSchema>;
 export type TestBook = z.output<typeof testBookSchema>;
 export type TestBookEntry = z.output<typeof testBookEntrySchema>;
+export type TestPageBand = z.output<typeof testPageBandSchema>;
+export type TestPageLayout = z.output<typeof testPageLayoutSchema>;
+export type TestPages = z.output<typeof testPagesSchema>;
+export type PageReading = z.output<typeof pageReadingSchema>;
+export type QuestionTopicLink = z.output<typeof questionTopicLinkSchema>;
+export type TestAnswer = z.output<typeof testAnswerSchema>;
+export type TestQuestion = z.output<typeof testQuestionSchema>;
+export type TestQuestionsDocument = z.output<typeof testQuestionsDocumentSchema>;
+export type TopicCatalogue = z.output<typeof topicCatalogueSchema>;

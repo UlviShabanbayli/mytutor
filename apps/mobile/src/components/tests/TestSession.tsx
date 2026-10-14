@@ -5,17 +5,22 @@ import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { OptionKey, PracticeTest, Question } from '@mytutor/types';
-import { Badge, Button, IconButton, Text } from '@/components/ui';
-import { DEMO_SOURCE } from '@/features/tests/demoData';
+import { Button, IconButton } from '@/components/ui';
+import { isCorrect } from '@/features/tests/answers';
 import { useTestSessionStore } from '@/features/tests/sessionStore';
+import { TestMathContext } from '@/features/tests/testMath';
+import { fontSize } from '@/theme';
 import { FeedbackPanel } from './FeedbackPanel';
+import { MathText } from './MathText';
+import { OpenAnswerInput } from './OpenAnswerInput';
 import { OptionButton, type OptionState } from './OptionButton';
+import { QuestionFigure } from './QuestionFigure';
 import { SessionProgress } from './SessionProgress';
 
 function optionState(
   question: Question,
   key: OptionKey,
-  selected: OptionKey | undefined,
+  selected: string | undefined,
   checked: boolean,
 ): OptionState {
   if (!checked) return selected === key ? 'selected' : 'idle';
@@ -27,7 +32,10 @@ type TestSessionProps = {
   test: PracticeTest;
 };
 
-/** One question at a time: pick → check → feedback with explanation and source → next. */
+/**
+ * One question at a time: pick an option (or type the number) → check → feedback with the
+ * right answer and the source → next.
+ */
 export function TestSession({ test }: TestSessionProps) {
   const { t } = useTranslation();
   const { session, start, select, check, next, finish } = useTestSessionStore();
@@ -39,8 +47,9 @@ export function TestSession({ test }: TestSessionProps) {
   if (!active || !question) return null;
 
   const selected = active.answers[question.id];
+  const answered = Boolean(selected?.trim());
   const isLast = active.index === test.questions.length - 1;
-  const correct = selected === question.correctKey;
+  const correct = isCorrect(question, selected);
 
   const onCheck = () => {
     check();
@@ -65,24 +74,43 @@ export function TestSession({ test }: TestSessionProps) {
         <IconButton icon="close" accessibilityLabel={t('common.close')} onPress={router.back} />
         <SessionProgress title={test.title} index={active.index} total={test.questions.length} />
       </View>
-      <ScrollView contentContainerClassName="gap-5 px-5 py-5">
-        {question.source === DEMO_SOURCE ? <Badge label={t('demo.badge')} tone="accent" /> : null}
-        <Text variant="title">{question.stem}</Text>
-        <View accessibilityRole="radiogroup" className="gap-2.5">
-          {question.options.map((option) => (
-            <OptionButton
-              key={option.key}
-              option={option}
-              state={optionState(question, option.key, selected, active.checked)}
+      <TestMathContext.Provider value={test.math}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="gap-5 px-5 py-5">
+          <MathText
+            text={question.stem}
+            fontSize={fontSize.lg[0]}
+            className="font-sans-bold text-lg"
+          />
+          {question.figures.map((figure) => (
+            <QuestionFigure key={figure} path={figure} />
+          ))}
+          {question.type === 'open' ? (
+            <OpenAnswerInput
+              value={selected ?? ''}
               disabled={active.checked}
-              onPress={() => {
-                void Haptics.selectionAsync();
-                select(question.id, option.key);
+              onChange={(value) => select(question.id, value)}
+              onSubmit={() => {
+                if (answered && !active.checked) onCheck();
               }}
             />
-          ))}
-        </View>
-      </ScrollView>
+          ) : (
+            <View accessibilityRole="radiogroup" className="gap-2.5">
+              {question.options.map((option) => (
+                <OptionButton
+                  key={option.key}
+                  option={option}
+                  state={optionState(question, option.key, selected, active.checked)}
+                  disabled={active.checked}
+                  onPress={() => {
+                    void Haptics.selectionAsync();
+                    select(question.id, option.key);
+                  }}
+                />
+              ))}
+            </View>
+          )}
+        </ScrollView>
+      </TestMathContext.Provider>
       {active.checked ? (
         <FeedbackPanel
           question={question}
@@ -92,7 +120,7 @@ export function TestSession({ test }: TestSessionProps) {
         />
       ) : (
         <View className="px-5 pb-2 pt-3">
-          <Button label={t('session.check')} disabled={!selected} onPress={onCheck} />
+          <Button label={t('session.check')} disabled={!answered} onPress={onCheck} />
         </View>
       )}
     </SafeAreaView>
