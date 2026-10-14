@@ -86,6 +86,9 @@ export const az = {
     correctAnswer: 'Düzgün cavab: {{key}}',
     explanationTitle: 'İzah',
     optionLabel: 'Variant {{key}}: {{text}}',
+    answerLabel: 'Cavabın',
+    answerHint: 'Ədədi yaz: məsələn 36 və ya 2,8',
+    figure: 'Sualın şəkli',
   },
   source: {
     label: 'Mənbə',
@@ -142,10 +145,6 @@ export const az = {
     themeDark: 'Qaranlıq',
     language: 'Dil',
     languageName: 'Azərbaycan dili',
-  },
-  demo: {
-    badge: 'Demo',
-    notice: 'Bu, nümunə sualdır. Real suallar dərslik və test banklarından hazırlanacaq.',
   },
 };
 

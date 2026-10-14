@@ -1,13 +1,17 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import type { OptionKey, Question } from '@mytutor/types';
+import type { Question } from '@mytutor/types';
 import { Text } from '@/components/ui';
+import { rightAnswer } from '@/features/tests/answers';
 import { cn } from '@/lib/cn';
+import { fontSize } from '@/theme';
+import { MathText } from './MathText';
 
 type AnswerReviewItemProps = {
   number: number;
   question: Question;
-  answer: OptionKey | undefined;
+  /** The option chosen or the number typed. */
+  answer: string | undefined;
   divider?: boolean;
 };
 
@@ -26,9 +30,9 @@ export function AnswerReviewItem({
         <Text className="font-sans-black text-xs text-destructive">{number}</Text>
       </View>
       <View className="flex-1 gap-1">
-        <Text className="font-sans-medium">{question.stem}</Text>
+        <MathText text={question.stem} fontSize={fontSize.base[0]} className="font-sans-medium" />
         <Text variant="caption" tone="muted">
-          {`${answer ? t('result.yourAnswer', { key: answer }) : t('result.noAnswer')} · ${t('session.correctAnswer', { key: question.correctKey })}`}
+          {`${answer ? t('result.yourAnswer', { key: answer }) : t('result.noAnswer')} · ${t('session.correctAnswer', { key: rightAnswer(question) })}`}
         </Text>
       </View>
     </View>

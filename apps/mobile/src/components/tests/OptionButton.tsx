@@ -2,7 +2,10 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { AnswerOption } from '@mytutor/types';
 import { Icon, Text } from '@/components/ui';
+import { spokenText } from '@/features/tests/testMath';
 import { cn } from '@/lib/cn';
+import { fontSize } from '@/theme';
+import { MathText } from './MathText';
 
 export type OptionState = 'idle' | 'selected' | 'correct' | 'incorrect' | 'dimmed';
 
@@ -49,7 +52,10 @@ export function OptionButton({ option, state, disabled, onPress }: OptionButtonP
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityLabel={t('session.optionLabel', { key: option.key, text: option.text })}
+      accessibilityLabel={t('session.optionLabel', {
+        key: option.key,
+        text: spokenText(option.text),
+      })}
       accessibilityState={{
         selected: state === 'selected' || state === 'correct' || state === 'incorrect',
         disabled,
@@ -64,9 +70,13 @@ export function OptionButton({ option, state, disabled, onPress }: OptionButtonP
       <View className={cn('h-8 w-8 items-center justify-center rounded-full', s.badge)}>
         <Text className={cn('font-sans-black text-sm', s.badgeText)}>{option.key}</Text>
       </View>
-      <Text variant="body" className="flex-1 font-sans-medium text-lg">
-        {option.text}
-      </Text>
+      <View className="flex-1">
+        <MathText
+          text={option.text}
+          fontSize={fontSize.lg[0]}
+          className="font-sans-medium text-lg"
+        />
+      </View>
       {/* Icons make correctness clear without relying on color alone. */}
       {state === 'correct' ? <Icon name="checkmark" size={22} color="success" /> : null}
       {state === 'incorrect' ? <Icon name="close" size={22} color="destructive" /> : null}

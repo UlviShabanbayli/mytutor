@@ -20,7 +20,12 @@ export function RecommendedTestCard({ topic }: RecommendedTestCardProps) {
         </Text>
         <Text variant="title">{topic.title}</Text>
         <Text variant="label" tone="muted">
-          {`${t('common.grade', { count: topic.grade, ordinal: true })} · ${t('common.questionsCount', { count: topic.questionCount })}`}
+          {[
+            topic.grade === null ? null : t('common.grade', { count: topic.grade, ordinal: true }),
+            t('common.questionsCount', { count: topic.questionCount }),
+          ]
+            .filter(Boolean)
+            .join(' · ')}
         </Text>
         <Text tone="muted" className="pt-1">
           {t('home.recommendedBody')}

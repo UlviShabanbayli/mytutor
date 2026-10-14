@@ -1,9 +1,10 @@
 import type { PracticeTest, TestAnswers } from '@mytutor/types';
+import { isCorrect } from './answers';
 
 export type ScoreTier = 'excellent' | 'good' | 'practice';
 
 export function countCorrect(test: PracticeTest, answers: TestAnswers): number {
-  return test.questions.filter((q) => answers[q.id] === q.correctKey).length;
+  return test.questions.filter((q) => isCorrect(q, answers[q.id])).length;
 }
 
 /** Percentage 0–100, rounded. */
