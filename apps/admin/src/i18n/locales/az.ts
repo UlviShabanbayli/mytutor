@@ -372,8 +372,12 @@ export const az = {
     examplesBody: 'Kitabın həll edilmiş nümunələri, kitabdakı həlli ilə.',
     noExamples: 'Bu mövzuda kitabın həll edilmiş nümunəsi yoxdur.',
     exercises: 'Tapşırıqlar',
-    exercisesBody:
-      'Kitabdakı tapşırıqlar. Cavabları kitabın «Cavablar» bölməsindən əlavə olunacaq.',
+    exercisesAnswered:
+      'Kitabdakı tapşırıqlar. Cavablar kitabın öz «Cavablar» bölməsindəndir; kitab hər tapşırığa cavab vermir: burada {{total}} tapşırıqdan {{answered}}-nin cavabı var.',
+    exercisesNoKey:
+      'Kitabdakı tapşırıqlar. Bu kitabın «Cavablar» bölməsi hələ oxunmayıb; aşağıdakı əmr onu oxuyur (AI, pullu).',
+    bookAnswer: 'Kitabın cavabı · səh. {{page}}',
+    answerUnchecked: 'Kitabla tutuşdurun',
     noExercises: 'Bu mövzuda kitabın tapşırığı yoxdur.',
   },
   curricula: {

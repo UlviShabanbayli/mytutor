@@ -54,6 +54,7 @@ const book: ContentBookEntry = {
   file: 'b.pdf',
   title: 'Riyaziyyat 7',
   structure: 'b/structure.json',
+  answers: null,
   canExtract: true,
   standardLinks: null,
   topics: [entry('1.1'), withKnowledge('1.2'), withKnowledge('2.1', progress(1, 3))],
