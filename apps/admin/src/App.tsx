@@ -1,6 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { AppShell } from './components/layout/AppShell';
+import { STANDARDS_ENABLED } from './lib/features';
 import { queryClient } from './lib/queryClient';
 import { BooksPage } from './routes/BooksPage';
 import { CurriculaPage } from './routes/CurriculaPage';
@@ -25,7 +26,9 @@ export function App() {
             <Route index element={<OverviewPage />} />
             <Route path="books" element={<BooksPage />} />
             <Route path="books/:bookId" element={<BookPage tab="topics" />} />
-            <Route path="books/:bookId/standards" element={<BookPage tab="standards" />} />
+            {STANDARDS_ENABLED ? (
+              <Route path="books/:bookId/standards" element={<BookPage tab="standards" />} />
+            ) : null}
             <Route path="books/:bookId/topics/:number" element={<Navigate to="source" replace />} />
             <Route path="books/:bookId/topics/:number/review" element={<ReviewPage />} />
             <Route path="books/:bookId/topics/:number/:tab" element={<TopicPage />} />
@@ -36,8 +39,12 @@ export function App() {
               path="curricula/:curriculumId/topics"
               element={<CurriculumPage tab="topics" />}
             />
-            <Route path="standards" element={<StandardSetsPage />} />
-            <Route path="standards/:standardSetId" element={<StandardSetEditorPage />} />
+            {STANDARDS_ENABLED ? (
+              <>
+                <Route path="standards" element={<StandardSetsPage />} />
+                <Route path="standards/:standardSetId" element={<StandardSetEditorPage />} />
+              </>
+            ) : null}
             <Route path="trash" element={<TrashPage />} />
             <Route path="guide" element={<GuidePage />} />
             <Route path="*" element={<NotFoundPage />} />

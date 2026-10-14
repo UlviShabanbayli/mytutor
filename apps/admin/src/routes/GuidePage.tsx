@@ -8,6 +8,7 @@ import { ReviewGuide } from '@/components/guide/ReviewGuide';
 import { SourceGuide } from '@/components/guide/SourceGuide';
 import { WorkflowGuide } from '@/components/guide/WorkflowGuide';
 import { usePageCrumbs } from '@/features/layout/crumbs';
+import { STANDARDS_ENABLED } from '@/lib/features';
 
 /** What everything in the panel means, each mark shown as it looks. */
 export function GuidePage() {
@@ -21,8 +22,12 @@ export function GuidePage() {
     { id: 'source', label: t('guide.source.title') },
     { id: 'knowledge', label: t('guide.knowledge.title') },
     { id: 'checks', label: t('guide.checks.title') },
-    { id: 'standards', label: t('guide.standards.title') },
-    { id: 'links', label: t('guide.links.title') },
+    ...(STANDARDS_ENABLED
+      ? [
+          { id: 'standards', label: t('guide.standards.title') },
+          { id: 'links', label: t('guide.links.title') },
+        ]
+      : []),
   ];
 
   return (
@@ -49,7 +54,7 @@ export function GuidePage() {
       <SourceGuide />
       <KnowledgeGuide />
       <ChecksGuide />
-      <StandardsGuide />
+      {STANDARDS_ENABLED ? <StandardsGuide /> : null}
     </div>
   );
 }

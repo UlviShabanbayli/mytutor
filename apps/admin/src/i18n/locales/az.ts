@@ -76,10 +76,10 @@ export const az = {
   overview: {
     title: 'Ümumi baxış',
     subtitle:
-      'Dərslikdən dərsə qədər 5 addım var. Burada hər addımda nə qədər işin qaldığı və növbəti işin nə olduğu görünür.',
+      'Dərslikdən dərsə qədər {{count}} addım var. Burada hər addımda nə qədər işin qaldığı və növbəti işin nə olduğu görünür.',
   },
   steps: {
-    label: '5 addım',
+    label: '{{count}} addım',
     source: 'Mənbə',
     sourceBody: 'PDF-dən mətn, bloklar və şəkillər çıxarılır',
     knowledge: 'Bilik',

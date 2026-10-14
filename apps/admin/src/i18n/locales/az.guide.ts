@@ -28,7 +28,7 @@ export const guide = {
   },
   basics: {
     title: 'Menyu, tema və rənglər',
-    overview: 'Bütün kitablar üzrə 5 addım, növbəti tövsiyə olunan iş və hər kitabın vəziyyəti.',
+    overview: 'Bütün kitablar üzrə addımlar, növbəti tövsiyə olunan iş və hər kitabın vəziyyəti.',
     books:
       'Bütün dərsliklər. Altında hər kitab ayrıca: qırmızı rəqəm qərar gözləyən yoxlanmalı elementlərdir, «1/22» isə mənbəsi çıxarılmış mövzular.',
     review:
@@ -46,8 +46,7 @@ export const guide = {
     colorsIntro: 'Rənglər paneldə hər yerdə eyni mənanı verir:',
     primary: 'Əsas məlumat, seçilmiş element, element növü, izah blokları.',
     success: 'Hazırdır, keçdi, dərslikdən təsdiqlənib.',
-    accent:
-      'Diqqət tələb edir, amma xəta deyil: xəbərdarlıq, törəmə element, bağlanmamış standart, nümunə blokları.',
+    accent: 'Diqqət tələb edir, amma xəta deyil: xəbərdarlıq, törəmə element, nümunə blokları.',
     destructive: 'Xəta, keçməyən yoxlama, təsdiqlənməyən element, silmə.',
     neutral: 'Neytral məlumat, hələ edilməyib, tapşırıq blokları.',
     error: 'Əməliyyat alınmadı. «Texniki məlumat» açılanda proqramçılar üçün dəqiq səbəb görünür.',
@@ -56,9 +55,9 @@ export const guide = {
   books: {
     title: 'Ümumi baxış və dərsliklər',
     steps:
-      'Kitabların hamısı üzrə 5 addım: neçə mövzunun hansı addımda olduğu. Narıncı çərçivəli addımda iş gözləyir.',
+      'Kitabların hamısı üzrə addımlar: neçə mövzunun hansı addımda olduğu. Narıncı çərçivəli addımda iş gözləyir.',
     recommended:
-      'Növbəti ən faydalı iş: başlanmış review, sonra pulsuz mənbə çıxarma, sonra standartlar. Bir düymə ilə başlayır.',
+      'Növbəti ən faydalı iş: başlanmış review, sonra pulsuz mənbə çıxarma, sonra bilik çıxarma. Bir düymə ilə başlayır.',
     spine: 'Kitabın sinfi və hissəsi (adından oxunur).',
     cells:
       'Hər kvadrat bir mövzudur, bölmələr arasında boşluq var. Kvadrata toxunanda mövzu açılır.',
@@ -71,10 +70,11 @@ export const guide = {
     extractAll:
       'Kitabın mənbəsi olmayan bütün mövzularını bir-bir çıxarır. Pulsuzdur; bu vaxt paneldə işləməyə davam edə bilərsiniz.',
     bookSteps:
-      'Kitab səhifəsində bu kitabın 5 addımı: yaşıl hazırdır, narıncı çərçivəli indiki addımdır. «Standartlar»a toxunanda standart bağlantıları açılır.',
+      'Kitab səhifəsində bu kitabın addımları: yaşıl hazırdır, narıncı çərçivəli indiki addımdır.',
     filter: 'Mövzuları addıma görə süzür; qutu yalnız yoxlanmalı elementi olan mövzuları saxlayır.',
     unit: 'Bölmə sətri: toxunanda bölmənin mövzuları cədvəl kimi açılır və ya bağlanır.',
-    bar: 'Mövzunun 5 addımı kiçik zolaq kimi: Mənbə → Bilik → Review → Standartlar → Dərs planı.',
+    // «Standartlar» goes back between Review and Dərs planı when STANDARDS_ENABLED is on.
+    bar: 'Mövzunun addımları kiçik zolaq kimi: Mənbə → Bilik → Review → Dərs planı.',
     barDone: 'Bu addım hazırdır.',
     barCurrent: 'Bu addım davam edir.',
     barQueued: 'Bu addım sıradadır (əvvəlki hazırdır).',

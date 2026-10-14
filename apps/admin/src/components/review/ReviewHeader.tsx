@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { buttonClass } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { STANDARDS_ENABLED } from '@/lib/features';
 
 type ReviewHeaderProps = {
   /** Where "Saxla və çıx" leads: decisions are already saved. */
@@ -20,7 +21,7 @@ export function ReviewHeader({ exitTo, unit, title, blocks, items }: ReviewHeade
     { label: t('steps.source'), state: 'done' },
     { label: t('steps.knowledge'), state: 'done' },
     { label: t('review.stepNow'), state: 'now' },
-    { label: t('steps.standards'), state: 'later' },
+    ...(STANDARDS_ENABLED ? [{ label: t('steps.standards'), state: 'later' } as const] : []),
     { label: t('steps.lesson'), state: 'later' },
   ] as const;
   const percent = blocks.total ? Math.round((blocks.done / blocks.total) * 100) : 0;

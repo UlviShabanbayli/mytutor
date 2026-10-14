@@ -22,6 +22,7 @@ import { useBookStandards } from '@/features/standards/useBookStandards';
 import { usePageCrumbs } from '@/features/layout/crumbs';
 import { commands } from '@/lib/commands';
 import { NotFoundPage } from './NotFoundPage';
+import { STANDARDS_ENABLED } from '@/lib/features';
 
 const TABS = ['source', 'knowledge', 'lesson'] as const;
 type TabKey = (typeof TABS)[number];
@@ -111,7 +112,9 @@ export function TopicPage() {
           </Link>
         ) : null}
       </header>
-      <TopicStandards bookId={bookId} topic={number} title={title} bs={bs} />
+      {STANDARDS_ENABLED ? (
+        <TopicStandards bookId={bookId} topic={number} title={title} bs={bs} />
+      ) : null}
       <TabNav
         label={title}
         tabs={[

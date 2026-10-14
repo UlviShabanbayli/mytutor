@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { TopicRowData } from '@/features/progress/stages';
 import { cn } from '@/lib/cn';
+import { STANDARDS_ENABLED } from '@/lib/features';
 
 type Segment = 'done' | 'current' | 'queued' | 'none';
 
@@ -11,10 +12,11 @@ const fill: Record<Segment, string> = {
   none: 'bg-border',
 };
 
-/** A topic's five steps (source, knowledge, review, standard set, lesson) as a small bar. */
+/** A topic's steps (source, knowledge, review, standard set when on, lesson) as a small bar. */
 export function topicSegments(topic: TopicRowData, linked: boolean): Segment[] {
   const order = ['none', 'source', 'knowledge', 'review', 'approved'];
   const at = order.indexOf(topic.stage);
+  const standards: Segment[] = STANDARDS_ENABLED ? [linked ? 'done' : 'none'] : [];
   return [
     at >= 1 ? 'done' : 'queued',
     at >= 2 ? 'done' : at === 1 ? 'queued' : 'none',
@@ -25,7 +27,7 @@ export function topicSegments(topic: TopicRowData, linked: boolean): Segment[] {
         : at === 2
           ? 'queued'
           : 'none',
-    linked ? 'done' : 'none',
+    ...standards,
     'none',
   ];
 }

@@ -16,6 +16,7 @@ import { CountBadge } from './CountBadge';
 import { Logo } from './Logo';
 import { SidebarLink } from './SidebarLink';
 import { ThemeToggle } from './ThemeToggle';
+import { STANDARDS_ENABLED } from '@/lib/features';
 
 type SidebarProps = { onNavigate?: () => void };
 
@@ -95,14 +96,16 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           active={under('/review')}
           badge={openFlagged ? <CountBadge tone="destructive" value={openFlagged} /> : null}
         />
-        <SidebarLink
-          {...link}
-          to="/standards"
-          label={t('nav.standards')}
-          icon={<ListChecks className={icon} />}
-          active={under('/standards')}
-          badge={<CountBadge value={index.data?.standardSets.length ?? 0} />}
-        />
+        {STANDARDS_ENABLED ? (
+          <SidebarLink
+            {...link}
+            to="/standards"
+            label={t('nav.standards')}
+            icon={<ListChecks className={icon} />}
+            active={under('/standards')}
+            badge={<CountBadge value={index.data?.standardSets.length ?? 0} />}
+          />
+        ) : null}
         <span className="px-3 pb-1 pt-3.5 text-[11px] font-sans-black uppercase tracking-wider text-muted-foreground">
           {t('nav.later')}
         </span>
