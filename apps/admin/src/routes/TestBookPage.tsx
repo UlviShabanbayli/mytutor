@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 import { TestBookFacts } from '@/components/testBooks/TestBookFacts';
+import { TestBookQuestions } from '@/components/testBooks/TestBookQuestions';
 import { DeleteTestBookDialog } from '@/components/testBooks/DeleteTestBookDialog';
 import { Badge, Button, EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { useContentIndex } from '@/features/content/queries';
@@ -45,11 +46,15 @@ export function TestBookPage() {
         </Button>
       </header>
       <TestBookFacts book={book} />
-      <EmptyState
-        icon={<ListTree className="size-6" />}
-        title={t('testBooks.nextTitle')}
-        body={t('testBooks.nextBody')}
-      />
+      {book.questions ? (
+        <TestBookQuestions book={book} questions={book.questions} />
+      ) : (
+        <EmptyState
+          icon={<ListTree className="size-6" />}
+          title={t('testBooks.nextTitle')}
+          body={t('testBooks.nextBody')}
+        />
+      )}
       <DeleteTestBookDialog
         book={book}
         open={deleting}

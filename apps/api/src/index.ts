@@ -3,7 +3,7 @@ import { createApp } from './app';
 import { loadEnv } from './env';
 
 const env = loadEnv();
-const app = createApp();
+const app = createApp({ contentDir: env.CONTENT_DIR });
 
 serve({ fetch: app.fetch, port: env.PORT }, (info) => {
   console.log(`API listening on http://localhost:${info.port}`);

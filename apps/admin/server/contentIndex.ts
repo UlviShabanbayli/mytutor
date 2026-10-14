@@ -10,6 +10,7 @@ import {
   standardSetSchema,
   TEST_BOOK_ID,
   testBookSchema,
+  testQuestionsDocumentSchema,
   topicLessonSchema,
 } from '@mytutor/schemas';
 import type {
@@ -379,16 +380,40 @@ export async function readTestBooks(root: string): Promise<TestBook[]> {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+/** What was split from a test book so far, counted for the list and the book's page. */
+async function testBookQuestions(root: string, id: string) {
+  const path = posix.join(TEST_BOOKS_DIR, id, 'questions.json');
+  const doc = await readJson(join(root, path), testQuestionsDocumentSchema);
+  if (!doc) return null;
+  const qs = doc.questions;
+  return {
+    path,
+    total: qs.length,
+    answered: qs.filter((q) => q.answer).length,
+    linked: qs.filter((q) => q.links.some((l) => l.role === 'required')).length,
+    uncovered: qs.filter((q) => q.uncovered).length,
+    flagged: qs.filter((q) => q.flags.length).length,
+    pagesRead: doc.pages.length,
+  };
+}
+
 export const scanTestBooks = async (root: string): Promise<TestBookEntry[]> =>
-  (await readTestBooks(root)).map(({ id, title, subject, pdf, createdAt }) => ({
-    id,
-    title,
-    subject,
-    file: pdf.file,
-    pages: pdf.pages,
-    bytes: pdf.bytes,
-    createdAt,
-  }));
+  Promise.all(
+    (await readTestBooks(root)).map(async ({ id, title, subject, pdf, createdAt }) => {
+      const topics = posix.join(TEST_BOOKS_DIR, id, 'topics.json');
+      return {
+        id,
+        title,
+        subject,
+        file: pdf.file,
+        pages: pdf.pages,
+        bytes: pdf.bytes,
+        createdAt,
+        questions: await testBookQuestions(root, id),
+        topics: (await exists(join(root, topics))) ? topics : null,
+      };
+    }),
+  );
 
 export async function buildContentIndex(root: string): Promise<ContentIndex> {
   const books = await scanBooks(root);

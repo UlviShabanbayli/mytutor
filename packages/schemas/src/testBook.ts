@@ -23,6 +23,20 @@ export const SUBJECT_IDS = [
 ] as const;
 export const subjectIdSchema = z.enum(SUBJECT_IDS);
 
+/** How the app names each subject, and its icon (an Ionicons name the app knows). */
+export const SUBJECTS: Record<(typeof SUBJECT_IDS)[number], { title: string; icon: string }> = {
+  riyaziyyat: { title: 'Riyaziyyat', icon: 'calculator' },
+  'azerbaycan-dili': { title: 'Azərbaycan dili', icon: 'book' },
+  edebiyyat: { title: 'Ədəbiyyat', icon: 'library' },
+  'ingilis-dili': { title: 'İngilis dili', icon: 'language' },
+  fizika: { title: 'Fizika', icon: 'magnet' },
+  kimya: { title: 'Kimya', icon: 'flask' },
+  biologiya: { title: 'Biologiya', icon: 'leaf' },
+  tarix: { title: 'Tarix', icon: 'time' },
+  cografiya: { title: 'Coğrafiya', icon: 'earth' },
+  informatika: { title: 'İnformatika', icon: 'laptop' },
+};
+
 export const testBookSchema = z.object({
   schemaVersion: z.literal(1),
   id: z.string().regex(TEST_BOOK_ID),
@@ -49,7 +63,52 @@ export const testBookEntrySchema = z.object({
   pages: z.number().int().positive(),
   bytes: z.number().int().positive(),
   createdAt: z.string(),
+  /** `questions.json` once questions were split from the book, with counts. */
+  questions: z
+    .object({
+      path: z.string(),
+      total: z.number().int(),
+      answered: z.number().int(),
+      linked: z.number().int(),
+      uncovered: z.number().int(),
+      flagged: z.number().int(),
+      pagesRead: z.number().int(),
+    })
+    .nullable()
+    .default(null),
+  /** `topics.json`: the textbook topics the questions may be keyed to. */
+  topics: z.string().nullable().default(null),
 });
 
 export const addTestBookResponseSchema = z.object({ testBookId: z.string() });
 export const deleteTestBookResponseSchema = z.object({ testBookId: z.string() });
+
+/** A band of ink on a scanned page, in pixels of the page image; `id` names it ("L12"). */
+export const testPageBandSchema = z.object({
+  id: z.string().regex(/^[TLRBC]\d+$/),
+  x0: z.number().int(),
+  y0: z.number().int(),
+  x1: z.number().int(),
+  y1: z.number().int(),
+});
+
+/** One page of a test book as the parser sees it: its image, column rule and bands. */
+export const testPageLayoutSchema = z.object({
+  page: z.number().int().positive(),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  /** The line between the two columns, when the page has one. */
+  rule: z.object({ x: z.number().int(), y0: z.number().int(), y1: z.number().int() }).nullable(),
+  bands: z.array(testPageBandSchema),
+  /** The page image, and the same with band ids in the margins; relative to the book folder. */
+  image: z.string(),
+  marked: z.string(),
+});
+
+/** `pages.json` in a test book's folder: the pages rendered so far. */
+export const testPagesSchema = z.object({
+  schemaVersion: z.literal(1),
+  testBookId: z.string().regex(TEST_BOOK_ID),
+  pdfSha256: z.string(),
+  pages: z.array(testPageLayoutSchema),
+});
