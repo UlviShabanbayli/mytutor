@@ -15,6 +15,8 @@ import { NotFoundPage } from './routes/NotFoundPage';
 import { OverviewPage } from './routes/OverviewPage';
 import { ReviewPage } from './routes/ReviewPage';
 import { ReviewQueuePage } from './routes/ReviewQueuePage';
+import { TestBookPage } from './routes/TestBookPage';
+import { TestBooksPage } from './routes/TestBooksPage';
 import { TopicPage } from './routes/TopicPage';
 import { TrashPage } from './routes/TrashPage';
 
@@ -50,6 +52,8 @@ export function App() {
                 <Route path="standards/:standardSetId" element={<StandardSetEditorPage />} />
               </>
             ) : null}
+            <Route path="test-books" element={<TestBooksPage />} />
+            <Route path="test-books/:testBookId" element={<TestBookPage />} />
             <Route path="trash" element={<TrashPage />} />
             <Route path="guide" element={<GuidePage />} />
             <Route path="*" element={<NotFoundPage />} />

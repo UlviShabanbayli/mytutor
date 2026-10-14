@@ -2,6 +2,7 @@ import {
   BookOpen,
   CircleHelp,
   Clapperboard,
+  ClipboardList,
   Inbox,
   LayoutGrid,
   Layers,
@@ -88,6 +89,14 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             />
           );
         })}
+        <SidebarLink
+          {...link}
+          to="/test-books"
+          label={t('nav.testBooks')}
+          icon={<ClipboardList className={icon} />}
+          active={under('/test-books')}
+          badge={<CountBadge value={index.data?.testBooks.length ?? 0} />}
+        />
         <SidebarLink
           {...link}
           to="/review"

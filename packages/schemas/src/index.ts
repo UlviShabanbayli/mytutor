@@ -10,6 +10,7 @@ export * from './standards';
 export * from './curriculum';
 export * from './topicLesson';
 export * from './answers';
+export * from './testBook';
 export * from './content';
 export * from './lesson';
 export * from './inlineMath';

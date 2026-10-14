@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { curriculumEntrySchema } from './curriculum';
 import { standardSetEntrySchema, standardLinksSchema } from './standards';
 import { knowledgeSummarySchema, reviewProgressSchema } from './review';
+import { testBookEntrySchema } from './testBook';
 
 /**
  * Index of pipeline outputs available to the admin panel: which books were split and which
@@ -55,6 +56,8 @@ export const contentIndexSchema = z.object({
   trash: z.array(trashEntrySchema),
   standardSets: z.array(standardSetEntrySchema),
   curricula: z.array(curriculumEntrySchema),
+  /** Books of tests only (`.test-books/`); newest first. */
+  testBooks: z.array(testBookEntrySchema).default([]),
 });
 
 /** `book.json` next to a book's outputs: written by the panel on upload, or by hand. */
@@ -98,6 +101,10 @@ export const contentActionErrorCodeSchema = z.enum([
   'no_api_key',
   'ai_failed',
   'no_draft',
+  'bad_subject',
+  'not_readable',
+  'test_book_exists',
+  'no_test_book',
   'network',
   'internal',
 ]);
