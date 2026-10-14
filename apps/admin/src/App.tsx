@@ -9,6 +9,7 @@ import { CurriculumPage } from './routes/CurriculumPage';
 import { StandardSetsPage } from './routes/StandardSetsPage';
 import { StandardSetEditorPage } from './routes/StandardSetEditorPage';
 import { GuidePage } from './routes/GuidePage';
+import { LessonPage } from './routes/LessonPage';
 import { BookPage } from './routes/BookPage';
 import { NotFoundPage } from './routes/NotFoundPage';
 import { OverviewPage } from './routes/OverviewPage';
@@ -38,6 +39,10 @@ export function App() {
             <Route
               path="curricula/:curriculumId/topics"
               element={<CurriculumPage tab="topics" />}
+            />
+            <Route
+              path="curricula/:curriculumId/lessons/:bookId/:number"
+              element={<LessonPage />}
             />
             {STANDARDS_ENABLED ? (
               <>

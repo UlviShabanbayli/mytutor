@@ -1,38 +1,37 @@
-import { useState } from 'react';
+import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { BookSpine } from '@/components/books/BookSpine';
-import { UnitAccordion } from '@/components/books/UnitAccordion';
 import { buttonClass, LoadingState } from '@/components/ui';
-import { bookTitle } from '@/features/content/pages';
+import { bookTitle, printedPage } from '@/features/content/pages';
 import { useStructure } from '@/features/content/queries';
+import type { TopicStage } from '@/features/progress/stages';
 import type { LibraryBook } from '@/features/progress/useLibrary';
+import { cn } from '@/lib/cn';
 
-type CurriculumBookTopicsProps = {
-  item: LibraryBook;
-  /** Opens the book's first unit, for the curriculum's first textbook. */
-  firstOpen: boolean;
+type CurriculumBookTopicsProps = { curriculumId: string; item: LibraryBook };
+
+const stageLook: Record<TopicStage, string> = {
+  approved: 'bg-success-muted text-success',
+  review: 'bg-accent-muted text-foreground',
+  knowledge: 'bg-accent-muted text-foreground',
+  source: 'bg-muted text-muted-foreground',
+  none: 'bg-muted text-muted-foreground',
 };
 
-const NO_LINKS = new Set<string>();
-
-/** One textbook's units and topics, shown as on its book page. */
-export function CurriculumBookTopics({ item, firstOpen }: CurriculumBookTopicsProps) {
+/** One textbook's units and topics, each topic a lesson of the curriculum. */
+export function CurriculumBookTopics({ curriculumId, item }: CurriculumBookTopicsProps) {
   const { t } = useTranslation();
   const structure = useStructure(item.book.structure);
-  const first = item.units[0]?.index;
-  const [opened, setOpened] = useState<Set<number> | null>(null);
-  const open = opened ?? new Set(firstOpen && first !== undefined ? [first] : []);
+  const offset = structure.data?.source.printedPageOffset ?? null;
   const title = bookTitle(item.book);
-  const toggle = (index: number) => {
-    const set = new Set(open);
-    if (set.has(index)) set.delete(index);
-    else set.add(index);
-    setOpened(set);
-  };
+  const lessonUrl = (number: string) =>
+    `/curricula/${encodeURIComponent(curriculumId)}/lessons/${encodeURIComponent(
+      item.book.id,
+    )}/${encodeURIComponent(number)}`;
 
   return (
-    <section className="flex flex-col gap-2.5" aria-label={title}>
+    <section className="flex flex-col gap-3" aria-label={title}>
       <div className="flex flex-wrap items-center gap-3">
         <BookSpine title={title} />
         <div className="flex min-w-0 flex-[1_1_16rem] flex-col gap-0.5">
@@ -59,17 +58,46 @@ export function CurriculumBookTopics({ item, firstOpen }: CurriculumBookTopicsPr
         <LoadingState />
       ) : (
         item.units.map((unit) => (
-          <UnitAccordion
-            key={unit.index}
-            bookId={item.book.id}
-            unit={unit}
-            topics={unit.topics}
-            offset={structure.data?.source.printedPageOffset ?? null}
-            canExtract={item.book.canExtract}
-            linkedTopics={NO_LINKS}
-            open={open.has(unit.index)}
-            onToggle={() => toggle(unit.index)}
-          />
+          <div key={unit.index} className="overflow-hidden rounded-lg border border-border bg-card">
+            <h3 className="flex flex-wrap items-baseline gap-2 border-b border-border px-4 py-3">
+              <span className="text-[13px] font-sans-black text-primary">
+                {t('bookPage.unit', { index: unit.index })}
+              </span>
+              <span className="font-sans-black text-base text-foreground">{unit.title}</span>
+            </h3>
+            <ul className="divide-y divide-border">
+              {unit.topics.map((topic) => (
+                <li key={topic.number}>
+                  <Link
+                    to={lessonUrl(topic.number)}
+                    className="flex min-h-12 flex-wrap items-center gap-3 px-4 py-2.5 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  >
+                    <span className="inline-flex h-[30px] min-w-10 items-center justify-center rounded-[8px] bg-secondary px-1.5 font-sans-black text-[13px] text-secondary-foreground">
+                      {topic.number}
+                    </span>
+                    <span className="flex-[1_1_14rem] font-sans-bold text-sm text-foreground">
+                      {topic.title}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {t('common.printedPages', {
+                        from: printedPage(topic.startPage, offset),
+                        to: printedPage(topic.endPage, offset),
+                      })}
+                    </span>
+                    <span
+                      className={cn(
+                        'rounded-full px-2.5 py-0.5 text-xs font-sans-bold',
+                        stageLook[topic.stage],
+                      )}
+                    >
+                      {t(`curricula.material.${topic.stage}`)}
+                    </span>
+                    <ChevronRight className="size-4 text-muted-foreground" aria-hidden />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         ))
       )}
     </section>

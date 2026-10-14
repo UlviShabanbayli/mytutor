@@ -11,7 +11,7 @@ type CurriculumTopicsProps = { curriculum: CurriculumEntry; library: LibraryBook
 
 /**
  * The curriculum's topics are its textbooks' topics: same names, units and order, book after
- * book as the curriculum lists them. Nothing is edited here; a topic opens in its book.
+ * book as the curriculum lists them. Each topic opens as the curriculum's lesson on it.
  */
 export function CurriculumTopics({ curriculum, library }: CurriculumTopicsProps) {
   const { t } = useTranslation();
@@ -40,7 +40,6 @@ export function CurriculumTopics({ curriculum, library }: CurriculumTopicsProps)
     (sum, { item }) => (item ? addStats(sum, item.stats) : sum),
     bookStats([]),
   );
-  const firstBook = books.find(({ item }) => item)?.bookId;
 
   return (
     <section className="flex flex-col gap-5">
@@ -56,7 +55,7 @@ export function CurriculumTopics({ curriculum, library }: CurriculumTopicsProps)
       </div>
       {books.map(({ bookId, item }) =>
         item ? (
-          <CurriculumBookTopics key={bookId} item={item} firstOpen={bookId === firstBook} />
+          <CurriculumBookTopics key={bookId} curriculumId={curriculum.id} item={item} />
         ) : (
           <p
             key={bookId}

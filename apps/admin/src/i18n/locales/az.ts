@@ -338,6 +338,32 @@ export const az = {
       lesson: 'Dərs planı',
     },
   },
+  lessons: {
+    openInBook: 'Kitabda aç',
+    cite: 'Dərslik, səh. {{pages}}',
+    approvedItems: 'Təsdiqlənmiş bilik: {{approved}}/{{total}}',
+    noKnowledgeTitle: 'Bu mövzunun bilik sənədi yoxdur',
+    noKnowledgeBody:
+      'Dərs təsdiqlənmiş biliklərdən qurulur. Əvvəlcə mövzunun mənbəyini və biliklərini çıxarın.',
+    notApprovedTitle: 'Biliklər hələ təsdiqlənməyib',
+    notApprovedBody:
+      'Dərsə yalnız redaktorun təsdiqlədiyi elementlər düşür. Review-da bu mövzunun bloklarını təsdiqləyin.',
+    text: 'Dərs mətni',
+    noTextTitle: 'Dərs mətni hələ hazırlanmayıb',
+    noTextBody:
+      'AI bu mövzunun təsdiqlənmiş biliklərindən mətn yazacaq, hər abzas kitabdakı yerinə istinad edəcək. Mətn redaktor təsdiqləyəndən sonra dərsdə görünür.',
+    video: 'Video',
+    noVideoTitle: 'Video hələ yoxdur',
+    noVideoBody:
+      'Lövhə videosu dərs mətnindən hazırlanacaq və təsdiqdən sonra dərsə əlavə olunacaq.',
+    examples: 'Kitabdan nümunələr',
+    examplesBody: 'Kitabın həll edilmiş nümunələri, kitabdakı həlli ilə.',
+    noExamples: 'Bu mövzuda kitabın həll edilmiş nümunəsi yoxdur.',
+    exercises: 'Tapşırıqlar',
+    exercisesBody:
+      'Kitabdakı tapşırıqlar. Cavabları kitabın «Cavablar» bölməsindən əlavə olunacaq.',
+    noExercises: 'Bu mövzuda kitabın tapşırığı yoxdur.',
+  },
   curricula: {
     title: 'Kurikulum',
     subtitle:
@@ -375,7 +401,14 @@ export const az = {
     bookStats: '{{topics}} mövzu · {{sources}} mənbə · {{knowledge}} bilik sənədi',
     bookMissing: 'Bu kitab kitabxanada yoxdur (silinib). Silinmiş kitablardan geri qaytarmaq olar.',
     topicsBody:
-      'Kurikulumun mövzuları dərsliklərin mövzularıdır: adlar, bölmələr və sıra kitabdakı kimidir. Mövzuya toxunanda öz kitabında açılır.',
+      'Hər mövzu bir dərsdir: adlar, bölmələr və sıra dərslikdəki kimidir. Mövzuya toxunanda onun dərsi açılır.',
+    material: {
+      none: 'Mənbə yoxdur',
+      source: 'Bilik yoxdur',
+      knowledge: 'Review gözləyir',
+      review: 'Review-da',
+      approved: 'Material hazırdır',
+    },
     topicsSummary: '{{topics}} mövzu · {{approved}} təsdiqlənib · {{items}} bilik elementi',
     bookTopicStats: '{{topics}} mövzu · {{approved}} təsdiqlənib',
     openBook: 'Kitabı aç',
