@@ -16,6 +16,9 @@ import type {
   answerSourceSchema,
   answersDocumentSchema,
   extractedAnswerSchema,
+  subjectIdSchema,
+  testBookEntrySchema,
+  testBookSchema,
   addBookResponseSchema,
   aiCallSchema,
   answerOptionSchema,
@@ -190,3 +193,6 @@ export type ExtractedAnswer = z.output<typeof extractedAnswerSchema>;
 export type Answer = z.output<typeof answerSchema>;
 export type AnswerSource = z.output<typeof answerSourceSchema>;
 export type AnswersDocument = z.output<typeof answersDocumentSchema>;
+export type SubjectId = z.output<typeof subjectIdSchema>;
+export type TestBook = z.output<typeof testBookSchema>;
+export type TestBookEntry = z.output<typeof testBookEntrySchema>;

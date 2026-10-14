@@ -8,6 +8,8 @@ import {
   curriculumSchema,
   standardLinksSchema,
   standardSetSchema,
+  TEST_BOOK_ID,
+  testBookSchema,
   topicLessonSchema,
 } from '@mytutor/schemas';
 import type {
@@ -18,6 +20,8 @@ import type {
   CurriculumEntry,
   LessonEntry,
   StandardSetEntry,
+  TestBook,
+  TestBookEntry,
   TrashEntry,
 } from '@mytutor/types';
 import { topicStatus } from './topicStatus';
@@ -351,6 +355,41 @@ export async function scanCurricula(root: string): Promise<CurriculumEntry[]> {
   return entries.sort((a, b) => a.title.localeCompare(b.title, 'az'));
 }
 
+/**
+ * Test books live in `<root>/.test-books/<id>/` (`test-book.json` and the PDF), apart from the
+ * textbooks: questions are split from them and keyed to textbook topics.
+ */
+export const TEST_BOOKS_DIR = '.test-books';
+export const TEST_BOOK_FILE = 'test-book.json';
+
+export const testBookDir = (root: string, id: string) => join(root, TEST_BOOKS_DIR, id);
+
+/** A test book by id; null for an id that is not one (it never reaches a path) or no file. */
+export async function readTestBook(root: string, id: string): Promise<TestBook | null> {
+  if (!TEST_BOOK_ID.test(id)) return null;
+  return readJson(join(testBookDir(root, id), TEST_BOOK_FILE), testBookSchema);
+}
+
+/** Every test book with a readable `test-book.json`, newest first. */
+export async function readTestBooks(root: string): Promise<TestBook[]> {
+  const names = await readdir(join(root, TEST_BOOKS_DIR)).catch(() => [] as string[]);
+  const books = await Promise.all(names.map((name) => readTestBook(root, name)));
+  return books
+    .filter((b): b is TestBook => b !== null)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export const scanTestBooks = async (root: string): Promise<TestBookEntry[]> =>
+  (await readTestBooks(root)).map(({ id, title, subject, pdf, createdAt }) => ({
+    id,
+    title,
+    subject,
+    file: pdf.file,
+    pages: pdf.pages,
+    bytes: pdf.bytes,
+    createdAt,
+  }));
+
 export async function buildContentIndex(root: string): Promise<ContentIndex> {
   const books = await scanBooks(root);
   return contentIndexSchema.parse({
@@ -360,6 +399,7 @@ export async function buildContentIndex(root: string): Promise<ContentIndex> {
     trash: await scanTrash(root),
     standardSets: await scanStandardSets(root),
     curricula: await scanCurricula(root),
+    testBooks: await scanTestBooks(root),
   });
 }
 

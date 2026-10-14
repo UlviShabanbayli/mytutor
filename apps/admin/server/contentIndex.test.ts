@@ -60,6 +60,7 @@ describe('buildContentIndex', () => {
       trash: [],
       standardSets: [],
       curricula: [],
+      testBooks: [],
     });
   });
 });

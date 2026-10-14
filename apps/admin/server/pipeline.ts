@@ -130,7 +130,7 @@ export async function exclusive<T>(key: string, work: () => Promise<T>): Promise
 }
 
 /** Copies the upload to disk, enforcing the size limit and the PDF signature. */
-async function saveUpload(body: NodeJS.ReadableStream, path: string): Promise<void> {
+export async function saveUpload(body: NodeJS.ReadableStream, path: string): Promise<void> {
   let size = 0;
   const limit = new Transform({
     transform(chunk: Buffer, _enc, done) {

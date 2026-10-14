@@ -29,6 +29,7 @@ import {
 } from './pipeline';
 import { decideLessonDraft, estimateLessonTextCost, writeLessonText } from './lessons';
 import { saveTopicReview } from './review';
+import { addTestBook, deleteTestBook } from './testBooks';
 
 const TYPES: Record<string, string> = {
   '.json': 'application/json; charset=utf-8',
@@ -78,6 +79,8 @@ const header = (req: IncomingMessage, name: string) => {
 export const ACTIONS_BASE = '/content-api';
 const ADD_BOOK = /^\/books\/?$/;
 const BOOK = /^\/books\/([^/]+)\/?$/;
+const ADD_TEST_BOOK = /^\/test-books\/?$/;
+const TEST_BOOK = /^\/test-books\/([^/]+)\/?$/;
 const EXTRACT_SOURCE = /^\/books\/([^/]+)\/topics\/([^/]+)\/source\/?$/;
 const RESTORE_BOOK = /^\/trash\/([^/]+)\/restore\/?$/;
 const TRASH_ENTRY = /^\/trash\/([^/]+)\/?$/;
@@ -138,6 +141,9 @@ export function contentPlugin(root: string): Plugin {
     if (req.method === 'DELETE') {
       const book = BOOK.exec(path);
       if (book) return json(res, 200, await deleteBook({ root, bookId: segment(book[1]) }));
+      const testBook = TEST_BOOK.exec(path);
+      if (testBook)
+        return json(res, 200, await deleteTestBook({ root, testBookId: segment(testBook[1]) }));
       const textbook = CURRICULUM_TEXTBOOK.exec(path);
       if (textbook) {
         const [id, bookId] = [segment(textbook[1]), segment(textbook[2])];
@@ -210,6 +216,18 @@ export function contentPlugin(root: string): Plugin {
         root,
         fileName: header(req, 'x-file-name'),
         title: header(req, 'x-book-title'),
+        body: req,
+      });
+      return json(res, 201, result);
+    }
+    if (ADD_TEST_BOOK.test(path)) {
+      if (Number(req.headers['content-length'] ?? 0) > MAX_PDF_BYTES)
+        throw new PipelineError(413, 'too_large', 'PDF is too large');
+      const result = await addTestBook({
+        root,
+        fileName: header(req, 'x-file-name'),
+        title: header(req, 'x-book-title'),
+        subject: header(req, 'x-subject'),
         body: req,
       });
       return json(res, 201, result);
