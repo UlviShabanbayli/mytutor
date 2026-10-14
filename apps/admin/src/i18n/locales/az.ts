@@ -314,7 +314,6 @@ export const az = {
     },
     inReview: 'Review-da · {{done}}/{{total}}',
     barLegend: 'Addım zolağı:',
-    barSteps: 'Mənbə → Bilik → Review → Standartlar → Dərs planı',
     segment: {
       done: 'hazırdır',
       current: 'davam edir',
