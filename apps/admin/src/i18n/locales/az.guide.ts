@@ -79,7 +79,7 @@ export const guide = {
     barCurrent: 'Bu addım davam edir.',
     barQueued: 'Bu addım sıradadır (əvvəlki hazırdır).',
     action: 'Mövzu ilə indi ediləcək iş: mənbəni çıxar, review-a başla, davam et və ya bax.',
-    more: '«Digər əməliyyatlar»: standart bağlantıları və kitabı silmək.',
+    more: '«Digər əməliyyatlar»: kitabı silmək.',
     restore: 'Silinmiş kitabı bütün faylları ilə geri qaytarır.',
     purge:
       'Kitabı diskdən birdəfəlik silir. Geri qaytarmaq olmur, ona görə əvvəlcə kitabın adını yazmaq lazımdır.',
