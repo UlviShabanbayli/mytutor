@@ -374,9 +374,12 @@ export const az = {
       'Mövzular dərsliklərdən yığılacaq: əvvəlcə bir və ya bir neçə dərslik əlavə edin.',
     bookStats: '{{topics}} mövzu · {{sources}} mənbə · {{knowledge}} bilik sənədi',
     bookMissing: 'Bu kitab kitabxanada yoxdur (silinib). Silinmiş kitablardan geri qaytarmaq olar.',
-    topicsSoonTitle: 'Mövzular növbəti addımda gəlir',
-    topicsSoonBody:
-      'Dərsliklərin bölgüsündən mövzular təklif olunacaq; siz adları düzəldib, sıralayıb, birləşdirib təsdiqləyəcəksiniz.',
+    topicsBody:
+      'Kurikulumun mövzuları dərsliklərin mövzularıdır: adlar, bölmələr və sıra kitabdakı kimidir. Mövzuya toxunanda öz kitabında açılır.',
+    topicsSummary: '{{topics}} mövzu · {{approved}} təsdiqlənib · {{items}} bilik elementi',
+    bookTopicStats: '{{topics}} mövzu · {{approved}} təsdiqlənib',
+    openBook: 'Kitabı aç',
+    noStructure: 'Bu kitab hələ bölmə və mövzulara ayrılmayıb.',
   },
   standardSets: {
     title: 'Rəsmi standartlar',

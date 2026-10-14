@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 import { CURRICULUM_TITLE_MAX } from '@mytutor/schemas';
 import { CurriculumTextbooks } from '@/components/curricula/CurriculumTextbooks';
+import { CurriculumTopics } from '@/components/curricula/CurriculumTopics';
 import { DeleteCurriculumDialog } from '@/components/curricula/DeleteCurriculumDialog';
 import { MetaDialog } from '@/components/forms/MetaDialog';
-import { Badge, Button, EmptyState, ErrorState, LoadingState, TabNav } from '@/components/ui';
+import { Badge, Button, ErrorState, LoadingState, TabNav } from '@/components/ui';
 import { useSaveCurriculum } from '@/features/curricula/mutations';
 import { usePageCrumbs } from '@/features/layout/crumbs';
 import { useLibrary } from '@/features/progress/useLibrary';
@@ -15,7 +16,7 @@ import { NotFoundPage } from './NotFoundPage';
 
 type CurriculumPageProps = { tab: 'textbooks' | 'topics' };
 
-/** One curriculum: its textbooks now, its topics, lessons and scenarios as they come. */
+/** One curriculum: its textbooks and their topics; lessons and scenarios as they come. */
 export function CurriculumPage({ tab }: CurriculumPageProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -83,11 +84,7 @@ export function CurriculumPage({ tab }: CurriculumPageProps) {
       {tab === 'textbooks' ? (
         <CurriculumTextbooks curriculum={entry} library={library} />
       ) : (
-        <EmptyState
-          icon={<ListTree className="size-6" />}
-          title={t('curricula.topicsSoonTitle')}
-          body={t('curricula.topicsSoonBody')}
-        />
+        <CurriculumTopics curriculum={entry} library={library} />
       )}
       <MetaDialog
         open={dialog === 'meta'}
