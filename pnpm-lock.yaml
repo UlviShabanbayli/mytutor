@@ -188,6 +188,9 @@ importers:
       '@mytutor/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@mytutor/content-engine':
+        specifier: workspace:*
+        version: link:../../packages/content-engine
       '@mytutor/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas

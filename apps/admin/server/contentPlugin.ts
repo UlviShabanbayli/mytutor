@@ -27,6 +27,7 @@ import {
   purgeTrash,
   restoreBook,
 } from './pipeline';
+import { decideLessonDraft, estimateLessonTextCost, writeLessonText } from './lessons';
 import { saveTopicReview } from './review';
 
 const TYPES: Record<string, string> = {
@@ -88,6 +89,8 @@ const STANDARD_SETS = /^\/standard-sets\/?$/;
 const STANDARD_SET = /^\/standard-sets\/([^/]+)\/?$/;
 const TOPIC_REVIEW = /^\/books\/([^/]+)\/topics\/([^/]+)\/review\/?$/;
 const BOOK_LINKS = /^\/books\/([^/]+)\/standard-links\/?$/;
+const LESSON_TEXT =
+  /^\/curricula\/([^/]+)\/lessons\/([^/]+)\/([^/]+)\/text(?:\/(estimate|approve|discard))?\/?$/;
 
 /** Standard sets and links are small; anything bigger than this is not what the panel sends. */
 export const MAX_JSON_BYTES = 2 * 1024 * 1024;
@@ -149,6 +152,20 @@ export function contentPlugin(root: string): Plugin {
       if (standardSet)
         return json(res, 200, await deleteStandardSet({ root, id: segment(standardSet[1]) }));
       return apiError(res, 404, 'not_found', 'Unknown action');
+    }
+    const lessonText = LESSON_TEXT.exec(path);
+    if (lessonText) {
+      const ref = {
+        root,
+        curriculumId: segment(lessonText[1]),
+        bookId: segment(lessonText[2]),
+        number: segment(lessonText[3]),
+      };
+      const step = lessonText[4];
+      if (step === 'estimate') return json(res, 200, await estimateLessonTextCost(ref));
+      if (step === 'approve' || step === 'discard')
+        return json(res, 200, await decideLessonDraft({ ...ref, approve: step === 'approve' }));
+      return json(res, 200, await writeLessonText(ref));
     }
     if (CURRICULA.test(path))
       return json(res, 201, await createCurriculum({ root, body: await readJsonBody(req) }));

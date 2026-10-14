@@ -3,9 +3,9 @@ import type { TopicSource } from '@mytutor/types';
 import { ItemFigures } from '@/components/knowledge/ItemFigures';
 import { KnowledgeItemBody } from '@/components/knowledge/KnowledgeItemBody';
 import { figuresOf, toExtracted } from '@/features/knowledge/items';
-import { pageList, type LessonEntry } from '@/features/lessons/material';
+import { pageList, type MaterialEntry } from '@/features/lessons/material';
 
-type LessonEntryCardProps = { entry: LessonEntry; source: TopicSource; topicDir: string };
+type LessonEntryCardProps = { entry: MaterialEntry; source: TopicSource; topicDir: string };
 
 /** A textbook example or exercise in a lesson, with the drawings it needs and its pages. */
 export function LessonEntryCard({ entry, source, topicDir }: LessonEntryCardProps) {

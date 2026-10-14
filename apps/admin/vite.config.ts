@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { contentPlugin } from './server/contentPlugin';
+import { loadClaudeCredentials } from './server/env';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 
@@ -10,6 +11,9 @@ const here = fileURLToPath(new URL('.', import.meta.url));
 const contentRoot = resolve(
   process.env.MYTUTOR_CONTENT_DIR ?? resolve(here, '../../packages/textbook-parser/out'),
 );
+
+// The Claude API key for actions that write lesson texts; stays on the server.
+loadClaudeCredentials(resolve(here, '../../.env'));
 
 export default defineConfig({
   plugins: [react(), contentPlugin(contentRoot)],

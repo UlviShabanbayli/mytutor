@@ -55,7 +55,12 @@ export function CurriculumTopics({ curriculum, library }: CurriculumTopicsProps)
       </div>
       {books.map(({ bookId, item }) =>
         item ? (
-          <CurriculumBookTopics key={bookId} curriculumId={curriculum.id} item={item} />
+          <CurriculumBookTopics
+            key={bookId}
+            curriculumId={curriculum.id}
+            item={item}
+            lessons={curriculum.lessons.filter((l) => l.bookId === bookId)}
+          />
         ) : (
           <p
             key={bookId}

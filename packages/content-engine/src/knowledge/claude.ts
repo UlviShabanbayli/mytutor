@@ -87,8 +87,10 @@ export async function callClaude<S extends z.ZodType>(
   client: Anthropic | null,
   spec: CallSpec<S>,
   cacheDir: string,
+  { reuse = true }: { reuse?: boolean } = {},
 ): Promise<{ output: z.output<S>; call: AiCall }> {
-  const hit = await readCached(spec, cacheDir);
+  // `reuse: false` asks for a new answer to the same input (e.g. "write it again").
+  const hit = reuse ? await readCached(spec, cacheDir) : null;
   if (hit) return hit;
   if (!client)
     throw new Error(`No API credentials and no cached result for ${spec.id} (${spec.stage}).`);

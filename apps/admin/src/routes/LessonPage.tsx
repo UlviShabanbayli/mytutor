@@ -1,13 +1,15 @@
-import { BookOpenCheck, FileText, ListChecks, Video } from 'lucide-react';
+import { FileText, ListChecks, Video } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 import { LessonBookMaterial } from '@/components/lessons/LessonBookMaterial';
+import { LessonHeader } from '@/components/lessons/LessonHeader';
 import { LessonSection } from '@/components/lessons/LessonSection';
+import { LessonTextPanel } from '@/components/lessons/LessonTextPanel';
 import { Badge, buttonClass, EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { bookTitle } from '@/features/content/pages';
 import { useKnowledge, useTopicSource } from '@/features/content/queries';
 import { usePageCrumbs } from '@/features/layout/crumbs';
-import { lessonMaterial, pageList } from '@/features/lessons/material';
+import { itemPages, lessonMaterial, pageList } from '@/features/lessons/material';
 import { useLibrary } from '@/features/progress/useLibrary';
 import { useTopicReview } from '@/features/review/useTopicReview';
 import { NotFoundPage } from './NotFoundPage';
@@ -42,24 +44,12 @@ export function LessonPage() {
     return <NotFoundPage />;
 
   const header = (
-    <header className="flex flex-wrap items-end gap-4">
-      <div className="flex min-w-0 flex-[1_1_26rem] flex-col gap-1">
-        {source.data ? (
-          <p className="font-sans-bold text-sm text-primary">
-            {t('bookPage.unit', { index: source.data.topic.unit.index })} ·{' '}
-            {source.data.topic.unit.title}
-          </p>
-        ) : null}
-        <h1 className="font-sans-black text-3xl text-foreground">
-          {topic.number}. {topic.title}
-        </h1>
-        <p className="text-sm text-muted-foreground">{bookTitle(book.book)}</p>
-      </div>
-      <Link to={`${topicUrl}/source`} className={buttonClass('secondary')}>
-        <BookOpenCheck className="size-4" />
-        {t('lessons.openInBook')}
-      </Link>
-    </header>
+    <LessonHeader
+      unit={source.data?.topic.unit ?? null}
+      title={`${topic.number}. ${topic.title}`}
+      book={bookTitle(book.book)}
+      topicUrl={topicUrl}
+    />
   );
 
   if (!entry?.knowledge)
@@ -90,6 +80,11 @@ export function LessonPage() {
     );
 
   const material = lessonMaterial(knowledge.data.items, review.data, source.data);
+  const pagesById = itemPages(knowledge.data.items);
+  const pagesOf = (ids: string[]) =>
+    [...new Set(ids.flatMap((id) => pagesById.get(id) ?? []))].sort((a, b) => a - b);
+  const lessonPath =
+    curriculum.lessons.find((l) => l.bookId === bookId && l.number === number)?.path ?? null;
   const pages = [...new Set(material.examples.concat(material.exercises).flatMap((e) => e.pages))];
 
   return (
@@ -117,10 +112,11 @@ export function LessonPage() {
         </EmptyState>
       ) : null}
       <LessonSection icon={<FileText className="size-5" />} title={t('lessons.text')}>
-        <EmptyState
-          icon={<FileText className="size-6" />}
-          title={t('lessons.noTextTitle')}
-          body={t('lessons.noTextBody')}
+        <LessonTextPanel
+          lessonRef={{ curriculumId, bookId, number }}
+          path={lessonPath}
+          canWrite={material.approved > 0}
+          pagesOf={pagesOf}
         />
       </LessonSection>
       <LessonSection icon={<Video className="size-5" />} title={t('lessons.video')}>

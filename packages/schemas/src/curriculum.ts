@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { lessonEntrySchema } from './topicLesson';
 
 /**
  * A curriculum is the course a team builds for one subject and grade ("Riyaziyyat — 7-ci
@@ -45,6 +46,8 @@ export const curriculumEntrySchema = z.object({
   subject: z.string(),
   grade: z.number().int().nullable(),
   textbooks: z.array(curriculumTextbookSchema),
+  /** Its lessons that have something written (`.curricula/<id>/lessons/`). */
+  lessons: z.array(lessonEntrySchema).default([]),
   /** File under the content root, fetched as `/content/<path>`. */
   path: z.string(),
   updatedAt: z.string(),
