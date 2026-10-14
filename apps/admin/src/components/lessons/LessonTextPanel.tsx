@@ -13,13 +13,21 @@ type LessonTextPanelProps = {
   /** False while the topic has no approved items: there is nothing to write from. */
   canWrite: boolean;
   pagesOf: (itemIds: string[]) => number[];
+  /** After the draft is approved: the page moves on to the next draft to read. */
+  onApproved?: () => void;
 };
 
 /**
  * The lesson text: the approved one students read, and a draft Claude wrote that waits for the
  * editor. Writing calls the paid API, so the button shows what it will cost first.
  */
-export function LessonTextPanel({ lessonRef, path, canWrite, pagesOf }: LessonTextPanelProps) {
+export function LessonTextPanel({
+  lessonRef,
+  path,
+  canWrite,
+  pagesOf,
+  onApproved,
+}: LessonTextPanelProps) {
   const { t } = useTranslation();
   const lesson = useLesson(lessonRef, path);
   const { write, decide } = useLessonTextActions(lessonRef);
@@ -68,7 +76,10 @@ export function LessonTextPanel({ lessonRef, path, canWrite, pagesOf }: LessonTe
           <LessonTextBody text={draft} pagesOf={pagesOf} />
           <p className="max-w-3xl text-sm text-muted-foreground">{t('lessons.draftBody')}</p>
           <div className="flex flex-wrap gap-2">
-            <Button disabled={decide.isPending} onClick={() => decide.mutate(true)}>
+            <Button
+              disabled={decide.isPending}
+              onClick={() => decide.mutate(true, { onSuccess: () => onApproved?.() })}
+            >
               <Check className="size-4" />
               {t('lessons.approve')}
             </Button>

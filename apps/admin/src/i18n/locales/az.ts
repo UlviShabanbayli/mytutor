@@ -364,6 +364,9 @@ export const az = {
     approve: 'Təsdiqlə',
     discard: 'Ləğv et',
     approved: 'Təsdiqlənib',
+    approvedTitle: '«{{title}}» təsdiqləndi.',
+    approvedNext: 'Təsdiq gözləyən növbəti mətn budur; cəmi {{count}} mətn gözləyir.',
+    approvedLast: 'Təsdiq gözləyən başqa mətn qalmadı.',
     video: 'Video',
     noVideoTitle: 'Video hələ yoxdur',
     noVideoBody:
