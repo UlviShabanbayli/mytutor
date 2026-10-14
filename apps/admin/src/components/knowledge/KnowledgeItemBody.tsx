@@ -6,20 +6,32 @@ import { MathText, TextWithMath } from '@/components/ui';
 
 type MathPart = { text: string | null; latex: string | null };
 
-function Mixed({ part }: { part: MathPart }) {
+/** A word of three letters or more: the text says more than its formula ("və" does not). */
+const WORDS = /\p{L}{3,}/u;
+
+function Mixed({ part, once }: { part: MathPart; once: boolean }) {
+  // `once`: the text when it has words, else its formula; the review shows both to compare.
+  const text = part.text && (!once || !part.latex || WORDS.test(part.text)) ? part.text : null;
+  const latex = part.latex && (!once || !text) ? part.latex : null;
   return (
     <span className="inline-flex flex-wrap items-baseline gap-x-1.5">
-      {part.text ? <TextWithMath text={part.text} /> : null}
-      {part.latex ? <MathText latex={part.latex} /> : null}
+      {text ? <TextWithMath text={text} /> : null}
+      {latex ? <MathText latex={latex} /> : null}
     </span>
   );
 }
+
+type KnowledgeItemBodyProps = {
+  item: ExtractedItem;
+  /** Shows a text and its formula once, as a lesson does; the review shows both. */
+  once?: boolean;
+};
 
 /**
  * Type-specific rendering of an extracted item; all math goes through KaTeX, also LaTeX the
  * model wrote into a prose field.
  */
-export function KnowledgeItemBody({ item }: { item: ExtractedItem }) {
+export function KnowledgeItemBody({ item, once = false }: KnowledgeItemBodyProps) {
   const { t } = useTranslation();
   switch (item.type) {
     case 'formula':
@@ -37,12 +49,13 @@ export function KnowledgeItemBody({ item }: { item: ExtractedItem }) {
       return (
         <div className="flex flex-col gap-2 text-sm">
           <p>
-            <span className="font-sans-bold">{item.label}</span> <Mixed part={item.problem} />
+            <span className="font-sans-bold">{item.label}</span>{' '}
+            <Mixed part={item.problem} once={once} />
           </p>
           <ol className="list-decimal space-y-1 pl-5">
             {item.steps.map((step, i) => (
               <li key={i}>
-                <Mixed part={step} />
+                <Mixed part={step} once={once} />
               </li>
             ))}
           </ol>
@@ -71,7 +84,7 @@ export function KnowledgeItemBody({ item }: { item: ExtractedItem }) {
                       {/^[\p{L}\d]+$/u.test(sub.label) ? `${sub.label})` : sub.label}
                     </span>
                   ) : null}
-                  <Mixed part={sub} />
+                  <Mixed part={sub} once={once} />
                 </li>
               ))}
             </ul>
