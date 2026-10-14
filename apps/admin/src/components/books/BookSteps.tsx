@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { BookStats } from '@/features/progress/stages';
 import { cn } from '@/lib/cn';
+import { STANDARDS_ENABLED } from '@/lib/features';
 
 type BookStepsProps = { bookId: string; stats: BookStats; linkedTopics: number };
 
@@ -17,7 +18,7 @@ export function BookSteps({ bookId, stats, linkedTopics }: BookStepsProps) {
     stats.withSource === n,
     stats.withKnowledge === n,
     stats.approved === n && n > 0,
-    linkedTopics === n && n > 0,
+    ...(STANDARDS_ENABLED ? [linkedTopics === n && n > 0] : []),
   ];
   const current = done.findIndex((d) => !d);
   const state = (i: number): Chip['state'] =>
@@ -37,11 +38,15 @@ export function BookSteps({ bookId, stats, linkedTopics }: BookStepsProps) {
         .join(' · '),
       state: state(2),
     },
-    {
-      label: t('bookPage.steps.standards', { done: linkedTopics, total: n }),
-      state: state(3),
-      to: `/books/${encodeURIComponent(bookId)}/standards`,
-    },
+    ...(STANDARDS_ENABLED
+      ? [
+          {
+            label: t('bookPage.steps.standards', { done: linkedTopics, total: n }),
+            state: state(3),
+            to: `/books/${encodeURIComponent(bookId)}/standards`,
+          },
+        ]
+      : []),
     { label: t('bookPage.steps.lesson'), state: 'later' },
   ];
   const look = {

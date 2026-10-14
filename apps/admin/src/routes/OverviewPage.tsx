@@ -11,6 +11,7 @@ import { linkCount } from '@/features/standards/links';
 import { usePageCrumbs } from '@/features/layout/crumbs';
 import { addStats, bookStats } from '@/features/progress/stages';
 import { useLibrary } from '@/features/progress/useLibrary';
+import { PIPELINE_STEPS } from '@/lib/features';
 
 /** The five steps across all books, the next thing to do, and every book's progress. */
 export function OverviewPage() {
@@ -39,7 +40,9 @@ export function OverviewPage() {
       <header className="flex flex-wrap items-end gap-4">
         <div className="flex min-w-0 flex-[1_1_26rem] flex-col gap-1.5">
           <h1 className="font-sans-black text-3xl text-foreground">{t('overview.title')}</h1>
-          <p className="max-w-2xl text-[15px] text-muted-foreground">{t('overview.subtitle')}</p>
+          <p className="max-w-2xl text-[15px] text-muted-foreground">
+            {t('overview.subtitle', { count: PIPELINE_STEPS })}
+          </p>
         </div>
         {addButton}
       </header>

@@ -5,6 +5,7 @@ import { STAGE_ORDER, stageFill } from '@/components/books/stageTone';
 import { cn } from '@/lib/cn';
 import { GuideSection } from './GuideSection';
 import { SampleButton, SampleLabel } from './samples';
+import { PIPELINE_STEPS } from '@/lib/features';
 
 const cell = (className: string, flagged = false) => (
   <span
@@ -35,7 +36,10 @@ export function BooksGuide() {
       id="books"
       title={t('guide.books.title')}
       rows={[
-        { sample: <SampleLabel>{t('steps.label')}</SampleLabel>, text: t('guide.books.steps') },
+        {
+          sample: <SampleLabel>{t('steps.label', { count: PIPELINE_STEPS })}</SampleLabel>,
+          text: t('guide.books.steps'),
+        },
         {
           sample: (
             <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-sans-black text-primary-foreground">

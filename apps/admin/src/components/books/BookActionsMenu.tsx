@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import type { ContentBookEntry } from '@mytutor/types';
 import { buttonClass } from '@/components/ui';
 import { DeleteBookDialog } from './DeleteBookDialog';
+import { STANDARDS_ENABLED } from '@/lib/features';
 
 type BookActionsMenuProps = { book: ContentBookEntry; onDeleted: () => void };
 
@@ -54,14 +55,16 @@ export function BookActionsMenu({ book, onDeleted }: BookActionsMenuProps) {
           role="menu"
           className="absolute right-0 top-14 z-30 w-64 rounded-md border border-border bg-card p-1 shadow-lg"
         >
-          <Link
-            role="menuitem"
-            to={`/books/${encodeURIComponent(book.id)}/standards`}
-            className={`${item} text-foreground hover:bg-muted`}
-          >
-            <ListChecks className="size-4" aria-hidden />
-            {t('bookPage.standardLinks')}
-          </Link>
+          {STANDARDS_ENABLED ? (
+            <Link
+              role="menuitem"
+              to={`/books/${encodeURIComponent(book.id)}/standards`}
+              className={`${item} text-foreground hover:bg-muted`}
+            >
+              <ListChecks className="size-4" aria-hidden />
+              {t('bookPage.standardLinks')}
+            </Link>
+          ) : null}
           <button
             type="button"
             role="menuitem"

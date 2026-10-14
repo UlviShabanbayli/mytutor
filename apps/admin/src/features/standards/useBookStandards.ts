@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { ContentBookEntry } from '@mytutor/types';
 import { useContentIndex } from '@/features/content/queries';
+import { STANDARDS_ENABLED } from '@/lib/features';
 import { emptyLinks, toInput } from './links';
 import { useSaveStandardLinks } from './mutations';
 import { useStandardSet } from './queries';
@@ -10,7 +11,9 @@ export function useBookStandards(book: ContentBookEntry | null | undefined) {
   const index = useContentIndex();
   const saved = book?.standardLinks ?? null;
   const links = useMemo(() => (saved ? toInput(saved) : emptyLinks()), [saved]);
-  const entry = index.data?.standardSets.find((c) => c.id === links.standardSetId) ?? null;
+  const entry = STANDARDS_ENABLED
+    ? (index.data?.standardSets.find((c) => c.id === links.standardSetId) ?? null)
+    : null;
   const standardSet = useStandardSet(entry?.path ?? null);
   const save = useSaveStandardLinks(book?.id ?? '');
   return {

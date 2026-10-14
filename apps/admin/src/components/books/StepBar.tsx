@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { TopicRowData } from '@/features/progress/stages';
 import { cn } from '@/lib/cn';
+import { STANDARDS_ENABLED } from '@/lib/features';
 
 type Segment = 'done' | 'current' | 'queued' | 'none';
 
@@ -11,10 +12,11 @@ const fill: Record<Segment, string> = {
   none: 'bg-border',
 };
 
-/** A topic's five steps (source, knowledge, review, standard set, lesson) as a small bar. */
+/** A topic's steps (source, knowledge, review, standard set when on, lesson) as a small bar. */
 export function topicSegments(topic: TopicRowData, linked: boolean): Segment[] {
   const order = ['none', 'source', 'knowledge', 'review', 'approved'];
   const at = order.indexOf(topic.stage);
+  const standards: Segment[] = STANDARDS_ENABLED ? [linked ? 'done' : 'none'] : [];
   return [
     at >= 1 ? 'done' : 'queued',
     at >= 2 ? 'done' : at === 1 ? 'queued' : 'none',
@@ -25,7 +27,7 @@ export function topicSegments(topic: TopicRowData, linked: boolean): Segment[] {
         : at === 2
           ? 'queued'
           : 'none',
-    linked ? 'done' : 'none',
+    ...standards,
     'none',
   ];
 }
@@ -64,10 +66,17 @@ export function StepBar({ topic, linked }: StepBarProps) {
 /** What the bar's colours mean; shown under each unit's table. */
 export function StepBarLegend() {
   const { t } = useTranslation();
+  const steps: ('source' | 'knowledge' | 'review' | 'standards' | 'lesson')[] = [
+    'source',
+    'knowledge',
+    'review',
+    ...(STANDARDS_ENABLED ? (['standards'] as const) : []),
+    'lesson',
+  ];
   return (
     <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 border-t border-border px-4 py-2.5 text-xs text-muted-foreground">
       <span className="font-sans-bold">{t('bookPage.barLegend')}</span>
-      <span>{t('bookPage.barSteps')}</span>
+      <span>{steps.map((step) => t(`steps.${step}`)).join(' → ')}</span>
       {(['done', 'current', 'queued'] as const).map((segment) => (
         <span key={segment} className="flex items-center gap-1.5">
           <span className={cn('h-1.5 w-4 rounded-full', fill[segment])} aria-hidden />

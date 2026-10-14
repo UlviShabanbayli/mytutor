@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GuideSection } from './GuideSection';
 import { SampleLabel } from './samples';
+import { STANDARDS_ENABLED } from '@/lib/features';
 
 const step = (n: number, icon: ReactNode, label: string) => (
   <>
@@ -38,12 +39,20 @@ export function WorkflowGuide() {
           sample: step(4, <SearchCheck className="size-4" />, t('nav.review')),
           text: t('guide.workflow.review'),
         },
+        ...(STANDARDS_ENABLED
+          ? [
+              {
+                sample: step(5, <ListChecks className="size-4" />, t('nav.standards')),
+                text: t('guide.workflow.standards'),
+              },
+            ]
+          : []),
         {
-          sample: step(5, <ListChecks className="size-4" />, t('nav.standards')),
-          text: t('guide.workflow.standards'),
-        },
-        {
-          sample: step(6, <Clapperboard className="size-4" />, t('topic.tabs.lesson')),
+          sample: step(
+            STANDARDS_ENABLED ? 6 : 5,
+            <Clapperboard className="size-4" />,
+            t('topic.tabs.lesson'),
+          ),
           text: t('guide.workflow.lesson'),
         },
       ]}

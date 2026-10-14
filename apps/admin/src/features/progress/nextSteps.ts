@@ -1,5 +1,6 @@
 import type { StandardSetEntry } from '@mytutor/types';
 import { missingSources, nextReviewTopic, type TopicRowData } from './stages';
+import { STANDARDS_ENABLED } from '@/lib/features';
 import type { LibraryBook } from './useLibrary';
 
 export type NextStep =
@@ -11,7 +12,7 @@ export type NextStep =
 
 /**
  * What to do next, most useful first: continue (or start) a review, extract missing sources
- * (free), build missing knowledge (terminal, paid), then standard set work.
+ * (free), build missing knowledge (terminal, paid), then standard set work when it is on.
  */
 export function nextSteps(library: LibraryBook[], standardSets: StandardSetEntry[]): NextStep[] {
   const steps: NextStep[] = [];
@@ -30,6 +31,7 @@ export function nextSteps(library: LibraryBook[], standardSets: StandardSetEntry
     const count = book.topics.filter((t) => t.stage === 'source').length;
     if (count) steps.push({ kind: 'knowledge', book, count });
   }
+  if (!STANDARDS_ENABLED) return steps;
   if (standardSets.length === 0) steps.push({ kind: 'standards' });
   else {
     const unlinked = library.find(

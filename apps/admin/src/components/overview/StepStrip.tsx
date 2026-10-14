@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { BookStats } from '@/features/progress/stages';
 import { cn } from '@/lib/cn';
+import { PIPELINE_STEPS, STANDARDS_ENABLED } from '@/lib/features';
 
 type StepStripProps = {
   stats: BookStats;
@@ -57,21 +58,25 @@ export function StepStrip({ stats, links, standardSets }: StepStripProps) {
         : t('steps.flagged', { count: stats.openFlagged }),
       attention: stats.withKnowledge > stats.approved,
     },
-    {
-      title: t('steps.standards'),
-      body: t('steps.standardsBody'),
-      value: String(links),
-      unit: t('steps.links'),
-      footer: standardSets
-        ? t('steps.standardSets', { count: standardSets })
-        : t('steps.noStandardSets'),
-    },
+    ...(STANDARDS_ENABLED
+      ? [
+          {
+            title: t('steps.standards'),
+            body: t('steps.standardsBody'),
+            value: String(links),
+            unit: t('steps.links'),
+            footer: standardSets
+              ? t('steps.standardSets', { count: standardSets })
+              : t('steps.noStandardSets'),
+          },
+        ]
+      : []),
     { title: t('steps.lesson'), body: t('steps.lessonBody'), value: null, later: true },
   ];
 
   return (
     <section
-      aria-label={t('steps.label')}
+      aria-label={t('steps.label', { count: PIPELINE_STEPS })}
       className="rounded-xl border border-border bg-card p-1.5"
     >
       <ol className="grid gap-1 [grid-template-columns:repeat(auto-fit,minmax(11rem,1fr))]">

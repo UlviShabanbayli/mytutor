@@ -18,6 +18,7 @@ import { dotTone } from '@/components/ui/tones';
 import { cn } from '@/lib/cn';
 import { GuideSection } from './GuideSection';
 import { SampleLabel } from './samples';
+import { STANDARDS_ENABLED } from '@/lib/features';
 
 const TONES: { tone: Tone; key: 'primary' | 'success' | 'accent' | 'destructive' | 'neutral' }[] = [
   { tone: 'primary', key: 'primary' },
@@ -66,10 +67,14 @@ export function BasicsGuide() {
           sample: nav(<Layers className="size-4" />, t('nav.curricula')),
           text: t('guide.basics.curricula'),
         },
-        {
-          sample: nav(<ListChecks className="size-4" />, t('nav.standards')),
-          text: t('guide.basics.standards'),
-        },
+        ...(STANDARDS_ENABLED
+          ? [
+              {
+                sample: nav(<ListChecks className="size-4" />, t('nav.standards')),
+                text: t('guide.basics.standards'),
+              },
+            ]
+          : []),
         {
           sample: nav(<Clapperboard className="size-4" />, t('nav.lessons')),
           text: t('guide.basics.later'),
