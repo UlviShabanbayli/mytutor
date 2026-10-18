@@ -1,11 +1,10 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, ErrorState, HexCell, LoadingState, Text } from '@/components/ui';
+import { Button, ErrorState, HexCell, LoadingState, Sheet, Text } from '@/components/ui';
 import { Mascot } from '@/components/mascot/Mascot';
 import { leaveToToday } from '@/features/today/hooks';
 import { useComeback } from '@/features/today/queries';
-import { MomentSheet } from './MomentSheet';
 
 type ComebackSheetProps = {
   /** Days away as the home screen counted them; the server's count otherwise. */
@@ -19,7 +18,7 @@ export function ComebackSheet({ awayDays }: ComebackSheetProps) {
   const data = comeback.data;
 
   return (
-    <MomentSheet title={t('today.comeback.title')} onClose={leaveToToday}>
+    <Sheet visible onClose={leaveToToday} title={t('today.comeback.title')} showTitle={false}>
       {comeback.isPending ? (
         <LoadingState />
       ) : !data ? (
@@ -63,6 +62,6 @@ export function ComebackSheet({ awayDays }: ComebackSheetProps) {
           </Pressable>
         </View>
       )}
-    </MomentSheet>
+    </Sheet>
   );
 }

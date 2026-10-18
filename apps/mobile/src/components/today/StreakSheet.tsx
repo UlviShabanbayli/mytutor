@@ -1,10 +1,9 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, ErrorState, Icon, LoadingState, Text } from '@/components/ui';
+import { Button, ErrorState, Icon, LoadingState, Sheet, Text } from '@/components/ui';
 import { Mascot } from '@/components/mascot/Mascot';
 import { leaveToToday } from '@/features/today/hooks';
 import { useMotivationData } from '@/features/today/queries';
-import { MomentSheet } from './MomentSheet';
 
 /**
  * The streak stopped: praise what was done, offer a short restart and explain the hive guard
@@ -16,7 +15,7 @@ export function StreakSheet() {
   const data = motivation.data;
 
   return (
-    <MomentSheet title={t('today.streak.title')} onClose={leaveToToday}>
+    <Sheet visible onClose={leaveToToday} title={t('today.streak.title')} showTitle={false}>
       {motivation.isPending ? (
         <LoadingState />
       ) : !data ? (
@@ -44,6 +43,6 @@ export function StreakSheet() {
           />
         </View>
       )}
-    </MomentSheet>
+    </Sheet>
   );
 }
