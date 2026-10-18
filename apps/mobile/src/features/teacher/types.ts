@@ -7,7 +7,8 @@ import type { CellState } from '@/components/ui';
  */
 
 /** Where a question, an AI answer or a review comes from: book, section, optional page. */
-export type SourceView = { book: string; section: string; page?: number };
+/** `demo`: our own demo text that only points at the textbook's section, not the book's text. */
+export type SourceView = { book: string; section: string; page?: number; demo?: boolean };
 
 /** A platform topic every material and assignment is bound to (the textbook's contents). */
 export type TopicView = { id: string; title: string; page?: number };

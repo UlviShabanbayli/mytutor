@@ -15,6 +15,7 @@ export const teacher = {
   source: {
     section: '{{book}} · {{section}}',
     page: '{{book}} · {{section}} · s. {{page}}',
+    demo: '{{source}} · demo',
   },
   // Locative month forms: "17 oktyabrda".
   monthsIn: {

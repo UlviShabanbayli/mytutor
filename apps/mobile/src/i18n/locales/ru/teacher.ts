@@ -24,6 +24,7 @@ export const teacher = {
   source: {
     section: '{{book}} · {{section}}',
     page: '{{book}} · {{section}} · с. {{page}}',
+    demo: '{{source}} · демо',
   },
   // Genitive month forms: "17 октября".
   monthsIn: {

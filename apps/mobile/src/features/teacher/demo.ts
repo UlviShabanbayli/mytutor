@@ -39,7 +39,12 @@ export const TOPICS: TopicView[] = [
 
 export const UNIT_TOPICS = ['4.1', '4.2', '4.3', '4.4', '4.5'];
 
-const src = (section: string, page?: number): SourceView => ({ book: BOOK, section, page });
+const src = (section: string, page?: number): SourceView => ({
+  book: BOOK,
+  section,
+  page,
+  demo: true,
+});
 
 /** Students of 7B; `false` = shows the teacher only class assignments, not overall progress. */
 const STUDENTS_7B: [string, string, boolean][] = [

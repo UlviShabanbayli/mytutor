@@ -41,11 +41,14 @@ export function useTeacherFormat() {
   const wait = (askedAt: string, now = new Date()) =>
     t('teacher.minutesShort', { count: Math.max(1, minutesSince(new Date(askedAt), now)) });
 
-  /** "Riyaziyyat 7 (TRİMS), 1-ci hissə · 4.1 · s. 83". */
-  const source = (s: SourceView) =>
-    s.page === undefined
-      ? t('teacher.source.section', { book: s.book, section: s.section })
-      : t('teacher.source.page', { book: s.book, section: s.section, page: s.page });
+  /** "Riyaziyyat 7 (TRİMS), 1-ci hissə · 4.1 · s. 83", plus "· demo" for demo text. */
+  const source = (s: SourceView) => {
+    const line =
+      s.page === undefined
+        ? t('teacher.source.section', { book: s.book, section: s.section })
+        : t('teacher.source.page', { book: s.book, section: s.section, page: s.page });
+    return s.demo ? t('teacher.source.demo', { source: line }) : line;
+  };
 
   const topicLine = (topic: TopicView | undefined, id: string) =>
     topic ? t('teacher.topicLine', { id: topic.id, title: topic.title }) : id;
