@@ -62,7 +62,7 @@ export async function fetchToday(): Promise<TodayData> {
     },
     assignments: [
       {
-        id: 'a-7b-4-1',
+        id: 'hw-4-1',
         className: CLASS_7B,
         subject: 'Riyaziyyat',
         teacher: TEACHER,
@@ -123,7 +123,7 @@ export async function fetchInbox(): Promise<InboxItem[]> {
       kind: 'newAssignment',
       at: ago(140),
       read: false,
-      assignmentId: 'a-7b-4-1',
+      assignmentId: 'hw-4-1',
       className: CLASS_7B,
       title: '4.1 çalışmaları',
       dueAt: at(1, 23, 59),
