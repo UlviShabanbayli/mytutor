@@ -35,7 +35,7 @@ export function CameraPermission({
 
   return (
     <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-page">
-      <View className="px-2 pt-2">
+      <View className="items-start px-2 pt-2">
         <IconButton icon="close" accessibilityLabel={t('common.close')} onPress={router.back} />
       </View>
       <ScrollView className="flex-1" contentContainerClassName="items-center gap-3 px-6 pb-2">

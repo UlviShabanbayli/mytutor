@@ -11,7 +11,7 @@ import {
   StatusPill,
   Text,
 } from '@/components/ui';
-import { shortWhen } from '@/features/ask/dates';
+import { daysAgo, formatClock, shortWhen } from '@/features/ask/dates';
 import { useAskStore } from '@/features/ask/store';
 import type { AskQuestion } from '@/features/ask/types';
 import { HelpfulFooter } from './HelpfulFooter';
@@ -77,7 +77,11 @@ export function AskAnswerView({ question, answer }: AskAnswerViewProps) {
               <Text variant="caption" tone="muted" className="font-sans text-xs">
                 {t('ask.answer.times', {
                   sent: shortWhen(t, new Date(question.sentAt), now),
-                  ready: shortWhen(t, new Date(question.answeredAt), now),
+                  // Answered the same day: the date once is enough.
+                  ready:
+                    daysAgo(new Date(question.sentAt), new Date(question.answeredAt)) === 0
+                      ? formatClock(new Date(question.answeredAt))
+                      : shortWhen(t, new Date(question.answeredAt), now),
                 })}
               </Text>
             ) : null}
