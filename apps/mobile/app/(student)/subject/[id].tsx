@@ -1,50 +1,24 @@
-import { router, useLocalSearchParams } from 'expo-router';
-import { View } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { TopicRow } from '@/components/tests/TopicRow';
-import { ErrorState, LoadingState, Screen, ScreenHeader, Text } from '@/components/ui';
-import { useSubject } from '@/features/tests/queries';
+import { useLocalSearchParams } from 'expo-router';
+import { HiveLoading } from '@/components/learn/HiveLoading';
+import { HivePreparing } from '@/components/learn/HivePreparing';
+import { HiveView } from '@/components/learn/HiveView';
+import { ErrorState, Screen, ScreenHeader } from '@/components/ui';
+import { useHive, useOnline } from '@/features/learn/queries';
 
-export default function SubjectScreen() {
-  const { t } = useTranslation();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const query = useSubject(id);
+/** The hive box of a textbook (a hive id, or a subject id such as the tests API's). */
+export default function HiveScreen() {
+  const { id, open } = useLocalSearchParams<{ id: string; open?: string }>();
+  const view = useHive(id);
+  const online = useOnline();
 
-  if (query.isPending)
+  if (view.status === 'pending') return <HiveLoading />;
+  if (view.status === 'preparing') return <HivePreparing subject={view.subject} />;
+  if (view.status === 'error')
     return (
       <Screen>
-        <LoadingState />
+        <ScreenHeader title="" />
+        <ErrorState onRetry={view.retry} />
       </Screen>
     );
-  if (query.isError)
-    return (
-      <Screen>
-        <ErrorState onRetry={() => void query.refetch()} />
-      </Screen>
-    );
-
-  const { subject, topics } = query.data;
-
-  return (
-    <Screen>
-      <ScreenHeader
-        title={subject.title}
-        subtitle={t('common.topicsCount', { count: topics.length })}
-      />
-      <View className="gap-3">
-        <Text variant="heading">{t('subject.topicsTitle')}</Text>
-        {topics.length === 0 ? (
-          <Text tone="muted">{t('tests.emptyDescription')}</Text>
-        ) : (
-          topics.map((topic) => (
-            <TopicRow
-              key={topic.id}
-              topic={topic}
-              onPress={() => router.push({ pathname: '/test/[id]', params: { id: topic.id } })}
-            />
-          ))
-        )}
-      </View>
-    </Screen>
-  );
+  return <HiveView hive={view.hive} online={online} openUnitId={open} />;
 }
