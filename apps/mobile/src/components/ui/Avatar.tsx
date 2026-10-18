@@ -1,5 +1,7 @@
 import { View } from 'react-native';
+import i18n from '@/i18n';
 import { cn } from '@/lib/cn';
+import { upperCase } from '@/lib/letterCase';
 import { Text } from './Text';
 
 type AvatarProps = {
@@ -27,7 +29,7 @@ export function Avatar({ name, size = 'md', className }: AvatarProps) {
           size === 'lg' ? 'text-2xl' : 'text-base',
         )}
       >
-        {name.trim().charAt(0).toLocaleUpperCase('az')}
+        {upperCase(name.trim().charAt(0), i18n.language)}
       </Text>
     </View>
   );
