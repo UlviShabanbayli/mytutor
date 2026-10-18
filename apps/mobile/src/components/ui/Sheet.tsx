@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Modal, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { ThemeScope } from '@/theme';
 import { Text } from './Text';
 
 type SheetProps = {
@@ -20,7 +21,8 @@ export function Sheet({ visible, onClose, title, showTitle = true, children }: S
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end">
+      {/* The modal renders outside the root ThemeScope on the web, so it carries its own. */}
+      <ThemeScope className="flex-1 justify-end">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('common.close')}
@@ -38,7 +40,7 @@ export function Sheet({ visible, onClose, title, showTitle = true, children }: S
           {showTitle ? <Text variant="heading">{title}</Text> : null}
           {children}
         </View>
-      </View>
+      </ThemeScope>
     </Modal>
   );
 }
