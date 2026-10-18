@@ -33,7 +33,7 @@ export function ComingSoon({ title, icon, heading, description }: ComingSoonProp
           variant="secondary"
           size="md"
           icon="list"
-          onPress={() => router.navigate('/tests')}
+          onPress={() => router.navigate('/learn')}
           className="mt-2 self-stretch"
         />
       </View>

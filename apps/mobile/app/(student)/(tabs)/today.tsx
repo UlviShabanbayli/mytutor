@@ -28,7 +28,7 @@ export default function HomeScreen() {
             {t('home.subjectsTitle')}
           </Text>
           <Link
-            href="/tests"
+            href="/learn"
             className="-mr-2 min-h-touch px-2 py-3 font-sans-black text-sm text-honey-text"
           >
             {t('home.seeAll')}

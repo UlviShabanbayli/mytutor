@@ -25,7 +25,7 @@ export function TestResultView({ test, result }: TestResultViewProps) {
   const mistakes = test.questions
     .map((q, i) => ({ q, number: i + 1 }))
     .filter(({ q }) => !isCorrect(q, result.answers[q.id]));
-  const finish = () => router.dismissTo('/tests');
+  const finish = () => router.dismissTo('/learn');
 
   return (
     <TestMathContext.Provider value={test.math}>
