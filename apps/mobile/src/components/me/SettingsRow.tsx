@@ -18,7 +18,8 @@ export function SettingsRow({ icon, label, value, divider, onPress, accessory }:
   const content = (
     <>
       <Icon name={icon} size={20} color="muted" />
-      <Text className="grow font-sans-bold">{label}</Text>
+      {/* With an inline control the row may wrap it under the label on narrow phones. */}
+      <Text className={cn('font-sans-bold', accessory ? 'grow' : 'flex-1')}>{label}</Text>
       {value ? (
         <Text tone="muted" className="font-sans-semibold text-sm">
           {value}
@@ -29,7 +30,8 @@ export function SettingsRow({ icon, label, value, divider, onPress, accessory }:
     </>
   );
   const className = cn(
-    'min-h-[52px] flex-row flex-wrap items-center gap-x-2.5 gap-y-1.5 py-1',
+    'min-h-[52px] flex-row items-center gap-x-2.5 py-1',
+    accessory !== undefined && 'flex-wrap gap-y-1.5',
     divider && 'border-t border-border',
   );
 

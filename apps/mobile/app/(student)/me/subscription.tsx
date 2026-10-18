@@ -39,7 +39,7 @@ export default function SubscriptionScreen() {
         className="gap-2 rounded-xl bg-spot p-3.5"
       >
         <View className="gap-0.5">
-          <Text className="font-display-black text-lg text-on-spot">
+          <Text className="font-display-bold text-md text-on-spot">
             {t('me.subscription.price')}
           </Text>
           <Text className="text-sm text-on-spot opacity-80">

@@ -41,13 +41,6 @@ export function ParentLinkView() {
           {t('me.parentLink.instruction')}
         </Text>
       ) : null}
-      {request ? (
-        <ParentRequestCard
-          request={request}
-          onApprove={() => approve(request)}
-          onReject={() => reject(request.id)}
-        />
-      ) : null}
       <View className="gap-px">
         <Text accessibilityRole="header" className="font-sans-black text-md">
           {t('me.parentLink.seeTitle')}
@@ -85,6 +78,13 @@ export function ParentLinkView() {
           },
         ]}
       />
+      {request ? (
+        <ParentRequestCard
+          request={request}
+          onApprove={() => approve(request)}
+          onReject={() => reject(request.id)}
+        />
+      ) : null}
       {links.length === 0 ? (
         <Text tone="muted" className="text-sm">
           {t('me.parentLink.none')}
