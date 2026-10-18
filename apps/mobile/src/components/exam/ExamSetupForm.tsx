@@ -43,8 +43,8 @@ export function ExamSetupForm() {
     if (!draft || !complete) return;
     updateProfile({ goal: draft });
     prefs.setPlanPrefs({ target, minutesPerDay: minutes });
-    if (router.canGoBack()) router.back();
-    else router.replace('/exam');
+    // Back to /exam even when setup was opened by a link (then the stack below is "Bu gün").
+    router.dismissTo('/exam');
   };
 
   return (

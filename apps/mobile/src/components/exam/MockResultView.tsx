@@ -80,18 +80,15 @@ export function MockResultView({ mock, attempt }: MockResultViewProps) {
           />
         ))}
       </ScrollView>
-      <View className="flex-row gap-2 px-4 pb-2 pt-2.5">
+      {/* Stacked: side by side, "SƏHVLƏRƏ BAX" wrapped to two lines at phone width. */}
+      <View className="gap-2 px-4 pb-2 pt-2.5">
+        <Button label={t('exam.result.mistakes')} onPress={() => router.push('/mistakes')} />
         <Button
           variant="secondary"
+          size="md"
           icon="trophy"
           label={t('exam.result.leaderboard')}
           onPress={() => router.push('/exam/leaderboard')}
-          className="min-w-0 flex-1"
-        />
-        <Button
-          label={t('exam.result.mistakes')}
-          onPress={() => router.push('/mistakes')}
-          className="min-w-0 flex-1"
         />
       </View>
     </SafeAreaView>

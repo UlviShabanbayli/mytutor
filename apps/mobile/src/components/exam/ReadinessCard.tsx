@@ -69,18 +69,18 @@ export function ReadinessCard({ subjects }: ReadinessCardProps) {
                   key={s.subject}
                   accessible
                   accessibilityLabel={t('exam.home.preparingA11y', { subject: name })}
-                  className="flex-row items-center gap-1.5"
+                  className="flex-row items-center gap-2"
                 >
                   <View className="h-[18px] w-[18px] rounded-full border-2 border-dashed border-lock-ink" />
-                  <Text
-                    numberOfLines={1}
-                    className="min-w-0 flex-shrink font-sans-bold text-sm text-lock-ink"
-                  >
-                    {name}
-                  </Text>
-                  <Text className="font-sans-semibold text-xs text-lock-ink">
-                    {`· ${t('exam.home.preparing')}`}
-                  </Text>
+                  {/* "hazırlanır" goes under the name, so a long subject name keeps the row. */}
+                  <View className="min-w-0 flex-1">
+                    <Text numberOfLines={1} className="font-sans-bold text-sm text-lock-ink">
+                      {name}
+                    </Text>
+                    <Text className="font-sans-semibold text-2xs text-lock-ink">
+                      {t('exam.home.preparing')}
+                    </Text>
+                  </View>
                 </View>
               );
             })}
