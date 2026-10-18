@@ -1,22 +1,29 @@
 import { View } from 'react-native';
+import { Mascot } from '../mascot/Mascot';
+import type { MascotMoment } from '../mascot/moments';
 import { Button } from './Button';
-import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
 
 type EmptyStateProps = {
-  icon: IconName;
+  /** Which mascot moment to show above the text; empty states default to "thinking". */
+  moment?: MascotMoment;
   title: string;
   description?: string;
   actionLabel?: string;
   onAction?: () => void;
 };
 
-export function EmptyState({ icon, title, description, actionLabel, onAction }: EmptyStateProps) {
+/** Centered mascot, title, one line of help and an optional action. */
+export function EmptyState({
+  moment = 'aiThinking',
+  title,
+  description,
+  actionLabel,
+  onAction,
+}: EmptyStateProps) {
   return (
     <View className="flex-1 items-center justify-center gap-3 px-6 py-12">
-      <View className="mb-1 h-16 w-16 items-center justify-center rounded-full bg-secondary">
-        <Icon name={icon} size={32} color="secondary-foreground" />
-      </View>
+      <Mascot moment={moment} size={140} />
       <Text variant="heading" className="text-center">
         {title}
       </Text>
@@ -26,7 +33,7 @@ export function EmptyState({ icon, title, description, actionLabel, onAction }: 
         </Text>
       ) : null}
       {actionLabel && onAction ? (
-        <Button label={actionLabel} onPress={onAction} className="mt-2" />
+        <Button label={actionLabel} onPress={onAction} className="mt-2 self-stretch" />
       ) : null}
     </View>
   );

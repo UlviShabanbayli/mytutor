@@ -24,7 +24,7 @@ export function ListRow({ icon, label, accessory, divider = false, className }: 
         className,
       )}
     >
-      <Icon name={icon} size={22} color="muted-foreground" />
+      <Icon name={icon} size={22} color="muted" />
       <Text className="flex-1 font-sans-bold">{label}</Text>
       {accessory}
     </View>

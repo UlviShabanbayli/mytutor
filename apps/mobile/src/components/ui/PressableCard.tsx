@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { cn } from '@/lib/cn';
 
 type PressableCardProps = {
@@ -12,7 +12,7 @@ type PressableCardProps = {
   contentClassName?: string;
 };
 
-/** Card that navigates or acts; its surface tints while pressed. */
+/** Tappable card: a 2pt border-colored edge underneath; it sinks onto the edge while pressed. */
 export function PressableCard({
   children,
   onPress,
@@ -30,14 +30,19 @@ export function PressableCard({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      className={cn(
-        'rounded-lg border border-border bg-card p-4 active:bg-muted',
-        disabled && 'opacity-60',
-        className,
-        contentClassName,
-      )}
+      className={cn('rounded-xl bg-border pb-0.5', disabled && 'opacity-60', className)}
     >
-      {children}
+      {({ pressed }) => (
+        <View
+          className={cn(
+            'rounded-xl border border-border bg-surf p-4',
+            pressed && 'translate-y-0.5',
+            contentClassName,
+          )}
+        >
+          {children}
+        </View>
+      )}
     </Pressable>
   );
 }

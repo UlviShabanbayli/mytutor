@@ -1,8 +1,8 @@
 // Source of truth for translation keys. Any future locale must match this shape.
 export const az = {
   common: {
-    appName: 'MyTutor',
-    loading: 'Yüklənir…',
+    appName: 'arı',
+    loading: 'Nektar yığıram…',
     retry: 'Yenidən cəhd et',
     back: 'Geri',
     close: 'Bağla',
@@ -18,6 +18,12 @@ export const az = {
     grade_ordinal_few: '{{count}}-cü sinif',
     grade_ordinal_many: '{{count}}-cı sinif',
     grade_ordinal_other: '{{count}}-cu sinif',
+  },
+  // Shared words of the design system primitives.
+  ui: {
+    correct: 'Düz',
+    wrong: 'Səhv',
+    source: 'Mənbə: {{source}}',
   },
   // Month names by Date#getMonth() index; platform Intl data for `az` is often incomplete.
   months: {

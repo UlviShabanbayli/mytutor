@@ -1,14 +1,14 @@
 import { Pressable } from 'react-native';
 import { cn } from '@/lib/cn';
-import type { SemanticColors } from '@/theme';
+import type { ColorName } from '@/theme';
 import { Icon, type IconName } from './Icon';
 
 type IconButtonProps = {
   icon: IconName;
   accessibilityLabel: string;
   onPress: () => void;
-  color?: keyof SemanticColors;
-  /** `outlined`: a round white button with a hairline border (headers on a grey ground). */
+  color?: ColorName;
+  /** `outlined`: a white rounded square with a hairline border (headers on the grey page). */
   variant?: 'plain' | 'outlined';
   className?: string;
 };
@@ -18,7 +18,7 @@ export function IconButton({
   icon,
   accessibilityLabel,
   onPress,
-  color = 'foreground',
+  color = 'ink',
   variant = 'plain',
   className,
 }: IconButtonProps) {
@@ -28,8 +28,8 @@ export function IconButton({
       accessibilityLabel={accessibilityLabel}
       onPress={onPress}
       className={cn(
-        'min-h-touch min-w-touch items-center justify-center rounded-full active:bg-muted',
-        variant === 'outlined' && 'border border-border bg-card',
+        'min-h-touch min-w-touch items-center justify-center rounded-md active:bg-wax',
+        variant === 'outlined' && 'border border-border bg-surf',
         className,
       )}
     >

@@ -26,7 +26,7 @@ export function SegmentedControl<T extends string>({
     <View
       accessibilityRole="radiogroup"
       accessibilityLabel={accessibilityLabel}
-      className={cn('flex-row gap-1 rounded-md bg-muted p-1', className)}
+      className={cn('flex-row gap-1 rounded-md bg-wax p-1', className)}
     >
       {segments.map((segment) => {
         const selected = segment.value === value;
@@ -39,20 +39,16 @@ export function SegmentedControl<T extends string>({
             onPress={() => onChange(segment.value)}
             className={cn(
               'min-h-touch flex-1 flex-row items-center justify-center gap-1.5 rounded-sm px-2',
-              selected ? 'border border-primary bg-card' : 'active:bg-card/60',
+              selected ? 'bg-honey' : 'active:bg-surf/60',
             )}
           >
             {segment.icon ? (
-              <Icon
-                name={segment.icon}
-                size={18}
-                color={selected ? 'foreground' : 'muted-foreground'}
-              />
+              <Icon name={segment.icon} size={18} color={selected ? 'on-honey' : 'muted'} />
             ) : null}
             <Text
               variant="label"
               tone={selected ? 'default' : 'muted'}
-              className={selected ? 'font-sans-black' : undefined}
+              className={selected ? 'font-sans-black text-on-honey' : undefined}
             >
               {segment.label}
             </Text>

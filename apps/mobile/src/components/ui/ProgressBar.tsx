@@ -5,16 +5,17 @@ type ProgressBarProps = {
   /** 0–1 */
   value: number;
   accessibilityLabel: string;
-  tone?: 'primary' | 'accent' | 'success';
+  tone?: 'honey' | 'ok' | 'info';
   className?: string;
 };
 
-const fillClasses = { primary: 'bg-primary', accent: 'bg-accent', success: 'bg-success' };
+const fillClasses = { honey: 'bg-honey', ok: 'bg-ok', info: 'bg-info' };
 
+/** 8pt bar: honey on wax. */
 export function ProgressBar({
   value,
   accessibilityLabel,
-  tone = 'primary',
+  tone = 'honey',
   className,
 }: ProgressBarProps) {
   const clamped = Math.min(1, Math.max(0, value));
@@ -26,7 +27,7 @@ export function ProgressBar({
       accessibilityRole="progressbar"
       accessibilityLabel={accessibilityLabel}
       accessibilityValue={{ min: 0, max: 100, now: percent }}
-      className={cn('h-1.5 overflow-hidden rounded-full bg-border', className)}
+      className={cn('h-2 overflow-hidden rounded-full bg-wax', className)}
     >
       {/* Width is data-driven, so it cannot be a static className. */}
       <View
