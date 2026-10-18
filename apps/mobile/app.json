@@ -40,7 +40,24 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Sualın şəklini çəkmək üçün kamera lazımdır. Şəkli yalnız sən və cavab verən müəllim görür.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Sualın şəklini qalereyadan seçmək üçün şəkillərinə baxmaq lazımdır. Şəkli yalnız sən və cavab verən müəllim görür.",
+          "cameraPermission": "Sualın şəklini çəkmək üçün kamera lazımdır. Şəkli yalnız sən və cavab verən müəllim görür.",
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
