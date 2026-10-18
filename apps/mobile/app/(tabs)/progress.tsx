@@ -44,8 +44,8 @@ export default function ProgressScreen() {
         </Text>
         {results.length === 0 ? (
           <Card className="flex-row items-center gap-3">
-            <View className="h-11 w-11 items-center justify-center rounded-full bg-secondary">
-              <Icon name="stats-chart-outline" size={22} color="secondary-foreground" />
+            <View className="h-11 w-11 items-center justify-center rounded-full bg-raised">
+              <Icon name="chart" size={22} color="honey-text" />
             </View>
             <View className="flex-1 gap-0.5">
               <Text className="font-sans-black">{t('results.emptyTitle')}</Text>
@@ -72,7 +72,7 @@ export default function ProgressScreen() {
             <AppearancePicker />
           </View>
           <ListRow
-            icon="language-outline"
+            icon="globe"
             label={t('progress.language')}
             accessory={<Text tone="muted">{t('progress.languageName')}</Text>}
           />

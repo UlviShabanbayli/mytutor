@@ -26,11 +26,7 @@ export default function TestResultScreen() {
   if (!result) {
     return (
       <Screen>
-        <EmptyState
-          icon="stats-chart-outline"
-          title={t('results.emptyTitle')}
-          description={t('results.emptyDescription')}
-        />
+        <EmptyState title={t('results.emptyTitle')} description={t('results.emptyDescription')} />
       </Screen>
     );
   }

@@ -18,10 +18,10 @@ export function ComingSoon({ title, icon, heading, description }: ComingSoonProp
     <Screen>
       <Text variant="title">{title}</Text>
       <View className="flex-1 items-center justify-center gap-4 px-2 pb-10">
-        <View className="h-20 w-20 items-center justify-center rounded-full bg-secondary">
-          <Icon name={icon} size={36} color="secondary-foreground" />
+        <View className="h-20 w-20 items-center justify-center rounded-full bg-raised">
+          <Icon name={icon} size={36} color="honey-text" />
         </View>
-        <Badge label={t('common.comingSoon')} tone="primary" className="self-center" />
+        <Badge label={t('common.comingSoon')} tone="honey" className="self-center" />
         <Text variant="heading" className="text-center">
           {heading}
         </Text>
@@ -32,7 +32,7 @@ export function ComingSoon({ title, icon, heading, description }: ComingSoonProp
           label={t('comingSoon.backToTests')}
           variant="secondary"
           size="md"
-          icon="clipboard-outline"
+          icon="list"
           onPress={() => router.navigate('/tests')}
           className="mt-2 self-stretch"
         />

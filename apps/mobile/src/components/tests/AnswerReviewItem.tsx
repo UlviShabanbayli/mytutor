@@ -26,8 +26,8 @@ export function AnswerReviewItem({
 
   return (
     <View className={cn('flex-row gap-3 px-4 py-3', divider && 'border-b border-border')}>
-      <View className="h-7 w-7 items-center justify-center rounded-full bg-destructive-muted">
-        <Text className="font-sans-black text-xs text-destructive">{number}</Text>
+      <View className="h-7 w-7 items-center justify-center rounded-full bg-err-bg">
+        <Text className="font-sans-black text-xs text-err">{number}</Text>
       </View>
       <View className="flex-1 gap-1">
         <MathText text={question.stem} fontSize={fontSize.base[0]} className="font-sans-medium" />

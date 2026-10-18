@@ -28,13 +28,10 @@ export function SubjectCard({ subject, onPress, className }: SubjectCardProps) {
       <View
         className={cn(
           'h-12 w-12 items-center justify-center rounded-md',
-          available ? 'bg-secondary' : 'bg-muted',
+          available ? 'bg-raised' : 'bg-wax',
         )}
       >
-        <Icon
-          name={subjectIcon(subject.icon)}
-          color={available ? 'secondary-foreground' : 'muted-foreground'}
-        />
+        <Icon name={subjectIcon(subject.icon)} color={available ? 'honey-text' : 'muted'} />
       </View>
       <View className="gap-0.5">
         <Text variant="subheading" numberOfLines={2}>

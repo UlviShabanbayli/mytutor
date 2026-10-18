@@ -29,11 +29,11 @@ export function TopicRow({ topic, onPress }: TopicRowProps) {
       <View className="flex-1 gap-1.5">
         <Text variant="subheading">{topic.title}</Text>
         <View className="flex-row flex-wrap gap-2">
-          {grade ? <Badge label={grade} tone="primary" /> : null}
-          <Badge label={meta} tone={available ? 'neutral' : 'accent'} />
+          {grade ? <Badge label={grade} tone="honey" /> : null}
+          <Badge label={meta} tone={available ? 'neutral' : 'honey'} />
         </View>
       </View>
-      {available ? <Icon name="chevron-forward" color="muted-foreground" /> : null}
+      {available ? <Icon name="chevron" color="muted" /> : null}
     </PressableCard>
   );
 }

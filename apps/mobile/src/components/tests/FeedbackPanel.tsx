@@ -28,24 +28,20 @@ export function FeedbackPanel({ question, correct, isLast, onContinue }: Feedbac
       <View
         accessibilityLiveRegion="polite"
         className={cn(
-          'gap-3 rounded-t-xl border-t-4 bg-card px-5 pt-4 shadow-lg',
-          correct ? 'border-success' : 'border-destructive',
+          'gap-3 rounded-t-xl border-t-4 bg-surf px-5 pt-4 shadow-lg',
+          correct ? 'border-ok' : 'border-err',
         )}
         // The sheet runs under the home indicator; its content stays above it.
         style={{ paddingBottom: Math.max(insets.bottom, 12) }}
       >
         <View className="flex-row items-center gap-2">
-          <Icon
-            name={correct ? 'checkmark-circle' : 'close-circle'}
-            size={26}
-            color={correct ? 'success' : 'destructive'}
-          />
-          <Text variant="heading" tone={correct ? 'success' : 'destructive'}>
+          <Icon name={correct ? 'check' : 'x'} size={26} color={correct ? 'ok' : 'err'} />
+          <Text variant="heading" tone={correct ? 'ok' : 'err'}>
             {correct ? t('session.correctTitle') : t('session.incorrectTitle')}
           </Text>
         </View>
         {!correct ? (
-          <Text variant="label" tone="destructive">
+          <Text variant="label" tone="err">
             {t('session.correctAnswer', { key: rightAnswer(question) })}
           </Text>
         ) : null}
@@ -57,10 +53,10 @@ export function FeedbackPanel({ question, correct, isLast, onContinue }: Feedbac
           </View>
         ) : null}
         <SourceLine source={question.source} />
-        {/* Moving on after a mistake is calm (dark), not another red alarm. */}
+        {/* Moving on after a mistake is calm (inverted card color), not another red alarm. */}
         <Button
           label={isLast ? t('session.finish') : t('session.next')}
-          variant={correct ? 'primary' : 'neutral'}
+          variant={correct ? 'primary' : 'spot'}
           onPress={onContinue}
         />
       </View>

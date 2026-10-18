@@ -25,14 +25,14 @@ export function DailyGoalCard() {
         <View
           className={
             complete
-              ? 'h-10 w-10 items-center justify-center rounded-full bg-success'
-              : 'h-10 w-10 items-center justify-center rounded-full bg-accent-muted'
+              ? 'h-10 w-10 items-center justify-center rounded-full bg-ok'
+              : 'h-10 w-10 items-center justify-center rounded-full bg-raised'
           }
         >
           <Icon
-            name={complete ? 'checkmark' : 'flame'}
+            name={complete ? 'check' : 'bolt'}
             size={20}
-            color={complete ? 'success-foreground' : 'accent'}
+            color={complete ? 'page' : 'honey-text'}
           />
         </View>
         <View className="flex-1 gap-2">
@@ -41,7 +41,7 @@ export function DailyGoalCard() {
           </Text>
           <ProgressBar
             value={done / DAILY_GOAL}
-            tone={complete ? 'success' : 'primary'}
+            tone={complete ? 'ok' : 'honey'}
             accessibilityLabel={progressLabel}
           />
         </View>

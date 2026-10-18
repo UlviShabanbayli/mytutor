@@ -31,8 +31,8 @@ function ContinueTest({ testId }: ContinueTestCardProps) {
         onPress={() => router.push({ pathname: '/test/[id]', params: { id: testId } })}
         contentClassName="flex-row items-center gap-3.5"
       >
-        <View className="h-14 w-14 items-center justify-center rounded-md bg-secondary">
-          <Icon name="play" size={22} color="secondary-foreground" />
+        <View className="h-14 w-14 items-center justify-center rounded-md bg-raised">
+          <Icon name="play" size={22} color="honey-text" />
         </View>
         <View className="flex-1 gap-1.5">
           <Text className="font-sans-black" numberOfLines={1}>
@@ -41,7 +41,7 @@ function ContinueTest({ testId }: ContinueTestCardProps) {
           <ProgressBar
             value={total ? done / total : 0}
             accessibilityLabel={progress}
-            className="bg-secondary"
+            className="bg-raised"
           />
           <Text variant="caption" tone="muted">
             {progress}

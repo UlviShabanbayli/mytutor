@@ -6,7 +6,7 @@ export default function LessonsScreen() {
   return (
     <ComingSoon
       title={t('tabs.lessons')}
-      icon="play-circle-outline"
+      icon="play"
       heading={t('comingSoon.lessonsTitle')}
       description={t('comingSoon.lessonsDescription')}
     />

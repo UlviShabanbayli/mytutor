@@ -32,10 +32,10 @@ export function AskTabButton({
         <View
           className={cn(
             'h-14 w-14 items-center justify-center rounded-full',
-            pressed ? 'bg-primary-pressed' : 'bg-primary',
+            pressed ? 'bg-honey-deep' : 'bg-honey',
           )}
         >
-          <Icon name="camera" size={26} color="primary-foreground" />
+          <Icon name="camera" size={26} color="on-honey" />
         </View>
       )}
     </Pressable>

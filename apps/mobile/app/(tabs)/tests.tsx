@@ -19,11 +19,7 @@ export default function TestsScreen() {
       ) : subjects.isError ? (
         <ErrorState onRetry={() => void subjects.refetch()} />
       ) : subjects.data.length === 0 ? (
-        <EmptyState
-          icon="layers-outline"
-          title={t('tests.emptyTitle')}
-          description={t('tests.emptyDescription')}
-        />
+        <EmptyState title={t('tests.emptyTitle')} description={t('tests.emptyDescription')} />
       ) : (
         <SubjectGrid subjects={subjects.data} />
       )}

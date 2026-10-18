@@ -9,9 +9,9 @@ export function AppearancePicker() {
   const preference = useThemeStore((s) => s.preference);
   const setPreference = useThemeStore((s) => s.setPreference);
   const segments = [
-    { value: 'system', label: t('progress.themeSystem'), icon: 'phone-portrait-outline' },
-    { value: 'light', label: t('progress.themeLight'), icon: 'sunny-outline' },
-    { value: 'dark', label: t('progress.themeDark'), icon: 'moon-outline' },
+    { value: 'system', label: t('progress.themeSystem'), icon: 'phone' },
+    { value: 'light', label: t('progress.themeLight'), icon: 'today' },
+    { value: 'dark', label: t('progress.themeDark'), icon: 'moon' },
   ] as const satisfies readonly { value: ThemePreference; label: string; icon: string }[];
 
   return (

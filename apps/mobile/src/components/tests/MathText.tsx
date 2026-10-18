@@ -2,18 +2,18 @@ import { View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { Text } from '@/components/ui';
 import { mathParts, spokenText, useTestMath } from '@/features/tests/testMath';
-import { type SemanticColors, useThemeColors } from '@/theme';
+import { type ColorName, useThemeColors } from '@/theme';
 
 type MathTextProps = {
   text: string;
   /** The text's size in points: formulas are drawn to match it. */
   fontSize: number;
   className?: string;
-  color?: keyof SemanticColors;
+  color?: ColorName;
 };
 
 /** Text whose formulas ($…$) are drawn from the test's typeset SVGs, in line with the words. */
-export function MathText({ text, fontSize, className, color = 'foreground' }: MathTextProps) {
+export function MathText({ text, fontSize, className, color = 'ink' }: MathTextProps) {
   const math = useTestMath();
   const ink = useThemeColors()[color];
   return (

@@ -13,9 +13,9 @@ export function RecommendedTestCard({ topic }: RecommendedTestCardProps) {
   const { t } = useTranslation();
 
   return (
-    <View className="gap-4 rounded-xl border border-border bg-card p-5">
+    <View className="gap-4 rounded-xl border border-border bg-surf p-5">
       <View className="gap-1.5">
-        <Text variant="label" tone="primary">
+        <Text variant="label" tone="honey">
           {t('home.recommendedTitle')}
         </Text>
         <Text variant="title">{topic.title}</Text>

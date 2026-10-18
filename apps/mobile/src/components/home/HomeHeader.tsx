@@ -26,9 +26,9 @@ export function HomeHeader() {
         <View
           accessible
           accessibilityLabel={t('home.streak', { count: streak })}
-          className="min-h-9 flex-row items-center gap-1.5 rounded-full border border-border bg-card px-3"
+          className="min-h-9 flex-row items-center gap-1.5 rounded-full border border-border bg-surf px-3"
         >
-          <Icon name="flame" size={16} color="accent" />
+          <Icon name="bolt" size={16} color="honey-text" />
           <Text className="font-sans-black text-sm">{streak}</Text>
         </View>
       ) : null}

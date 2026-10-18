@@ -68,7 +68,7 @@ export function TestSession({ test }: TestSessionProps) {
     // The feedback panel runs to the bottom edge and pads for the home indicator itself.
     <SafeAreaView
       edges={active.checked ? ['top', 'left', 'right'] : ['top', 'bottom', 'left', 'right']}
-      className="flex-1 bg-background"
+      className="flex-1 bg-page"
     >
       <View className="flex-row items-center gap-2 pb-1 pl-2 pr-5">
         <IconButton icon="close" accessibilityLabel={t('common.close')} onPress={router.back} />

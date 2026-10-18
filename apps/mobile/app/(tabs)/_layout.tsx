@@ -8,16 +8,10 @@ import { useThemeColors } from '@/theme';
 
 const TAB_BAR_HEIGHT = 68;
 
-/** Filled icon for the active tab, outline otherwise. */
-function tabIcon(active: IconName, inactive: IconName) {
+/** Honey icon for the active tab, muted otherwise. */
+function tabIcon(name: IconName) {
   return function TabIcon({ focused }: { focused: boolean }) {
-    return (
-      <Icon
-        name={focused ? active : inactive}
-        size={24}
-        color={focused ? 'primary' : 'muted-foreground'}
-      />
-    );
+    return <Icon name={name} size={24} color={focused ? 'honey-text' : 'muted'} />;
   };
 }
 
@@ -31,12 +25,12 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors['muted-foreground'],
+        tabBarActiveTintColor: colors.honey,
+        tabBarInactiveTintColor: colors.muted,
         tabBarLabel: ({ focused, children }) => (
           <Text
             numberOfLines={1}
-            tone={focused ? 'primary' : 'muted'}
+            tone={focused ? 'honey' : 'muted'}
             className={cn(
               'text-center text-[11px]',
               focused ? 'font-sans-black' : 'font-sans-medium',
@@ -47,22 +41,19 @@ export default function TabsLayout() {
         ),
         // Tall enough for the round Ask button (design: 84pt bar including the home indicator).
         tabBarStyle: {
-          backgroundColor: colors.card,
+          backgroundColor: colors.surf,
           borderTopColor: colors.border,
           height: TAB_BAR_HEIGHT + insets.bottom,
           paddingTop: 6,
         },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{ title: t('tabs.home'), tabBarIcon: tabIcon('home', 'home-outline') }}
-      />
+      <Tabs.Screen name="index" options={{ title: t('tabs.home'), tabBarIcon: tabIcon('today') }} />
       <Tabs.Screen
         name="tests"
         options={{
           title: t('tabs.tests'),
-          tabBarIcon: tabIcon('clipboard', 'clipboard-outline'),
+          tabBarIcon: tabIcon('learn'),
         }}
       />
       <Tabs.Screen
@@ -76,14 +67,14 @@ export default function TabsLayout() {
         name="lessons"
         options={{
           title: t('tabs.lessons'),
-          tabBarIcon: tabIcon('play-circle', 'play-circle-outline'),
+          tabBarIcon: tabIcon('play'),
         }}
       />
       <Tabs.Screen
         name="progress"
         options={{
           title: t('tabs.progress'),
-          tabBarIcon: tabIcon('stats-chart', 'stats-chart-outline'),
+          tabBarIcon: tabIcon('chart'),
         }}
       />
     </Tabs>

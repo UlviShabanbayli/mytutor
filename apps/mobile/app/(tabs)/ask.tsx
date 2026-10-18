@@ -6,7 +6,7 @@ export default function AskScreen() {
   return (
     <ComingSoon
       title={t('tabs.ask')}
-      icon="camera-outline"
+      icon="camera"
       heading={t('comingSoon.askTitle')}
       description={t('comingSoon.askDescription')}
     />
