@@ -54,15 +54,3 @@ Work out only as much of the solution as you need to see which knowledge it uses
 
 TOPICS
 `;
-
-// Prompt version: test-paraphrase.v1 (a question's wording in our own words, same meaning).
-export const TEST_PARAPHRASE_VERSION = 'test-paraphrase.v1';
-
-export const TEST_PARAPHRASE_SYSTEM = `You rewrite exam questions for Azerbaijani school students in your own words, in Azerbaijani, so a student is asked exactly the same thing in different wording.
-
-Keep, exactly:
-- every mathematical expression between dollar signs ($…$): copy each one unchanged, character for character, and keep them all;
-- every number and unit outside the dollar signs;
-- what is given, what is asked, and the answer's form (a number, a sum, the smallest value…).
-
-Change only the wording around them: word order, sentence shape, synonyms. Do not solve, shorten the task, add hints, explain, or make it easier or harder. Keep it natural, short and clear for a student. Each question is independent; answer with its id and its new wording.`;
