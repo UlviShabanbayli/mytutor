@@ -1,47 +1,49 @@
-import { Link } from 'expo-router';
-import { View } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { ContinueTestCard } from '@/components/home/ContinueTestCard';
-import { DailyGoalCard } from '@/components/home/DailyGoalCard';
-import { HomeHeader } from '@/components/home/HomeHeader';
-import { RecommendedTestCard } from '@/components/home/RecommendedTestCard';
-import { SubjectGrid } from '@/components/tests/SubjectGrid';
-import { ErrorState, LoadingState, Screen, Text } from '@/components/ui';
-import { useRecommendedTopic, useSubjects } from '@/features/tests/queries';
+import { DailyGoalCard } from '@/components/today/DailyGoalCard';
+import { FirstDayContent } from '@/components/today/FirstDayContent';
+import { FirstDayGreeting } from '@/components/today/FirstDayGreeting';
+import { OfflineCard } from '@/components/today/OfflineCard';
+import { RegularContent } from '@/components/today/RegularContent';
+import { TodayError } from '@/components/today/TodayError';
+import { TodayHeader } from '@/components/today/TodayHeader';
+import { TodaySkeleton } from '@/components/today/TodaySkeleton';
+import { Screen } from '@/components/ui';
+import { useFirstDay, useMotivation, useOnline, useVisitTracking } from '@/features/today/hooks';
+import { useToday } from '@/features/today/queries';
+import { useTodayHydrated } from '@/features/today/store';
 
-const HOME_SUBJECT_COUNT = 4;
+/** "Bu gün": the one answer to "what do I do now?" (architecture Ş2, P1, P2). */
+export default function TodayScreen() {
+  const today = useToday();
+  const hydrated = useTodayHydrated();
+  const firstDay = useFirstDay();
+  const online = useOnline();
+  const motivation = useMotivation(firstDay);
+  useVisitTracking(hydrated);
 
-export default function HomeScreen() {
-  const { t } = useTranslation();
-  const subjects = useSubjects();
-  const recommended = useRecommendedTopic();
+  const loading = !hydrated || today.isPending;
+  const data = today.data;
 
   return (
-    <Screen>
-      <HomeHeader />
-      {recommended.data ? <RecommendedTestCard topic={recommended.data} /> : null}
-      <ContinueTestCard />
-      <DailyGoalCard />
-      <View className="gap-2.5">
-        <View className="flex-row items-center justify-between">
-          <Text variant="subheading" accessibilityRole="header">
-            {t('home.subjectsTitle')}
-          </Text>
-          <Link
-            href="/learn"
-            className="-mr-2 min-h-touch px-2 py-3 font-sans-black text-sm text-honey-text"
-          >
-            {t('home.seeAll')}
-          </Link>
-        </View>
-        {subjects.isPending ? (
-          <LoadingState />
-        ) : subjects.isError ? (
-          <ErrorState onRetry={() => void subjects.refetch()} />
-        ) : (
-          <SubjectGrid subjects={subjects.data.slice(0, HOME_SUBJECT_COUNT)} />
-        )}
-      </View>
+    <Screen className="gap-3 pt-2">
+      <TodayHeader streak={motivation.streak} points={motivation.points} />
+      {!online ? <OfflineCard withMascot={!loading && !today.isError && !firstDay} /> : null}
+      {loading ? (
+        <TodaySkeleton />
+      ) : today.isError || !data ? (
+        <TodayError onRetry={() => void today.refetch()} />
+      ) : (
+        <>
+          {firstDay ? (
+            <FirstDayGreeting name={data.studentName} minutes={data.firstStep.firstCellMinutes} />
+          ) : null}
+          <DailyGoalCard motivation={motivation} firstDay={firstDay} />
+          {firstDay ? (
+            <FirstDayContent today={data} />
+          ) : (
+            <RegularContent today={data} online={online} />
+          )}
+        </>
+      )}
     </Screen>
   );
 }
