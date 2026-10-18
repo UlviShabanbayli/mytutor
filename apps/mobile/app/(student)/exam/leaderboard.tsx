@@ -1,5 +1,11 @@
-import { RouteStub } from '@/components/coming-soon/RouteStub';
+import { LeaderboardView } from '@/components/exam/LeaderboardView';
+import { Screen } from '@/components/ui';
 
-export default function StudentExamLeaderboardScreen() {
-  return <RouteStub />;
+/** Sınaq reytinqi: opt-in, nicknames only. */
+export default function ExamLeaderboardScreen() {
+  return (
+    <Screen scroll={false} className="gap-2.5 pb-2">
+      <LeaderboardView />
+    </Screen>
+  );
 }
