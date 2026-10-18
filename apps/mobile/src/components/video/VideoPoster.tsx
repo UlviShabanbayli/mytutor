@@ -26,7 +26,7 @@ export function VideoPoster({ board, message }: VideoPosterProps) {
         <Text className="font-sans-bold text-md text-on-honey">{board.heading}</Text>
         <View className="h-[3px] w-16 rounded-full bg-honey" />
       </View>
-      <Text className="font-sans-semibold text-xl text-on-honey">{board.formula}</Text>
+      <Text className="font-sans-semibold text-lg text-on-honey">{board.formula}</Text>
       {message ? (
         <View className="absolute inset-x-3 bottom-2.5 items-center">
           <View className="flex-row items-center gap-1.5 rounded-sm bg-spot px-2.5 py-1">

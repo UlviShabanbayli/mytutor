@@ -15,7 +15,7 @@ const cube: StudyLesson = {
   id: 'riyaziyyat-7-4-3',
   topicCode: '4.3',
   topicTitle: 'Cəmin və fərqin kubu',
-  source: `${BOOK} · 4.3 · s. 90`,
+  source: `${BOOK} · 4.3 (s. 90) · demo dərs`,
   video: {
     source: null,
     title: 'Cəmin kubu necə açılır',
@@ -72,7 +72,7 @@ const square: StudyLesson = {
   id: 'riyaziyyat-7-4-1',
   topicCode: '4.1',
   topicTitle: 'Cəmin və fərqin kvadratı',
-  source: `${BOOK} · 4.1 · s. 83`,
+  source: `${BOOK} · 4.1 (s. 83) · demo dərs`,
   video: {
     source: null,
     title: 'Cəmin kvadratı necə açılır',

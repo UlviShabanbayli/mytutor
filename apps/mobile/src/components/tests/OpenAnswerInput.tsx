@@ -44,7 +44,7 @@ export function OpenAnswerInput({ value, disabled, onChange, onSubmit }: OpenAns
             inputMode="none"
             showSoftInputOnFocus={false}
             autoCorrect={false}
-            className="min-h-14 flex-1 font-display-black text-2xl text-ink"
+            className="min-h-14 min-w-0 flex-1 font-display-black text-2xl text-ink"
           />
           {value && !disabled ? (
             <IconButton
