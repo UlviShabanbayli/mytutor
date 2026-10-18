@@ -53,7 +53,7 @@ describe('placementOutcome', () => {
     expect(placementStep(demoHive, questions, answers).next).toBeNull();
     const outcome = placementOutcome(demoHive, questions, answers);
     expect(outcome.knownTopicIds).toHaveLength(17);
-    expect(outcome.startTopicId).toBe('riyaziyyat-7.4.3');
+    expect(outcome.startTopicId).toBe('riyaziyyat-7-4-3');
     expect(outcome).toMatchObject({ answered: 6, correct: 5 });
   });
 
@@ -64,7 +64,7 @@ describe('placementOutcome', () => {
       run(() => false),
     );
     expect(none.knownTopicIds).toEqual([]);
-    expect(none.startTopicId).toBe('riyaziyyat-7.1.1');
+    expect(none.startTopicId).toBe('riyaziyyat-7-1-1');
     const all = placementOutcome(
       demoHive,
       questions,

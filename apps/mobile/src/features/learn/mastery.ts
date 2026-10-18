@@ -61,21 +61,27 @@ export function unitSummary(unit: HiveUnit, hive: Hive): UnitSummary {
 
 export type TopicPlace = { unit: HiveUnit; topic: HiveTopic; index: number; globalIndex: number };
 
-/** Finds a topic by id, or by its textbook number ("4.3") as a short link. */
+/** The textbook number at the end of a topic link: "r7-4-3", "r7-4.3", "4.3" → "4.3". */
+const TOPIC_NUMBER = /(\d+)[.-](\d+)$/;
+
+/** Finds a topic by id, or by the textbook number its link ends with (other areas' links). */
 export function findTopic(hive: Hive, id: string): TopicPlace | null {
+  const match = TOPIC_NUMBER.exec(id);
+  const number = match ? `${match[1]}.${match[2]}` : null;
   let globalIndex = 0;
   for (const unit of hive.units) {
     for (const [index, topic] of unit.topics.entries()) {
-      if (topic.id === id || topic.number === id) return { unit, topic, index, globalIndex };
+      if (topic.id === id || topic.number === number) return { unit, topic, index, globalIndex };
       globalIndex += 1;
     }
   }
   return null;
 }
 
-/** Finds a unit by id, or by its number ("4"). */
+/** Finds a unit by id, or by the unit number its link ends with ("u4", "4"). */
 export function findUnit(hive: Hive, id: string): { unit: HiveUnit; index: number } | null {
-  const index = hive.units.findIndex((u) => u.id === id || u.number === id);
+  const number = /(\d+)$/.exec(id)?.[1];
+  const index = hive.units.findIndex((u) => u.id === id || u.number === number);
   const unit = hive.units[index];
   return unit ? { unit, index } : null;
 }

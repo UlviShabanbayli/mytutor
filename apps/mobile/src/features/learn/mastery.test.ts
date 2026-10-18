@@ -47,10 +47,14 @@ describe('mastery', () => {
   });
 
   it('finds topics and units by id or by textbook number', () => {
-    expect(findTopic(demoHive, '4.3')?.topic.id).toBe('riyaziyyat-7.4.3');
-    expect(findTopic(demoHive, 'riyaziyyat-7.4.3')).toMatchObject({ index: 2, globalIndex: 17 });
+    expect(findTopic(demoHive, '4.3')?.topic.id).toBe('riyaziyyat-7-4-3');
+    expect(findTopic(demoHive, 'riyaziyyat-7-4-3')).toMatchObject({ index: 2, globalIndex: 17 });
+    expect(findTopic(demoHive, 'r7-4-3')?.topic.number).toBe('4.3');
+    expect(findTopic(demoHive, 'r7-4.3')?.topic.number).toBe('4.3');
     expect(findTopic(demoHive, 'nope')).toBeNull();
-    expect(findUnit(demoHive, '4')?.unit.id).toBe('riyaziyyat-7.u4');
+    expect(findTopic(demoHive, '9.9')).toBeNull();
+    expect(findUnit(demoHive, '4')?.unit.id).toBe('riyaziyyat-7-u4');
+    expect(findUnit(demoHive, 'riyaziyyat-7-u5')?.index).toBe(4);
   });
 
   it('continues with the current step', () => {
@@ -60,14 +64,14 @@ describe('mastery', () => {
 
   it('applies what the device knows on top of the hive', () => {
     const hive = withState(demoHive, {
-      levels: { 'riyaziyyat-7.5.1': 'mastered', 'riyaziyyat-7.1.1': 'mastered' },
-      currentTopicId: 'riyaziyyat-7.5.2',
-      savedTopicIds: ['riyaziyyat-7.5.1'],
+      levels: { 'riyaziyyat-7-5-1': 'mastered', 'riyaziyyat-7-1-1': 'mastered' },
+      currentTopicId: 'riyaziyyat-7-5-2',
+      savedTopicIds: ['riyaziyyat-7-5-1'],
     });
     expect(findTopic(hive, '5.1')?.topic.level).toBe('mastered');
     expect(findTopic(hive, '5.1')?.topic.steps.every((s) => s.state === 'done')).toBe(true);
     expect(findTopic(hive, '1.1')?.topic.level).toBe('reinforced');
-    expect(hive.currentTopicId).toBe('riyaziyyat-7.5.2');
-    expect(hive.savedTopicIds).toContain('riyaziyyat-7.5.1');
+    expect(hive.currentTopicId).toBe('riyaziyyat-7-5-2');
+    expect(hive.savedTopicIds).toContain('riyaziyyat-7-5-1');
   });
 });

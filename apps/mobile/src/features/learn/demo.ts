@@ -90,8 +90,9 @@ const PREREQUISITES: Record<string, string[]> = { '4.3': ['4.1', '3.5'] };
 const SAVED = ['3.1', '3.2', '3.3', '3.4', '3.5', '4.1', '4.2', '4.3'];
 const SEALED_UNIT_TESTS = ['1', '2', '3'];
 
-const topicId = (number: string) => `${DEMO_HIVE_ID}.${number}`;
-const unitId = (number: string) => `${DEMO_HIVE_ID}.u${number}`;
+// Ids as the other areas' demos link them: "riyaziyyat-7-4-3", "riyaziyyat-7-u4".
+const topicId = (number: string) => `${DEMO_HIVE_ID}-${number.replace('.', '-')}`;
+const unitId = (number: string) => `${DEMO_HIVE_ID}-u${number}`;
 
 function levelOf(number: string): MasteryLevel {
   if (SEALED.includes(number)) return 'reinforced';
