@@ -605,6 +605,9 @@ export const me = {
     quietHint: 'Bu saatlarda bildiriş gəlmir.',
     notifications: 'Bildirişlər',
     notif: { reminders: 'Xatırlatma', classes: 'Sinif', answers: 'Cavablar', league: 'Liqa' },
+    aboutGroup: 'HAQQINDA',
+    version: 'Versiya',
+    licenses: 'Lisenziyalar',
     accountGroup: 'HESAB',
     nickname: 'Ləqəb',
     createAccount: 'Hesab aç',
@@ -617,6 +620,19 @@ export const me = {
     deleteBody:
       'Adın, telefon nömrən, irəliləyişin və nəticələrin həmişəlik silinəcək. Sinif mesajları təhlükəsizlik üçün adsız qalır. Bunu geri qaytarmaq olmur.',
     deleteConfirm: 'Hesabı sil',
+  },
+  licenses: {
+    title: 'Lisenziyalar',
+    intro:
+      'arı açıq mənbəli şriftlər və kitabxanalar üzərində qurulub. Onların müəlliflərinə təşəkkür edirik.',
+    fontsTitle: 'Şriftlər',
+    librariesTitle: 'Açıq mənbəli kitabxanalar',
+    onestUse: 'Mətnlər',
+    unboundedUse: 'Başlıqlar və rəqəmlər',
+    showText: 'Lisenziya mətnini göstər',
+    hideText: 'Lisenziya mətnini gizlət',
+    openSite: 'Lisenziyanı saytda aç',
+    libraryLabel: '{{name}}: {{license}}, {{holder}}',
   },
   reward: {
     overline: 'YENİ DƏRƏCƏ',

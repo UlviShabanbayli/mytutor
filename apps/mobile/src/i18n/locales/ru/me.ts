@@ -655,6 +655,9 @@ export const me = {
       answers: 'Ответы',
       league: 'Лига',
     },
+    aboutGroup: 'О ПРИЛОЖЕНИИ',
+    version: 'Версия',
+    licenses: 'Лицензии',
     accountGroup: 'АККАУНТ',
     nickname: 'Никнейм',
     createAccount: 'Создать аккаунт',
@@ -668,6 +671,18 @@ export const me = {
     deleteBody:
       'Имя, номер телефона, прогресс и результаты удалятся навсегда. Сообщения в классах останутся без имени ради безопасности. Отменить это нельзя.',
     deleteConfirm: 'Удалить аккаунт',
+  },
+  licenses: {
+    title: 'Лицензии',
+    intro: 'arı построен на шрифтах и библиотеках с открытым исходным кодом. Спасибо их авторам.',
+    fontsTitle: 'Шрифты',
+    librariesTitle: 'Библиотеки с открытым кодом',
+    onestUse: 'Тексты',
+    unboundedUse: 'Заголовки и числа',
+    showText: 'Показать текст лицензии',
+    hideText: 'Скрыть текст лицензии',
+    openSite: 'Открыть лицензию на сайте',
+    libraryLabel: '{{name}}: {{license}}, {{holder}}',
   },
   reward: {
     overline: 'НОВОЕ ЗВАНИЕ',

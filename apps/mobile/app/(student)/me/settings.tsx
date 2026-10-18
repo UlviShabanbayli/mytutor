@@ -1,5 +1,6 @@
-import { RouteStub } from '@/components/coming-soon/RouteStub';
+import { SettingsView } from '@/components/me/SettingsView';
 
-export default function StudentMeSettingsScreen() {
-  return <RouteStub />;
+/** "Ayarlar" (architecture Ş11 "Hesab", P5 two languages). */
+export default function SettingsScreen() {
+  return <SettingsView />;
 }
