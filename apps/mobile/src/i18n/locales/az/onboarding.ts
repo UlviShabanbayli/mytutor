@@ -117,8 +117,8 @@ export const onboarding = {
   },
   ready: {
     title: 'Hazırdır!',
-    body_one: 'Planını qurdum. İlk hüceyrəni birlikdə dolduraq — {{count}} dəqiqə bəs edir.',
-    body_other: 'Planını qurdum. İlk hüceyrəni birlikdə dolduraq — {{count}} dəqiqə bəs edir.',
+    body_one: 'Planını qurdum: gündə {{count}} dəqiqə. İlk hüceyrəni birlikdə dolduraq.',
+    body_other: 'Planını qurdum: gündə {{count}} dəqiqə. İlk hüceyrəni birlikdə dolduraq.',
     summary: 'Seçimlərin',
     grade: { label: 'Sinif', edit: 'Sinfi dəyiş' },
     goal: { label: 'Məqsəd', key: 'M', edit: 'Məqsədi dəyiş' },
