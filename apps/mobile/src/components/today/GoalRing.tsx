@@ -5,8 +5,9 @@ import { Text } from '@/components/ui';
 import type { GoalProgress } from '@/features/today/goal';
 import { useThemeColors } from '@/theme';
 
-const SIZE = 64;
-const RADIUS = 26;
+// 80pt (the design draws 64) so "/ 20 dəq" at 11pt fits inside the stroke.
+const SIZE = 80;
+const RADIUS = 34;
 const STROKE = 7;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
@@ -53,8 +54,8 @@ export function GoalRing({ progress }: GoalRingProps) {
           />
         ) : null}
       </Svg>
-      <Text className="font-display-black text-base leading-[16px]">{progress.done}</Text>
-      <Text className="font-sans-bold text-[10px] leading-[12px] text-muted">
+      <Text className="font-display-black text-lg leading-[20px]">{progress.done}</Text>
+      <Text className="font-sans-bold text-2xs leading-[13px] text-muted">
         {t('today.goal.ringCaption', { goal: progress.goal })}
       </Text>
     </View>
