@@ -1,5 +1,10 @@
 import type { z } from 'zod';
 import type {
+  admissionGroupSchema,
+  examKindSchema,
+  onboardingProfileSchema,
+  roleSchema,
+  studyGoalSchema,
   curriculumSchema,
   curriculumEntrySchema,
   curriculumInputSchema,
@@ -220,3 +225,9 @@ export type TestAnswer = z.output<typeof testAnswerSchema>;
 export type TestQuestion = z.output<typeof testQuestionSchema>;
 export type TestQuestionsDocument = z.output<typeof testQuestionsDocumentSchema>;
 export type TopicCatalogue = z.output<typeof topicCatalogueSchema>;
+
+export type Role = z.output<typeof roleSchema>;
+export type ExamKind = z.output<typeof examKindSchema>;
+export type AdmissionGroup = z.output<typeof admissionGroupSchema>;
+export type StudyGoal = z.output<typeof studyGoalSchema>;
+export type OnboardingProfile = z.output<typeof onboardingProfileSchema>;
