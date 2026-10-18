@@ -1,14 +1,14 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { TestResultView } from '@/components/tests/TestResultView';
-import { EmptyState, ErrorState, LoadingState, Screen } from '@/components/ui';
-import { useTest } from '@/features/tests/queries';
+import { EmptyState, ErrorState, LoadingState, Screen, ScreenHeader } from '@/components/ui';
+import { useStudyTest } from '@/features/study/queries';
 import { useTestSessionStore } from '@/features/tests/sessionStore';
 
 export default function TestResultScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const query = useTest(id);
+  const query = useStudyTest(id);
   const result = useTestSessionStore((s) => s.results.find((r) => r.testId === id));
 
   if (query.isPending)
@@ -23,13 +23,14 @@ export default function TestResultScreen() {
         <ErrorState onRetry={() => void query.refetch()} />
       </Screen>
     );
-  if (!result) {
+  if (!result || !query.data) {
     return (
       <Screen>
+        <ScreenHeader title={t('result.title')} />
         <EmptyState title={t('results.emptyTitle')} description={t('results.emptyDescription')} />
       </Screen>
     );
   }
 
-  return <TestResultView test={query.data} result={result} />;
+  return <TestResultView study={query.data} result={result} />;
 }

@@ -1,0 +1,62 @@
+import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Mascot } from '@/components/mascot/Mascot';
+import { Button, Icon, Sheet, Text } from '@/components/ui';
+
+type TestExitSheetProps = {
+  visible: boolean;
+  /** Answers already given (they stay saved). */
+  answered: number;
+  /** 1-based question the student is on. */
+  position: number;
+  total: number;
+  onStay: () => void;
+  onLeave: () => void;
+};
+
+/** "Testdən çıxırsan?": nothing is lost, the run resumes where it was left. */
+export function TestExitSheet({
+  visible,
+  answered,
+  position,
+  total,
+  onStay,
+  onLeave,
+}: TestExitSheetProps) {
+  const { t } = useTranslation();
+
+  return (
+    <Sheet visible={visible} onClose={onStay} title={t('study.test.exitTitle')} showTitle={false}>
+      <View className="items-center gap-3 px-1">
+        <Mascot moment="aiThinking" size={104} decorative />
+        <Text variant="heading" className="text-center font-display-black text-xl">
+          {t('study.test.exitTitle')}
+        </Text>
+        <Text tone="muted" className="text-center">
+          {t('study.test.exitBody')}
+        </Text>
+        <View className="gap-2 self-stretch rounded-lg bg-raised px-3.5 py-3">
+          <View className="flex-row items-center gap-2.5">
+            <Icon name="check" size={20} color="ok" />
+            <Text className="flex-1 font-sans-semibold text-sm">
+              {t('study.test.saved', { count: answered })}
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-2.5">
+            <Icon name="pin" size={20} color="honey-text" />
+            <Text className="flex-1 font-sans-semibold text-sm">
+              {t('study.test.position', { n: position, total })}
+            </Text>
+          </View>
+        </View>
+        <Button label={t('study.common.continue')} onPress={onStay} className="self-stretch" />
+        <Button
+          label={t('study.test.leave')}
+          variant="secondary"
+          onPress={onLeave}
+          className="self-stretch"
+        />
+      </View>
+    </Sheet>
+  );
+}
