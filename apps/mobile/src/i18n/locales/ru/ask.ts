@@ -294,8 +294,8 @@ export const ask = {
     teacherShort: 'Лала муаллим',
     teacherFull: 'Лала Гасанова',
     className: '7B',
-    source: 'Riyaziyyat 7 (TRİMS), 1-ci hissə · {{topic}} · с. {{page}}',
-    sourceTopic: 'Riyaziyyat 7 (TRİMS), 1-ci hissə · {{topic}}',
+    source: 'Riyaziyyat 7 (TRİMS), 1-ci hissə · {{topic}} (с. {{page}}) · демо',
+    sourceTopic: 'Riyaziyyat 7 (TRİMS), 1-ci hissə · {{topic}} · демо',
     newQuestionTitle: 'Фото-вопрос · {{subject}}',
     topics: {
       cube: 'Куб суммы и разности',

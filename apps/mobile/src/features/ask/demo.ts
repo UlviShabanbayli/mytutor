@@ -69,7 +69,7 @@ export function demoTopic(t: TFunction, key: TopicKey): AskTopicRef {
   };
 }
 
-/** "Riyaziyyat 7 (TRİMS), 1-ci hissə · 4.3 · s. 90" (without the page when unknown). */
+/** "Riyaziyyat 7 (TRİMS), 1-ci hissə · 4.3 (s. 90) · demo" (without the page when unknown). */
 export function demoSource(t: TFunction, key: TopicKey): string {
   const topic = TOPICS[key];
   return topic.page === null

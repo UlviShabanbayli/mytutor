@@ -29,7 +29,7 @@ describe('buildReply', () => {
   it('cites the textbook whenever it explains, and never when it declines', () => {
     for (const intent of ['cubeWhy', 'fullSolution', 'cubeMinus', 'explainTopic'] as const) {
       const reply = buildReply(t, intent);
-      expect(reply.source).toBe('Riyaziyyat 7 (TRİMS), 1-ci hissə · 4.3 · s. 90');
+      expect(reply.source).toBe('Riyaziyyat 7 (TRİMS), 1-ci hissə · 4.3 (s. 90) · demo');
       expect(reply.sources.length).toBeGreaterThan(0);
     }
     expect(buildReply(t, 'offtopic').source).toBeNull();

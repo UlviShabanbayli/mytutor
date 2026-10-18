@@ -289,8 +289,8 @@ export const ask = {
     teacherShort: 'Lalə müəllim',
     teacherFull: 'Lalə Həsənova',
     className: '7B',
-    source: 'Riyaziyyat 7 (TRİMS), 1-ci hissə · {{topic}} · s. {{page}}',
-    sourceTopic: 'Riyaziyyat 7 (TRİMS), 1-ci hissə · {{topic}}',
+    source: 'Riyaziyyat 7 (TRİMS), 1-ci hissə · {{topic}} (s. {{page}}) · demo',
+    sourceTopic: 'Riyaziyyat 7 (TRİMS), 1-ci hissə · {{topic}} · demo',
     newQuestionTitle: 'Şəkil-sual · {{subject}}',
     topics: {
       cube: 'Cəmin və fərqin kubu',
