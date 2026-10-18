@@ -18,7 +18,7 @@ type HexCellProps = {
   size?: number;
   /** Text inside the cell, e.g. the topic number "4.3". */
   label?: string;
-  /** Draws a 3pt ring around the cell (the selected or current topic). */
+  /** The selected or current topic: the inverted `spot` fill with a honey label. */
   selected?: boolean;
   className?: string;
 };
