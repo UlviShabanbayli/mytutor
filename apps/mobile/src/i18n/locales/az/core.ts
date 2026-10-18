@@ -1,5 +1,5 @@
-// Source of truth for translation keys. Any future locale must match this shape.
-export const az = {
+// Shared keys of the whole app (Azerbaijani: the source of truth for every locale's shape).
+export const core = {
   common: {
     appName: 'arı',
     loading: 'Nektar yığıram…',
@@ -41,12 +41,25 @@ export const az = {
     '11': 'dekabr',
   },
   dateTime: '{{day}} {{month}}, {{time}}',
+  // Bottom navigation of each role (design: student, teacher and parent menus).
   tabs: {
-    home: 'Əsas',
-    tests: 'Testlər',
-    ask: 'Sual ver',
-    lessons: 'Dərslər',
-    progress: 'İrəliləyiş',
+    today: 'Bu gün',
+    learn: 'Öyrən',
+    ask: 'Soruş',
+    askHint: 'Şəkil çək və ya Vızıdan soruş',
+    exam: 'İmtahan',
+    me: 'Mən',
+    classes: 'Siniflər',
+    inbox: 'Suallar',
+    create: 'Yarat',
+    createHint: 'Dərs, video, test və ya sual yarat',
+    messages: 'Mesajlar',
+    kids: 'Uşaqlarım',
+    menuStudent: 'Əsas menyu',
+    menuTeacher: 'Müəllim menyusu',
+    menuParent: 'Valideyn menyusu',
+    badge_one: '{{count}} yeni',
+    badge_other: '{{count}} yeni',
   },
   home: {
     greeting: 'Salam',
@@ -153,8 +166,3 @@ export const az = {
     languageName: 'Azərbaycan dili',
   },
 };
-
-type DeepStringRecord<T> = {
-  [K in keyof T]: T[K] extends string ? string : DeepStringRecord<T[K]>;
-};
-export type TranslationResource = DeepStringRecord<typeof az>;
