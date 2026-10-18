@@ -1,38 +1,61 @@
-import { View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { TestResult } from '@mytutor/types';
-import { Badge, Text } from '@/components/ui';
+import { Icon, Text } from '@/components/ui';
 import { percent, scoreTier } from '@/features/tests/scoring';
 import { formatDateTime } from '@/i18n/formatDateTime';
 import { cn } from '@/lib/cn';
 
-type ResultHistoryRowProps = {
-  result: TestResult;
-  /** Draws the divider under the row (all but the last row). */
-  divider?: boolean;
-};
+type ResultHistoryRowProps = { result: TestResult };
 
-const tierTone = { excellent: 'ok', good: 'honey', practice: 'neutral' } as const;
+// Score tiles by tier (design "Son nəticələr"): excellent green, good honey, practice blue.
+const tierClasses = {
+  excellent: { box: 'bg-ok-bg', text: 'text-ok' },
+  good: { box: 'bg-raised', text: 'text-honey-text' },
+  practice: { box: 'bg-info-bg', text: 'text-info' },
+} as const;
 
-export function ResultHistoryRow({ result, divider = false }: ResultHistoryRowProps) {
+/** A finished test: score tile, title, questions and date; opens the test's result. */
+export function ResultHistoryRow({ result }: ResultHistoryRowProps) {
   const { t } = useTranslation();
   const score = percent(result.correct, result.total);
   const date = formatDateTime(t, new Date(result.finishedAt));
+  const tier = tierClasses[scoreTier(score)];
 
   return (
-    <View
-      className={cn(
-        'min-h-14 flex-row items-center gap-3 px-4 py-3',
-        divider && 'border-b border-border',
-      )}
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t('me.progress.historyLabel', { title: result.title, score, date })}
+      onPress={() => router.push({ pathname: '/test/[id]/result', params: { id: result.testId } })}
+      className="rounded-md bg-border pb-0.5"
     >
-      <View className="flex-1 gap-0.5">
-        <Text className="font-sans-bold">{result.title}</Text>
-        <Text variant="caption" tone="muted">
-          {`${t('result.score', { correct: result.correct, total: result.total })} · ${date}`}
-        </Text>
-      </View>
-      <Badge label={`${score}%`} tone={tierTone[scoreTier(score)]} />
-    </View>
+      {({ pressed }) => (
+        <View
+          className={cn(
+            'min-h-[54px] flex-row items-center gap-3 rounded-md border border-border bg-surf px-3 py-1.5',
+            pressed && 'translate-y-0.5',
+          )}
+        >
+          <View
+            className={cn('h-10 w-[52px] items-center justify-center rounded-[12px]', tier.box)}
+          >
+            <Text className={cn('font-display-black text-sm', tier.text)}>{`${score}%`}</Text>
+          </View>
+          <View className="flex-1 gap-0.5">
+            <Text className="font-sans-bold text-sm" numberOfLines={2}>
+              {result.title}
+            </Text>
+            <Text tone="muted" className="text-xs">
+              {t('me.progress.historyMeta', {
+                questions: t('common.questionsCount', { count: result.total }),
+                date,
+              })}
+            </Text>
+          </View>
+          <Icon name="chevron" size={18} color="muted" />
+        </View>
+      )}
+    </Pressable>
   );
 }
