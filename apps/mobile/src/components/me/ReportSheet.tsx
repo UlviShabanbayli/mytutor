@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, Icon, Sheet, Text } from '@/components/ui';
+import { Button, HexRadio, Sheet, SuccessCheck, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
 
 const REASONS = ['insult', 'cheating', 'personal', 'spam', 'other'] as const;
@@ -31,10 +31,7 @@ export function ReportSheet({ visible, onClose, onReport }: ReportSheetProps) {
   if (done) {
     return (
       <Sheet visible={visible} onClose={close} title={t('me.report.doneTitle')}>
-        <View className="flex-row items-center gap-2.5 rounded-lg bg-ok-bg px-3 py-3">
-          <Icon name="check" size={22} color="ok" />
-          <Text className="flex-1 text-sm">{t('me.report.doneBody')}</Text>
-        </View>
+        <SuccessCheck layout="row" body={t('me.report.doneBody')} />
         <Button label={t('common.close')} variant="secondary" size="md" onPress={close} />
       </Sheet>
     );
@@ -56,14 +53,7 @@ export function ReportSheet({ visible, onClose, onReport }: ReportSheetProps) {
                 i > 0 && 'border-t border-border',
               )}
             >
-              <View
-                className={cn(
-                  'h-6 w-6 items-center justify-center rounded-full border-2',
-                  selected ? 'border-honey bg-honey' : 'border-border',
-                )}
-              >
-                {selected ? <Icon name="check" size={14} color="on-honey" /> : null}
-              </View>
+              <HexRadio selected={selected} />
               <Text className="flex-1 font-sans-semibold">{t(`me.report.reasons.${r}`)}</Text>
             </Pressable>
           );
