@@ -3,12 +3,15 @@ import type { SourceRef } from '@mytutor/types';
 import { SourceLine as SourceLineUi } from '@/components/ui';
 
 type SourceLineProps = {
-  source: SourceRef;
+  /** A question's source, or an already written line ("Riyaziyyat 7 (TRİMS), 1-ci hissə · 4.3"). */
+  source: SourceRef | string;
+  className?: string;
 };
 
 /** "Mənbə: Test bankı · Riyaziyyat, 7-ci sinif · Natural ədədlər · səh. 45" */
-export function SourceLine({ source }: SourceLineProps) {
+export function SourceLine({ source, className }: SourceLineProps) {
   const { t } = useTranslation();
+  if (typeof source === 'string') return <SourceLineUi source={source} className={className} />;
   const parts = [
     t(`source.${source.kind}`),
     source.title,
@@ -17,5 +20,5 @@ export function SourceLine({ source }: SourceLineProps) {
     source.page ? t('source.page', { page: source.page }) : null,
   ].filter(Boolean);
 
-  return <SourceLineUi source={parts.join(' · ')} />;
+  return <SourceLineUi source={parts.join(' · ')} className={className} />;
 }

@@ -1,63 +1,62 @@
-import { useEffect } from 'react';
-import * as Haptics from 'expo-haptics';
+import { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import type { OptionKey, PracticeTest, Question } from '@mytutor/types';
-import { Button, IconButton } from '@/components/ui';
-import { isCorrect } from '@/features/tests/answers';
+import { Button } from '@/components/ui';
+import { leaveTo } from '@/features/study/leave';
+import { isAnswered, stepVerdict } from '@/features/study/steps';
+import { useStudyStore } from '@/features/study/studyStore';
+import type { StudyTest } from '@/features/study/types';
 import { useTestSessionStore } from '@/features/tests/sessionStore';
 import { TestMathContext } from '@/features/tests/testMath';
-import { fontSize } from '@/theme';
+import { playCue } from '@/lib/cues';
 import { FeedbackPanel } from './FeedbackPanel';
-import { MathText } from './MathText';
-import { OpenAnswerInput } from './OpenAnswerInput';
-import { OptionButton, type OptionState } from './OptionButton';
-import { QuestionFigure } from './QuestionFigure';
-import { SessionProgress } from './SessionProgress';
-
-function optionState(
-  question: Question,
-  key: OptionKey,
-  selected: string | undefined,
-  checked: boolean,
-): OptionState {
-  if (!checked) return selected === key ? 'selected' : 'idle';
-  if (key === question.correctKey) return 'correct';
-  return selected === key ? 'incorrect' : 'dimmed';
-}
+import { StepBody } from './StepBody';
+import { TestExitSheet } from './TestExitSheet';
+import { TestSessionHeader } from './TestSessionHeader';
 
 type TestSessionProps = {
-  test: PracticeTest;
+  study: StudyTest;
+  /** "Mövzu testi · 4.3". */
+  kind: string;
 };
 
 /**
- * One question at a time: pick an option (or type the number) → check → feedback with the
- * right answer and the source → next.
+ * One question at a time: answer → "Yoxla" → feedback (right, calm wrong with the right
+ * answer and the source, or sent to the teacher) → next. Leaving keeps the run for later.
  */
-export function TestSession({ test }: TestSessionProps) {
+export function TestSession({ study, kind }: TestSessionProps) {
   const { t } = useTranslation();
-  const { session, start, select, check, next, finish } = useTestSessionStore();
+  const insets = useSafeAreaInsets();
+  const { test, steps } = study;
+  const { session, start, restart, select, check, next, finish } = useTestSessionStore();
+  const startTest = useStudyStore((s) => s.startTest);
+  const [exiting, setExiting] = useState(false);
 
-  useEffect(() => start(test.id), [start, test.id]);
+  useEffect(() => {
+    const resumed = useTestSessionStore.getState().session?.testId === test.id;
+    start(test.id);
+    startTest(test.id, !resumed);
+  }, [start, startTest, test.id]);
 
   const active = session?.testId === test.id ? session : null;
-  const question = active ? test.questions[active.index] : undefined;
-  if (!active || !question) return null;
+  const step = active ? steps[active.index] : undefined;
+  // A run saved for an older version of the same test (fewer steps now) starts over.
+  useEffect(() => {
+    if (active && !step) restart(test.id);
+  }, [active, step, restart, test.id]);
+  if (!active || !step) return null;
 
-  const selected = active.answers[question.id];
-  const answered = Boolean(selected?.trim());
-  const isLast = active.index === test.questions.length - 1;
-  const correct = isCorrect(question, selected);
+  const answer = active.answers[step.id];
+  const verdict = stepVerdict(step, answer);
+  const isLast = active.index === steps.length - 1;
+  const answeredCount = Object.keys(active.answers).length;
 
   const onCheck = () => {
     check();
-    void Haptics.notificationAsync(
-      correct ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error,
-    );
+    playCue(verdict === 'correct' ? 'correct' : verdict === 'wrong' ? 'wrong' : 'tap');
   };
-
   const onContinue = () => {
     if (!isLast) return next();
     finish(test);
@@ -65,64 +64,57 @@ export function TestSession({ test }: TestSessionProps) {
   };
 
   return (
-    // The feedback panel runs to the bottom edge and pads for the home indicator itself.
-    <SafeAreaView
-      edges={active.checked ? ['top', 'left', 'right'] : ['top', 'bottom', 'left', 'right']}
-      className="flex-1 bg-page"
-    >
-      <View className="flex-row items-center gap-2 pb-1 pl-2 pr-5">
-        <IconButton icon="close" accessibilityLabel={t('common.close')} onPress={router.back} />
-        <SessionProgress title={test.title} index={active.index} total={test.questions.length} />
-      </View>
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-page">
+      <TestSessionHeader
+        kind={kind}
+        index={active.index}
+        total={steps.length}
+        onClose={() => (answeredCount > 0 ? setExiting(true) : leaveTo('/learn'))}
+      />
       <TestMathContext.Provider value={test.math}>
-        <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="gap-5 px-5 py-5">
-          <MathText
-            text={question.stem}
-            fontSize={fontSize.lg[0]}
-            className="font-sans-bold text-lg"
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="px-4 pb-5 pt-3">
+          <StepBody
+            key={step.id}
+            step={step}
+            answer={answer}
+            checked={active.checked}
+            onAnswer={(value) => select(step.id, value)}
+            onSubmit={() => {
+              if (isAnswered(step, answer) && !active.checked) onCheck();
+            }}
           />
-          {question.figures.map((figure) => (
-            <QuestionFigure key={figure} path={figure} />
-          ))}
-          {question.type === 'open' ? (
-            <OpenAnswerInput
-              value={selected ?? ''}
-              disabled={active.checked}
-              onChange={(value) => select(question.id, value)}
-              onSubmit={() => {
-                if (answered && !active.checked) onCheck();
-              }}
-            />
-          ) : (
-            <View accessibilityRole="radiogroup" className="gap-2.5">
-              {question.options.map((option) => (
-                <OptionButton
-                  key={option.key}
-                  option={option}
-                  state={optionState(question, option.key, selected, active.checked)}
-                  disabled={active.checked}
-                  onPress={() => {
-                    void Haptics.selectionAsync();
-                    select(question.id, option.key);
-                  }}
-                />
-              ))}
-            </View>
-          )}
         </ScrollView>
+        {active.checked ? (
+          <FeedbackPanel
+            step={step}
+            answer={answer}
+            verdict={verdict}
+            isLast={isLast}
+            onContinue={onContinue}
+          />
+        ) : (
+          // The home indicator inset is device-specific, so it cannot be a static class.
+          <View className="px-4 pt-2.5" style={{ paddingBottom: Math.max(insets.bottom, 12) + 8 }}>
+            <Button
+              label={step.kind === 'written' ? t('study.test.send') : t('study.common.check')}
+              icon={step.kind === 'written' ? 'send' : undefined}
+              disabled={!isAnswered(step, answer)}
+              onPress={onCheck}
+            />
+          </View>
+        )}
       </TestMathContext.Provider>
-      {active.checked ? (
-        <FeedbackPanel
-          question={question}
-          correct={correct}
-          isLast={isLast}
-          onContinue={onContinue}
-        />
-      ) : (
-        <View className="px-5 pb-2 pt-3">
-          <Button label={t('session.check')} disabled={!answered} onPress={onCheck} />
-        </View>
-      )}
+      <TestExitSheet
+        visible={exiting}
+        answered={answeredCount}
+        position={active.index + 1}
+        total={steps.length}
+        onStay={() => setExiting(false)}
+        onLeave={() => {
+          setExiting(false);
+          leaveTo('/learn');
+        }}
+      />
     </SafeAreaView>
   );
 }
