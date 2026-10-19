@@ -1,30 +1,44 @@
-import type { ComponentProps } from 'react';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useThemeColors, type SemanticColors } from '@/theme';
+import { View } from 'react-native';
+import Svg from 'react-native-svg';
+import { useThemeColors, type ColorName } from '@/theme';
+import { iconShapes, type IconName } from './iconShapes';
 
-export type IconName = ComponentProps<typeof Ionicons>['name'];
+export type { IconName };
 
 type IconProps = {
   name: IconName;
   size?: number;
-  color?: keyof SemanticColors;
+  color?: ColorName;
   /** Provide only when the icon conveys meaning without adjacent text. */
   accessibilityLabel?: string;
 };
 
-export function Icon({ name, size = 24, color = 'foreground', accessibilityLabel }: IconProps) {
+/** Stroke icon from the arı icon set: 24pt grid, 2.2 stroke, round caps, one color. */
+export function Icon({ name, size = 24, color = 'ink', accessibilityLabel }: IconProps) {
   const colors = useThemeColors();
   const decorative = accessibilityLabel === undefined;
 
+  // Accessibility props live on a View: on the web, Svg would pass them to the DOM as is.
   return (
-    <Ionicons
-      name={name}
-      size={size}
-      color={colors[color]}
+    <View
       accessible={!decorative}
+      accessibilityRole={decorative ? undefined : 'image'}
       accessibilityLabel={accessibilityLabel}
       importantForAccessibility={decorative ? 'no-hide-descendants' : 'yes'}
       accessibilityElementsHidden={decorative}
-    />
+    >
+      <Svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={colors[color]}
+        strokeWidth={2.2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {iconShapes[name]}
+      </Svg>
+    </View>
   );
 }

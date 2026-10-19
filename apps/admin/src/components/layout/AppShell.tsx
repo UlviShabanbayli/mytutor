@@ -1,33 +1,43 @@
-import { GraduationCap } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, Outlet } from 'react-router';
-import { ThemeToggle } from './ThemeToggle';
+import { Outlet, useLocation } from 'react-router';
+import { Dialog } from '@/components/ui';
+import { CrumbsProvider } from '@/features/layout/crumbs';
+import { Sidebar } from './Sidebar';
+import { TopBar } from './TopBar';
 
+/** Sidebar on wide screens (a sheet behind the menu button on phones), top bar, page. */
 export function AppShell() {
   const { t } = useTranslation();
+  const [menu, setMenu] = useState(false);
+  const { pathname } = useLocation();
+
   return (
-    <div className="min-h-dvh bg-background">
-      <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-screen-2xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link
-            to="/"
-            aria-label={t('app.home')}
-            className="flex items-center gap-2 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    <CrumbsProvider>
+      <div className="flex min-h-dvh bg-background">
+        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 overflow-y-auto border-r border-border bg-card lg:block">
+          <Sidebar />
+        </aside>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <TopBar onMenu={() => setMenu(true)} />
+          {/* Keyed by path: every page starts at the top and drops the last page's state. */}
+          <main
+            key={pathname}
+            className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-8 sm:py-7"
           >
-            <span className="flex size-8 items-center justify-center rounded-sm bg-primary text-primary-foreground">
-              <GraduationCap className="size-5" />
-            </span>
-            <span className="font-sans-black text-lg text-foreground">{t('app.name')}</span>
-            <span className="rounded-full bg-secondary px-2 py-0.5 font-sans-bold text-xs text-secondary-foreground">
-              {t('app.badge')}
-            </span>
-          </Link>
-          <ThemeToggle />
+            <Outlet />
+          </main>
         </div>
-      </header>
-      <main className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6">
-        <Outlet />
-      </main>
-    </div>
+      </div>
+      <Dialog
+        open={menu}
+        title={t('nav.label')}
+        closeLabel={t('nav.close')}
+        onClose={() => setMenu(false)}
+        className="m-0 h-dvh max-h-dvh w-72 max-w-[85vw] rounded-none border-y-0 border-l-0 p-0"
+      >
+        <Sidebar onNavigate={() => setMenu(false)} />
+      </Dialog>
+    </CrumbsProvider>
   );
 }

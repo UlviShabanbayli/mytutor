@@ -3,7 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { SegmentedControl } from '@/components/ui';
 import { type ThemePreference, useThemeStore } from '@/features/theme/themeStore';
 
-export function ThemeToggle() {
+type ThemeToggleProps = {
+  /** Words instead of icons, filling the width (the sidebar). */ withLabels?: boolean;
+};
+
+export function ThemeToggle({ withLabels = false }: ThemeToggleProps) {
   const { t } = useTranslation();
   const preference = useThemeStore((s) => s.preference);
   const setPreference = useThemeStore((s) => s.setPreference);
@@ -12,11 +16,24 @@ export function ThemeToggle() {
       label={t('theme.label')}
       value={preference}
       onChange={setPreference}
-      iconOnly
+      iconOnly={!withLabels}
+      stretch={withLabels}
       options={[
-        { value: 'light', label: t('theme.light'), icon: <Sun className="size-4" /> },
-        { value: 'system', label: t('theme.system'), icon: <Monitor className="size-4" /> },
-        { value: 'dark', label: t('theme.dark'), icon: <Moon className="size-4" /> },
+        {
+          value: 'system',
+          label: t('theme.system'),
+          icon: withLabels ? null : <Monitor className="size-4" />,
+        },
+        {
+          value: 'light',
+          label: t('theme.light'),
+          icon: withLabels ? null : <Sun className="size-4" />,
+        },
+        {
+          value: 'dark',
+          label: t('theme.dark'),
+          icon: withLabels ? null : <Moon className="size-4" />,
+        },
       ]}
     />
   );

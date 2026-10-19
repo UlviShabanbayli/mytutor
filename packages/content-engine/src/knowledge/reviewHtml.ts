@@ -92,6 +92,12 @@ export async function renderKnowledgeReview(
       )
       .join('<br>');
     const firstCrop = item.sources[0]?.crops[0];
+    // A cited figure is shown with the text, which may rely on it.
+    const figureImgs: string[] = [];
+    for (const id of new Set(item.sources.flatMap((s) => (s.figureId ? [s.figureId] : [])))) {
+      const f = source.figures.find((x) => x.id === id);
+      if (f) figureImgs.push(`<img src="${await img(f.image)}" alt="${esc(`Fiqur ${f.id}`)}">`);
+    }
     const checks = item.checks
       .map(
         (c) =>
@@ -101,6 +107,7 @@ export async function renderKnowledgeReview(
     cards.push(`<article class="item" style="--c:${color}" id="${item.id}">
       <header><code>${item.id}</code><span class="type">${TYPE[item.type]}</span><span class="status">${statusLabel}</span><span class="muted">${item.readFrom === 'image' ? 'şəkildən' : 'mətndən'}</span></header>
       ${body(item)}
+      ${figureImgs.length ? `<div class="figs">${figureImgs.join('')}</div>` : ''}
       <p class="refs">Mənbə: ${refs}</p>
       <details><summary>Yoxlamalar${firstCrop ? ' və mənbə kəsiyi' : ''}</summary><ul class="checks">${checks}</ul>${firstCrop ? `<img src="${await img(firstCrop)}" alt="Mənbə kəsiyi">` : ''}</details>
     </article>`);
@@ -122,6 +129,7 @@ h1{margin:0;font-size:26px}.muted{color:var(--muted)}.stats{display:flex;flex-wr
 .item p{margin:0}.math{font-size:20px;overflow-x:auto}.name{font-weight:600}.spoken,.refs,.expl{font-size:13px;color:var(--muted)}
 .steps,.subs{margin:0;padding-left:22px}.checks{list-style:none;padding:0;margin:6px 0;font-size:13px}.checks .fail{color:#c81e1e}.checks .pass{color:#15803d}
 details img{max-width:100%;border:1px solid var(--line);border-radius:6px;background:#fff}code{font-size:12px}
+.figs{display:flex;flex-wrap:wrap;gap:8px}.figs img{max-width:min(100%,280px);max-height:200px;border:1px solid var(--line);border-radius:6px;background:#fff}
 </style>
 <main>
 <h1>${esc(`${doc.topic.number}. ${doc.topic.title}`)} — bilik sənədi</h1>

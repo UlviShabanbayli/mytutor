@@ -12,7 +12,7 @@ type PressableCardProps = {
   contentClassName?: string;
 };
 
-/** Card with the same tactile edge as Button; sinks on press without shifting layout. */
+/** Tappable card: a 2pt border-colored edge underneath; it sinks onto the edge while pressed. */
 export function PressableCard({
   children,
   onPress,
@@ -30,14 +30,13 @@ export function PressableCard({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      className={cn('rounded-lg bg-border pb-1', className)}
+      className={cn('rounded-xl bg-border pb-0.5', disabled && 'opacity-60', className)}
     >
       {({ pressed }) => (
         <View
           className={cn(
-            'rounded-lg border-2 border-border bg-card p-4',
-            pressed && !disabled && 'translate-y-1',
-            disabled && 'opacity-60',
+            'rounded-xl border border-border bg-surf p-4',
+            pressed && 'translate-y-0.5',
             contentClassName,
           )}
         >

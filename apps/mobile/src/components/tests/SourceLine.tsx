@@ -1,28 +1,24 @@
-import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { SourceRef } from '@mytutor/types';
-import { Icon, Text } from '@/components/ui';
+import { SourceLine as SourceLineUi } from '@/components/ui';
 
 type SourceLineProps = {
-  source: SourceRef;
+  /** A question's source, or an already written line ("Riyaziyyat 7 (TRİMS), 1-ci hissə · 4.3"). */
+  source: SourceRef | string;
+  className?: string;
 };
 
-/** "Source: Textbook · Riyaziyyat, 7-ci sinif, §3, p. 45" */
-export function SourceLine({ source }: SourceLineProps) {
+/** "Mənbə: Test bankı · Riyaziyyat, 7-ci sinif · Natural ədədlər · səh. 45" */
+export function SourceLine({ source, className }: SourceLineProps) {
   const { t } = useTranslation();
+  if (typeof source === 'string') return <SourceLineUi source={source} className={className} />;
   const parts = [
+    t(`source.${source.kind}`),
     source.title,
     source.grade ? t('common.grade', { count: source.grade, ordinal: true }) : null,
     source.section ?? null,
     source.page ? t('source.page', { page: source.page }) : null,
   ].filter(Boolean);
 
-  return (
-    <View className="flex-row items-start gap-2">
-      <Icon name="book-outline" size={16} color="muted-foreground" />
-      <Text variant="caption" tone="muted" className="flex-1">
-        {`${t('source.label')}: ${t(`source.${source.kind}`)} · ${parts.join(', ')}`}
-      </Text>
-    </View>
-  );
+  return <SourceLineUi source={parts.join(' · ')} className={className} />;
 }

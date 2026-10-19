@@ -26,4 +26,19 @@ describe('questionSchema', () => {
   it('requires a source reference', () => {
     expect(questionSchema.safeParse({ ...base, source: undefined }).success).toBe(false);
   });
+
+  it('reads an older question as a choice question without explanation or figures', () => {
+    const { explanation: _e, ...withoutExplanation } = base;
+    expect(questionSchema.parse(withoutExplanation)).toMatchObject({
+      type: 'choice',
+      explanation: null,
+      figures: [],
+    });
+  });
+
+  it('takes an open question with its answer and no options', () => {
+    const open = { ...base, type: 'open', options: [], correctKey: null, answer: '2,8' };
+    expect(questionSchema.safeParse(open).success).toBe(true);
+    expect(questionSchema.safeParse({ ...open, answer: null }).success).toBe(false);
+  });
 });

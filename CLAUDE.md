@@ -80,6 +80,9 @@ API (`apps/api`):
 
 - Node + TypeScript, Hono
 - PostgreSQL + Drizzle ORM. No flat JSON storage in this project; it must scale.
+  This is the target architecture. For the MVP, content authoring is temporarily file-based
+  (admin panel over `packages/textbook-parser/out/`) and new data follows the rules in
+  `docs/decisions/0001-storage-and-content-model.md` so the move stays mechanical.
 
 Authentication and verification are SEPARATE concerns and SEPARATE libraries:
 
@@ -117,7 +120,7 @@ apps/
   api/
     src/ routes/ services/ db/ middleware/
   admin/                      # web content panel (Vite + React, same tokens): textbook → source → knowledge review
-    server/                   # dev-only plugin: `/content/` serves pipeline outputs, `/content-api/` runs actions (add, delete and restore a book, extract source)
+    server/                   # dev-only plugin: `/content/` serves pipeline outputs, `/content-api/` runs actions (books, sources, curricula and links, reviews, trash)
     src/ routes/ components/ features/ i18n/ lib/
   lesson-engine/              # later: Remotion whiteboard pipeline
 packages/
@@ -159,16 +162,17 @@ packages/
 Demo scope: **test practice**. The app UI is Azerbaijani only.
 
 Content rule (non-negotiable): test questions are built ONLY from the textbooks and
-test banks the team provides. Paraphrase them; never invent questions, answers or
-explanations. Every question cites its source (`sourceRefSchema`: book/bank, grade,
-section, page) so a teacher can verify it.
+test banks the team provides. Questions from test books are used exactly as printed
+(the team's decision: those books are written and tried out by teachers); never
+invent questions, answers or explanations. Every question cites its source
+(`sourceRefSchema`: book/bank, grade, section, page) so a teacher can verify it.
 
 1. **Scaffold** — monorepo, `apps/mobile`, `apps/api` skeleton, `packages/*`, GitHub
    Actions CI (typecheck, lint, test), theme tokens, `components/ui` primitives.
 2. **Test UI** — subjects → topics → one-question-at-a-time test with feedback,
    explanation and source → result → results history. Runs on clearly marked demo data.
 3. **Content import** — ingest the provided textbooks and test banks into
-   paraphrased, source-cited questions (schemas in `packages/schemas/src/test.ts`).
+   source-cited questions (schemas in `packages/schemas/src/test.ts`).
 4. **Tests API** — serve subjects/topics/tests from PostgreSQL; persist results.
 
 After the demo:

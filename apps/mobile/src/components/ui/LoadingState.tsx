@@ -1,15 +1,15 @@
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useThemeColors } from '@/theme';
+import { Mascot } from '../mascot/Mascot';
 import { Text } from './Text';
 
 type LoadingStateProps = {
   message?: string;
 };
 
+/** The flying mascot with "Nektar yığıram…" (shown for waits longer than a moment). */
 export function LoadingState({ message }: LoadingStateProps) {
   const { t } = useTranslation();
-  const colors = useThemeColors();
   const label = message ?? t('common.loading');
 
   return (
@@ -19,8 +19,10 @@ export function LoadingState({ message }: LoadingStateProps) {
       accessibilityLabel={label}
       className="flex-1 items-center justify-center gap-3 py-12"
     >
-      <ActivityIndicator size="large" color={colors.primary} />
-      <Text tone="muted">{label}</Text>
+      <Mascot moment="loading" size={120} decorative />
+      <Text tone="muted" className="font-sans-semibold">
+        {label}
+      </Text>
     </View>
   );
 }

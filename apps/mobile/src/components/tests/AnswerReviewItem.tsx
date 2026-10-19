@@ -1,37 +1,53 @@
-import { View } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import type { OptionKey, Question } from '@mytutor/types';
-import { Card, Icon, Text } from '@/components/ui';
+import { Pressable, View } from 'react-native';
+import { Icon, Text } from '@/components/ui';
+import { cn } from '@/lib/cn';
+import { fontSize } from '@/theme';
+import { MathText } from './MathText';
 
 type AnswerReviewItemProps = {
   number: number;
-  question: Question;
-  answer: OptionKey | undefined;
+  /** The question (formulas between $…$). */
+  stem: string;
+  /** "Sənin: D · Düz: C". */
+  caption: string;
+  accessibilityLabel: string;
+  onPress: () => void;
 };
 
-export function AnswerReviewItem({ number, question, answer }: AnswerReviewItemProps) {
-  const { t } = useTranslation();
-  const correct = answer === question.correctKey;
-
+/** A missed question on the result: its number, the stem and both answers; opens "Səhvlərim". */
+export function AnswerReviewItem({
+  number,
+  stem,
+  caption,
+  accessibilityLabel,
+  onPress,
+}: AnswerReviewItemProps) {
   return (
-    <Card className="flex-row gap-3">
-      <Icon
-        name={correct ? 'checkmark-circle' : 'close-circle'}
-        size={24}
-        color={correct ? 'success' : 'destructive'}
-        accessibilityLabel={correct ? t('session.correctTitle') : t('session.incorrectTitle')}
-      />
-      <View className="flex-1 gap-1">
-        <Text variant="label">{`${number}. ${question.stem}`}</Text>
-        <Text variant="caption" tone={correct ? 'success' : 'destructive'}>
-          {answer ? t('result.yourAnswer', { key: answer }) : t('result.noAnswer')}
-        </Text>
-        {!correct ? (
-          <Text variant="caption" tone="muted">
-            {t('session.correctAnswer', { key: question.correctKey })}
-          </Text>
-        ) : null}
-      </View>
-    </Card>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      onPress={onPress}
+      className="rounded-lg bg-border pb-0.5"
+    >
+      {({ pressed }) => (
+        <View
+          className={cn(
+            'min-h-16 flex-row items-center gap-2.5 rounded-lg border border-border bg-surf py-2 pl-3 pr-2.5',
+            pressed && 'translate-y-0.5',
+          )}
+        >
+          <View className="h-[30px] w-[30px] items-center justify-center rounded-xs bg-err-bg">
+            <Text className="font-sans-black text-sm text-err">{number}</Text>
+          </View>
+          <View className="min-w-0 flex-1 gap-0.5">
+            <MathText text={stem} fontSize={fontSize.sm[0]} className="font-sans-bold text-sm" />
+            <Text variant="caption" tone="muted" className="text-xs">
+              {caption}
+            </Text>
+          </View>
+          <Icon name="chevron" size={18} color="muted" />
+        </View>
+      )}
+    </Pressable>
   );
 }

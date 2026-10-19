@@ -12,6 +12,7 @@ import {
   deleteBook,
   extractSource,
   PipelineError,
+  purgeTrash,
   restoreBook,
   safePdfName,
 } from './pipeline';
@@ -498,5 +499,34 @@ describe('restoreBook', () => {
     const { trashId } = await deleteBook({ root, bookId: 'a' });
     await restoreBook({ root, trashId });
     expect(await code(restoreBook({ root, trashId }))).toBe('404 no_trash');
+  });
+});
+
+describe('purgeTrash', () => {
+  it('erases the trash entry and everything in it, and nothing else', async () => {
+    await twoFolderBook();
+    const { trashId } = await deleteBook({ root, bookId: 'a' });
+    expect(await purgeTrash({ root, trashId })).toEqual({ trashId });
+    expect(await readdir(join(root, '.trash'))).toEqual([]);
+    expect((await readdir(root)).sort()).toEqual(['.trash', 'b']);
+    expect((await buildContentIndex(root)).trash).toEqual([]);
+    expect(await code(restoreBook({ root, trashId }))).toBe('404 no_trash');
+  });
+
+  it('refuses unknown, hidden and path-like ids, and erases nothing', async () => {
+    await twoFolderBook();
+    await deleteBook({ root, bookId: 'a' });
+    for (const trashId of ['nope', '.trash', '..', '../b', 'a/b', '.'])
+      expect(await code(purgeTrash({ root, trashId }))).toBe('404 no_trash');
+    expect((await readdir(root)).sort()).toEqual(['.trash', 'b']);
+    expect(await readdir(join(root, '.trash'))).toHaveLength(1);
+  });
+
+  it('refuses an entry already restored', async () => {
+    await twoFolderBook();
+    const { trashId } = await deleteBook({ root, bookId: 'a' });
+    await restoreBook({ root, trashId });
+    expect(await code(purgeTrash({ root, trashId }))).toBe('404 no_trash');
+    expect((await readdir(root)).sort()).toEqual(['.trash', 'a', 'b', 'old-a']);
   });
 });

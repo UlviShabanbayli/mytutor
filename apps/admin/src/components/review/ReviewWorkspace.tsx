@@ -1,0 +1,146 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { KnowledgeDocument, KnowledgeItem, TopicReview, TopicSource } from '@mytutor/types';
+import { ActionError } from '@/components/books/ActionError';
+import { ItemStandards } from '@/components/links/ItemStandards';
+import { nextOpenBlock, reviewQueue } from '@/features/review/queue';
+import type { ReviewActions } from '@/features/review/useTopicReview';
+import type { BookStandards } from '@/features/standards/useBookStandards';
+import { useSearchParam } from '@/lib/useSearchParam';
+import { BlockCard } from './BlockCard';
+import { BlockZoomDialog } from './BlockZoomDialog';
+import { PagePanel } from './PagePanel';
+import { ReviewHeader } from './ReviewHeader';
+import { ReviewHelp } from './ReviewHelp';
+import { TopicReviewDone } from './TopicReviewDone';
+
+type ReviewWorkspaceProps = {
+  bookId: string;
+  topic: string;
+  topicDir: string;
+  source: TopicSource;
+  doc: KnowledgeDocument;
+  review: TopicReview | null;
+  actions: ReviewActions;
+  bs: BookStandards;
+};
+
+/** The page on the left, the current block and its items on the right, the queue below. */
+export function ReviewWorkspace({
+  bookId,
+  topic,
+  topicDir,
+  source,
+  doc,
+  review,
+  actions,
+  bs,
+}: ReviewWorkspaceProps) {
+  const { t } = useTranslation();
+  const [blockParam, setParams] = useSearchParam('block');
+  const [zoom, setZoom] = useState(false);
+  const { queue, decisions } = useMemo(
+    () => reviewQueue(source, doc.items, review),
+    [source, doc.items, review],
+  );
+  const current =
+    queue.find((b) => b.id === blockParam) ?? queue.find((b) => !b.approved) ?? queue[0];
+  const next = current ? nextOpenBlock(queue, current.id) : null;
+  const select = (id: string) => setParams({ block: id });
+  // Keeps the block in the URL, so it stays on screen (with "undo" and "next") once approved.
+  useEffect(() => {
+    if (!blockParam && current) setParams({ block: current.id });
+  }, [blockParam, current, setParams]);
+  const approvedCount = queue.filter((b) => b.approved).length;
+  const standardSet = bs.standardSet;
+  const blockProps = current
+    ? {
+        entry: current,
+        decisions,
+        actions,
+        next: next?.id ?? null,
+        onNext: () => next && select(next.id),
+        itemStandards: standardSet
+          ? (item: KnowledgeItem) => (
+              <ItemStandards
+                topic={topic}
+                item={item}
+                items={doc.items}
+                codes={
+                  bs.links.items.find((l) => l.topic === topic && l.itemId === item.id)?.codes ?? []
+                }
+                standardSet={standardSet}
+                bs={bs}
+              />
+            )
+          : undefined,
+      }
+    : null;
+  const upcoming = queue.filter((b) => !b.approved && b.id !== current?.id).slice(0, 2);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <ReviewHeader
+        exitTo={`/books/${encodeURIComponent(bookId)}`}
+        unit={`${t('bookPage.unit', { index: source.topic.unit.index })} · ${source.topic.unit.title}`}
+        title={`${topic}. ${source.topic.title}`}
+        blocks={{ done: approvedCount, total: queue.length }}
+        items={{ done: decisions.size, total: doc.items.length }}
+      />
+      <ReviewHelp />
+      {actions.save.isError ? <ActionError error={actions.save.error} /> : null}
+      {queue.length > 0 && approvedCount === queue.length ? (
+        <TopicReviewDone bookId={bookId} topic={topic} />
+      ) : null}
+      {current ? (
+        <div className="flex flex-wrap items-start gap-4">
+          <div className="min-w-0 flex-[1_1_16rem] lg:sticky lg:top-20 lg:max-w-sm">
+            <PagePanel
+              key={current.id}
+              source={source}
+              topicDir={topicDir}
+              queue={queue}
+              current={current.id}
+              onSelect={select}
+            />
+          </div>
+          <div className="flex min-w-0 flex-[999_1_32rem] flex-col gap-2.5">
+            {blockProps ? (
+              <BlockCard
+                key={current.id}
+                {...blockProps}
+                source={source}
+                topicDir={topicDir}
+                onZoom={() => setZoom(true)}
+              />
+            ) : null}
+            {upcoming.length ? (
+              <p className="rounded-md border border-border bg-card px-3.5 py-3 text-[13px] text-muted-foreground">
+                {t('review.upcoming')}{' '}
+                {upcoming.map((b, i) => (
+                  <span key={b.id}>
+                    {i > 0 ? `, ${t('review.then')} ` : ''}
+                    <strong className="font-sans-black text-foreground">{b.id}</strong>{' '}
+                    {t('review.upcomingItems', { count: b.items.length })}
+                    {b.problems ? ` · ${t('review.problems', { count: b.problems })}` : ''}
+                  </span>
+                ))}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">{t('review.empty')}</p>
+      )}
+      {blockProps ? (
+        <BlockZoomDialog
+          open={zoom}
+          {...blockProps}
+          source={source}
+          topicDir={topicDir}
+          onClose={() => setZoom(false)}
+        />
+      ) : null}
+    </div>
+  );
+}

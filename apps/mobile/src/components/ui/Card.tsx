@@ -7,10 +7,9 @@ type CardProps = {
   className?: string;
 };
 
+/** White surface with a hairline border and 20pt corners. */
 export function Card({ children, className }: CardProps) {
   return (
-    <View className={cn('rounded-lg border-2 border-border bg-card p-4', className)}>
-      {children}
-    </View>
+    <View className={cn('rounded-xl border border-border bg-surf p-4', className)}>{children}</View>
   );
 }

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { OptionKey, PracticeTest, TestAnswers, TestResult } from '@mytutor/types';
+import type { PracticeTest, TestAnswers, TestResult } from '@mytutor/types';
 import { countCorrect } from './scoring';
 
 type ActiveSession = {
@@ -17,7 +17,8 @@ type TestSessionState = {
   /** Starts a session, or resumes an unfinished one for the same test. */
   start: (testId: string) => void;
   restart: (testId: string) => void;
-  select: (questionId: string, key: OptionKey) => void;
+  /** The student's answer to a question: an option key, or the number typed. */
+  select: (questionId: string, answer: string) => void;
   check: () => void;
   next: () => void;
   finish: (test: PracticeTest) => TestResult;
@@ -37,10 +38,10 @@ export const useTestSessionStore = create<TestSessionState>((set, get) => ({
     if (get().session?.testId !== testId) set({ session: fresh(testId) });
   },
   restart: (testId) => set({ session: fresh(testId) }),
-  select: (questionId, key) =>
+  select: (questionId, answer) =>
     set(({ session }) =>
       session && !session.checked
-        ? { session: { ...session, answers: { ...session.answers, [questionId]: key } } }
+        ? { session: { ...session, answers: { ...session.answers, [questionId]: answer } } }
         : {},
     ),
   check: () => set(({ session }) => (session ? { session: { ...session, checked: true } } : {})),

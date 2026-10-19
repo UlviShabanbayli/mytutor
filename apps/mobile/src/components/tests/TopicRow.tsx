@@ -11,7 +11,9 @@ type TopicRowProps = {
 export function TopicRow({ topic, onPress }: TopicRowProps) {
   const { t } = useTranslation();
   const available = topic.questionCount > 0;
-  const grade = t('common.grade', { count: topic.grade, ordinal: true });
+  // A test book's section belongs to no single grade.
+  const grade =
+    topic.grade === null ? null : t('common.grade', { count: topic.grade, ordinal: true });
   const meta = available
     ? t('common.questionsCount', { count: topic.questionCount })
     : t('common.comingSoon');
@@ -20,18 +22,18 @@ export function TopicRow({ topic, onPress }: TopicRowProps) {
     <PressableCard
       onPress={onPress}
       disabled={!available}
-      accessibilityLabel={`${topic.title}, ${grade}, ${meta}`}
+      accessibilityLabel={[topic.title, grade, meta].filter(Boolean).join(', ')}
       accessibilityHint={available ? undefined : t('subject.topicUnavailable')}
       contentClassName="flex-row items-center gap-3"
     >
       <View className="flex-1 gap-1.5">
         <Text variant="subheading">{topic.title}</Text>
         <View className="flex-row flex-wrap gap-2">
-          <Badge label={grade} tone="primary" />
-          <Badge label={meta} tone={available ? 'neutral' : 'accent'} />
+          {grade ? <Badge label={grade} tone="honey" /> : null}
+          <Badge label={meta} tone={available ? 'neutral' : 'honey'} />
         </View>
       </View>
-      {available ? <Icon name="chevron-forward" color="muted-foreground" /> : null}
+      {available ? <Icon name="chevron" color="muted" /> : null}
     </PressableCard>
   );
 }

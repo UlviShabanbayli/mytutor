@@ -5,6 +5,8 @@ import type {
   KnowledgeItem,
   KnowledgeItemType,
   KnowledgeStatus,
+  SourceFigure,
+  TopicSource,
 } from '@mytutor/types';
 
 /**
@@ -24,6 +26,27 @@ export function toExtracted(item: KnowledgeItem): ExtractedItem | null {
 }
 
 export const hasFailedCheck = (item: KnowledgeItem) => item.checks.some((c) => c.result === 'fail');
+
+/** The figures an item cites (by the model or linked by rule), in citation order. */
+export function figuresOf(item: KnowledgeItem, source: TopicSource): SourceFigure[] {
+  const ids = [...new Set(item.sources.flatMap((s) => (s.figureId ? [s.figureId] : [])))];
+  return ids
+    .map((id) => source.figures.find((f) => f.id === id))
+    .filter((f): f is SourceFigure => f !== undefined);
+}
+
+/** CSS pixels per PDF point: a figure is shown at its printed size. */
+const PX_PER_PT = 96 / 72;
+/** The card's `max-h-48` (12rem): a taller figure is shown smaller, in proportion. */
+const FIGURE_MAX_HEIGHT_PX = 192;
+
+/** Display width of a figure in CSS pixels: printed size, narrowed so its height fits. */
+export function figureWidth({ width, height }: SourceFigure['region']['bbox']): number {
+  const printed = width * PX_PER_PT;
+  return Math.round(
+    height > 0 ? Math.min(printed, (FIGURE_MAX_HEIGHT_PX * width) / height) : printed,
+  );
+}
 
 export type KnowledgeFilter = {
   status: KnowledgeStatus | null;

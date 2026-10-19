@@ -15,7 +15,7 @@
     "android": {
       "package": "az.mytutor.app",
       "adaptiveIcon": {
-        "backgroundColor": "#EEF2FF",
+        "backgroundColor": "#EAF0FF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -32,15 +32,32 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F8FAFC",
+          "backgroundColor": "#F5F7FB",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76,
           "dark": {
-            "backgroundColor": "#020617"
+            "backgroundColor": "#0A1020"
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Sualın şəklini çəkmək üçün kamera lazımdır. Şəkli yalnız sən və cavab verən müəllim görür.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Sualın şəklini qalereyadan seçmək üçün şəkillərinə baxmaq lazımdır. Şəkli yalnız sən və cavab verən müəllim görür.",
+          "cameraPermission": "Sualın şəklini çəkmək üçün kamera lazımdır. Şəkli yalnız sən və cavab verən müəllim görür.",
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

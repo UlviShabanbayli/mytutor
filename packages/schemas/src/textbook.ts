@@ -64,6 +64,12 @@ export const textbookStructureSchema = z.object({
   units: z.array(textbookUnitSchema),
   backMatter: z.array(textbookBlockSchema),
   validation: z.object({
+    /**
+     * How units and topics were found. headings: by heading sizes and topic badges (the TRİMS
+     * layout), numbered by the contents; contents: from the table of contents, each topic found
+     * in the text by its title (any other layout). Missing in files split before it was added.
+     */
+    method: z.enum(['headings', 'contents']).optional(),
     /** Topic count per unit read from the table of contents ("1.1.", "1.2.", ...). */
     tocTopicCounts: z.record(z.string(), z.number().int()),
     detectedTopicCounts: z.record(z.string(), z.number().int()),
