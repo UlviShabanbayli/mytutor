@@ -6,11 +6,11 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { Polygon } from 'react-native-svg';
+import { Path } from 'react-native-svg';
 import { easing } from '@/motion';
-import { grainPoints } from './geometry';
+import { grainPath } from './geometry';
 
-const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 /** The grain appears in the first 18% of its time, then keeps growing to 4.4×. */
 const APPEAR = 0.18;
@@ -43,9 +43,9 @@ export function Grain({ cx, cy, w, h, color, at, duration }: GrainProps) {
     opacity.value = withDelay(at, withTiming(1, { duration: first, easing: easing.exit }));
   }, [scale, opacity, at, duration]);
   const props = useAnimatedProps(() => ({
-    points: grainPoints(cx, cy, w, h, scale.value),
+    d: grainPath(cx, cy, w, h, scale.value),
     opacity: opacity.value,
   }));
 
-  return <AnimatedPolygon fill={color} animatedProps={props} />;
+  return <AnimatedPath fill={color} animatedProps={props} />;
 }

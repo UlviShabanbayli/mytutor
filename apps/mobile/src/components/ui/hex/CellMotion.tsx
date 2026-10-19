@@ -89,7 +89,7 @@ export function CellMotion({ geo, kind, from, to, delay, quiet = false }: CellMo
               <Polygon points={geo.cap} fill={c.cap} />
             </Fade>
             <Trace
-              points={geo.cap}
+              d={geo.capPath}
               length={geo.capLength}
               color={c.cap}
               width={Math.max(1.5, geo.w * 0.027)}

@@ -5,13 +5,14 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import { Polygon } from 'react-native-svg';
+import { Path } from 'react-native-svg';
 import { easing } from '@/motion';
 
-const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 type TraceProps = {
-  points: string;
+  /** The outline as a closed path. */
+  d: string;
   /** Outline length: the dash that is drawn. */
   length: number;
   color: string;
@@ -25,7 +26,7 @@ type TraceProps = {
 
 /** An outline drawn around its corners like a bee building wax, then faded out (hive.seal C). */
 export function Trace(props: TraceProps) {
-  const { points, length, color, width, drawAt, drawFor, outAt, outFor } = props;
+  const { d, length, color, width, drawAt, drawFor, outAt, outFor } = props;
   const offset = useSharedValue(length);
   const opacity = useSharedValue(1);
   useEffect(() => {
@@ -38,8 +39,8 @@ export function Trace(props: TraceProps) {
   }));
 
   return (
-    <AnimatedPolygon
-      points={points}
+    <AnimatedPath
+      d={d}
       fill="none"
       stroke={color}
       strokeWidth={width}

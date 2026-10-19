@@ -7,8 +7,9 @@ export type CellGeometry = {
   h: number;
   /** Pointy-top outline (SVG points). */
   outer: string;
-  /** The wax cap of a reinforced cell (SVG points) and its outline length. */
+  /** The wax cap of a reinforced cell (SVG points), as a closed path, and its length. */
   cap: string;
+  capPath: string;
   capLength: number;
   /** Where the nectar of a half-filled cell starts (small cells fill entirely). */
   nectarTop: number;
@@ -39,6 +40,11 @@ export function pointsOf(corners: readonly Corner[]): string {
   return corners.map(([x, y]) => `${x},${y}`).join(' ');
 }
 
+/** The same corners as a closed SVG path (animated outlines need a Path on iOS/Android). */
+export function pathOf(corners: readonly Corner[]): string {
+  return `M${corners.map(([x, y]) => `${x} ${y}`).join('L')}Z`;
+}
+
 /** Length of a closed outline through the corners. */
 export function lengthOf(corners: readonly Corner[]): number {
   return corners.reduce((sum, [x, y], i) => {
@@ -56,6 +62,7 @@ export function cellGeometry(w: number, h: number, shape: ShapeOptions): CellGeo
     h,
     outer: pointsOf(hexCorners(w, h, shape.corner)),
     cap: pointsOf(capCorners),
+    capPath: pathOf(capCorners),
     capLength: lengthOf(capCorners),
     nectarTop: shape.nectarTop,
     clipId: shape.clipId,
@@ -73,13 +80,14 @@ export function hexCellGeometry(size: number): CellGeometry {
 }
 
 /**
- * Points of a small pointy-top hexagon centred on (cx, cy), `scale` times its w×h size: the
- * crystal grains of hive.crystallize C.
+ * Path of a small pointy-top hexagon centred on (cx, cy), `scale` times its w×h size: the
+ * crystal grains of hive.crystallize C. A path, not polygon points: react-native-svg draws a
+ * Polygon as a Path natively, so only `d` can be animated.
  */
-export function grainPoints(cx: number, cy: number, w: number, h: number, scale: number) {
+export function grainPath(cx: number, cy: number, w: number, h: number, scale: number) {
   'worklet';
   const hw = (w * scale) / 2;
   const hh = (h * scale) / 2;
   const q = hh / 2;
-  return `${cx},${cy - hh} ${cx + hw},${cy - q} ${cx + hw},${cy + q} ${cx},${cy + hh} ${cx - hw},${cy + q} ${cx - hw},${cy - q}`;
+  return `M${cx} ${cy - hh}L${cx + hw} ${cy - q}L${cx + hw} ${cy + q}L${cx} ${cy + hh}L${cx - hw} ${cy + q}L${cx - hw} ${cy - q}Z`;
 }

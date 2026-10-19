@@ -1,4 +1,4 @@
-import { CAP_INSET, grainPoints, hexCellGeometry, hexCorners, lengthOf } from './geometry';
+import { CAP_INSET, grainPath, hexCellGeometry, hexCorners, lengthOf, pathOf } from './geometry';
 
 describe('hexCellGeometry', () => {
   it('insets the reinforced cap by 0.12 of the width (hive.seal)', () => {
@@ -28,9 +28,21 @@ describe('lengthOf', () => {
   });
 });
 
-describe('grainPoints', () => {
+describe('grainPath', () => {
   it('grows a grain around its centre', () => {
-    expect(grainPoints(50, 50, 10, 20, 1)).toBe('50,40 55,45 55,55 50,60 45,55 45,45');
-    expect(grainPoints(50, 50, 10, 20, 2).split(' ')[0]).toBe('50,30');
+    expect(grainPath(50, 50, 10, 20, 1)).toBe('M50 40L55 45L55 55L50 60L45 55L45 45Z');
+    expect(grainPath(50, 50, 10, 20, 2).startsWith('M50 30L')).toBe(true);
+  });
+});
+
+describe('pathOf', () => {
+  it('closes the outline', () => {
+    expect(
+      pathOf([
+        [0, 0],
+        [10, 0],
+        [5, 8],
+      ]),
+    ).toBe('M0 0L10 0L5 8Z');
   });
 });
