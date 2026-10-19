@@ -55,7 +55,7 @@ export function ViziMotionSection() {
         {behavior === 'enter' ? (
           <Mascot key={run} moment="greeting" behavior="idle" enter visible={visible} size={140} />
         ) : (
-          <View key={`${behavior}${run}`} className="flex-row items-center gap-3">
+          <View key={`${behavior}${run}`} className="w-full flex-row items-center gap-3 pl-10">
             <Mascot
               moment="greeting"
               behavior={behavior}

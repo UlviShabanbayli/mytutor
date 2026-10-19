@@ -42,12 +42,12 @@ export function MascotBubble({ text, size, reduced }: MascotBubbleProps) {
   return (
     <Animated.View
       pointerEvents="none"
-      style={[styles.bubble, { left: size * 0.86, top: size * 0.08 }, style]}
+      style={[styles.bubble, { left: size * 0.8, top: size * 0.08 }, style]}
     >
       <View
         accessibilityRole="text"
         accessibilityLiveRegion="polite"
-        className="rounded-2xl border border-border bg-surf px-3 py-2"
+        className="self-start rounded-2xl border border-border bg-surf px-3 py-2"
       >
         <Text className="font-sans-bold text-sm">{shown ?? ''}</Text>
       </View>
@@ -56,5 +56,6 @@ export function MascotBubble({ text, size, reduced }: MascotBubbleProps) {
 }
 
 const styles = StyleSheet.create({
-  bubble: { position: 'absolute', maxWidth: 190, transformOrigin: 'left center' },
+  // A fixed-width lane; the bubble inside shrinks to its line (absolute boxes would wrap early).
+  bubble: { position: 'absolute', width: 160, transformOrigin: 'left center' },
 });
