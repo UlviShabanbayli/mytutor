@@ -1,6 +1,7 @@
 import { Redirect } from 'expo-router';
 import { ColorsSection } from '@/components/dev/ColorsSection';
 import { ControlsSection } from '@/components/dev/ControlsSection';
+import { FeedbackSection } from '@/components/dev/FeedbackSection';
 import { LearningSection } from '@/components/dev/LearningSection';
 import { MascotSection } from '@/components/dev/MascotSection';
 import { MotionControlsSection } from '@/components/dev/MotionControlsSection';
@@ -23,6 +24,7 @@ export default function DesignSystemScreen() {
       <LearningSection />
       <MicroMotionSection />
       <MicroMomentsSection />
+      <FeedbackSection />
       <MascotSection />
       <ColorsSection />
     </Screen>
