@@ -19,6 +19,8 @@ export { ProgressBar } from './ProgressBar';
 export { Screen } from './Screen';
 export { ScreenHeader } from './ScreenHeader';
 export { SegmentedControl } from './SegmentedControl';
+export { SkeletonBlock } from './SkeletonBlock';
+export { SkeletonSwap } from './SkeletonSwap';
 export { Sheet } from './Sheet';
 export { SourceLine } from './SourceLine';
 export { StaggerGroup } from './StaggerGroup';
