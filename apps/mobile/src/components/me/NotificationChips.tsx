@@ -1,10 +1,9 @@
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Text } from '@/components/ui';
+import { SwitchTrack, Text } from '@/components/ui';
 import { NOTIFICATION_KINDS, useSettingsStore } from '@/features/me/settingsStore';
 import { playCue } from '@/lib/cues';
 import { cn } from '@/lib/cn';
-import { SwitchTrack } from './ToggleSwitch';
 
 /** Four notification kinds as switch chips in a 2×2 grid (design "Bildirişlər"). */
 export function NotificationChips() {
@@ -23,7 +22,7 @@ export function NotificationChips() {
             accessibilityState={{ checked: on }}
             accessibilityLabel={t(`me.settings.notif.${kind}`)}
             onPress={() => {
-              playCue('tap');
+              playCue('press');
               setNotification(kind, !on);
             }}
             className={cn(

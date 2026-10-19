@@ -23,6 +23,22 @@ export const duration = {
   celebrate: 900,
   /** The fallback when the student asked for less motion: a short fade instead. */
   reduced: 150,
+  /** buttons.grade: the chosen cell swells before it springs back. */
+  pop: 90,
+  /** buttons.tabbar: the icon hops up; micro.badge: the icon bumps. */
+  hop: 110,
+  /** micro.badge: the count badge and an old count leave. */
+  leave: 140,
+  /** buttons.hold: an early release drains the fill; buttons.enable: the button lies down. */
+  release: 150,
+  /** buttons.enable: the colours switch first, then the face stands up. */
+  standUpDelay: 60,
+  /** buttons.hold: how long a finger holds until the action fires (the fill is linear). */
+  hold: 500,
+  /** buttons.loading: one hex cell fills, holds and empties in this loop. */
+  busyLoop: 1200,
+  /** buttons.loading: the next cell starts this much later. */
+  busyStagger: 200,
 } as const;
 
 export const easing = {

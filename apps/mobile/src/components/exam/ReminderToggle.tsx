@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Icon, Text } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { Icon, SwitchTrack, Text } from '@/components/ui';
+import { playCue } from '@/lib/cues';
 
 type ReminderToggleProps = {
   on: boolean;
@@ -17,7 +17,10 @@ export function ReminderToggle({ on, onChange }: ReminderToggleProps) {
       accessibilityRole="switch"
       accessibilityLabel={`${t('exam.deadlines.reminders')}, ${t('exam.deadlines.remindersBody')}`}
       accessibilityState={{ checked: on }}
-      onPress={() => onChange(!on)}
+      onPress={() => {
+        playCue('press');
+        onChange(!on);
+      }}
       className="flex-row items-center gap-3 rounded-xl border border-border bg-surf px-3 py-2.5"
     >
       <View className="h-10 w-10 items-center justify-center rounded-sm bg-raised">
@@ -29,16 +32,7 @@ export function ReminderToggle({ on, onChange }: ReminderToggleProps) {
           {t('exam.deadlines.remindersBody')}
         </Text>
       </View>
-      <View
-        className={cn(
-          'h-8 w-[52px] justify-center rounded-full p-[3px]',
-          on ? 'items-end bg-honey' : 'items-start bg-wax',
-        )}
-      >
-        <View className="h-[26px] w-[26px] items-center justify-center rounded-full bg-surf">
-          {on ? <Icon name="check" size={14} color="honey-text" /> : null}
-        </View>
-      </View>
+      <SwitchTrack on={on} />
     </Pressable>
   );
 }

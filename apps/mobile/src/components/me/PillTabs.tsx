@@ -1,6 +1,8 @@
 import { Pressable, View } from 'react-native';
+import Animated from 'react-native-reanimated';
+import { Text, useSegmentIndicator } from '@/components/ui';
+import { playCue } from '@/lib/cues';
 import { cn } from '@/lib/cn';
-import { Text } from '@/components/ui';
 
 type PillTab<T extends string> = { value: T; label: string; dotLabel?: string };
 
@@ -9,30 +11,37 @@ type PillTabsProps<T extends string> = {
   value: T;
   onChange: (value: T) => void;
   accessibilityLabel: string;
-  /** `compact`: segments as wide as their words, for a settings row (design "Görünüş"). */
-  compact?: boolean;
   className?: string;
 };
 
 /**
- * Mutually exclusive choices on a warm `raised` strip, the chosen one a white pill (design:
- * league scope, class sections, settings). The shared SegmentedControl is honey-filled instead.
+ * Mutually exclusive sections on a warm `raised` strip, the chosen one a white pill that slides
+ * like the segmented control's indicator (design: league scope, class sections). The shared
+ * SegmentedControl is honey-filled instead.
  */
 export function PillTabs<T extends string>({
   options,
   value,
   onChange,
   accessibilityLabel,
-  compact = false,
   className,
 }: PillTabsProps<T>) {
+  const { indicatorStyle, onSegmentLayout } = useSegmentIndicator(
+    options.findIndex((o) => o.value === value),
+  );
+
   return (
     <View
       accessibilityRole="tablist"
       accessibilityLabel={accessibilityLabel}
       className={cn('flex-row gap-0.5 rounded-md bg-raised p-1', className)}
     >
-      {options.map((o) => {
+      <View pointerEvents="none" className="absolute inset-x-0 inset-y-1 flex-row">
+        <Animated.View style={indicatorStyle}>
+          <View className="flex-1 rounded-[11px] bg-surf shadow-sm shadow-shadow" />
+        </Animated.View>
+      </View>
+      {options.map((o, i) => {
         const selected = o.value === value;
         return (
           <Pressable
@@ -40,13 +49,16 @@ export function PillTabs<T extends string>({
             accessibilityRole="tab"
             accessibilityLabel={o.dotLabel ? `${o.label}, ${o.dotLabel}` : o.label}
             accessibilityState={{ selected }}
-            onPress={() => onChange(o.value)}
+            onLayout={onSegmentLayout(i)}
+            onPress={() => {
+              if (!selected) playCue('select');
+              onChange(o.value);
+            }}
             // 40pt pills inside the 4pt strip padding; the slop keeps the target at 48pt.
             hitSlop={4}
             className={cn(
-              'h-10 items-center justify-center rounded-[11px]',
-              compact ? 'px-2.5' : 'flex-1 px-1',
-              selected ? 'bg-surf shadow-sm shadow-shadow' : 'active:bg-surf/50',
+              'h-10 flex-1 items-center justify-center rounded-[11px] px-1',
+              !selected && 'active:bg-surf/50',
             )}
           >
             <Text
