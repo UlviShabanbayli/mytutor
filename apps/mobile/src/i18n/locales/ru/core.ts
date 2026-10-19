@@ -31,6 +31,7 @@ export const core = {
     wrong: 'Неверно',
     source: 'Источник: {{source}}',
     holdHint: 'Нажми и удерживай',
+    codeCopied: 'Код скопирован',
   },
   months: {
     '0': 'января',

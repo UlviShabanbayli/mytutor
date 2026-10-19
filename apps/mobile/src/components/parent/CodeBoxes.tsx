@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
-import { Text } from '@/components/ui';
+import { CodeCell } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { useCodeCues } from '@/lib/useCodeCues';
 
 type CodeBoxesProps = {
   value: string;
@@ -24,6 +25,7 @@ const clean = (text: string, kind: 'code' | 'digits', length: number) =>
 /**
  * A one-time code as boxes in two groups of three (design "K7Q – 42M"). One real, invisible
  * text field takes the input, so paste and SMS autofill work; the boxes only draw it.
+ * Characters fade up as they land; a wrong code cross-fades to red (micro.otp A).
  */
 export function CodeBoxes({
   value,
@@ -40,31 +42,19 @@ export function CodeBoxes({
   const half = Math.ceil(length / 2);
   const big = kind === 'code';
 
+  useCodeCues(value, error);
+
   const box = (i: number) => {
     const current = focused && i === active && !error;
     return (
       <View key={i} className={cn('rounded-md', current && 'bg-honey-deep pb-[3px]')}>
-        <View
-          className={cn(
-            'items-center justify-center rounded-md border-2',
-            big ? 'h-[60px] w-[46px]' : 'h-[54px] w-[44px]',
-            error
-              ? 'border-err bg-err-bg'
-              : current
-                ? 'border-honey bg-raised'
-                : 'border-border bg-surf',
-          )}
-        >
-          <Text
-            className={cn(
-              'font-display-black',
-              big ? 'text-2xl' : 'text-xl',
-              error ? 'text-err' : 'text-ink',
-            )}
-          >
-            {value[i] ?? ''}
-          </Text>
-        </View>
+        <CodeCell
+          char={value[i] ?? ''}
+          active={current}
+          error={error}
+          className={big ? 'h-[60px] w-[46px]' : 'h-[54px] w-[44px]'}
+          textClassName={big ? 'text-2xl' : 'text-xl'}
+        />
       </View>
     );
   };

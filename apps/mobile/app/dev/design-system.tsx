@@ -4,6 +4,8 @@ import { ControlsSection } from '@/components/dev/ControlsSection';
 import { LearningSection } from '@/components/dev/LearningSection';
 import { MascotSection } from '@/components/dev/MascotSection';
 import { MotionControlsSection } from '@/components/dev/MotionControlsSection';
+import { MicroMomentsSection } from '@/components/dev/MicroMomentsSection';
+import { MicroMotionSection } from '@/components/dev/MicroMotionSection';
 import { Screen, ScreenHeader } from '@/components/ui';
 
 /**
@@ -19,6 +21,8 @@ export default function DesignSystemScreen() {
       <ControlsSection />
       <MotionControlsSection />
       <LearningSection />
+      <MicroMotionSection />
+      <MicroMomentsSection />
       <MascotSection />
       <ColorsSection />
     </Screen>

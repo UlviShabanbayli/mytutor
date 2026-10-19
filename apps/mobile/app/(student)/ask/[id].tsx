@@ -8,7 +8,8 @@ import { useAskQuestion } from '@/features/ask/queries';
 /** One photo question: its status while on the way, the approved answer once a teacher is done. */
 export default function AskQuestionScreen() {
   const { t } = useTranslation();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // `sent` is set by the send screen, so the status opens with "Sualın göndərildi".
+  const { id, sent } = useLocalSearchParams<{ id: string; sent?: string }>();
   const query = useAskQuestion(id);
 
   if (query.isPending)
@@ -43,6 +44,6 @@ export default function AskQuestionScreen() {
   return question.status === 'answered' && question.answer ? (
     <AskAnswerView question={question} answer={question.answer} />
   ) : (
-    <AskStatusView question={question} />
+    <AskStatusView question={question} justSent={sent === '1'} />
   );
 }
