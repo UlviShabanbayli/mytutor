@@ -7,6 +7,7 @@ export { Card } from './Card';
 export { EmptyState } from './EmptyState';
 export { ErrorState } from './ErrorState';
 export { HexCell, type CellState } from './HexCell';
+export { HoldButton } from './HoldButton';
 export { Icon, type IconName } from './Icon';
 export { IconButton } from './IconButton';
 export { Input } from './Input';
