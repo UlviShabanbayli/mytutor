@@ -1,5 +1,7 @@
 import { View } from 'react-native';
+import i18n from '@/i18n';
 import { cn } from '@/lib/cn';
+import { upperCase } from '@/lib/letterCase';
 import { Text } from './Text';
 
 type AvatarProps = {
@@ -9,25 +11,25 @@ type AvatarProps = {
   className?: string;
 };
 
-/** Initial in a tinted circle, until accounts have photos. */
+/** Initial on a warm raised circle, until accounts have photos. */
 export function Avatar({ name, size = 'md', className }: AvatarProps) {
   return (
     <View
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
       className={cn(
-        'items-center justify-center rounded-full bg-secondary',
+        'items-center justify-center rounded-full bg-raised',
         size === 'lg' ? 'h-16 w-16' : 'h-11 w-11',
         className,
       )}
     >
       <Text
         className={cn(
-          'font-sans-black text-secondary-foreground',
+          'font-display-black text-honey-text',
           size === 'lg' ? 'text-2xl' : 'text-base',
         )}
       >
-        {name.trim().charAt(0).toLocaleUpperCase('az')}
+        {upperCase(name.trim().charAt(0), i18n.language)}
       </Text>
     </View>
   );

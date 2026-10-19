@@ -12,7 +12,7 @@ type ResultHistoryRowProps = {
   divider?: boolean;
 };
 
-const tierTone = { excellent: 'success', good: 'primary', practice: 'accent' } as const;
+const tierTone = { excellent: 'ok', good: 'honey', practice: 'neutral' } as const;
 
 export function ResultHistoryRow({ result, divider = false }: ResultHistoryRowProps) {
   const { t } = useTranslation();

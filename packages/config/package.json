@@ -14,6 +14,10 @@
     "./tailwind/tokens": {
       "types": "./tailwind/tokens.d.ts",
       "default": "./tailwind/tokens.js"
+    },
+    "./tailwind/ari": {
+      "types": "./tailwind/ari.d.ts",
+      "default": "./tailwind/ari.js"
     }
   },
   "scripts": {

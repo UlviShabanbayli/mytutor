@@ -1,5 +1,6 @@
 export * from './api';
 export * from './locale';
+export * from './account';
 export * from './phone';
 export * from './test';
 export * from './textbook';

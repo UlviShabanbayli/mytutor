@@ -23,7 +23,7 @@ export function ScoreRing({ correct, total, size = 148, accessibilityLabel }: Sc
   const share = total ? correct / total : 0;
   const tier = scoreTier(Math.round(share * 100));
   const ringColor =
-    tier === 'excellent' ? colors.success : tier === 'good' ? colors.primary : colors.accent;
+    tier === 'excellent' ? colors.ok : tier === 'good' ? colors.honey : colors['honey-text'];
 
   return (
     <View
@@ -59,7 +59,7 @@ export function ScoreRing({ correct, total, size = 148, accessibilityLabel }: Sc
       <View className="absolute items-center">
         <Text className="font-sans-black text-4xl">
           {correct}
-          <Text className="font-sans-black text-xl text-muted-foreground">{`/${total}`}</Text>
+          <Text className="font-sans-black text-xl text-muted">{`/${total}`}</Text>
         </Text>
         <Text variant="caption" tone="muted">
           {t('result.ringCaption')}

@@ -1,25 +1,33 @@
-"""Builds the app's Plus Jakarta Sans files without contextual alternates ('calt').
+"""Builds the app's font files: Onest without contextual alternates ('calt'), Unbounded as is.
 
-The font's 'calt' turns "x" after a digit into "×" and "-" into a minus sign. In a maths app
-"2x" must stay a variable, and React Native on iOS/Android cannot switch the feature off, so
-the shipped fonts simply do not have it. Run from apps/mobile after updating the package:
+Onest's 'calt' rewrites characters next to digits. In a maths app "2x" must stay a variable,
+and React Native on iOS/Android cannot switch the feature off, so the shipped Onest files
+simply do not have it. Unbounded (headings and big numbers) has no 'calt'. Run from
+apps/mobile after updating either package:
 
     python3 scripts/strip-font-calt.py
 """
 
+import shutil
 from pathlib import Path
 
 from fontTools.ttLib import TTFont
 
-SOURCE = Path("../../node_modules/@expo-google-fonts/plus-jakarta-sans")
+PACKAGES = Path("../../node_modules/@expo-google-fonts")
 TARGET = Path("assets/fonts")
-WEIGHTS = ["400Regular", "600SemiBold", "700Bold", "800ExtraBold"]
+ONEST = ["400Regular", "500Medium", "600SemiBold", "700Bold", "800ExtraBold"]
+UNBOUNDED = ["600SemiBold", "700Bold", "800ExtraBold"]
 
-for weight in WEIGHTS:
-    font = TTFont(SOURCE / weight / f"PlusJakartaSans_{weight}.ttf")
+for weight in ONEST:
+    font = TTFont(PACKAGES / "onest" / weight / f"Onest_{weight}.ttf")
     for record in font["GSUB"].table.FeatureList.FeatureRecord:
         if record.FeatureTag == "calt":
             record.Feature.LookupListIndex = []
             record.Feature.LookupCount = 0
-    font.save(TARGET / f"PlusJakartaSans_{weight}.ttf")
-    print("wrote", TARGET / f"PlusJakartaSans_{weight}.ttf")
+    font.save(TARGET / f"Onest_{weight}.ttf")
+    print("wrote", TARGET / f"Onest_{weight}.ttf")
+
+for weight in UNBOUNDED:
+    name = f"Unbounded_{weight}.ttf"
+    shutil.copyfile(PACKAGES / "unbounded" / weight / name, TARGET / name)
+    print("wrote", TARGET / name)

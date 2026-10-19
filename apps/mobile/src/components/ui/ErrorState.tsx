@@ -7,12 +7,13 @@ type ErrorStateProps = {
   onRetry?: () => void;
 };
 
+/** Full-screen error: the mascot offline moment, the plain reason and a retry. */
 export function ErrorState({ title, description, onRetry }: ErrorStateProps) {
   const { t } = useTranslation();
 
   return (
     <EmptyState
-      icon="cloud-offline-outline"
+      moment="offline"
       title={title ?? t('common.errorTitle')}
       description={description ?? t('common.errorDescription')}
       actionLabel={onRetry ? t('common.retry') : undefined}

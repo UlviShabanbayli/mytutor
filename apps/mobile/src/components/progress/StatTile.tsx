@@ -3,7 +3,7 @@ import { Card, Text } from '@/components/ui';
 type StatTileProps = {
   label: string;
   value: string;
-  tone?: 'default' | 'success' | 'destructive';
+  tone?: 'default' | 'ok' | 'err';
 };
 
 export function StatTile({ label, value, tone = 'default' }: StatTileProps) {

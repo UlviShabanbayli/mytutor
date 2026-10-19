@@ -25,11 +25,11 @@ export function TestResultView({ test, result }: TestResultViewProps) {
   const mistakes = test.questions
     .map((q, i) => ({ q, number: i + 1 }))
     .filter(({ q }) => !isCorrect(q, result.answers[q.id]));
-  const finish = () => router.dismissTo('/tests');
+  const finish = () => router.dismissTo('/learn');
 
   return (
     <TestMathContext.Provider value={test.math}>
-      <SafeAreaView edges={['top', 'bottom', 'left', 'right']} className="flex-1 bg-background">
+      <SafeAreaView edges={['top', 'bottom', 'left', 'right']} className="flex-1 bg-page">
         <View className="flex-row px-2">
           <IconButton icon="close" accessibilityLabel={t('common.close')} onPress={finish} />
         </View>
@@ -48,16 +48,8 @@ export function TestResultView({ test, result }: TestResultViewProps) {
             </Text>
           </View>
           <View className="flex-row gap-2">
-            <StatTile
-              value={String(result.correct)}
-              label={t('result.correctLabel')}
-              tone="success"
-            />
-            <StatTile
-              value={String(mistakes.length)}
-              label={t('result.wrongLabel')}
-              tone="destructive"
-            />
+            <StatTile value={String(result.correct)} label={t('result.correctLabel')} tone="ok" />
+            <StatTile value={String(mistakes.length)} label={t('result.wrongLabel')} tone="err" />
             <StatTile value={`${score}%`} label={t('result.percentLabel')} />
           </View>
           <View className="gap-2.5">
@@ -65,9 +57,9 @@ export function TestResultView({ test, result }: TestResultViewProps) {
               {t('result.reviewTitle')}
             </Text>
             {mistakes.length === 0 ? (
-              <Card className="flex-row items-center gap-3 border-success bg-success-muted">
-                <Icon name="checkmark-circle" size={24} color="success" />
-                <Text className="flex-1 font-sans-bold text-success">{t('result.noMistakes')}</Text>
+              <Card className="flex-row items-center gap-3 border-ok bg-ok-bg">
+                <Icon name="check" size={24} color="ok" />
+                <Text className="flex-1 font-sans-bold text-ok">{t('result.noMistakes')}</Text>
               </Card>
             ) : (
               <Card className="p-0">
