@@ -25,4 +25,5 @@ export { StatusPill, type PillKind } from './StatusPill';
 export { Switch } from './Switch';
 export { SwitchTrack, type SwitchSize } from './SwitchTrack';
 export { Text } from './Text';
+export { useRaisedPress } from './useRaisedPress';
 export { useSegmentIndicator } from './useSegmentIndicator';
