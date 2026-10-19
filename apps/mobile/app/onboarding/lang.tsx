@@ -29,7 +29,7 @@ export default function OnboardingLangScreen() {
     >
       <View className="mt-1 flex-row items-end gap-1">
         <StepStill>
-          <Mascot moment="greeting" size={112} decorative />
+          <Mascot moment="greeting" behavior="greet" size={96} decorative />
         </StepStill>
         <GreetingBubble
           greeting={t('onboarding.lang.greeting')}

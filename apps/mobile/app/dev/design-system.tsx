@@ -7,6 +7,9 @@ import { MascotSection } from '@/components/dev/MascotSection';
 import { MotionControlsSection } from '@/components/dev/MotionControlsSection';
 import { MicroMomentsSection } from '@/components/dev/MicroMomentsSection';
 import { MicroMotionSection } from '@/components/dev/MicroMotionSection';
+import { ViziMotionSection } from '@/components/dev/ViziMotionSection';
+import { ViziPosesSection } from '@/components/dev/ViziPosesSection';
+import { ViziScenesSection } from '@/components/dev/ViziScenesSection';
 import { Screen, ScreenHeader } from '@/components/ui';
 
 /**
@@ -25,6 +28,9 @@ export default function DesignSystemScreen() {
       <MicroMotionSection />
       <MicroMomentsSection />
       <FeedbackSection />
+      <ViziMotionSection />
+      <ViziScenesSection />
+      <ViziPosesSection />
       <MascotSection />
       <ColorsSection />
     </Screen>

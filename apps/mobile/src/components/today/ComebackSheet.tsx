@@ -25,7 +25,7 @@ export function ComebackSheet({ awayDays }: ComebackSheetProps) {
         <ErrorState onRetry={() => void comeback.refetch()} />
       ) : (
         <View className="items-center gap-3 px-1">
-          <Mascot mood="salam" size={128} decorative />
+          <Mascot mood="salam" behavior="idle" enter size={128} decorative />
           <Text variant="heading" className="text-center font-display-black text-xl">
             {t('today.comeback.title')}
           </Text>

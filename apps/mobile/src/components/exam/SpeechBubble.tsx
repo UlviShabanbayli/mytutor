@@ -12,10 +12,13 @@ type SpeechBubbleProps = {
   tone?: 'surf' | 'raised';
   /** Makes the bubble a button (e.g. "Gəl başlayaq" opens the step). */
   onPress?: () => void;
+  /** False when Vızı is drawn elsewhere on the screen (e.g. scouting above the bubble). */
+  withMascot?: boolean;
 };
 
 /** Vızı speaking in first person: the mascot and a bubble pointing at it. */
-export function SpeechBubble({ moment, size, text, tone = 'surf', onPress }: SpeechBubbleProps) {
+export function SpeechBubble(props: SpeechBubbleProps) {
+  const { moment, size, text, tone = 'surf', onPress, withMascot = true } = props;
   const bubble = (
     <View
       className={cn(
@@ -29,7 +32,7 @@ export function SpeechBubble({ moment, size, text, tone = 'surf', onPress }: Spe
 
   return (
     <View className="flex-row items-end gap-1.5">
-      <Mascot moment={moment} size={size} decorative />
+      {withMascot ? <Mascot moment={moment} size={size} decorative /> : null}
       <View className="mb-2 min-w-0 flex-1">
         {onPress ? (
           <Pressable

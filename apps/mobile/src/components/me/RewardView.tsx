@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { FadeUp } from '@/components/feedback/FadeUp';
 import { rankUpB } from '@/components/feedback/timelines';
-import { Mascot } from '@/components/mascot/Mascot';
+import { ViziReward } from '@/components/mascot/ViziReward';
 import { Icon, Text } from '@/components/ui';
 import { formatNumber } from '@/features/me/format';
 import { RANK_IDS, type RankId } from '@/features/me/types';
@@ -77,7 +77,7 @@ export function RewardView({ rank, points, shields, badgeName }: RewardViewProps
         </FadeUp>
         <View className="flex-row items-end">
           <RankSeal step={current + 1} />
-          <Mascot moment="reward" size={96} className="-ml-2" />
+          <ViziReward size={96} gift={56} />
         </View>
         <RankUpTitle title={t('me.reward.title', { rank: t(`me.ranks.${rank}`) })} />
         <FadeUp delay={rankUpB.textAt}>
