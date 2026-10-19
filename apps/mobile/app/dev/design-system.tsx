@@ -3,6 +3,9 @@ import { ColorsSection } from '@/components/dev/ColorsSection';
 import { ControlsSection } from '@/components/dev/ControlsSection';
 import { LearningSection } from '@/components/dev/LearningSection';
 import { MascotSection } from '@/components/dev/MascotSection';
+import { ViziMotionSection } from '@/components/dev/ViziMotionSection';
+import { ViziPosesSection } from '@/components/dev/ViziPosesSection';
+import { ViziScenesSection } from '@/components/dev/ViziScenesSection';
 import { Screen, ScreenHeader } from '@/components/ui';
 
 /**
@@ -17,6 +20,9 @@ export default function DesignSystemScreen() {
       <ScreenHeader title="arı · design system" />
       <ControlsSection />
       <LearningSection />
+      <ViziMotionSection />
+      <ViziScenesSection />
+      <ViziPosesSection />
       <MascotSection />
       <ColorsSection />
     </Screen>
