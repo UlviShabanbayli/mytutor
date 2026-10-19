@@ -58,40 +58,44 @@ export const easing = {
   press: Easing.out(Easing.quad),
 } as const;
 
-/** Spring presets; each names the approved sample it comes from. */
+/**
+ * Spring presets; each names the approved sample it comes from. Every preset sets `mass`:
+ * Reanimated 4's `withSpring` defaults to mass 4 (its "gentle" spring), while the lab's springs
+ * use mass 1, so a preset without it would run twice as slow and bounce far more.
+ */
 export const spring = {
   /** buttons.primary: the face comes back up with ~1px overshoot. */
   press: { damping: 12, stiffness: 320, mass: 0.7 },
   /** buttons.spot and other calm releases: no visible bounce. */
-  calm: { damping: 20, stiffness: 300 },
+  calm: { damping: 20, stiffness: 300, mass: 1 },
   /** buttons.grade, feedback.select letter: a small pop back to rest. */
-  pop: { damping: 10, stiffness: 300 },
+  pop: { damping: 10, stiffness: 300, mass: 1 },
   /** buttons.enable: the button stands up, ready. */
-  standUp: { damping: 10, stiffness: 240 },
+  standUp: { damping: 10, stiffness: 240, mass: 1 },
   /** buttons.tabbar: the icon lands with a soft dip. */
-  land: { damping: 8, stiffness: 300 },
+  land: { damping: 8, stiffness: 300, mass: 1 },
   /** buttons.switch: the knob travels. */
-  knob: { damping: 13, stiffness: 260 },
+  knob: { damping: 13, stiffness: 260, mass: 1 },
   /** buttons.segment: the honey indicator slides. */
-  indicator: { damping: 18, stiffness: 240 },
+  indicator: { damping: 18, stiffness: 240, mass: 1 },
   /** buttons.hold: the hint unfolds from the held button. */
-  unfold: { damping: 16, stiffness: 220 },
+  unfold: { damping: 16, stiffness: 220, mass: 1 },
   /** feedback.select: the chosen option lifts. */
-  lift: { damping: 14, stiffness: 260 },
+  lift: { damping: 14, stiffness: 260, mass: 1 },
   /** transitions.list, feedback rows: hexagons pop in. */
-  list: { damping: 14, stiffness: 260 },
+  list: { damping: 14, stiffness: 260, mass: 1 },
   /** hive.cell-tap: a cell is pressed and released. */
-  cell: { damping: 13, stiffness: 220 },
+  cell: { damping: 13, stiffness: 220, mass: 1 },
   /** transitions.sheet: a sheet opens (about 7% overshoot). */
   sheetOpen: { damping: 18, stiffness: 200, mass: 1 },
   /** transitions.sheet: a sheet closes, carrying the release velocity. */
-  sheetClose: { damping: 22, stiffness: 220 },
+  sheetClose: { damping: 22, stiffness: 220, mass: 1 },
   /** transitions.toast: the offline banner drops in. */
-  banner: { damping: 20, stiffness: 240 },
+  banner: { damping: 20, stiffness: 240, mass: 1 },
   /** transitions.toast: a toast springs up from below. */
-  toast: { damping: 16, stiffness: 220 },
+  toast: { damping: 16, stiffness: 220, mass: 1 },
   /** micro.badge: a count badge appears (peak ≈1.2). */
-  badge: { damping: 11, stiffness: 220 },
+  badge: { damping: 11, stiffness: 220, mass: 1 },
   /** micro.count: rolling digits. */
-  digits: { damping: 15, stiffness: 160 },
+  digits: { damping: 15, stiffness: 160, mass: 1 },
 } as const satisfies Record<string, WithSpringConfig>;
