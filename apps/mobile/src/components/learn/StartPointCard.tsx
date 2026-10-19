@@ -1,8 +1,10 @@
 import { View } from 'react-native';
 import { Text } from '@/components/ui';
+import { placementResult } from '@/features/learn/hiveMotion';
 import type { HiveTopic } from '@/features/learn/types';
 import { listJoin } from '@/features/learn/text';
 import { useLearnText } from '@/features/learn/useLearnText';
+import { CellRipple } from './CellRipple';
 import { TopicCell } from './TopicCell';
 
 type StartPointCardProps = {
@@ -10,10 +12,14 @@ type StartPointCardProps = {
   start: HiveTopic | null;
   /** Known topics of the start's unit ("4.1 və 4.2"). */
   knownBefore: HiveTopic[];
+  /** When the start cell pulses twice, in ms after the screen opens. */
+  pulseAt: number;
 };
 
+const CELL = 52;
+
 /** The inverted card with the cell to start from ("Başlanğıc nöqtən"). */
-export function StartPointCard({ start, knownBefore }: StartPointCardProps) {
+export function StartPointCard({ start, knownBefore, pulseAt }: StartPointCardProps) {
   const { t } = useLearnText();
   const known = listJoin(
     knownBefore.map((x) => x.number),
@@ -27,7 +33,15 @@ export function StartPointCard({ start, knownBefore }: StartPointCardProps) {
       className="flex-row items-center gap-3.5 rounded-xl bg-spot px-4 py-3.5"
     >
       {start ? (
-        <TopicCell level={start.level} number={start.number} size={52} numberSize="sm" />
+        <CellRipple
+          size={CELL}
+          height={Math.round(CELL * 1.125)}
+          at={pulseAt}
+          duration={placementResult.pulse}
+          times={2}
+        >
+          <TopicCell level={start.level} number={start.number} size={CELL} numberSize="sm" />
+        </CellRipple>
       ) : null}
       <View className="min-w-0 flex-1 gap-1">
         <Text variant="overline" className="text-xs text-honey">
