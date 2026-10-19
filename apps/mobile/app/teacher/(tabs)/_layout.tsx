@@ -1,12 +1,14 @@
 import { Tabs } from 'expo-router/js-tabs';
 import { useTranslation } from 'react-i18next';
 import { RoleTabBar } from '@/components/navigation/RoleTabBar';
+import { useTabMotion } from '@/features/transitions/useTabMotion';
 import type { TabItem } from '@/components/navigation/TabBarItem';
 import { useTeacherBadges } from '@/features/teacher/queries';
 
 /** Teacher menu (design): Siniflər, Suallar, Yarat in the middle, Mesajlar, Mən. */
 export default function TeacherTabsLayout() {
   const { t } = useTranslation();
+  const tabMotion = useTabMotion();
   // Questions waiting for an answer and conversations with news (demo hooks until the API).
   const badges = useTeacherBadges();
   const items: TabItem[] = [
@@ -25,7 +27,7 @@ export default function TeacherTabsLayout() {
 
   return (
     <Tabs
-      screenOptions={{ headerShown: false }}
+      screenOptions={tabMotion}
       tabBar={(props) => <RoleTabBar {...props} items={items} menuLabel={t('tabs.menuTeacher')} />}
     >
       {items.map((item) => (

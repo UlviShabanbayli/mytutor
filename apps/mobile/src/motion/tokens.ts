@@ -23,6 +23,20 @@ export const duration = {
   celebrate: 900,
   /** The fallback when the student asked for less motion: a short fade instead. */
   reduced: 150,
+  /** transitions.onboarding: the new step's content slides in. */
+  step: 260,
+  /** transitions.toast: the banner and the toast leave (y 24 + fade). */
+  leave: 180,
+  /** transitions.toast: how long "Yadda saxlandı" stays. */
+  toastHold: 1800,
+  /** transitions.refresh: Vızı hovers 3pt up or down while the list reloads (one way). */
+  hover: 700,
+  /** transitions.handoff: the topic cell flies from the test header to the result card. */
+  fly: 420,
+  /** transitions.list: the gap between rows popping in. */
+  stagger: 70,
+  /** transitions.list: the row's text follows its hexagon this much later. */
+  lag: 80,
 } as const;
 
 export const easing = {
@@ -76,4 +90,6 @@ export const spring = {
   badge: { damping: 11, stiffness: 220 },
   /** micro.count: rolling digits. */
   digits: { damping: 15, stiffness: 160 },
+  /** transitions.refresh: the list springs back after a pull. */
+  pullBack: { damping: 20, stiffness: 220 },
 } as const satisfies Record<string, WithSpringConfig>;

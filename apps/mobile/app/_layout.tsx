@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import i18n from '@/i18n';
 import { useAppHydrated, useAppStore } from '@/features/app/appStore';
 import { queryClient } from '@/lib/query-client';
+import { useStackMotion } from '@/features/transitions/useStackMotion';
 import { MotionConfig } from '@/motion';
 import { ThemeProvider } from '@/theme';
 
@@ -30,6 +31,7 @@ export default function RootLayout() {
   const hydrated = useAppHydrated();
   const locale = useAppStore((s) => s.locale);
   const ready = (fontsLoaded || fontError !== null) && hydrated;
+  const stackMotion = useStackMotion();
 
   // The interface follows the language chosen on first launch or in settings.
   useEffect(() => {
@@ -49,7 +51,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <MotionConfig />
-          <Stack screenOptions={{ headerShown: false }} />
+          <Stack screenOptions={stackMotion} />
         </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
