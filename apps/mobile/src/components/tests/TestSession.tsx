@@ -3,8 +3,10 @@ import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { HandoffSource } from '@/components/handoff/HandoffSource';
 import { Button } from '@/components/ui';
 import { leaveTo } from '@/features/study/leave';
+import { armHandoff } from '@/features/transitions/handoffStore';
 import { isAnswered, stepVerdict } from '@/features/study/steps';
 import { useStudyStore } from '@/features/study/studyStore';
 import type { StudyTest } from '@/features/study/types';
@@ -60,6 +62,7 @@ export function TestSession({ study, kind }: TestSessionProps) {
   const onContinue = () => {
     if (!isLast) return next();
     finish(test);
+    armHandoff();
     router.replace({ pathname: '/test/[id]/result', params: { id: test.id } });
   };
 
@@ -70,6 +73,12 @@ export function TestSession({ study, kind }: TestSessionProps) {
         index={active.index}
         total={steps.length}
         onClose={() => (answeredCount > 0 ? setExiting(true) : leaveTo('/learn'))}
+        trailing={
+          // transitions.handoff B: the topic cell flies from here to the result card.
+          study.kind !== 'mistakes' && study.topicCode ? (
+            <HandoffSource code={study.topicCode} />
+          ) : undefined
+        }
       />
       <TestMathContext.Provider value={test.math}>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="px-4 pb-5 pt-3">
