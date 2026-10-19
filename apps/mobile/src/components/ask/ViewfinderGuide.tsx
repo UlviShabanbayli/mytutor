@@ -44,7 +44,7 @@ export function ViewfinderGuide({ dim = false, snap = 0 }: ViewfinderGuideProps)
     if (snap === 0 || reduced) return;
     scale.value = withSequence(
       withTiming(SNAP_SCALE, { duration: SNAP_IN }),
-      withSpring(1, spring.frame),
+      withSpring(1, spring.calm),
     );
   }, [snap, reduced, scale]);
 
