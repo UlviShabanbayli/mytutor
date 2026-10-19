@@ -85,7 +85,7 @@ export default function MyQuestionsScreen() {
   );
 
   return (
-    <Screen className="gap-3">
+    <Screen className="gap-3" onRefresh={() => query.refetch()}>
       {header}
       <QuestionFilterChips value={filter} counts={filterCounts(questions)} onChange={setFilter} />
       <View className="flex-row items-center gap-1.5">
