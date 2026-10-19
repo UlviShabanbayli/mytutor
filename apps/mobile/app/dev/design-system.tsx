@@ -1,6 +1,7 @@
 import { Redirect } from 'expo-router';
 import { ColorsSection } from '@/components/dev/ColorsSection';
 import { ControlsSection } from '@/components/dev/ControlsSection';
+import { FeedbackSection } from '@/components/dev/FeedbackSection';
 import { LearningSection } from '@/components/dev/LearningSection';
 import { MascotSection } from '@/components/dev/MascotSection';
 import { Screen, ScreenHeader } from '@/components/ui';
@@ -17,6 +18,7 @@ export default function DesignSystemScreen() {
       <ScreenHeader title="arı · design system" />
       <ControlsSection />
       <LearningSection />
+      <FeedbackSection />
       <MascotSection />
       <ColorsSection />
     </Screen>
