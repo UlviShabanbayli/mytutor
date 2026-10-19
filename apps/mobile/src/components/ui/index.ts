@@ -17,6 +17,7 @@ export { ProgressBar } from './ProgressBar';
 export { Screen } from './Screen';
 export { ScreenHeader } from './ScreenHeader';
 export { SegmentedControl } from './SegmentedControl';
+export { SelectPop } from './SelectPop';
 export { Sheet } from './Sheet';
 export { SourceLine } from './SourceLine';
 export { StatusPill, type PillKind } from './StatusPill';
