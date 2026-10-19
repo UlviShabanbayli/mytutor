@@ -70,12 +70,17 @@ export class Timeline {
   /** Starts every track now; with `loop` (s) the whole timeline repeats with that period. */
   play(loop?: number): this {
     for (const [sv, segments] of this.tracks) {
-      const steps = planTrack(segments, loop).map((s) => {
+      const plan = planTrack(segments, loop);
+      // The wait before the first tween wraps the whole sequence: a withDelay as the first step
+      // of withSequence shows the sequence's last value while it waits (Reanimated 4.5).
+      const lead = plan[0]?.delay ?? 0;
+      const steps = plan.map((s, i) => {
         const tween = withTiming(s.to, { duration: s.duration, easing: s.ease });
-        return s.delay > 0 ? withDelay(s.delay, tween) : tween;
+        return s.delay > 0 && i > 0 ? withDelay(s.delay, tween) : tween;
       });
       if (steps.length === 0) continue;
-      const seq = steps.length === 1 ? (steps[0] as Value) : withSequence(...steps);
+      const inner = steps.length === 1 ? (steps[0] as Value) : withSequence(...steps);
+      const seq = lead > 0 ? withDelay(lead, inner) : inner;
       // The overloads of `to` keep each value's tweens the same type as the value.
       (sv as SharedValue<Value>).value = loop ? withRepeat(seq, -1, false) : seq;
       owners.set(sv, this);

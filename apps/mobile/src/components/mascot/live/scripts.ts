@@ -40,7 +40,7 @@ const correct: Script = {
   },
   once: (tl, { rig, speak, say }) => {
     const v = rig.v;
-    tl.to(v.hostOpacity, 1, 0.32, 0.32, backOut(2.4)).to(v.hostScale, 1, 0.32, 0.32, backOut(2.4));
+    tl.to(v.hostOpacity, 1, 0.32, 0.2, ease.p2out).to(v.hostScale, 1, 0.32, 0.32, backOut(2.4));
     hop(tl, rig, 14, 0.4);
     spinTurn(tl, rig, 0.45, 0.55);
     faceTo(tl, rig, 'grin', 0.7, 0.2);
