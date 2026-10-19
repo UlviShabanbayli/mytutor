@@ -19,6 +19,8 @@ export const duration = {
   surface: 320,
   /** Fills of cells and rings. */
   fill: 400,
+  /** feedback.correct, feedback.wrong, feedback.goal: a check or a cross draws itself. */
+  draw: 300,
   /** Celebrations (goal done, cell sealed). */
   celebrate: 900,
   /** The fallback when the student asked for less motion: a short fade instead. */
@@ -60,6 +62,8 @@ export const spring = {
   indicator: { damping: 18, stiffness: 240 },
   /** feedback.select: the chosen option lifts. */
   lift: { damping: 14, stiffness: 260 },
+  /** feedback.correct: the right-answer panel springs up. */
+  panel: { damping: 16, stiffness: 190 },
   /** transitions.list, feedback rows: hexagons pop in. */
   list: { damping: 14, stiffness: 260 },
   /** hive.cell-tap: a cell is pressed and released. */
