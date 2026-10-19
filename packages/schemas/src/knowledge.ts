@@ -170,6 +170,8 @@ export const knowledgeCheckSchema = z.object({
     'latex_syntax',
     'identity',
     'image_verification',
+    // Text that relies on a picture carries it (added later: older documents lack it).
+    'figure_link',
   ]),
   result: z.enum(['pass', 'fail', 'skip']),
   detail: z.string().nullable(),
@@ -195,7 +197,17 @@ export const knowledgeItemSchema = z.object({
 
 export const aiCallSchema = z.object({
   id: z.string(),
-  stage: z.enum(['extract', 'verify']),
+  stage: z.enum([
+    'extract',
+    'verify',
+    'lesson_text',
+    'answers_extract',
+    'answers_verify',
+    'test_read',
+    'test_keys',
+    // Old records only: test questions are no longer reworded (they are used as printed).
+    'test_paraphrase',
+  ]),
   model: z.string(),
   promptVersion: z.string(),
   blockIds: z.array(z.string()),

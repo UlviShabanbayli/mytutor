@@ -1,4 +1,4 @@
-import '@fontsource-variable/nunito';
+import '@fontsource-variable/plus-jakarta-sans';
 import 'katex/dist/katex.min.css';
 import './index.css';
 import './i18n';

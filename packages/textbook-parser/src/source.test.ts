@@ -108,6 +108,19 @@ describe('buildBlocks', () => {
       [4, 4],
     ]);
   });
+
+  it('never nests a block in the topic title', () => {
+    const blocks = buildBlocks(
+      [marker('title', 1, 70), marker('example', 1, 100), marker('section', 1, 300)],
+      { page: 1, top: 60 },
+      { page: 1, top: 700 },
+    );
+    expect(blocks.map((b) => [b.kind, b.parent?.kind ?? null, b.spans[0]?.to.top])).toEqual([
+      ['title', null, 100],
+      ['example', null, 300],
+      ['section', null, 700],
+    ]);
+  });
 });
 
 describe('ownership and trimming', () => {

@@ -3,7 +3,8 @@ import type { SourceBlock, TopicSource } from '@mytutor/types';
 /** One AI call's worth of blocks. Groups are deterministic so results can be cached per group. */
 export type CallGroup = { id: string; blockIds: string[] };
 
-const CONTAINERS = new Set(['exercises', 'problems']);
+/** Blocks that only hold numbered exercises (Çalışma, Məsələ həlli). */
+export const CONTAINERS = new Set(['exercises', 'problems']);
 const EXERCISES_PER_CALL = 6;
 const SMALL_BOX_LINES = 6;
 
@@ -21,6 +22,7 @@ const subtree = (blocks: SourceBlock[], rootId: string): string[] => {
 export function groupBlocks(source: TopicSource): CallGroup[] {
   const groups: CallGroup[] = [];
   const add = (blockIds: string[]) => groups.push({ id: `g${groups.length + 1}`, blockIds });
+  const kindOf = new Map(source.blocks.map((b) => [b.id, b.kind]));
   let pending: string[] = [];
   const flush = () => {
     if (pending.length) add(pending);
@@ -42,8 +44,13 @@ export function groupBlocks(source: TopicSource): CallGroup[] {
     }
     const ids = subtree(source.blocks, b.id);
     const small = ids.length === 1 && b.lineIds.length <= SMALL_BOX_LINES;
+    // The key-words box sits beside the topic's opening block: it shares that block's call
+    // whether it is printed before or after it, instead of costing a call of its own.
+    const keywords = b.kind === 'keywords';
+    const afterKeywords =
+      pending.length > 0 && pending.every((id) => kindOf.get(id) === 'keywords');
     // A small box (e.g. Fikirləş!) joins the explanation it follows; anything else starts a group.
-    if (!(small && pending.length)) flush();
+    if (!((small || keywords) && pending.length) && !afterKeywords) flush();
     pending.push(...ids);
   }
   flush();

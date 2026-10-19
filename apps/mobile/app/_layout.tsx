@@ -1,16 +1,9 @@
 import '../global.css';
 import '@/i18n';
 
-import {
-  Nunito_400Regular,
-  Nunito_600SemiBold,
-  Nunito_700Bold,
-  Nunito_900Black,
-  useFonts,
-} from '@expo-google-fonts/nunito';
+import { useFonts } from 'expo-font';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SplashScreen, Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '@/lib/query-client';
@@ -19,11 +12,13 @@ import { ThemeProvider } from '@/theme';
 void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  // Local copies without contextual alternates, so "2x" never becomes "2×" (see
+  // scripts/strip-font-calt.py); the names match the font tokens.
   const [fontsLoaded, fontError] = useFonts({
-    Nunito_400Regular,
-    Nunito_600SemiBold,
-    Nunito_700Bold,
-    Nunito_900Black,
+    PlusJakartaSans_400Regular: require('../assets/fonts/PlusJakartaSans_400Regular.ttf'),
+    PlusJakartaSans_600SemiBold: require('../assets/fonts/PlusJakartaSans_600SemiBold.ttf'),
+    PlusJakartaSans_700Bold: require('../assets/fonts/PlusJakartaSans_700Bold.ttf'),
+    PlusJakartaSans_800ExtraBold: require('../assets/fonts/PlusJakartaSans_800ExtraBold.ttf'),
   });
   const ready = fontsLoaded || fontError !== null;
 
@@ -38,7 +33,6 @@ export default function RootLayout() {
     <GestureHandlerRootView className="flex-1">
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <StatusBar style="auto" />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="test/[id]/index" options={{ gestureEnabled: false }} />
           </Stack>

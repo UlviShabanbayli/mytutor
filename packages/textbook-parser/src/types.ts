@@ -33,6 +33,18 @@ export type TextLine = {
 export type ExtractedPdf = {
   file: string;
   pageCount: number;
+  /** The tallest page's height. */
   pageHeight: number;
+  /**
+   * Each page's own height by page number: pages may differ (a cover taller than the text
+   * pages), and text positions are measured on their own page. Missing pages use `pageHeight`.
+   */
+  pageHeights?: Record<number, number>;
   items: TextItem[];
 };
+
+/** A page's height: positions measured from the top must use the page's own height. */
+export type PageHeight = number | ((page: number) => number);
+
+export const heightOf = (height: PageHeight, page: number): number =>
+  typeof height === 'number' ? height : height(page);

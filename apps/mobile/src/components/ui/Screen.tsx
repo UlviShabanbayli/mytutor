@@ -12,7 +12,7 @@ type ScreenProps = {
 
 /** Root container for every screen: safe areas, background, horizontal gutter. */
 export function Screen({ children, scroll = true, className }: ScreenProps) {
-  const content = <View className={cn('flex-1 gap-6 px-4 py-6', className)}>{children}</View>;
+  const content = <View className={cn('flex-1 gap-5 px-5 py-5', className)}>{children}</View>;
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-background">

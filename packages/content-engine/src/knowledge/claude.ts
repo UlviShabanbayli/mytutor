@@ -40,6 +40,44 @@ export function cacheKey(spec: CallSpec<z.ZodType>): string {
   );
 }
 
+const record = (
+  spec: CallSpec<z.ZodType>,
+  model: string,
+  usage: Usage,
+  cached: boolean,
+): AiCall => ({
+  id: spec.id,
+  stage: spec.stage,
+  model,
+  promptVersion: spec.promptVersion,
+  blockIds: spec.blockIds,
+  inputTokens: usage.input,
+  cacheCreationTokens: usage.cacheWrite,
+  cacheReadTokens: usage.cacheRead,
+  outputTokens: usage.output,
+  // What producing this result cost, also when it is reused from the cache (`cached`).
+  costUsd: costUsd(model, usage),
+  cached,
+});
+
+/** The cached result of `spec`, or null when it would take an API call. */
+export async function readCached<S extends z.ZodType>(
+  spec: CallSpec<S>,
+  cacheDir: string,
+): Promise<{ output: z.output<S>; call: AiCall } | null> {
+  try {
+    const hit = JSON.parse(
+      await readFile(join(cacheDir, `${cacheKey(spec)}.json`), 'utf8'),
+    ) as Cached;
+    return {
+      output: spec.schema.parse(hit.output),
+      call: record(spec, hit.model, hit.usage, true),
+    };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * One structured-output call: JSON validated with Zod, usage and cost recorded, result cached
  * on disk by input hash. Server-side fallbacks are on: a declined request is retried by the API
@@ -49,30 +87,11 @@ export async function callClaude<S extends z.ZodType>(
   client: Anthropic | null,
   spec: CallSpec<S>,
   cacheDir: string,
+  { reuse = true }: { reuse?: boolean } = {},
 ): Promise<{ output: z.output<S>; call: AiCall }> {
-  const key = cacheKey(spec);
-  const cacheFile = join(cacheDir, `${key}.json`);
-  const record = (model: string, usage: Usage, cached: boolean): AiCall => ({
-    id: spec.id,
-    stage: spec.stage,
-    model,
-    promptVersion: spec.promptVersion,
-    blockIds: spec.blockIds,
-    inputTokens: usage.input,
-    cacheCreationTokens: usage.cacheWrite,
-    cacheReadTokens: usage.cacheRead,
-    outputTokens: usage.output,
-    // What producing this result cost, also when it is reused from the cache (`cached`).
-    costUsd: costUsd(model, usage),
-    cached,
-  });
-
-  try {
-    const hit = JSON.parse(await readFile(cacheFile, 'utf8')) as Cached;
-    return { output: spec.schema.parse(hit.output), call: record(hit.model, hit.usage, true) };
-  } catch {
-    // not cached yet
-  }
+  // `reuse: false` asks for a new answer to the same input (e.g. "write it again").
+  const hit = reuse ? await readCached(spec, cacheDir) : null;
+  if (hit) return hit;
   if (!client)
     throw new Error(`No API credentials and no cached result for ${spec.id} (${spec.stage}).`);
 
@@ -121,10 +140,10 @@ export async function callClaude<S extends z.ZodType>(
 
   await mkdir(cacheDir, { recursive: true });
   await writeFile(
-    cacheFile,
+    join(cacheDir, `${cacheKey(spec)}.json`),
     JSON.stringify({ model: message.model, usage, output } satisfies Cached, null, 2),
   );
-  return { output, call: record(message.model, usage, false) };
+  return { output, call: record(spec, message.model, usage, false) };
 }
 
 /** A client when credentials exist (ANTHROPIC_API_KEY, auth token or `ant` profile); else null. */

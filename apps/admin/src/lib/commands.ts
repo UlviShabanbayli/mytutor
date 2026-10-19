@@ -6,4 +6,8 @@ export const commands = {
     `pnpm --filter @mytutor/textbook-parser source <dərslik.pdf> --topic ${topic}`,
   knowledge: (topicDir: string) =>
     `pnpm --filter @mytutor/content-engine knowledge ../textbook-parser/out/${topicDir}`,
+  /** Renders the answer-key pages, then reads them with Claude (paid; --dry-run prices it). */
+  answers: (bookDir: string) =>
+    `pnpm --filter @mytutor/textbook-parser answers <dərslik.pdf> --out out/${bookDir} && ` +
+    `pnpm --filter @mytutor/content-engine answers ../textbook-parser/out/${bookDir}/answers`,
 };

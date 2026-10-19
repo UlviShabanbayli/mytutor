@@ -2,31 +2,38 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Topic } from '@mytutor/types';
-import { Badge, Button, Text } from '@/components/ui';
+import { Button, Text } from '@/components/ui';
 
 type RecommendedTestCardProps = {
   topic: Topic;
 };
 
-/** Hero card on the home screen inviting the student into the next test. */
+/** The home screen's main card: the next test to take. */
 export function RecommendedTestCard({ topic }: RecommendedTestCardProps) {
   const { t } = useTranslation();
 
   return (
-    <View className="gap-4 rounded-xl bg-primary p-5">
-      <View className="gap-2">
-        <Badge label={t('home.recommendedTitle')} tone="primary" />
-        <Text variant="title" tone="inverse">
-          {topic.title}
+    <View className="gap-4 rounded-xl border border-border bg-card p-5">
+      <View className="gap-1.5">
+        <Text variant="label" tone="primary">
+          {t('home.recommendedTitle')}
         </Text>
-        <Text variant="label" tone="inverse" className="opacity-90">
-          {`${t('common.grade', { count: topic.grade, ordinal: true })} · ${t('common.questionsCount', { count: topic.questionCount })}`}
+        <Text variant="title">{topic.title}</Text>
+        <Text variant="label" tone="muted">
+          {[
+            topic.grade === null ? null : t('common.grade', { count: topic.grade, ordinal: true }),
+            t('common.questionsCount', { count: topic.questionCount }),
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+        </Text>
+        <Text tone="muted" className="pt-1">
+          {t('home.recommendedBody')}
         </Text>
       </View>
       <Button
         label={t('home.startTest')}
         icon="play"
-        variant="secondary"
         onPress={() => router.push({ pathname: '/test/[id]', params: { id: topic.id } })}
       />
     </View>
