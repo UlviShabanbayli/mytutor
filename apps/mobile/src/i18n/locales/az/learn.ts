@@ -31,6 +31,9 @@ export const learn = {
   },
   levelPill: '{{name}} · {{long}}',
   levelAria: '{{name}}, {{long}}',
+  /** The honey-drop chip beside a cell that became Bal (hive.nectar-honey). */
+  gain_one: '+{{count}} bal',
+  gain_other: '+{{count}} bal',
   tab: {
     overline: 'FƏNLƏR VƏ DƏRSLİKLƏR',
     title: 'Öyrən',
