@@ -123,8 +123,10 @@ export function Button({
     >
       {v.edge ? (
         <View className="rounded-lg pb-1">
-          {/* The edge stays put; the face hides it while lying on it (pressed or disabled). */}
-          <View className={cn('absolute inset-x-0 bottom-0 top-1 rounded-lg', v.edge)} />
+          {/* The edge stays put and fades in with the face's colours (none while disabled). */}
+          <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, raised.litStyle]}>
+            <View className={cn('absolute inset-x-0 bottom-0 top-1 rounded-lg', v.edge)} />
+          </Animated.View>
           <Animated.View style={raised.faceStyle}>
             <View className={cn(faceClass, 'bg-wax')}>
               <Animated.View
