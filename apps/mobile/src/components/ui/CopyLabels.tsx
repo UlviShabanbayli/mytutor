@@ -9,7 +9,6 @@ import Svg, { Path, Rect } from 'react-native-svg';
 import { cn } from '@/lib/cn';
 import { CHECK_LENGTH, CHECK_PATH } from '@/lib/strokes';
 import { useThemeColors } from '@/theme';
-import { AnimatedView } from './animated';
 import { Text } from './Text';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -46,62 +45,67 @@ export function CopyLabels({ label, copiedLabel, done, onHoney, shift, compact }
   return (
     // Wide enough for either label (measured), so the button never changes size.
     <View style={{ minWidth: Math.max(width.idle, width.done) }} className="items-center">
-      <AnimatedView
+      <Animated.View
         style={idleFace}
         onLayout={(e) => {
           const idle = e.nativeEvent.layout.width;
           setWidth((w) => ({ ...w, idle }));
         }}
-        className="flex-row items-center gap-1.5"
       >
-        {compact ? null : (
-          <Svg
-            width={18}
-            height={18}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke={ink}
-            strokeWidth={2.2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        <View className="flex-row items-center gap-1.5">
+          {compact ? null : (
+            <Svg
+              width={18}
+              height={18}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={ink}
+              strokeWidth={2.2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <Rect x={8.5} y={8.5} width={11.5} height={11.5} rx={2.5} />
+              <Path d="M15.5 8.5V6.5A2.5 2.5 0 0 0 13 4H6.5A2.5 2.5 0 0 0 4 6.5V13a2.5 2.5 0 0 0 2.5 2.5h2" />
+            </Svg>
+          )}
+          <Text
+            numberOfLines={1}
+            className={cn('font-sans-black text-sm', onHoney ? 'text-on-honey' : 'text-ink')}
           >
-            <Rect x={8.5} y={8.5} width={11.5} height={11.5} rx={2.5} />
-            <Path d="M15.5 8.5V6.5A2.5 2.5 0 0 0 13 4H6.5A2.5 2.5 0 0 0 4 6.5V13a2.5 2.5 0 0 0 2.5 2.5h2" />
-          </Svg>
-        )}
-        <Text
-          numberOfLines={1}
-          className={cn('font-sans-black text-sm', onHoney ? 'text-on-honey' : 'text-ink')}
-        >
-          {label}
-        </Text>
-      </AnimatedView>
-      <AnimatedView
-        style={doneFace}
+            {label}
+          </Text>
+        </View>
+      </Animated.View>
+      {/* The plain View places the face; the animated layer inside only moves and fades. */}
+      <View
         onLayout={(e) => {
           const w = e.nativeEvent.layout.width;
           setWidth((s) => ({ ...s, done: w }));
         }}
-        className="absolute flex-row items-center gap-1.5"
+        className="absolute"
       >
-        <Svg width={compact ? 22 : 18} height={compact ? 22 : 18} viewBox="0 0 24 24">
-          <AnimatedPath
-            d={CHECK_PATH}
-            fill="none"
-            stroke={colors.ok}
-            strokeWidth={2.6}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeDasharray={CHECK_LENGTH}
-            animatedProps={draw}
-          />
-        </Svg>
-        {compact ? null : (
-          <Text numberOfLines={1} className="font-sans-black text-sm text-ok">
-            {copiedLabel}
-          </Text>
-        )}
-      </AnimatedView>
+        <Animated.View style={doneFace}>
+          <View className="flex-row items-center gap-1.5">
+            <Svg width={compact ? 22 : 18} height={compact ? 22 : 18} viewBox="0 0 24 24">
+              <AnimatedPath
+                d={CHECK_PATH}
+                fill="none"
+                stroke={colors.ok}
+                strokeWidth={2.6}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeDasharray={CHECK_LENGTH}
+                animatedProps={draw}
+              />
+            </Svg>
+            {compact ? null : (
+              <Text numberOfLines={1} className="font-sans-black text-sm text-ok">
+                {copiedLabel}
+              </Text>
+            )}
+          </View>
+        </Animated.View>
+      </View>
     </View>
   );
 }

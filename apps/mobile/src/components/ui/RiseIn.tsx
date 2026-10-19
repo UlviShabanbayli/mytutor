@@ -1,13 +1,19 @@
 import { type ReactNode, useEffect } from 'react';
-import { useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
+import { View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 import { duration as durations, easing, useReducedMotionPref } from '@/motion';
-import { AnimatedView } from './animated';
 
 type RiseInProps = {
   /** Start offset in points: positive rises from below, negative drops from above. */
   from: number;
   delay?: number;
   duration?: number;
+  /** Classes of the content's View; the animated layer around it carries only style. */
   className?: string;
   children: ReactNode;
 };
@@ -39,8 +45,8 @@ export function RiseIn({
   }));
 
   return (
-    <AnimatedView style={style} className={className}>
-      {children}
-    </AnimatedView>
+    <Animated.View style={style}>
+      <View className={className}>{children}</View>
+    </Animated.View>
   );
 }

@@ -2,9 +2,8 @@ import { useRef } from 'react';
 import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { FadeIn, FadeInUp, LayoutAnimationConfig } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInUp, LayoutAnimationConfig } from 'react-native-reanimated';
 import { Button, Text } from '@/components/ui';
-import { AnimatedView } from '@/components/ui/animated';
 import type { AskUsage, ChatIntent, ChatMessage, ChatOrigin } from '@/features/ask/types';
 import { duration, easing, useReducedMotionPref } from '@/motion';
 import { ChatContextBar } from './ChatContextBar';
@@ -61,9 +60,9 @@ export function ChatThread(props: ChatThreadProps) {
           m.role === 'student' ? (
             <StudentBubble key={m.id} text={m.text} />
           ) : (
-            <AnimatedView key={m.id} entering={answerIn}>
+            <Animated.View key={m.id} entering={answerIn}>
               <ViziBubble message={m} />
-            </AnimatedView>
+            </Animated.View>
           ),
         )}
         {props.thinking ? <TypingBubble /> : null}

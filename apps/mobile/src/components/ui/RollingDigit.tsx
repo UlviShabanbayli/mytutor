@@ -1,9 +1,13 @@
 import { useEffect } from 'react';
 import { View } from 'react-native';
-import { useAnimatedStyle, useSharedValue, withDelay, withSpring } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+} from 'react-native-reanimated';
 import { cn } from '@/lib/cn';
 import { spring } from '@/motion';
-import { AnimatedView } from './animated';
 import { Text } from './Text';
 
 const STRIP = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -40,13 +44,13 @@ export function RollingDigit({
   return (
     // The window's height is the measured line, so it can only be set at run time.
     <View className="overflow-hidden" style={{ height: lineHeight }}>
-      <AnimatedView style={strip}>
+      <Animated.View style={strip}>
         {STRIP.map((d) => (
           <Text key={d} className={cn(className, 'text-center')}>
             {d}
           </Text>
         ))}
-      </AnimatedView>
+      </Animated.View>
     </View>
   );
 }

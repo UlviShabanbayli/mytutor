@@ -13,7 +13,6 @@ import { playCue } from '@/lib/cues';
 import { circleLength, polylineLength } from '@/lib/strokes';
 import { duration, easing, useReducedMotionPref } from '@/motion';
 import { useThemeColors } from '@/theme';
-import { AnimatedView } from './animated';
 import { Text } from './Text';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -111,29 +110,31 @@ export function SuccessCheck({ title, body, layout = 'stack', className }: Succe
         </Svg>
       </View>
       {title || body ? (
-        <AnimatedView
-          style={rise}
-          className={cn('gap-1', layout === 'stack' ? 'items-center' : 'min-w-0 flex-1')}
-        >
-          {title ? (
-            <Text
-              className={cn(
-                'font-display-black',
-                layout === 'stack' ? 'text-center text-lg' : 'text-base',
-              )}
-            >
-              {title}
-            </Text>
-          ) : null}
-          {body ? (
-            <Text
-              tone={title ? 'muted' : 'default'}
-              className={cn('text-sm', layout === 'stack' && 'text-center')}
-            >
-              {body}
-            </Text>
-          ) : null}
-        </AnimatedView>
+        // Classes sit on plain Views: NativeWind does not style Reanimated's Animated.View.
+        <View className={layout === 'stack' ? 'items-center' : 'min-w-0 flex-1'}>
+          <Animated.View style={rise}>
+            <View className={cn('gap-1', layout === 'stack' && 'items-center')}>
+              {title ? (
+                <Text
+                  className={cn(
+                    'font-display-black',
+                    layout === 'stack' ? 'text-center text-lg' : 'text-base',
+                  )}
+                >
+                  {title}
+                </Text>
+              ) : null}
+              {body ? (
+                <Text
+                  tone={title ? 'muted' : 'default'}
+                  className={cn('text-sm', layout === 'stack' && 'text-center')}
+                >
+                  {body}
+                </Text>
+              ) : null}
+            </View>
+          </Animated.View>
+        </View>
       ) : null}
     </View>
   );

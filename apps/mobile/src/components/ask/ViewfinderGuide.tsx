@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import {
+import Animated, {
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
@@ -7,8 +7,7 @@ import {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { View } from 'react-native';
-import { AnimatedView } from '@/components/ui/animated';
+import { StyleSheet, View } from 'react-native';
 import { withAlpha } from '@/lib/color';
 import { cn } from '@/lib/cn';
 import { duration, spring, useReducedMotionPref } from '@/motion';
@@ -55,6 +54,10 @@ export function ViewfinderGuide({ dim = false, snap = 0 }: ViewfinderGuideProps)
   }));
   const frame = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
+  // Plain Views keep the layout classes; the animated layers inside them only paint the
+  // scrim and move the corners (NativeWind does not style Reanimated's Animated.View).
+  const dimLayer = <Animated.View style={[StyleSheet.absoluteFill, shade]} />;
+
   return (
     <View
       pointerEvents="none"
@@ -62,20 +65,24 @@ export function ViewfinderGuide({ dim = false, snap = 0 }: ViewfinderGuideProps)
       importantForAccessibility="no-hide-descendants"
       className="absolute inset-0"
     >
-      <AnimatedView style={shade} className="flex-1" />
+      <View className="flex-1">{dimLayer}</View>
       <View className="flex-row">
-        <AnimatedView style={shade} className="w-5" />
-        <AnimatedView style={frame} className="aspect-[9/4] flex-1 rounded-[18px]">
-          <View className={cn(corner, 'left-0 top-0 rounded-tl-[18px] border-l-4 border-t-4')} />
-          <View className={cn(corner, 'right-0 top-0 rounded-tr-[18px] border-r-4 border-t-4')} />
-          <View className={cn(corner, 'bottom-0 left-0 rounded-bl-[18px] border-b-4 border-l-4')} />
-          <View
-            className={cn(corner, 'bottom-0 right-0 rounded-br-[18px] border-b-4 border-r-4')}
-          />
-        </AnimatedView>
-        <AnimatedView style={shade} className="w-5" />
+        <View className="w-5">{dimLayer}</View>
+        <View className="aspect-[9/4] flex-1">
+          <Animated.View style={[StyleSheet.absoluteFill, frame]}>
+            <View className={cn(corner, 'left-0 top-0 rounded-tl-[18px] border-l-4 border-t-4')} />
+            <View className={cn(corner, 'right-0 top-0 rounded-tr-[18px] border-r-4 border-t-4')} />
+            <View
+              className={cn(corner, 'bottom-0 left-0 rounded-bl-[18px] border-b-4 border-l-4')}
+            />
+            <View
+              className={cn(corner, 'bottom-0 right-0 rounded-br-[18px] border-b-4 border-r-4')}
+            />
+          </Animated.View>
+        </View>
+        <View className="w-5">{dimLayer}</View>
       </View>
-      <AnimatedView style={shade} className="flex-[1.6]" />
+      <View className="flex-[1.6]">{dimLayer}</View>
     </View>
   );
 }

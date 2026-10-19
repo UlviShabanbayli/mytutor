@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect } from 'react';
-import {
+import { StyleSheet, View } from 'react-native';
+import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSequence,
@@ -9,7 +10,6 @@ import { cn } from '@/lib/cn';
 import { withAlpha } from '@/lib/color';
 import { duration, useReducedMotionPref } from '@/motion';
 import { useThemeColors } from '@/theme';
-import { AnimatedView } from './animated';
 
 type CodeFlashProps = {
   /** Raise it (e.g. a copy counter) to flash once; 0 never flashes. */
@@ -36,13 +36,15 @@ export function CodeFlash({ flash, children, className }: CodeFlashProps) {
   const style = useAnimatedStyle(() => ({ backgroundColor: honey, opacity: glow.value }));
 
   return (
-    <AnimatedView className={cn('self-start rounded-[8px]', className)}>
-      <AnimatedView
+    <View className={cn('self-start', className)}>
+      {/* The plain View sizes and rounds the glow; the animated layer only fills it. */}
+      <View
         pointerEvents="none"
-        style={style}
-        className="absolute -inset-x-1 inset-y-0 rounded-[8px]"
-      />
+        className="absolute -inset-x-1 inset-y-0 overflow-hidden rounded-[8px]"
+      >
+        <Animated.View style={[StyleSheet.absoluteFill, style]} />
+      </View>
       {children}
-    </AnimatedView>
+    </View>
   );
 }

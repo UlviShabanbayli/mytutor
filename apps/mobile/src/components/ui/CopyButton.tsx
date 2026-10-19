@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Pressable } from 'react-native';
+import { AccessibilityInfo, Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import {
+import Animated, {
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
@@ -11,8 +11,7 @@ import { copyOrShare } from '@/lib/clipboard';
 import { cn } from '@/lib/cn';
 import { playCue } from '@/lib/cues';
 import { duration, easing, useReducedMotionPref } from '@/motion';
-import { useThemeColors } from '@/theme';
-import { AnimatedView } from './animated';
+import { radius, useThemeColors } from '@/theme';
 import { CopyLabels } from './CopyLabels';
 
 type CopyButtonProps = {
@@ -84,9 +83,13 @@ export function CopyButton({
   const fromEdge = honey ? colors['honey-deep'] : colors.border;
   const okBg = colors['ok-bg'];
   const ok = colors.ok;
+  const border = honey ? 0 : 2;
+  const corner = radius.md;
   const face = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(done.value, [0, 1], [from, okBg]),
     borderColor: interpolateColor(done.value, [0, 1], [fromEdge, ok]),
+    borderWidth: border,
+    borderRadius: corner,
   }));
   const edge = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(done.value, [0, 1], [fromEdge, ok]),
@@ -100,19 +103,18 @@ export function CopyButton({
       className={className}
     >
       {({ pressed }) => (
-        <AnimatedView
-          style={honey ? edge : undefined}
-          className={cn('rounded-md', honey && 'pb-[3px]')}
-        >
-          <AnimatedView
-            style={face}
+        // Plain Views carry the classes; the animated layers only paint the colours, since
+        // NativeWind does not style Reanimated's Animated.View.
+        <View className={cn('overflow-hidden rounded-md', honey && 'pb-[3px]')}>
+          {honey ? <Animated.View style={[StyleSheet.absoluteFill, edge]} /> : null}
+          <View
             className={cn(
-              'h-[44px] items-center justify-center rounded-md px-3.5',
-              !honey && 'border-2',
+              'h-[44px] items-center justify-center overflow-hidden rounded-md px-3.5',
               honey && pressed && 'translate-y-[3px]',
               !honey && pressed && 'opacity-70',
             )}
           >
+            <Animated.View style={[StyleSheet.absoluteFill, face]} />
             <CopyLabels
               label={label}
               copiedLabel={copiedLabel}
@@ -121,8 +123,8 @@ export function CopyButton({
               shift={reduced ? 0 : 8}
               compact={compact}
             />
-          </AnimatedView>
-        </AnimatedView>
+          </View>
+        </View>
       )}
     </Pressable>
   );
