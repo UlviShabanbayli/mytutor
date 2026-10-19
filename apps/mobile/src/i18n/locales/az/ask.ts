@@ -20,6 +20,10 @@ export const ask = {
     offlineBody: 'Şəkil çəkə bilərsən — internet qoşulanda özü göndəriləcək.',
     limitLabel: 'Gündəlik limit',
     limitUsed: 'Bu gün: {{used}} / {{limit}} pulsuz şəkil-sual',
+    // The used count between these two rolls on its own (micro.count).
+    limitUsedBefore: 'Bu gün:',
+    limitUsedOf: '/ {{limit}}',
+    limitUsedAfter: 'pulsuz şəkil-sual',
     limitReset: 'Sabah 00:00-da yenilənir',
     premium: 'Premium',
     premiumA11y: 'Premium: limitsiz şəkil-sual',
@@ -75,6 +79,12 @@ export const ask = {
       '3': 'Öz həllin varsa, onu da şəklə sal — müəllim harada ilişdiyini görər.',
     },
     tipsDone: 'Aydındır',
+    // The shot under the frame before cropping (micro.camera C).
+    readyTitle: 'Şəkil hazırdır',
+    readyBody: 'Növbəti addımda sualı kəsib düzəldəcəksən.',
+    readyA11y: 'Şəkil çəkildi. Davam edə və ya yenidən çəkə bilərsən.',
+    retake: 'Yenidən çək',
+    continue: 'Davam et',
     captureError: 'Şəkil çəkilmədi. Bir də cəhd et və ya qalereyadan seç.',
     unavailable: 'Kamera açılmadı. Şəkli qalereyadan seçə bilərsən.',
   },
@@ -127,6 +137,11 @@ export const ask = {
   },
   status: {
     title: 'Sualın',
+    // Right after sending (micro.done).
+    sentTitle: 'Sualın göndərildi',
+    sentBody: 'Müəllim yoxlayanda xəbər verəcəyik.',
+    savedTitle: 'Sual telefonda saxlandı',
+    savedBody: 'İnternet qoşulanda özü göndəriləcək.',
     more: 'Daha çox: sualı ləğv et, şikayət et',
     moreTitle: 'Seçimlər',
     meta: '{{subject}} · {{queue}}',

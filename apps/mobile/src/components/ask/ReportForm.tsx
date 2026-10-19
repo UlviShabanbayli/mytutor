@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, Icon, Text } from '@/components/ui';
+import { Button, HexRadio, SuccessCheck, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
 
 type ReportFormProps = {
@@ -21,10 +21,7 @@ export function ReportForm({ done, onReport, onClose }: ReportFormProps) {
   if (done) {
     return (
       <>
-        <View accessibilityRole="alert" className="flex-row items-center gap-2.5">
-          <Icon name="check" size={20} color="ok" />
-          <Text className="flex-1">{t('ask.report.done')}</Text>
-        </View>
+        <SuccessCheck layout="row" body={t('ask.report.done')} />
         <Button label={t('common.close')} variant="secondary" onPress={onClose} />
       </>
     );
@@ -50,7 +47,7 @@ export function ReportForm({ done, onReport, onClose }: ReportFormProps) {
             )}
           >
             <Text className="flex-1 font-sans-bold">{t(`ask.report.reasons.${r}`)}</Text>
-            {reason === r ? <Icon name="check" size={20} color="honey-text" /> : null}
+            <HexRadio selected={reason === r} />
           </Pressable>
         ))}
       </View>

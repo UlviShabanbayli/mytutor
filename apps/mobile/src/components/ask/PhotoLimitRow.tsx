@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Icon, Text } from '@/components/ui';
+import { Icon, RollingNumber, Text } from '@/components/ui';
 import type { AskUsage } from '@/features/ask/types';
 import { HexBadge } from './HexBadge';
 
@@ -25,9 +25,26 @@ export function PhotoLimitRow({ usage }: PhotoLimitRowProps) {
         ))}
       </View>
       <View className="min-w-0 flex-1 gap-px">
-        <Text className="font-sans-black text-sm">
-          {t('ask.home.limitUsed', { used: usage.photoUsed, limit: usage.photoLimit })}
-        </Text>
+        <View
+          accessible
+          accessibilityLabel={t('ask.home.limitUsed', {
+            used: usage.photoUsed,
+            limit: usage.photoLimit,
+          })}
+          // Words wrap as whole pieces, so a narrow row reads "Bu gün: 2 / 3" + the noun below.
+          className="flex-row flex-wrap items-end gap-x-1"
+        >
+          <Text className="font-sans-black text-sm">{t('ask.home.limitUsedBefore')}</Text>
+          <RollingNumber
+            value={usage.photoUsed}
+            accessible={false}
+            className="font-sans-black text-sm"
+          />
+          <Text className="font-sans-black text-sm">
+            {t('ask.home.limitUsedOf', { limit: usage.photoLimit })}
+          </Text>
+          <Text className="font-sans-black text-sm">{t('ask.home.limitUsedAfter')}</Text>
+        </View>
         <Text variant="caption" tone="muted" className="font-sans text-xs">
           {t('ask.home.limitReset')}
         </Text>
