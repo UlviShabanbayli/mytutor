@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Mascot } from '@/components/mascot/Mascot';
+import { ViziReward } from '@/components/mascot/ViziReward';
 import { Icon, Text } from '@/components/ui';
 import { formatNumber } from '@/features/me/format';
 import { RANK_IDS, type RankId } from '@/features/me/types';
@@ -58,7 +58,7 @@ export function RewardView({ rank, points, shields, badgeName }: RewardViewProps
         <Text variant="overline" className="text-sm tracking-[1.3px] text-on-honey">
           {t('me.reward.overline')}
         </Text>
-        <Mascot moment="reward" size={180} />
+        <ViziReward size={150} />
         <Text variant="title" className="text-center text-3xl text-on-honey">
           {t('me.reward.title', { rank: t(`me.ranks.${rank}`) })}
         </Text>

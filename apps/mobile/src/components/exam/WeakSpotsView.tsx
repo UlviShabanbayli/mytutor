@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { ViziScout } from '@/components/mascot/ViziScout';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { errorsLabel } from '@/features/exam/labels';
+import { scoutRow } from '@/features/exam/scoutRow';
 import { useWeakSpots } from '@/features/exam/queries';
 import { useExamStore } from '@/features/exam/store';
 import { SpeechBubble } from './SpeechBubble';
@@ -35,18 +37,23 @@ export function WeakSpotsView() {
 
   const expandedId = openId === undefined ? report.spots[0]?.id : openId;
   const openPlan = () => router.push('/exam/plan');
+  const scout = scoutRow(report.spots);
 
   return (
     <View className="gap-2.5">
-      <SpeechBubble
-        moment="weakSpot"
-        size={68}
-        text={t('exam.weak.intro', {
-          mocks: report.mocks,
-          errors: errorsLabel(t, report.errors),
-          root: report.commonRoot,
-        })}
-      />
+      {/* Vızı scouts the weak topics with its magnifier, then tells what it found (scout A). */}
+      <ViziScout cells={scout.cells} found={scout.found}>
+        <SpeechBubble
+          moment="weakSpot"
+          size={68}
+          withMascot={false}
+          text={t('exam.weak.intro', {
+            mocks: report.mocks,
+            errors: errorsLabel(t, report.errors),
+            root: report.commonRoot,
+          })}
+        />
+      </ViziScout>
       {report.spots.map((spot) => (
         <WeakSpotCard
           key={spot.id}
