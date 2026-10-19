@@ -51,6 +51,16 @@ export const duration = {
   warn: 900,
   /** micro.copy: "Kopyalandı" turns back into "Kopyala". */
   revert: 1800,
+  /** transitions.onboarding: the new step's content slides in. */
+  step: 260,
+  /** transitions.toast: the banner and the toast leave (y 24 + fade). */
+  dismiss: 180,
+  /** transitions.toast: how long "Yadda saxlandı" stays. */
+  toastHold: 1800,
+  /** transitions.refresh: Vızı hovers 3pt up or down while the list reloads (one way). */
+  hover: 700,
+  /** transitions.handoff: the topic cell flies from the test header to the result card. */
+  fly: 420,
 } as const;
 
 export const easing = {
@@ -118,4 +128,6 @@ export const spring = {
   digits: { damping: 15, stiffness: 160, mass: 1 },
   /** micro.field: the focus ring settles after its pulse. */
   ring: { damping: 16, stiffness: 240, mass: 1 },
+  /** transitions.refresh: the list springs back after a pull. */
+  pullBack: { damping: 20, stiffness: 220, mass: 1 },
 } as const satisfies Record<string, WithSpringConfig>;

@@ -14,9 +14,14 @@ type TestSessionHeaderProps = {
   /** The run's points counter, on the right of the kind. */
   points?: ReactNode;
   onClose: () => void;
+  /** At the end of the kind's row, e.g. the topic cell that flies to the result. */
+  trailing?: ReactNode;
 };
 
-/** Close, the progress cells with "4/10", and the kind of test with the run's points under them. */
+/**
+ * Close, the progress cells with "4/10", and the kind of test with the run's points and the
+ * topic cell that flies to the result under them.
+ */
 export function TestSessionHeader({
   kind,
   index,
@@ -24,6 +29,7 @@ export function TestSessionHeader({
   checked,
   points,
   onClose,
+  trailing,
 }: TestSessionHeaderProps) {
   const { t } = useTranslation();
   return (
@@ -35,7 +41,10 @@ export function TestSessionHeader({
       </View>
       <View className="flex-row items-center justify-between gap-2 px-4">
         <Badge label={kind} tone="honey" />
-        {points}
+        <View className="flex-row items-center gap-2">
+          {points}
+          {trailing}
+        </View>
       </View>
     </View>
   );

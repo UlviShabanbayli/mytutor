@@ -5,6 +5,7 @@ import { Mascot } from '@/components/mascot/Mascot';
 import { FooterNote } from '@/components/onboarding/FooterNote';
 import { ReadySummary } from '@/components/onboarding/ReadySummary';
 import { StepScreen } from '@/components/onboarding/StepScreen';
+import { StepStill } from '@/components/onboarding/StepStill';
 import { Button, Text } from '@/components/ui';
 import { useAppStore } from '@/features/app/appStore';
 import { ROLE_HOME } from '@/features/app/roleHome';
@@ -38,7 +39,9 @@ export default function OnboardingReadyScreen() {
       }
     >
       <View className="items-center gap-1.5">
-        <Mascot moment="lessonDone" size={172} decorative />
+        <StepStill>
+          <Mascot moment="lessonDone" size={172} decorative />
+        </StepStill>
         <Text variant="title" className="text-center text-3xl">
           {t('onboarding.ready.title')}
         </Text>

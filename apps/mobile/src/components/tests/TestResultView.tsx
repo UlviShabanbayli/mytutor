@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { TestResult } from '@mytutor/types';
 import { FadeUp } from '@/components/feedback/FadeUp';
 import { scoreC, scoreEnd } from '@/components/feedback/timelines';
+import { HandoffOverlay } from '@/components/handoff/HandoffOverlay';
 import { CellChange } from '@/components/study/CellChange';
 import { Button, IconButton, Text } from '@/components/ui';
 import { resultKicker } from '@/features/study/labels';
@@ -101,6 +102,9 @@ export function TestResultView({ study, result }: TestResultViewProps) {
         <View className="px-4 pb-2 pt-2.5">
           <Button label={t('study.common.continue')} onPress={finish} />
         </View>
+        {study.kind === 'mistakes' ? null : (
+          <HandoffOverlay code={study.topicCode ?? ''} to={cell} />
+        )}
       </SafeAreaView>
     </TestMathContext.Provider>
   );

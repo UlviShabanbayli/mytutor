@@ -9,6 +9,7 @@ import { remainingMs } from '@/features/exam/mockTimer';
 import type { MockExam } from '@/features/exam/types';
 import { useNow } from '@/features/exam/useNow';
 import { playCue } from '@/lib/cues';
+import { MockExitDialog } from './MockExitDialog';
 import { MockOptions } from './MockOptions';
 import { MockQuestionCard } from './MockQuestionCard';
 import { MockRunFooter } from './MockRunFooter';
@@ -32,6 +33,7 @@ export function MockRunner({ mock, attempt }: MockRunnerProps) {
   const goTo = useMockRunStore((s) => s.goTo);
   const finish = useMockRunStore((s) => s.finish);
   const [mapOpen, setMapOpen] = useState(false);
+  const [exiting, setExiting] = useState(false);
 
   const left = remainingMs(attempt.startedAt, mock.durationMinutes, now);
   const totalMs = mock.durationMinutes * 60_000;
@@ -49,16 +51,18 @@ export function MockRunner({ mock, attempt }: MockRunnerProps) {
   }, [timeUp, finish, mock, attempt.answers]);
 
   if (!question) return null;
+  const answered = Object.keys(attempt.answers).length;
+  const leave = () => (router.canGoBack() ? router.back() : router.replace('/exam/mocks'));
 
   return (
     <SafeAreaView edges={['top', 'bottom', 'left', 'right']} className="flex-1 bg-page">
       <MockRunHeader
         index={index}
         total={total}
-        answered={Object.keys(attempt.answers).length}
+        answered={answered}
         remainingMs={left}
         totalMs={totalMs}
-        onExit={() => (router.canGoBack() ? router.back() : router.replace('/exam/mocks'))}
+        onExit={() => (answered > 0 ? setExiting(true) : leave())}
       />
       <ScrollView contentContainerClassName="gap-2.5 px-4 pb-4 pt-1">
         <MockQuestionCard
@@ -100,6 +104,15 @@ export function MockRunner({ mock, attempt }: MockRunnerProps) {
           setMapOpen(false);
           playCue('complete');
           finishAttempt(false);
+        }}
+      />
+      <MockExitDialog
+        visible={exiting}
+        answered={answered}
+        onStay={() => setExiting(false)}
+        onLeave={() => {
+          setExiting(false);
+          leave();
         }}
       />
     </SafeAreaView>

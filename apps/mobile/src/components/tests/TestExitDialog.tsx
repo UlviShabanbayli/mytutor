@@ -1,9 +1,9 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Mascot } from '@/components/mascot/Mascot';
-import { Button, Icon, Sheet, Text } from '@/components/ui';
+import { Button, DepthDialog, Icon, Text } from '@/components/ui';
 
-type TestExitSheetProps = {
+type TestExitDialogProps = {
   visible: boolean;
   /** Answers already given (they stay saved). */
   answered: number;
@@ -14,20 +14,23 @@ type TestExitSheetProps = {
   onLeave: () => void;
 };
 
-/** "Testdən çıxırsan?": nothing is lost, the run resumes where it was left. */
-export function TestExitSheet({
+/**
+ * "Testdən çıxırsan?": nothing is lost, the run resumes where it was left. The test behind
+ * steps back while the card rises (transitions.dialog C; the test wraps itself in DepthScreen).
+ */
+export function TestExitDialog({
   visible,
   answered,
   position,
   total,
   onStay,
   onLeave,
-}: TestExitSheetProps) {
+}: TestExitDialogProps) {
   const { t } = useTranslation();
 
   return (
-    <Sheet visible={visible} onClose={onStay} title={t('study.test.exitTitle')} showTitle={false}>
-      <View className="items-center gap-3 px-1">
+    <DepthDialog visible={visible} onClose={onStay} title={t('study.test.exitTitle')}>
+      <View className="items-center gap-3">
         <Mascot moment="aiThinking" size={104} decorative />
         <Text variant="heading" className="text-center font-display-black text-xl">
           {t('study.test.exitTitle')}
@@ -57,6 +60,6 @@ export function TestExitSheet({
           className="self-stretch"
         />
       </View>
-    </Sheet>
+    </DepthDialog>
   );
 }

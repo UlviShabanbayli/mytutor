@@ -1,7 +1,14 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { TestSession } from '@/components/tests/TestSession';
-import { EmptyState, ErrorState, LoadingState, Screen, ScreenHeader } from '@/components/ui';
+import {
+  DepthScreen,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  Screen,
+  ScreenHeader,
+} from '@/components/ui';
 import { testKindLabel } from '@/features/study/labels';
 import { useStudyTest } from '@/features/study/queries';
 
@@ -36,5 +43,10 @@ export default function TestScreen() {
       </Screen>
     );
 
-  return <TestSession study={query.data} kind={testKindLabel(t, query.data)} />;
+  // The exit dialog makes the running test step back behind it (transitions.dialog C).
+  return (
+    <DepthScreen>
+      <TestSession study={query.data} kind={testKindLabel(t, query.data)} />
+    </DepthScreen>
+  );
 }
