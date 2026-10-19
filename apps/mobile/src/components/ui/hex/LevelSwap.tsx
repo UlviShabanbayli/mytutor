@@ -30,7 +30,8 @@ export function LevelSwap({ at, before, after, align = 'center' }: LevelSwapProp
   const place = align === 'center' ? 'items-center' : 'items-start';
 
   return (
-    <View className={place}>
+    // Full width, so the outgoing label or pill is never squeezed to the new one's width.
+    <View className={cn('self-stretch', place)}>
       <Animated.View style={afterStyle}>
         <View className={cn('gap-px', place)}>{after}</View>
       </Animated.View>

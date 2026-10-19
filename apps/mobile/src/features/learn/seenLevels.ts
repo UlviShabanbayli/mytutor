@@ -62,6 +62,9 @@ export function useLevelChange(topicId: string, level: MasteryLevel): MasteryLev
     setShown({ topicId, level, from });
   }
   const see = useSeenLevels((s) => s.see);
-  useEffect(() => see(topicId, level), [see, topicId, level]);
+  useEffect(() => {
+    // A block, not an expression: the persisted store's setter returns a promise.
+    see(topicId, level);
+  }, [see, topicId, level]);
   return shown.from;
 }
