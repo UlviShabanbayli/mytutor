@@ -1,8 +1,7 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Icon, Text } from '@/components/ui';
+import { Icon, Switch, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import { ToggleSwitch } from './ToggleSwitch';
 
 export type ConsentItem = {
   key: string;
@@ -45,11 +44,7 @@ export function ConsentList({ items, accessibilityLabel }: ConsentListProps) {
             </Text>
           </View>
           {item.onChange && item.on !== undefined ? (
-            <ToggleSwitch
-              value={item.on}
-              onChange={item.onChange}
-              accessibilityLabel={item.title}
-            />
+            <Switch value={item.on} onValueChange={item.onChange} accessibilityLabel={item.title} />
           ) : (
             <View className="h-7 flex-row items-center gap-1 rounded-full bg-wax px-[9px]">
               <Icon name="lock" size={14} color="lock-ink" />

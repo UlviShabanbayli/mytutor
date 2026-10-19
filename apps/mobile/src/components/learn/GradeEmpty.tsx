@@ -1,9 +1,9 @@
 import { Pressable, View } from 'react-native';
-import { Button, Icon, Text } from '@/components/ui';
+import { Button, Icon, SwitchTrack, Text } from '@/components/ui';
 import { Mascot } from '@/components/mascot/Mascot';
 import { useLearnStore } from '@/features/learn/store';
 import { useLearnText } from '@/features/learn/useLearnText';
-import { cn } from '@/lib/cn';
+import { playCue } from '@/lib/cues';
 
 type GradeEmptyProps = {
   grade: number;
@@ -32,7 +32,10 @@ export function GradeEmpty({ grade, ownGrade, onBack }: GradeEmptyProps) {
         accessibilityState={{ checked: on }}
         accessibilityLabel={t('learn.tab.notify')}
         accessibilityHint={t('learn.tab.notifyScope', { grade: gradeText(grade) })}
-        onPress={() => toggle(grade)}
+        onPress={() => {
+          playCue('press');
+          toggle(grade);
+        }}
         className="mt-1.5 min-h-[64px] flex-row items-center gap-3 self-stretch rounded-[18px] border border-border bg-surf py-2.5 pl-3.5 pr-3"
       >
         <View className="h-[40px] w-[40px] items-center justify-center rounded-[12px] bg-raised">
@@ -44,14 +47,7 @@ export function GradeEmpty({ grade, ownGrade, onBack }: GradeEmptyProps) {
             {t('learn.tab.notifyScope', { grade: gradeText(grade) })}
           </Text>
         </View>
-        <View
-          className={cn(
-            'h-[32px] w-[52px] justify-center rounded-full p-[3px]',
-            on ? 'items-end bg-honey' : 'items-start bg-wax',
-          )}
-        >
-          <View className="h-[26px] w-[26px] rounded-full bg-surf" />
-        </View>
+        <SwitchTrack on={on} />
       </Pressable>
       {ownGrade !== null && ownGrade !== grade ? (
         <Button

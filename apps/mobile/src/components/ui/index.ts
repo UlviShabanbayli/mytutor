@@ -20,4 +20,6 @@ export { SegmentedControl } from './SegmentedControl';
 export { Sheet } from './Sheet';
 export { SourceLine } from './SourceLine';
 export { StatusPill, type PillKind } from './StatusPill';
+export { Switch } from './Switch';
+export { SwitchTrack, type SwitchSize } from './SwitchTrack';
 export { Text } from './Text';

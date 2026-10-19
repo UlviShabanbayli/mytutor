@@ -1,6 +1,6 @@
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Icon, Text } from '@/components/ui';
+import { Icon, SwitchTrack, Text } from '@/components/ui';
 import {
   AUDIENCES,
   type GrantKey,
@@ -9,7 +9,6 @@ import {
 } from '@/features/me/privacy';
 import { playCue } from '@/lib/cues';
 import { cn } from '@/lib/cn';
-import { SwitchTrack } from './ToggleSwitch';
 
 const fixed = {
   yes: { box: 'bg-ok-bg', text: 'text-ok', icon: 'check', color: 'ok' },
@@ -48,7 +47,7 @@ export function PrivacyRow({ category, cells, onToggle }: PrivacyRowProps) {
                 accessibilityState={{ checked: cell.on }}
                 accessibilityLabel={t('me.privacy.switchLabel', { category: title, who: whoName })}
                 onPress={() => {
-                  playCue('tap');
+                  playCue('press');
                   onToggle(target, cell.grant, !cell.on);
                 }}
                 className={cn(
