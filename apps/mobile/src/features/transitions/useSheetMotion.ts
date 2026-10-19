@@ -47,7 +47,9 @@ export function useSheetMotion({ visible, onClose, reduced }: SheetMotionArgs) {
       return;
     }
     fade.set(1);
-    if (y.get() < height.get()) y.set(height.get() + CLOSED_GAP);
+    // From just below its own height (or from where a close was interrupted), not from the
+    // bottom of the window, so the spring's overshoot stays inside the overscan.
+    y.set(Math.min(y.get(), height.get() + CLOSED_GAP));
     y.set(withSpring(0, spring.sheetOpen));
   }, [closing, fade, height, opened, reduced, y]);
 
