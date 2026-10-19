@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Banner, Icon, Text } from '@/components/ui';
+import { Banner, Icon, StaggerGroup, StaggerItem, Text } from '@/components/ui';
 import { relativeDay } from '@/features/ask/dates';
 import { questionNote } from '@/features/ask/labels';
 import type { AskQuestion } from '@/features/ask/types';
@@ -52,16 +52,17 @@ export function RecentQuestions({ questions, isPending, isError, onRetry }: Rece
       ) : !questions || questions.length === 0 ? (
         <Text tone="muted">{t('ask.home.mineEmpty')}</Text>
       ) : (
-        questions
-          .slice(0, RECENT_COUNT)
-          .map((q) => (
-            <QuestionRow
-              key={q.id}
-              question={q}
-              meta={relativeDay(t, new Date(q.sentAt), now)}
-              note={q.status === 'queued' ? questionNote(t, q) : undefined}
-            />
-          ))
+        <StaggerGroup>
+          {questions.slice(0, RECENT_COUNT).map((q, i) => (
+            <StaggerItem key={q.id} index={i}>
+              <QuestionRow
+                question={q}
+                meta={relativeDay(t, new Date(q.sentAt), now)}
+                note={q.status === 'queued' ? questionNote(t, q) : undefined}
+              />
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
       )}
     </View>
   );

@@ -33,10 +33,6 @@ export const duration = {
   hover: 700,
   /** transitions.handoff: the topic cell flies from the test header to the result card. */
   fly: 420,
-  /** transitions.list: the gap between rows popping in. */
-  stagger: 70,
-  /** transitions.list: the row's text follows its hexagon this much later. */
-  lag: 80,
 } as const;
 
 export const easing = {

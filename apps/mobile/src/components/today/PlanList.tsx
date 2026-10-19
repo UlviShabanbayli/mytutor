@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Text } from '@/components/ui';
+import { StaggerGroup, StaggerItem, Text } from '@/components/ui';
 import { planSummary } from '@/features/today/plan';
 import type { PlanStep } from '@/features/today/types';
 import { PlanStepRow } from './PlanStepRow';
@@ -9,7 +9,10 @@ type PlanListProps = {
   steps: PlanStep[];
 };
 
-/** "Günün planı": 2–4 steps with their total length. Hidden when the plan is empty. */
+/**
+ * "Günün planı": 2–4 steps with their total length. Hidden when the plan is empty. The steps
+ * come in one after another when the plan first shows (transitions.list C).
+ */
 export function PlanList({ steps }: PlanListProps) {
   const { t } = useTranslation();
   if (steps.length === 0) return null;
@@ -25,9 +28,13 @@ export function PlanList({ steps }: PlanListProps) {
             : t('today.plan.steps', { count: summary.count })}
         </Text>
       </View>
-      {steps.map((step) => (
-        <PlanStepRow key={step.id} step={step} />
-      ))}
+      <StaggerGroup>
+        {steps.map((step, i) => (
+          <StaggerItem key={step.id} index={i}>
+            <PlanStepRow step={step} />
+          </StaggerItem>
+        ))}
+      </StaggerGroup>
     </View>
   );
 }
