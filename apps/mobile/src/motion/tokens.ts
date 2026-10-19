@@ -23,6 +23,16 @@ export const duration = {
   celebrate: 900,
   /** The fallback when the student asked for less motion: a short fade instead. */
   reduced: 150,
+  /** micro.camera: the scrim around the frame darkens after the shot. */
+  dim: 160,
+  /** micro.copy: the copied code flashes nectar. */
+  flash: 600,
+  /** micro.typing: one half of the hexagon pulse (a 1400ms loop). */
+  pulse: 700,
+  /** micro.timer: the chip turns from honey to err at 05:00. */
+  warn: 900,
+  /** micro.copy: "Kopyalandı" turns back into "Kopyala". */
+  revert: 1800,
 } as const;
 
 export const easing = {
@@ -40,6 +50,10 @@ export const easing = {
   breathe: Easing.inOut(Easing.sin),
   /** Pressing down. */
   press: Easing.out(Easing.quad),
+  /** micro.done: a ring drawing itself, even at both ends — cubic-bezier(.65,0,.35,1). */
+  draw: Easing.bezier(0.65, 0, 0.35, 1),
+  /** micro.timer: colour tweens — ease-in-out. */
+  inOut: Easing.inOut(Easing.ease),
 } as const;
 
 /** Spring presets; each names the approved sample it comes from. */
@@ -74,6 +88,12 @@ export const spring = {
   toast: { damping: 16, stiffness: 220 },
   /** micro.badge: a count badge appears (peak ≈1.2). */
   badge: { damping: 11, stiffness: 220 },
+  // Reanimated 4 defaults `mass` to 4 (Reanimated 3 used 1), which makes a lab spring twice as
+  // slow and much bouncier; the micro.* springs below set it explicitly.
   /** micro.count: rolling digits. */
-  digits: { damping: 15, stiffness: 160 },
+  digits: { damping: 15, stiffness: 160, mass: 1 },
+  /** micro.field: the focus ring settles after its pulse. */
+  ring: { damping: 16, stiffness: 240, mass: 1 },
+  /** micro.camera: the frame springs back from 0.96 at the shot, without a bounce. */
+  frame: { damping: 20, stiffness: 300, mass: 1 },
 } as const satisfies Record<string, WithSpringConfig>;
