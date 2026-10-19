@@ -19,7 +19,7 @@ export function LoadingState({ message }: LoadingStateProps) {
       accessibilityLabel={label}
       className="flex-1 items-center justify-center gap-3 py-12"
     >
-      <Mascot moment="loading" size={120} decorative />
+      <Mascot moment="loading" behavior="loading" size={120} decorative />
       <Text tone="muted" className="font-sans-semibold">
         {label}
       </Text>

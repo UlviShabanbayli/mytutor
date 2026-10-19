@@ -19,7 +19,7 @@ export function OfflineCard({ withMascot }: OfflineCardProps) {
       className="flex-row items-center gap-2.5 rounded-lg bg-info-bg px-3 py-2.5"
     >
       {withMascot ? (
-        <Mascot moment="offline" size={52} decorative />
+        <Mascot moment="offline" behavior="sleepy" size={52} decorative />
       ) : (
         <Icon name="offline" size={22} color="info" />
       )}

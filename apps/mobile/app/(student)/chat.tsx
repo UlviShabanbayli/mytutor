@@ -69,6 +69,7 @@ export default function ViziChatScreen() {
       >
         <ChatHeader
           mood={chatMood(chat.messages, chat.thinking, chat.limitReached)}
+          thinking={chat.thinking}
           onMenu={() => setMenu(true)}
         />
         <ChatThread
