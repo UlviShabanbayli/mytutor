@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import i18n from '@/i18n';
 import { useAppHydrated, useAppStore } from '@/features/app/appStore';
 import { queryClient } from '@/lib/query-client';
+import { MotionConfig } from '@/motion';
 import { ThemeProvider } from '@/theme';
 
 void SplashScreen.preventAutoHideAsync();
@@ -47,6 +48,7 @@ export default function RootLayout() {
     <GestureHandlerRootView className="flex-1">
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
+          <MotionConfig />
           <Stack screenOptions={{ headerShown: false }} />
         </ThemeProvider>
       </QueryClientProvider>
