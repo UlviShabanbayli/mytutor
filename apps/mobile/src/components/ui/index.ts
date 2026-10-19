@@ -23,3 +23,4 @@ export { Sheet } from './Sheet';
 export { SourceLine } from './SourceLine';
 export { StatusPill, type PillKind } from './StatusPill';
 export { Text } from './Text';
+export { ToastHost } from './ToastHost';

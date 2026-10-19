@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Input, Sheet } from '@/components/ui';
 import { isValidNickname } from '@/features/me/nickname';
 import { useMeStore } from '@/features/me/store';
+import { showToast } from '@/features/transitions/toastStore';
 
 type NicknameSheetProps = { visible: boolean; onClose: () => void };
 
@@ -35,6 +36,7 @@ export function NicknameSheet({ visible, onClose }: NicknameSheetProps) {
           if (!valid) return;
           setNickname(value);
           onClose();
+          showToast(t('common.saved'));
         }}
       />
     </Sheet>

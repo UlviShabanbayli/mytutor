@@ -6,6 +6,7 @@ export const core = {
     retry: 'Yenidən cəhd et',
     back: 'Geri',
     close: 'Bağla',
+    saved: 'Yadda saxlandı',
     errorTitle: 'Xəta baş verdi',
     errorDescription: 'Nəsə alınmadı. İnternet bağlantını yoxlayıb yenidən cəhd et.',
     comingSoon: 'Tezliklə',

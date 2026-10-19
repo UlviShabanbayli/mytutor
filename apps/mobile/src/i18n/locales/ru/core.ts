@@ -9,6 +9,7 @@ export const core = {
     retry: 'Попробовать снова',
     back: 'Назад',
     close: 'Закрыть',
+    saved: 'Сохранено',
     errorTitle: 'Произошла ошибка',
     errorDescription: 'Что-то пошло не так. Проверь подключение к интернету и попробуй снова.',
     comingSoon: 'Скоро',

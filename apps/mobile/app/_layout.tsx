@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // Importing i18n also initialises it before any screen renders.
 import i18n from '@/i18n';
+import { ToastHost } from '@/components/ui';
 import { useAppHydrated, useAppStore } from '@/features/app/appStore';
 import { queryClient } from '@/lib/query-client';
 import { useStackMotion } from '@/features/transitions/useStackMotion';
@@ -52,6 +53,7 @@ export default function RootLayout() {
         <ThemeProvider>
           <MotionConfig />
           <Stack screenOptions={stackMotion} />
+          <ToastHost />
         </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
