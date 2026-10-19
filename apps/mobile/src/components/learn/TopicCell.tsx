@@ -1,8 +1,13 @@
 import { View } from 'react-native';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import Svg, { Polygon } from 'react-native-svg';
 import { HexCell, Icon, Text } from '@/components/ui';
+import { cellMotionKind, cellTimeline } from '@/components/ui/hex/levelChange';
+import { LevelSwap } from '@/components/ui/hex/LevelSwap';
 import type { MasteryLevel } from '@/features/learn/types';
+import { useBreath } from '@/features/learn/useBreath';
 import { cn } from '@/lib/cn';
+import { useReducedMotionPref } from '@/motion';
 import { useThemeColors } from '@/theme';
 import { hexPolygon } from './FlatHex';
 import { levelInk, levelText } from './levelStyle';
@@ -21,6 +26,12 @@ type TopicCellProps = {
   dim?: boolean;
   /** Number size: `lg` on the topic page's hero cell. */
   numberSize?: 'sm' | 'md' | 'lg';
+  /** The level last seen: the cell plays the change to `level` once (see `HexCell`). */
+  animateFrom?: MasteryLevel;
+  /** The old level's word, cross-faded to `word` with the change. */
+  fromWord?: string;
+  /** "Sən buradasan": the ring breathes three times, then rests (hive.current-pulse A). */
+  pulse?: boolean;
 };
 
 const RING = 4;
@@ -38,10 +49,41 @@ export function TopicCell({
   ring = false,
   dim = false,
   numberSize = 'md',
+  animateFrom,
+  fromWord,
+  pulse = false,
 }: TopicCellProps) {
   const c = useThemeColors();
+  const reduced = useReducedMotionPref();
   const h = Math.round(size * 1.125);
   const inner = ring ? size - RING * 2 : size;
+  const kind = animateFrom && !reduced ? cellMotionKind(animateFrom, level) : null;
+  const breath = useBreath(pulse && ring);
+  const ringStyle = useAnimatedStyle(() => ({ opacity: 1 - 0.55 * breath.value }));
+  const bodyStyle = useAnimatedStyle(() => ({ transform: [{ scale: 1 + 0.035 * breath.value }] }));
+
+  const ink = (shown: MasteryLevel, shownWord: string | undefined) => (
+    <>
+      {number ? (
+        <Text className={cn('font-display-black', numberClass[numberSize], levelText[shown])}>
+          {number}
+        </Text>
+      ) : null}
+      {dim ? (
+        <Icon name="download" size={16} color={levelInk[shown]} />
+      ) : shownWord ? (
+        <Text
+          className={cn(
+            'font-sans-black tracking-[0.5px]',
+            numberSize === 'lg' ? 'text-2xs' : 'text-[9px]',
+            levelText[shown],
+          )}
+        >
+          {shownWord}
+        </Text>
+      ) : null}
+    </>
+  );
 
   return (
     <View
@@ -52,30 +94,28 @@ export function TopicCell({
       style={{ width: size, height: h }}
     >
       {ring ? (
-        <Svg width={size} height={h} style={{ position: 'absolute' }}>
-          <Polygon points={hexPolygon(size, h)} fill={c['honey-deep']} />
-        </Svg>
+        <View className="absolute inset-0">
+          <Animated.View style={ringStyle}>
+            <Svg width={size} height={h}>
+              <Polygon points={hexPolygon(size, h)} fill={c['honey-deep']} />
+            </Svg>
+          </Animated.View>
+        </View>
       ) : null}
-      <HexCell state={level} size={inner} />
+      <Animated.View style={bodyStyle}>
+        <HexCell state={level} size={inner} animateFrom={kind ? animateFrom : undefined} />
+      </Animated.View>
       <View className="absolute inset-0 items-center justify-center gap-px">
-        {number ? (
-          <Text className={cn('font-display-black', numberClass[numberSize], levelText[level])}>
-            {number}
-          </Text>
-        ) : null}
-        {dim ? (
-          <Icon name="download" size={16} color={levelInk[level]} />
-        ) : word ? (
-          <Text
-            className={cn(
-              'font-sans-black tracking-[0.5px]',
-              numberSize === 'lg' ? 'text-2xs' : 'text-[9px]',
-              levelText[level],
-            )}
-          >
-            {word}
-          </Text>
-        ) : null}
+        {kind && animateFrom ? (
+          <LevelSwap
+            key={`${animateFrom}-${level}`}
+            at={cellTimeline[kind].swap}
+            before={ink(animateFrom, fromWord)}
+            after={ink(level, word)}
+          />
+        ) : (
+          ink(level, word)
+        )}
       </View>
     </View>
   );

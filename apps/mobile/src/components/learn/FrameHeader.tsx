@@ -1,9 +1,13 @@
 import { Pressable, View } from 'react-native';
-import { HexCell, Icon, Text } from '@/components/ui';
+import { HexCell, Text } from '@/components/ui';
+import { frameToggle } from '@/features/learn/hiveMotion';
 import { unitLevel, type UnitSummary } from '@/features/learn/mastery';
 import type { HiveUnit } from '@/features/learn/types';
 import { useLearnText } from '@/features/learn/useLearnText';
+import { playCue } from '@/lib/cues';
 import { cn } from '@/lib/cn';
+import { Appear } from './Appear';
+import { FrameChevron } from './FrameChevron';
 import { QueenCell } from './QueenCell';
 import { TopicCell } from './TopicCell';
 
@@ -11,12 +15,14 @@ type FrameHeaderProps = {
   unit: HiveUnit;
   summary: UnitSummary;
   open: boolean;
+  /** The student has toggled this frame: the strip of mini cells fades back in on close. */
+  animate: boolean;
   online: boolean;
   onToggle: () => void;
 };
 
 /** A frame's title row: unit badge, name, a strip of its cells (closed) and how far it is. */
-export function FrameHeader({ unit, summary, open, online, onToggle }: FrameHeaderProps) {
+export function FrameHeader({ unit, summary, open, animate, online, onToggle }: FrameHeaderProps) {
   const { t } = useLearnText();
   const dim = !online && !summary.onPhone;
   const sub = [t('learn.hive.sub.count', summary)];
@@ -37,7 +43,10 @@ export function FrameHeader({ unit, summary, open, online, onToggle }: FrameHead
       accessibilityRole="button"
       accessibilityLabel={aria.filter(Boolean).join(', ')}
       accessibilityState={{ expanded: open }}
-      onPress={onToggle}
+      onPress={() => {
+        playCue('select');
+        onToggle();
+      }}
       className="min-h-[50px] flex-row items-center gap-2.5 px-2.5 pb-1.5 pt-2"
     >
       <TopicCell level={unitLevel(unit)} number={unit.number} size={32} numberSize="sm" />
@@ -47,12 +56,19 @@ export function FrameHeader({ unit, summary, open, online, onToggle }: FrameHead
         </Text>
         <View className="min-w-0 flex-row items-center gap-2">
           {open ? null : (
-            <View className="flex-row items-start gap-0.5">
-              {unit.topics.map((topic) => (
-                <HexCell key={topic.id} state={topic.level} size={11} />
-              ))}
-              <QueenCell level={unit.unitTest.level} size={11} />
-            </View>
+            <Appear
+              play={animate}
+              from={{ opacity: 0 }}
+              delay={frameToggle.stripDelay}
+              duration={frameToggle.stripIn}
+            >
+              <View className="flex-row items-start gap-0.5">
+                {unit.topics.map((topic) => (
+                  <HexCell key={topic.id} state={topic.level} size={11} />
+                ))}
+                <QueenCell level={unit.unitTest.level} size={11} />
+              </View>
+            </Appear>
           )}
           <Text
             numberOfLines={1}
@@ -65,9 +81,7 @@ export function FrameHeader({ unit, summary, open, online, onToggle }: FrameHead
           </Text>
         </View>
       </View>
-      <View className={cn(open && 'rotate-180')}>
-        <Icon name="down" size={20} color="muted" />
-      </View>
+      <FrameChevron open={open} />
     </Pressable>
   );
 }
