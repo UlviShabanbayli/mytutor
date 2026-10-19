@@ -4,6 +4,8 @@ export { Badge } from './Badge';
 export { Banner } from './Banner';
 export { Button } from './Button';
 export { Card } from './Card';
+export { DepthDialog } from './DepthDialog';
+export { DepthScreen } from './DepthScreen';
 export { EmptyState } from './EmptyState';
 export { ErrorState } from './ErrorState';
 export { HexCell, type CellState } from './HexCell';

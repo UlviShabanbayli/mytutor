@@ -13,7 +13,7 @@ import { TestMathContext } from '@/features/tests/testMath';
 import { playCue } from '@/lib/cues';
 import { FeedbackPanel } from './FeedbackPanel';
 import { StepBody } from './StepBody';
-import { TestExitSheet } from './TestExitSheet';
+import { TestExitDialog } from './TestExitDialog';
 import { TestSessionHeader } from './TestSessionHeader';
 
 type TestSessionProps = {
@@ -104,7 +104,7 @@ export function TestSession({ study, kind }: TestSessionProps) {
           </View>
         )}
       </TestMathContext.Provider>
-      <TestExitSheet
+      <TestExitDialog
         visible={exiting}
         answered={answeredCount}
         position={active.index + 1}
