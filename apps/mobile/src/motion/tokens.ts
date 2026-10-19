@@ -26,7 +26,7 @@ export const duration = {
   /** transitions.onboarding: the new step's content slides in. */
   step: 260,
   /** transitions.toast: the banner and the toast leave (y 24 + fade). */
-  leave: 180,
+  dismiss: 180,
   /** transitions.toast: how long "Yadda saxlandı" stays. */
   toastHold: 1800,
   /** transitions.refresh: Vızı hovers 3pt up or down while the list reloads (one way). */

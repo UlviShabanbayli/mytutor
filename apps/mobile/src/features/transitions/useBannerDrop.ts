@@ -16,7 +16,7 @@ const LEAVE_RISE = 24;
 const leave = new Keyframe({
   0: { opacity: 1, transform: [{ translateY: 0 }] },
   100: { opacity: 0, transform: [{ translateY: -LEAVE_RISE }], easing: easing.away },
-}).duration(duration.leave);
+}).duration(duration.dismiss);
 
 /**
  * transitions.toast B: a banner drops in from under what is above it while its slot opens

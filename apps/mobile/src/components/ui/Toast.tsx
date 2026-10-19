@@ -37,7 +37,7 @@ export function Toast({ message, onDone }: ToastProps) {
     opacity.set(withTiming(1, { duration: reduced ? duration.reduced : duration.quick }));
     if (!reduced) y.set(withSpring(0, spring.toast));
     const timer = setTimeout(() => {
-      const away = { duration: reduced ? duration.reduced : duration.leave, easing: easing.away };
+      const away = { duration: reduced ? duration.reduced : duration.dismiss, easing: easing.away };
       if (!reduced) y.set(withTiming(AWAY, away));
       opacity.set(
         withTiming(0, away, (finished) => {
