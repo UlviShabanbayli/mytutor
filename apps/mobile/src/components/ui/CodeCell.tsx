@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
-import {
+import { StyleSheet, View } from 'react-native';
+import Animated, {
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
@@ -8,8 +8,7 @@ import {
 } from 'react-native-reanimated';
 import { cn } from '@/lib/cn';
 import { duration, easing, useReducedMotionPref } from '@/motion';
-import { useThemeColors } from '@/theme';
-import { AnimatedView } from './animated';
+import { radius, useThemeColors } from '@/theme';
 import { RiseIn } from './RiseIn';
 import { Text } from './Text';
 
@@ -48,21 +47,24 @@ export function CodeCell({ char, active, error, className, textClassName }: Code
   const { border, surf, raised, honey, err } = colors;
   const deep = colors['honey-deep'];
   const errBg = colors['err-bg'];
+  const corner = radius.md;
   const box = useAnimatedStyle(() => {
     const warm = interpolateColor(filled.value, [0, 1], [border, deep]);
     const edge = interpolateColor(current.value, [0, 1], [warm, honey]);
     const ground = interpolateColor(filled.value * (1 - current.value), [0, 1], [surf, raised]);
     return {
+      borderWidth: 2,
+      borderRadius: corner,
       borderColor: interpolateColor(bad.value, [0, 1], [edge, err]),
       backgroundColor: interpolateColor(bad.value, [0, 1], [ground, errBg]),
     };
   });
 
   return (
-    <AnimatedView
-      style={box}
-      className={cn('items-center justify-center rounded-md border-2', className)}
-    >
+    // The plain View sizes the box; the animated layer behind the character paints its
+    // border and ground (NativeWind does not style Reanimated's Animated.View).
+    <View className={cn('items-center justify-center rounded-md', className)}>
+      <Animated.View style={[StyleSheet.absoluteFill, box]} />
       {char ? (
         <RiseIn key={char} from={4} duration={duration.quick}>
           <Text
@@ -78,6 +80,6 @@ export function CodeCell({ char, active, error, className, textClassName }: Code
       ) : active && !error ? (
         <View className="h-7 w-0.5 rounded-full bg-honey" />
       ) : null}
-    </AnimatedView>
+    </View>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import {
+import Animated, {
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
@@ -9,7 +9,6 @@ import {
 } from 'react-native-reanimated';
 import { duration, easing, spring, useReducedMotionPref } from '@/motion';
 import { useThemeColors } from '@/theme';
-import { AnimatedView } from './animated';
 
 /** micro.field B: the ring swells to 7pt in nectar, then settles at 4pt. */
 const PEAK = 7;
@@ -61,6 +60,7 @@ export function FocusRing({ focused, error }: FocusRingProps) {
   const ring = useAnimatedStyle(() => {
     const calm = interpolateColor(glow.value, [0, 1], [raised, nectar]);
     return {
+      position: 'absolute',
       opacity: shown.value,
       top: -spread.value,
       bottom: -spread.value,
@@ -72,5 +72,5 @@ export function FocusRing({ focused, error }: FocusRingProps) {
     };
   });
 
-  return <AnimatedView pointerEvents="none" style={ring} className="absolute" />;
+  return <Animated.View pointerEvents="none" style={ring} />;
 }

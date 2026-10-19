@@ -15,7 +15,6 @@ import { playCue } from '@/lib/cues';
 import { CHECK_LENGTH, CHECK_PATH } from '@/lib/strokes';
 import { duration, easing, useReducedMotionPref } from '@/motion';
 import { useThemeColors, type ColorName } from '@/theme';
-import { AnimatedView } from './animated';
 import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
 
@@ -114,41 +113,46 @@ export function StatusPill({ kind, label, className }: StatusPillProps) {
   const s = styles[shown.kind];
 
   return (
-    <AnimatedView
-      style={face}
-      className={cn(
-        'h-[30px] flex-row items-center gap-1.5 self-start rounded-full px-2.5',
-        s.box,
-        className,
-      )}
-    >
-      {shown.kind === 'ai' ? (
-        <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <Svg width={14} height={16}>
-            <Polygon points="7,0 14,4 14,12 7,16 0,12 0,4" fill={colors[s.color]} />
-          </Svg>
+    // The animated layer only turns and fades; the pill's classes sit on the View inside it
+    // (NativeWind does not style Reanimated's Animated.View).
+    <View className="self-start">
+      <Animated.View style={face}>
+        <View
+          className={cn(
+            'h-[30px] flex-row items-center gap-1.5 rounded-full px-2.5',
+            s.box,
+            className,
+          )}
+        >
+          {shown.kind === 'ai' ? (
+            <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+              <Svg width={14} height={16}>
+                <Polygon points="7,0 14,4 14,12 7,16 0,12 0,4" fill={colors[s.color]} />
+              </Svg>
+            </View>
+          ) : shown.kind === 'teacher' ? (
+            <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+              <Svg width={16} height={16} viewBox="0 0 24 24">
+                <AnimatedPath
+                  d={CHECK_PATH}
+                  fill="none"
+                  stroke={colors.ok}
+                  strokeWidth={2.2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeDasharray={CHECK_LENGTH}
+                  animatedProps={check}
+                />
+              </Svg>
+            </View>
+          ) : s.icon ? (
+            <Icon name={s.icon} size={16} color={s.color} />
+          ) : null}
+          <Text accessibilityLiveRegion="polite" className={cn('font-sans-black text-sm', s.text)}>
+            {shown.label}
+          </Text>
         </View>
-      ) : shown.kind === 'teacher' ? (
-        <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <Svg width={16} height={16} viewBox="0 0 24 24">
-            <AnimatedPath
-              d={CHECK_PATH}
-              fill="none"
-              stroke={colors.ok}
-              strokeWidth={2.2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray={CHECK_LENGTH}
-              animatedProps={check}
-            />
-          </Svg>
-        </View>
-      ) : s.icon ? (
-        <Icon name={s.icon} size={16} color={s.color} />
-      ) : null}
-      <Text accessibilityLiveRegion="polite" className={cn('font-sans-black text-sm', s.text)}>
-        {shown.label}
-      </Text>
-    </AnimatedView>
+      </Animated.View>
+    </View>
   );
 }

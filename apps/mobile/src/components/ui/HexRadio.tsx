@@ -11,7 +11,6 @@ import { playCue } from '@/lib/cues';
 import { hexPoints } from '@/lib/strokes';
 import { duration, easing, useReducedMotionPref } from '@/motion';
 import { useThemeColors } from '@/theme';
-import { AnimatedView } from './animated';
 
 const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
 
@@ -70,11 +69,13 @@ export function HexRadio({ selected, size = 22 }: HexRadioProps) {
         <AnimatedPolygon points={hexPoints(w, h)} fill={deep} animatedProps={ringProps} />
         <Polygon points={hexPoints(w, h, EDGE)} fill={colors.surf} />
       </Svg>
-      <AnimatedView style={dot} className="absolute">
-        <Svg width={dw} height={dh}>
-          <Polygon points={hexPoints(dw, dh)} fill={deep} />
-        </Svg>
-      </AnimatedView>
+      <View className="absolute">
+        <Animated.View style={dot}>
+          <Svg width={dw} height={dh}>
+            <Polygon points={hexPoints(dw, dh)} fill={deep} />
+          </Svg>
+        </Animated.View>
+      </View>
     </View>
   );
 }

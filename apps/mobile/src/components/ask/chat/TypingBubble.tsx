@@ -1,8 +1,7 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { FadeOut } from 'react-native-reanimated';
+import Animated, { FadeOut } from 'react-native-reanimated';
 import { RiseIn, Text, TypingHexes } from '@/components/ui';
-import { AnimatedView } from '@/components/ui/animated';
 import { duration, useReducedMotionPref } from '@/motion';
 
 /**
@@ -14,13 +13,10 @@ export function TypingBubble() {
   const reduced = useReducedMotionPref();
 
   return (
-    <AnimatedView
-      exiting={FadeOut.duration(reduced ? duration.reduced : duration.quick)}
-      className="self-start"
-    >
+    <Animated.View exiting={FadeOut.duration(reduced ? duration.reduced : duration.quick)}>
       <RiseIn
         from={8}
-        className="rounded-xl rounded-bl-[4px] border border-border bg-surf px-3.5 py-3"
+        className="self-start rounded-xl rounded-bl-[4px] border border-border bg-surf px-3.5 py-3"
       >
         <View
           accessible
@@ -35,6 +31,6 @@ export function TypingBubble() {
           </Text>
         </View>
       </RiseIn>
-    </AnimatedView>
+    </Animated.View>
   );
 }

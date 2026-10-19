@@ -13,7 +13,6 @@ import Svg, { Polygon } from 'react-native-svg';
 import { hexPoints } from '@/lib/strokes';
 import { duration, easing, useReducedMotionPref } from '@/motion';
 import { useThemeColors } from '@/theme';
-import { AnimatedView } from './animated';
 
 const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
 
@@ -44,12 +43,12 @@ function PulseHex({ index, reduced }: { index: number; reduced: boolean }) {
   const honey = useAnimatedProps(() => ({ opacity: p.value }));
 
   return (
-    <AnimatedView style={scale}>
+    <Animated.View style={scale}>
       <Svg width={W} height={H}>
         <Polygon points={POINTS} fill={colors.wax} />
         <AnimatedPolygon points={POINTS} fill={colors.honey} animatedProps={honey} />
       </Svg>
-    </AnimatedView>
+    </Animated.View>
   );
 }
 

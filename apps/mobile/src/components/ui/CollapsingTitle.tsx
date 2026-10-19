@@ -1,6 +1,6 @@
 import { type ReactNode, useState } from 'react';
-import { View } from 'react-native';
-import {
+import { StyleSheet, View } from 'react-native';
+import Animated, {
   Extrapolation,
   interpolate,
   useAnimatedScrollHandler,
@@ -12,7 +12,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BAR_HEIGHT, COLLAPSE_DISTANCE, COLLAPSED_SCALE, dockShift } from '@/lib/collapse';
 import { cn } from '@/lib/cn';
 import { useReducedMotionPref } from '@/motion';
-import { AnimatedScrollView, AnimatedText, AnimatedView } from './animated';
 import { Text } from './Text';
 
 type CollapsingTitleProps = {
@@ -27,6 +26,10 @@ type CollapsingTitleProps = {
 };
 
 type Box = { top: number; height: number };
+
+// Reanimated's components take no className here (NativeWind does not style them), so the
+// animated layers carry only style and the classes sit on plain Views inside them.
+const styles = StyleSheet.create({ grow: { flexGrow: 1 } });
 
 /**
  * A tab screen whose large title shrinks into a bar as the list scrolls (micro.header B ·
@@ -77,32 +80,36 @@ export function CollapsingTitle({
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-page">
       <View className="flex-1">
-        <AnimatedScrollView
+        <Animated.ScrollView
           onScroll={onScroll}
           scrollEventThrottle={16}
-          contentContainerClassName="flex-grow"
+          contentContainerStyle={styles.grow}
           keyboardShouldPersistTaps="handled"
         >
           {/* Keeps the room of the large header, which floats above the list. */}
           <View style={{ height: header }} />
           <View className={cn('flex-1 gap-4 px-4 pb-4 pt-4', className)}>{children}</View>
-        </AnimatedScrollView>
+        </Animated.ScrollView>
         <View
           pointerEvents="box-none"
           onLayout={(e) => setHeader(e.nativeEvent.layout.height)}
           className="absolute inset-x-0 top-0"
         >
-          <AnimatedView
+          <View
             pointerEvents="none"
-            style={[bar, { height: reduced ? Math.max(header, BAR_HEIGHT) : BAR_HEIGHT }]}
-            className="absolute inset-x-0 top-0 justify-center border-b border-border bg-surf px-4"
+            style={{ height: reduced ? Math.max(header, BAR_HEIGHT) : BAR_HEIGHT }}
+            className="absolute inset-x-0 top-0"
           >
-            {reduced ? (
-              <Text numberOfLines={1} className="font-sans-black text-md">
-                {title}
-              </Text>
-            ) : null}
-          </AnimatedView>
+            <Animated.View style={[StyleSheet.absoluteFill, bar]}>
+              <View className="flex-1 justify-center border-b border-border bg-surf px-4">
+                {reduced ? (
+                  <Text numberOfLines={1} className="font-sans-black text-md">
+                    {title}
+                  </Text>
+                ) : null}
+              </View>
+            </Animated.View>
+          </View>
           <View pointerEvents="box-none" className="flex-row items-end gap-2 px-4 pt-4">
             <View
               pointerEvents="none"
@@ -110,26 +117,25 @@ export function CollapsingTitle({
               className="min-w-0 flex-1 gap-0.5"
             >
               {overline ? (
-                <AnimatedView style={reduced ? big : fadeFirst}>
+                <Animated.View style={reduced ? big : fadeFirst}>
                   <Text variant="overline" tone="muted" className="text-xs">
                     {overline}
                   </Text>
-                </AnimatedView>
+                </Animated.View>
               ) : null}
-              <AnimatedText
+              <Animated.View
                 onLayout={(e) =>
                   setTitleBox({ top: e.nativeEvent.layout.y, height: e.nativeEvent.layout.height })
                 }
                 style={big}
-                accessibilityRole="header"
-                numberOfLines={1}
-                className="font-display-black text-3xl text-ink"
               >
-                {title}
-              </AnimatedText>
+                <Text variant="title" numberOfLines={1}>
+                  {title}
+                </Text>
+              </Animated.View>
             </View>
             {actions ? (
-              <AnimatedView
+              <Animated.View
                 onLayout={(e) =>
                   setActionsBox({
                     top: e.nativeEvent.layout.y,
@@ -137,10 +143,9 @@ export function CollapsingTitle({
                   })
                 }
                 style={lift}
-                className="flex-row gap-2"
               >
-                {actions}
-              </AnimatedView>
+                <View className="flex-row gap-2">{actions}</View>
+              </Animated.View>
             ) : null}
           </View>
         </View>
