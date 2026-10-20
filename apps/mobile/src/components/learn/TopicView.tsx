@@ -6,7 +6,7 @@ import { cellMotionKind, cellTimeline } from '@/components/ui/hex/levelChange';
 import { LevelSwap } from '@/components/ui/hex/LevelSwap';
 import { findTopic, nextStep, type TopicPlace } from '@/features/learn/mastery';
 import { backOr, openKnowSkip, openStep } from '@/features/learn/navigation';
-import { useRealTest } from '@/features/learn/queries';
+import { useTopicTest } from '@/features/learn/queries';
 import { useLevelChange } from '@/features/learn/seenLevels';
 import { useLearnStore } from '@/features/learn/store';
 import type { Hive } from '@/features/learn/types';
@@ -31,7 +31,7 @@ export function TopicView({ hive, place, online }: TopicViewProps) {
   const { t, source, levelCaps } = useLearnText();
   const stepBody = useStepBody();
   const saveTopics = useLearnStore((s) => s.saveTopics);
-  const real = useRealTest(hive, place.globalIndex);
+  const real = useTopicTest(place.topic.id);
   const { unit, topic, index } = place;
   const saved = hive.savedTopicIds.includes(topic.id);
   const blocked = !online && !saved;

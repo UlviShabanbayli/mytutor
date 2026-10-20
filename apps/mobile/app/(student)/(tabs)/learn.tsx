@@ -46,7 +46,7 @@ export default function LearnScreen() {
               <HiveCard
                 hive={hive}
                 overline={grade === ownGrade ? t('learn.tab.forYourGrade') : gradeText(grade)}
-                onOpen={() => openHive(hive.id)}
+                onOpen={() => openHive(hive)}
                 onContinue={openTopic}
               />
               <OtherSubjects grade={grade} subjects={preparing} />

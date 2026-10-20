@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { Banner, Button, Icon, IconButton, Sheet, SourceLine, Text } from '@/components/ui';
 import { nextStep, type TopicPlace } from '@/features/learn/mastery';
 import { openKnowSkip, openStep } from '@/features/learn/navigation';
-import { useRealTest } from '@/features/learn/queries';
+import { useTopicTest } from '@/features/learn/queries';
 import type { Hive } from '@/features/learn/types';
 import { useLearnText } from '@/features/learn/useLearnText';
 import { LevelPill } from './LevelPill';
@@ -20,7 +20,7 @@ type CellSheetProps = {
 /** The sheet a tapped cell opens: level, steps, source, and where to go next. */
 export function CellSheet({ hive, place, online, onClose }: CellSheetProps) {
   const { t, source, levelCaps, levelAria } = useLearnText();
-  const { test } = useRealTest(hive, place.globalIndex);
+  const { test } = useTopicTest(place.topic.id);
   const { unit, topic, index } = place;
   const step = nextStep(topic);
   const blocked = !online && !hive.savedTopicIds.includes(topic.id);

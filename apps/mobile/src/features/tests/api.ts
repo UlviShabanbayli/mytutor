@@ -30,17 +30,6 @@ export async function fetchSubjects(): Promise<Subject[]> {
   return subjectSchema.array().parse(await getJson('tests/subjects'));
 }
 
-export async function fetchSubject(
-  subjectId: string,
-): Promise<{ subject: Subject; topics: Topic[] }> {
-  const data = await orNotFound(
-    getJson(`tests/subjects/${encodeURIComponent(subjectId)}`),
-    `Subject ${subjectId} not found`,
-  );
-  const { subject, topics } = data as { subject: unknown; topics: unknown };
-  return { subject: subjectSchema.parse(subject), topics: topicSchema.array().parse(topics) };
-}
-
 export async function fetchTest(testId: string): Promise<PracticeTest> {
   return practiceTestSchema.parse(
     await orNotFound(getJson(`tests/${encodeURIComponent(testId)}`), `Test ${testId} not found`),

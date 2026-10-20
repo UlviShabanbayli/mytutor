@@ -71,7 +71,8 @@ export const useTestSessionStore = create<TestSessionState>((set, get) => ({
 
 // Another persona is another student: no running test and no finished tests carry over.
 useDemoPersonaStore.subscribe((state, previous) => {
-  if (state.persona !== previous.persona) useTestSessionStore.setState({ session: null, results: [] });
+  if (state.persona !== previous.persona)
+    useTestSessionStore.setState({ session: null, results: [] });
 });
 
 /** Questions answered today across finished tests (drives the daily goal). */

@@ -4,7 +4,7 @@ import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Text } from '@/components/ui';
 import { Mascot } from '@/components/mascot/Mascot';
-import { useLearnStore } from '@/features/learn/store';
+import { useLearnData, useLearnStore } from '@/features/learn/store';
 import type { Hive } from '@/features/learn/types';
 import { useLearnText } from '@/features/learn/useLearnText';
 import { CenterHeader } from './CenterHeader';
@@ -21,7 +21,7 @@ type TextbookPickerProps = {
  */
 export function TextbookPicker({ hive, onDone }: TextbookPickerProps) {
   const { t, hiveName, bookName } = useLearnText();
-  const stored = useLearnStore((s) => s.textbooks[hive.id]);
+  const stored = useLearnData((d) => d.textbooks[hive.id]);
   const pick = useLearnStore((s) => s.pickTextbook);
   const [selected, setSelected] = useState(
     stored && stored !== 'unknown' ? stored : hive.textbookId,

@@ -3,27 +3,25 @@ import { View } from 'react-native';
 import { Banner, Button, IconButton, Sheet, Text } from '@/components/ui';
 import { isFilled } from '@/features/learn/mastery';
 import { openTest } from '@/features/learn/navigation';
-import { unitResultOf, useUnitTest } from '@/features/learn/queries';
-import type { Hive, HiveUnit } from '@/features/learn/types';
+import { useUnitTest } from '@/features/learn/queries';
+import type { HiveUnit } from '@/features/learn/types';
 import { useLearnText } from '@/features/learn/useLearnText';
 import { LevelPill } from './LevelPill';
 import { QueenCell } from './QueenCell';
 import { SheetRow } from './SheetRow';
 
 type QueenSheetProps = {
-  hive: Hive;
   unit: HiveUnit;
-  unitIndex: number;
   online: boolean;
   onClose: () => void;
 };
 
 /** The unit test cell's sheet: start the unit test, or see the sealed frame's result. */
-export function QueenSheet({ hive, unit, unitIndex, online, onClose }: QueenSheetProps) {
+export function QueenSheet({ unit, online, onClose }: QueenSheetProps) {
   const { t, levelAria } = useLearnText();
-  const { test } = useUnitTest(hive, unitIndex);
+  const { test } = useUnitTest(unit.id);
   const level = unit.unitTest.level;
-  const result = isFilled(level) ? unitResultOf(unit.id) : undefined;
+  const result = isFilled(level) ? unit.unitTest.result : undefined;
   const title = t('learn.sheet.queenTitle', { title: unit.title });
 
   return (

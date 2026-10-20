@@ -1,41 +1,24 @@
+import type { TextbookSummary, TopicMaterial, TopicStep, UnitTest } from '@mytutor/types';
 import type { CellState } from '@/components/ui';
 
 /*
- * View types of the learn area (subjects, the hive box, topics, placement). They describe what
- * the screens need from the demo data; the real schemas come with the curriculum, progress and
- * placement APIs (architecture Ş3: /v1/curricula/:id, /v1/topics/:id, /v1/me/progress,
- * /v1/me/placement) and will live in packages/schemas.
+ * View types of the learn area (subjects, the hive box, topics, placement): the demo world's
+ * hive (`GET /v1/hive/:subjectId`) as the screens draw it, mapped in `hiveView.ts`. Shapes that
+ * are the world's own come from @mytutor/types.
  */
+
+export type { PlacementQuestion, TopicStep, UnitTest } from '@mytutor/types';
 
 /** A topic's mastery level: the ADR 0001 statuses plus `reinforced` (design: the five cells). */
 export type MasteryLevel = CellState;
 
 /** One of the four steps inside a topic: lesson, worked examples, practice, topic test. */
-export type StepKind = 'lesson' | 'examples' | 'practice' | 'test';
+export type StepKind = TopicStep['kind'];
 
-export type StepState = 'done' | 'current' | 'todo';
-
-export type TopicStep = {
-  kind: StepKind;
-  state: StepState;
-  /** Examples and practice: how many there are and how many are done. */
-  total?: number;
-  done?: number;
-  /** Estimated minutes for the whole step. */
-  minutes?: number;
-};
+export type StepState = TopicStep['state'];
 
 /** A teacher's own material attached to a topic for their class (shown with the name). */
-export type TeacherMaterial = {
-  id: string;
-  teacher: string;
-  /** The short form used in "Lalə müəllim". */
-  teacherShort: string;
-  className: string;
-  title: string;
-  duration: string;
-  addedDaysAgo: number;
-};
+export type TeacherMaterial = TopicMaterial;
 
 export type HiveTopic = {
   id: string;
@@ -51,12 +34,6 @@ export type HiveTopic = {
   material?: TeacherMaterial;
 };
 
-/** The unit test ("ana arı hüceyrəsi"): its level and, once taken, the result. */
-export type UnitTest = {
-  level: MasteryLevel;
-  result?: { correct: number; total: number; points: number; badge?: string };
-};
-
 export type HiveUnit = {
   id: string;
   number: string;
@@ -66,16 +43,7 @@ export type HiveUnit = {
 };
 
 /** A textbook edition a curriculum can follow; only ready ones have topics. */
-export type Textbook = {
-  id: string;
-  name: string;
-  /** Number of volumes ("2 hissə"); 1 for a whole-year book. */
-  parts: number;
-  ready: boolean;
-  /** Volume that is ready, for "1-ci hissə hazırdır". */
-  readyPart?: number;
-  topicCount?: number;
-};
+export type Textbook = TextbookSummary;
 
 /** One subject and grade: the hive box ("pətək qutusu") of its textbook. */
 export type Hive = {
@@ -88,10 +56,12 @@ export type Hive = {
   part: number;
   textbooks: Textbook[];
   units: HiveUnit[];
-  /** The topic the student continues with ("Sən buradasan"). */
-  currentTopicId: string;
+  /** The topic the student continues with ("Sən buradasan"); null before the first lesson. */
+  currentTopicId: string | null;
   /** Topics saved on the phone for offline use. */
   savedTopicIds: string[];
+  /** Whether the student has begun this hive (a filled cell or a lesson begun). */
+  started: boolean;
 };
 
 /** A subject tile on the learn tab: a hive box when ready, "Hazırlanır" otherwise. */
@@ -102,17 +72,6 @@ export type SubjectEntry = {
   monogram: string;
   grade: number;
   hiveId?: string;
-};
-
-/** A short placement question written for the demo (never textbook or test-book text). */
-export type PlacementQuestion = {
-  id: string;
-  unitId: string;
-  topicId: string;
-  prompt: string;
-  options: string[];
-  /** Index of the correct option. */
-  answer: number;
 };
 
 /** A placement answer; `null` is "Bilmirəm". */
