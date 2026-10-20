@@ -2,7 +2,6 @@ import {
   arcHead,
   cellWidth,
   controlThrough,
-  countAt,
   hexPerimeter,
   quadPoint,
   ringSpots,
@@ -46,13 +45,6 @@ describe('feedback motion math', () => {
     expect(top.y).toBeCloseTo(10);
     expect(right.x).toBeCloseTo(110);
     expect(right.y).toBeCloseTo(60);
-  });
-
-  it('counts up with an ease-out and lands on the target', () => {
-    expect(countAt(0, 80, 0)).toBe(0);
-    expect(countAt(0, 80, 0.5)).toBe(60);
-    expect(countAt(0, 80, 1)).toBe(80);
-    expect(countAt(15, 20, 2)).toBe(20);
   });
 
   it('fits progress cells to the width, never wider than the design', () => {

@@ -83,7 +83,6 @@ export const lessonDoneB = {
   tilesAt: 1200,
   tileStagger: 150,
   tileFrom: 0.8,
-  count: 900,
   ctaAt: 2000,
 } as const;
 

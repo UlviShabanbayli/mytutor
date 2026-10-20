@@ -1,4 +1,4 @@
-import { groupThousands, rollDuration, rollingSlots } from './rolling';
+import { digitsByKey, groupThousands, rollDuration, rollingSlots, splitAtNumber } from './rolling';
 
 describe('groupThousands', () => {
   it('groups with a no-break space', () => {
@@ -28,5 +28,28 @@ describe('rollDuration', () => {
     expect(rollDuration(3, 70, 700)).toBe(840);
     expect(rollDuration(1, 70, 700)).toBe(700);
     expect(rollDuration(0, 70, 700)).toBe(700);
+  });
+});
+
+describe('digitsByKey', () => {
+  it('gives the start digit of each column by its key from the right', () => {
+    expect(digitsByKey('15')).toEqual({ d1: 1, d0: 5 });
+    expect(digitsByKey('+9 dəq')).toEqual({ d4: 9 });
+  });
+});
+
+describe('splitAtNumber', () => {
+  it('splits a line around the number, wherever the language puts it', () => {
+    expect(splitAtNumber('12 hüceyrə doldu', 12)).toEqual({ before: '', after: ' hüceyrə doldu' });
+    expect(splitAtNumber('Заполнено 12 ячеек', 12)).toEqual({
+      before: 'Заполнено ',
+      after: ' ячеек',
+    });
+    expect(splitAtNumber('+15', 15)).toEqual({ before: '+', after: '' });
+  });
+
+  it('finds the number only as a whole', () => {
+    expect(splitAtNumber('120 / 12', 12)).toEqual({ before: '120 / ', after: '' });
+    expect(splitAtNumber('120 dəq', 12)).toBeNull();
   });
 });

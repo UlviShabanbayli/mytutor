@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { playCue } from '@/lib/cues';
 import { cn } from '@/lib/cn';
-import { groupThousands, rollDuration, rollingSlots } from '@/lib/rolling';
+import { digitsByKey, groupThousands, rollDuration, rollingSlots } from '@/lib/rolling';
 import { useReducedMotionPref } from '@/motion';
 import { RollingDigit } from './RollingDigit';
 import { Text } from './Text';
@@ -22,6 +22,12 @@ type RollingNumberProps = {
   className?: string;
   /** Roll up from zero when first shown (default), or appear still. */
   rollIn?: boolean;
+  /** The first roll starts from this value instead of zero (e.g. the minutes before a lesson). */
+  from?: number;
+  /** Waits this long before each roll, in ms (e.g. until the tile around it has popped in). */
+  delay?: number;
+  /** The selection tick when a change settles; off where the moment plays its own cue. */
+  cue?: boolean;
   /**
    * Spoken instead of the number. Set `accessible={false}` when a parent already reads the
    * value; the rolling strips themselves are always hidden from screen readers.
@@ -41,29 +47,36 @@ export function RollingNumber({
   suffix = '',
   className,
   rollIn = true,
+  from,
+  delay = 0,
+  cue = true,
   accessibilityLabel,
   accessible = true,
 }: RollingNumberProps) {
   const reduced = useReducedMotionPref();
-  const text = `${prefix}${group ? groupThousands(value) : String(Math.round(value))}${suffix}`;
+  const format = (n: number) =>
+    `${prefix}${group ? groupThousands(n) : String(Math.round(n))}${suffix}`;
+  const text = format(value);
   const slots = rollingSlots(text);
   const digits = slots.filter((s) => s.digit !== null).length;
   const [lineHeight, setLineHeight] = useState(0);
   // Columns of the first value may appear still (`rollIn={false}`); later ones always roll.
   const [start] = useState(value);
+  // Where each column of the first value starts: zero, or the digit `from` has there.
+  const [startDigits] = useState(() => (from === undefined ? {} : digitsByKey(format(from))));
   const shown = useRef<number | null>(null);
 
   // A change after the first value ends with a tick once the last digit has settled.
   useEffect(() => {
     const before = shown.current;
     shown.current = value;
-    if (before === null || before === value) return;
+    if (!cue || before === null || before === value) return;
     const timer = setTimeout(
       () => playCue('select'),
-      reduced ? 0 : rollDuration(digits, STAGGER, SETTLE),
+      reduced ? 0 : delay + rollDuration(digits, STAGGER, SETTLE),
     );
     return () => clearTimeout(timer);
-  }, [value, digits, reduced]);
+  }, [value, digits, reduced, cue, delay]);
 
   const first = value === start;
   return (
@@ -86,7 +99,7 @@ export function RollingNumber({
           0
         </Text>
         {lineHeight === 0 ? (
-          <Text className={className}>{text}</Text>
+          <Text className={className}>{first && from !== undefined ? format(from) : text}</Text>
         ) : (
           slots.map((slot) =>
             slot.digit === null ? (
@@ -97,9 +110,9 @@ export function RollingNumber({
               <RollingDigit
                 key={slot.key}
                 digit={slot.digit}
-                initial={first && !rollIn ? slot.digit : 0}
+                initial={!first ? 0 : rollIn ? (startDigits[slot.key] ?? 0) : slot.digit}
                 lineHeight={lineHeight}
-                delay={slot.order * STAGGER}
+                delay={delay + slot.order * STAGGER}
                 reduced={reduced}
                 className={className}
               />

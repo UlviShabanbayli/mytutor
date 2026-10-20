@@ -3,11 +3,10 @@ import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { DrawnMark } from '@/components/feedback/DrawnMark';
 import { goalC } from '@/components/feedback/timelines';
-import { useCountUp } from '@/components/feedback/useCountUp';
-import { Text } from '@/components/ui';
+import { RollingNumber, Text } from '@/components/ui';
 import type { GoalProgress } from '@/features/today/goal';
 import { cn } from '@/lib/cn';
-import { duration, useReducedMotionPref } from '@/motion';
+import { useReducedMotionPref } from '@/motion';
 import { GoalArc } from './GoalArc';
 import { goalCheckAt, useGoalRingMotion } from './useGoalRingMotion';
 
@@ -40,12 +39,6 @@ export function GoalRing({
   const disc = 2 * (radius - stroke / 2 - size * 0.04);
   const playing = celebrateFrom !== null && !reduced;
   const m = useGoalRingMotion(progress.fraction, progress.complete, celebrateFrom, reduced);
-  const minutes = useCountUp(progress.done, {
-    from: Math.round((celebrateFrom ?? 0) * progress.goal),
-    duration: duration.celebrate,
-    delay: goalC.startAt,
-    reduced: !playing,
-  });
   const percent = Math.round(progress.fraction * 100);
 
   const honeyStyle = useAnimatedStyle(() => ({
@@ -78,14 +71,18 @@ export function GoalRing({
       ) : null}
       <Animated.View style={midStyle}>
         <View className="items-center">
-          <Text
+          {/* The minutes roll up from where the ring starts (micro.count); the ring reads them. */}
+          <RollingNumber
+            value={progress.done}
+            from={playing ? Math.round((celebrateFrom ?? 0) * progress.goal) : undefined}
+            rollIn={playing}
+            delay={playing ? goalC.startAt : 0}
+            accessible={false}
             className={cn(
               'font-display-black text-lg leading-[20px]',
               honeyTone && 'text-on-honey',
             )}
-          >
-            {minutes}
-          </Text>
+          />
           <Text
             className={cn(
               'font-sans-bold text-2xs leading-[13px]',

@@ -45,17 +45,6 @@ export function arcHead(fraction: number, centre: Point, radius: number): Point 
   return { x: centre.x + radius * Math.sin(a), y: centre.y - radius * Math.cos(a) };
 }
 
-/** GSAP's power2.out, used by the lab's count-ups. */
-export function easeOutQuad(t: number): number {
-  const c = Math.min(1, Math.max(0, t));
-  return 1 - (1 - c) * (1 - c);
-}
-
-/** The whole number a count-up shows at progress t (0–1). */
-export function countAt(from: number, to: number, t: number): number {
-  return Math.round(from + (to - from) * easeOutQuad(t));
-}
-
 /**
  * Width of each progress cell so `count` cells and their gaps fit `width`, never above `max`
  * (feedback.progress C draws 10 cells of up to 20pt).
