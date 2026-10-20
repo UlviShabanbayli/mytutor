@@ -9,8 +9,8 @@ import type {
   WeekReport,
 } from '@mytutor/types';
 import type { Clock } from '../clock';
-import { demoSource, readyTopic } from '../curriculum';
-import { LALE, NERMIN, R7, r7 } from '../ids';
+import { demoSource, readyTopic, shortTitle } from '../curriculum';
+import { LALE, NERMIN, R7, r7, testIdOf } from '../ids';
 import { CURRENT_TOPIC, levelOf, topicsAt } from '../mastery';
 import { personById } from '../people';
 import { reviewTest } from '../tests';
@@ -116,6 +116,8 @@ export function testScores(clock: Clock): Record<string, TestScore[]> {
         id: 'ts-4-2',
         kind: 'practice',
         ref: '4.2',
+        testId: testIdOf(r7('4.2')),
+        title: shortTitle(r7('4.2')),
         takenAt: clock.at(-1, 17, 0),
         questions: 3,
         correct: 2,
@@ -124,6 +126,8 @@ export function testScores(clock: Clock): Record<string, TestScore[]> {
         id: 'ts-u3',
         kind: 'unit',
         ref: '3',
+        testId: null,
+        title: '3-cü çərçivə üzrə bölmə sınağı',
         takenAt: clock.at(-2, 11, 40),
         questions: 20,
         correct: 17,
@@ -132,6 +136,8 @@ export function testScores(clock: Clock): Record<string, TestScore[]> {
         id: 'ts-4-1',
         kind: 'practice',
         ref: '4.1',
+        testId: testIdOf(r7('4.1')),
+        title: shortTitle(r7('4.1')),
         takenAt: clock.at(-3, 18, 0),
         questions: 3,
         correct: 3,
@@ -144,6 +150,49 @@ const ref = (number: string) => {
   const t = readyTopic(r7(number));
   return { topicId: t.id, number: t.number, title: t.shortTitle };
 };
+
+/** Minutes, answered and right answers per day, oldest first; totals and active days follow. */
+type DayNumbers = [minutes: number, answered: number, correct: number][];
+
+/** The last seven days: today is 12 minutes and 11 of 12 right (92%), as Today says. */
+const THIS_WEEK: DayNumbers = [
+  [25, 12, 10],
+  [20, 10, 8],
+  [0, 0, 0],
+  [18, 9, 7],
+  [22, 11, 9],
+  [33, 10, 7],
+  [12, 12, 11],
+];
+const LAST_WEEK: DayNumbers = [
+  [0, 0, 0],
+  [15, 8, 6],
+  [18, 9, 7],
+  [12, 7, 5],
+  [20, 9, 7],
+  [22, 9, 7],
+  [18, 8, 6],
+];
+
+/** A week's numbers from its days, starting `fromDay` days from today. */
+function weekOf(clock: Clock, fromDay: number, numbers: DayNumbers) {
+  const days = numbers.map(([minutes, answered, correct], i) => ({
+    date: clock.at(fromDay + i),
+    minutes,
+    answered,
+    correct,
+  }));
+  return {
+    weekStart: clock.at(fromDay),
+    days,
+    activeDays: days.map((d) => d.minutes > 0),
+    minutes: days.reduce((n, d) => n + d.minutes, 0),
+    answers: {
+      correct: days.reduce((n, d) => n + d.correct, 0),
+      total: days.reduce((n, d) => n + d.answered, 0),
+    },
+  };
+}
 
 /** Work due inside [from, to) and handed in on time. */
 function onTime(list: Assignment[], subs: Submission[], from: string, to: string) {
@@ -168,11 +217,8 @@ export function weekReports(
   return {
     [NERMIN]: [
       {
-        weekStart: thisWeek,
-        minutes: 130,
-        previousMinutes: 105,
-        activeDays: [true, true, false, true, true, true, true],
-        answers: { correct: 52, total: 64 },
+        ...weekOf(clock, -6, THIS_WEEK),
+        previousMinutes: weekOf(clock, -13, LAST_WEEK).minutes,
         newTopics: ['3.4', '3.5', '4.1', '4.2'].map(ref),
         completedUnit: '3',
         weakSpots: topicsAt(map, 'needs_practice').map((t) => ref(t.number)),
@@ -185,12 +231,9 @@ export function weekReports(
         },
       },
       {
-        weekStart: lastWeek,
-        minutes: 105,
-        previousMinutes: null,
         // The streak (12 days up to yesterday) starts on this week's second day.
-        activeDays: [false, true, true, true, true, true, true],
-        answers: { correct: 38, total: 50 },
+        ...weekOf(clock, -13, LAST_WEEK),
+        previousMinutes: null,
         newTopics: ['3.2', '3.3'].map(ref),
         completedUnit: null,
         weakSpots: [ref('2.2')],

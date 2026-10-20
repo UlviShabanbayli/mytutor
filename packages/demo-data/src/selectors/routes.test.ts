@@ -22,6 +22,7 @@ import {
   linkCodeSchema,
   liveLessonSchema,
   materialSchema,
+  meProgressSchema,
   meResponseSchema,
   mistakeGroupSchema,
   mockExamSchema,
@@ -60,6 +61,7 @@ const GOAL = 'goal=graduation_9';
 /** Every route with a request that finds something in Nərmin's world, and its schema. */
 const CASES: [path: string, schema: z.ZodType][] = [
   ['/v1/me', meResponseSchema],
+  ['/v1/me/progress', meProgressSchema],
   ['/v1/me/parent-code', linkCodeSchema],
   ['/v1/today', todayResponseSchema],
   ['/v1/curriculum', curriculumResponseSchema],

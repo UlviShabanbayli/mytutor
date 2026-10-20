@@ -6,7 +6,7 @@ import { selectAskUsage } from './ask';
 import { selectClasses } from './classes';
 import { selectExam } from './exam';
 import { selectHive } from './learn';
-import { selectLeague, selectMe } from './me';
+import { selectLeague, selectMe, selectMyProgress } from './me';
 import { selectNotifications } from './messages';
 import { selectParentHome, selectChildProgress } from './parent';
 import { selectReview } from './study';
@@ -61,6 +61,24 @@ describe.each(nermins.map((w) => [w.now, w] as const))('Nərmin’s world at %s'
     expect(selectToday(w).motivation.freezesThisWeek).toBe(frozen);
     const n = notice(w, 'streak');
     expect(n?.kind === 'streak' && n.days).toBe(w.student.streak);
+  });
+
+  it('adds each week up from its days, today as Today says', () => {
+    for (const week of w.weekReports[w.student.personId] ?? []) {
+      expect(week.minutes).toBe(week.days.reduce((n, d) => n + d.minutes, 0));
+      expect(week.answers).toEqual({
+        correct: week.days.reduce((n, d) => n + d.correct, 0),
+        total: week.days.reduce((n, d) => n + d.answered, 0),
+      });
+      expect(week.activeDays).toEqual(week.days.map((d) => d.minutes > 0));
+      expect(week.days[0]?.date).toBe(week.weekStart);
+    }
+    const today = w.weekReports[w.student.personId]?.[0]?.days[6];
+    expect(today?.minutes).toBe(w.activity.minutesToday);
+    expect(Math.round(((today?.correct ?? 0) / (today?.answered ?? 1)) * 100)).toBe(
+      w.activity.todayAccuracy,
+    );
+    expect(selectMyProgress(w).week).toEqual(w.weekReports[w.student.personId]?.[0]);
   });
 
   it('reports the same week everywhere', () => {

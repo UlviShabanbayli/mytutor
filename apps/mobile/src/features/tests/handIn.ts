@@ -1,6 +1,6 @@
 import { useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { meResponseSchema, studentAssignmentSchema } from '@mytutor/schemas';
-import type { DemoPersona, StudentAssignment } from '@mytutor/types';
+import type { DemoPersona, StudentAssignment, StudyTest, TestResult } from '@mytutor/types';
 import { apiGet } from '@/lib/api';
 import { useDemoWrite } from '@/lib/demoEvents';
 import { useDemoPersona } from '@/lib/demoPersona';
@@ -60,6 +60,43 @@ export function useHandInTest(): (testId: string) => void {
         if (found) write({ type: 'assignment.submitted', ...found });
       })
       // Without the API and the world nothing can be handed in; the result stays on the device.
+      .catch(() => undefined);
+  };
+}
+
+/** What kind of result a finished test is, for the student's and the parent's lists. */
+export function resultKind(study: StudyTest): 'practice' | 'unit' | 'review' {
+  if (study.kind === 'unit' || study.kind === 'review') return study.kind;
+  return 'practice';
+}
+
+/**
+ * Records a finished test as the demo event `test.finished`: İrəliləyiş's week chart and recent
+ * results, and the parent's report, count it. Without the API and the world nothing is written.
+ */
+export function useRecordFinishedTest(): (study: StudyTest, result: TestResult) => void {
+  const client = useQueryClient();
+  const persona = useDemoPersona();
+  const write = useDemoWrite();
+  return (study, result) => {
+    void client
+      .fetchQuery({
+        queryKey: handInKeys.me(persona),
+        queryFn: () => apiGet('/v1/me', { persona, parse: meResponseSchema.parse }),
+      })
+      .then((me) =>
+        write({
+          type: 'test.finished',
+          studentId: me.profile.personId,
+          testId: study.test.id,
+          title: study.test.title,
+          kind: resultKind(study),
+          ref: study.topicCode ?? study.test.title,
+          answered: Object.keys(result.answers).length,
+          correct: result.correct,
+          total: result.total,
+        }),
+      )
       .catch(() => undefined);
   };
 }

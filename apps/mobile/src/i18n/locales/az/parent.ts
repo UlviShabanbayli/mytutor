@@ -218,6 +218,7 @@ export const parent = {
     tests: 'Son test nəticələri',
     practiceTest: '{{ref}} · Məşq testi',
     unitTest: 'Bölmə sınağı · Çərçivə {{ref}}',
+    reviewTest: 'Təkrar · {{ref}}',
     testMeta: '{{date}} · {{questions}}',
     noTests: 'Hələ test həll olunmayıb.',
     examLockedTitle: '{{name}} imtahan planını paylaşmayıb',

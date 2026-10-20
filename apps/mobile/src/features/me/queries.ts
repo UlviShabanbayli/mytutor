@@ -9,6 +9,7 @@ import {
   leagueTableSchema,
   linkCodeSchema,
   liveLessonSchema,
+  meProgressSchema,
   meResponseSchema,
   studentAssignmentSchema,
 } from '@mytutor/schemas';
@@ -46,6 +47,7 @@ import { useMeStore } from './store';
 export const meKeys = {
   me: (persona: DemoPersona) => ['me', persona] as const,
   parentCode: (persona: DemoPersona) => ['me', persona, 'parent-code'] as const,
+  progress: (persona: DemoPersona) => ['me', persona, 'progress'] as const,
   league: (persona: DemoPersona, scope: LeagueScope) => ['me', persona, 'league', scope] as const,
   classes: (persona: DemoPersona) => ['classes', persona] as const,
   class: (persona: DemoPersona, id: string) => ['classes', persona, id] as const,
@@ -92,6 +94,7 @@ export function useNickname(): string {
 const guestOf = (me: MeResponse) => ({
   points: me.profile.points.total,
   honeyCells: me.honeyCells,
+  streak: me.profile.streak,
 });
 
 export function useGuestOverview() {
@@ -318,4 +321,13 @@ export function useIsOnline(): boolean {
     (onChange) => onlineManager.subscribe(onChange),
     () => onlineManager.isOnline(),
   );
+}
+
+/** The student's last seven days and recent results (GET /v1/me/progress). */
+export function useMyProgress() {
+  const persona = useDemoPersona();
+  return useQuery({
+    queryKey: meKeys.progress(persona),
+    queryFn: () => apiGet('/v1/me/progress', { persona, parse: meProgressSchema.parse }),
+  });
 }

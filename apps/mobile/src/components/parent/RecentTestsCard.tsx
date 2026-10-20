@@ -28,13 +28,15 @@ export function RecentTestsCard({ tests }: RecentTestsCardProps) {
             const title =
               test.kind === 'practice'
                 ? t('parent.subject.practiceTest', { ref: test.ref })
-                : t('parent.subject.unitTest', { ref: test.ref });
+                : test.kind === 'review'
+                  ? t('parent.subject.reviewTest', { ref: test.ref })
+                  : t('parent.subject.unitTest', { ref: test.ref });
             const meta = t('parent.subject.testMeta', {
               date: formatDayMonth(t, new Date(test.takenAt), true),
               questions: t('common.questionsCount', { count: test.questions }),
             });
             const score =
-              test.kind === 'practice'
+              test.kind !== 'unit'
                 ? `${test.correct} / ${test.questions}`
                 : t('parent.percent', { value: Math.round((test.correct / test.questions) * 100) });
             return (

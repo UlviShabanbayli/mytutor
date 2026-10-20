@@ -1,14 +1,24 @@
-import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
-import type { TestResult } from '@mytutor/types';
 import { Icon, Text, useRaisedPress } from '@/components/ui';
 import { percent, scoreTier } from '@/features/tests/scoring';
 import { formatDateTime } from '@/i18n/formatDateTime';
 import { cn } from '@/lib/cn';
 
-type ResultHistoryRowProps = { result: TestResult };
+/** A finished test as the history lists it. */
+export type HistoryEntry = {
+  title: string;
+  correct: number;
+  total: number;
+  finishedAt: string;
+};
+
+type ResultHistoryRowProps = {
+  result: HistoryEntry;
+  /** Opens the result (or the test); without it the row only shows the score. */
+  onPress?: () => void;
+};
 
 // Score tiles by tier (design "Son nəticələr"): excellent green, good honey, practice blue.
 const tierClasses = {
@@ -17,8 +27,8 @@ const tierClasses = {
   practice: { box: 'bg-info-bg', text: 'text-info' },
 } as const;
 
-/** A finished test: score tile, title, questions and date; opens the test's result. */
-export function ResultHistoryRow({ result }: ResultHistoryRowProps) {
+/** A finished test: score tile, title, questions and date; opens its result or the test. */
+export function ResultHistoryRow({ result, onPress }: ResultHistoryRowProps) {
   const press = useRaisedPress({ depth: 2 });
   const { t } = useTranslation();
   const score = percent(result.correct, result.total);
@@ -31,7 +41,8 @@ export function ResultHistoryRow({ result }: ResultHistoryRowProps) {
       onPressOut={press.pressOut}
       accessibilityRole="button"
       accessibilityLabel={t('me.progress.historyLabel', { title: result.title, score, date })}
-      onPress={() => router.push({ pathname: '/test/[id]/result', params: { id: result.testId } })}
+      disabled={!onPress}
+      onPress={onPress}
       className="rounded-md bg-border pb-0.5"
     >
       <Animated.View style={press.faceStyle}>

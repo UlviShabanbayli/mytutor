@@ -10,7 +10,7 @@ import { armHandoff } from '@/features/transitions/handoffStore';
 import { isAnswered, stepVerdict } from '@/features/study/steps';
 import { useStudyStore } from '@/features/study/studyStore';
 import type { StudyTest } from '@/features/study/types';
-import { useHandInTest } from '@/features/tests/handIn';
+import { useHandInTest, useRecordFinishedTest } from '@/features/tests/handIn';
 import { useTestSessionStore } from '@/features/tests/sessionStore';
 import { TestMathContext } from '@/features/tests/testMath';
 import { playCue } from '@/lib/cues';
@@ -40,6 +40,7 @@ export function TestSession({ study, kind }: TestSessionProps) {
   const { session, start, restart, select, check, next, finish } = useTestSessionStore();
   const startTest = useStudyStore((s) => s.startTest);
   const handIn = useHandInTest();
+  const record = useRecordFinishedTest();
   const [exiting, setExiting] = useState(false);
   const layer = useRef<View>(null);
   const pill = useRef<View>(null);
@@ -72,8 +73,10 @@ export function TestSession({ study, kind }: TestSessionProps) {
   };
   const onContinue = () => {
     if (!isLast) return next();
-    finish(test);
-    // An assigned test ("4.2 testi") is handed in: the teacher, the parent and Today see it.
+    const result = finish(test);
+    // The result joins the world (İrəliləyiş, the parent's report)...
+    record(study, result);
+    // ...and an assigned test ("4.2 testi") is handed in: the teacher, the parent and Today see it.
     handIn(test.id);
     armHandoff();
     router.replace({ pathname: '/test/[id]/result', params: { id: test.id } });

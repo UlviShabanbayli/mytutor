@@ -3,6 +3,7 @@ import type {
   LeagueScope,
   LinkCode,
   LeagueTable,
+  MeProgress,
   MeResponse,
   PlanFeature,
   TextbookProgress,
@@ -102,6 +103,17 @@ export function selectMyParentCode(world: DemoWorld): LinkCode | null {
 
 /** Days until the league week closes on Sunday night. */
 const daysLeft = (world: DemoWorld) => 6 - makeClock(new Date(world.now)).weekday;
+
+/** GET /v1/me/progress: the student's last seven days and recent results, newest first. */
+export function selectMyProgress(world: DemoWorld): MeProgress {
+  const me = world.student.personId;
+  return {
+    week: world.weekReports[me]?.[0] ?? null,
+    recentTests: [...(world.testScores[me] ?? [])].sort((a, b) =>
+      b.takenAt.localeCompare(a.takenAt),
+    ),
+  };
+}
 
 export function selectLeague(world: DemoWorld, scope: LeagueScope): LeagueTable {
   const { student } = world;

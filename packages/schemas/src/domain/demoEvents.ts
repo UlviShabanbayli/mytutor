@@ -107,6 +107,20 @@ export const demoEventSchema = z.discriminatedUnion('type', [
   z.object({ ...base, type: z.literal('notification.read'), notificationId: id }),
   /** Student: chooses what to study for (the exam area follows it). */
   z.object({ ...base, type: z.literal('exam.goalSet'), goal: studyGoalSchema }),
+  /** Student: finished a test (its result joins today's numbers and the recent results). */
+  z.object({
+    ...base,
+    type: z.literal('test.finished'),
+    studentId: id,
+    testId: id,
+    title: z.string().min(1),
+    kind: z.enum(['practice', 'unit', 'review']),
+    /** Topic or unit number, or the review's topics. */
+    ref: z.string().min(1),
+    answered: z.number().int().nonnegative(),
+    correct: z.number().int().nonnegative(),
+    total: z.number().int().positive(),
+  }),
 ]);
 
 export const DEMO_EVENT_TYPES = demoEventSchema.options.map((o) => o.shape.type.value);

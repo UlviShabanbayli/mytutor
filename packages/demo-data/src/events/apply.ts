@@ -18,6 +18,7 @@ import {
   materialSaved,
   memberMuted,
 } from './classes';
+import { testFinished } from './progress';
 import { messageSent, threadRead } from './talk';
 import { assignmentCreated, assignmentGraded, assignmentSubmitted } from './work';
 
@@ -95,6 +96,9 @@ export function applyDemoEvents(world: DemoWorld, events: readonly DemoEvent[]):
         break;
       case 'notification.read':
         notificationRead(w, e);
+        break;
+      case 'test.finished':
+        testFinished(w, e);
         break;
       case 'exam.goalSet':
         goal = e.goal;

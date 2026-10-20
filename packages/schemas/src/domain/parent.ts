@@ -21,6 +21,15 @@ export const topicRefSchema = z.object({
   title: z.string().min(1),
 });
 
+/** One day of a week: minutes studied and questions answered (right ones among them). */
+export const weekDaySchema = z.object({
+  /** 00:00 of the day (Baku). */
+  date: dateTimeSchema,
+  minutes: z.number().int().nonnegative(),
+  answered: z.number().int().nonnegative(),
+  correct: z.number().int().nonnegative(),
+});
+
 /** Seven days of one child; the latest report covers the last seven days, ending today. */
 export const weekReportSchema = z.object({
   /** 00:00 of the report's first day. */
@@ -29,6 +38,8 @@ export const weekReportSchema = z.object({
   previousMinutes: z.number().int().nonnegative().nullable(),
   /** The seven days in order, oldest first. */
   activeDays: z.array(z.boolean()).length(7),
+  /** The same seven days in numbers: the minutes, active days and answers above add up from them. */
+  days: z.array(weekDaySchema).length(7),
   answers: z.object({
     correct: z.number().int().nonnegative(),
     total: z.number().int().nonnegative(),
@@ -93,12 +104,21 @@ export const unitProgressSchema = z.object({
 
 export const testScoreSchema = z.object({
   id: z.string().min(1),
-  kind: z.enum(['practice', 'unit']),
-  /** Topic number for a practice test, unit number for a unit test. */
+  kind: z.enum(['practice', 'unit', 'review']),
+  /** Topic number for a practice test, unit number for a unit test, topics for a review. */
   ref: z.string().min(1),
+  /** The test, when the app has it ("test-riyaziyyat-7-4-2"). */
+  testId: z.string().min(1).nullable(),
+  title: z.string().min(1),
   takenAt: dateTimeSchema,
   questions: z.number().int().positive(),
   correct: z.number().int().nonnegative(),
+});
+
+/** GET /v1/me/progress: the student's last seven days and recent test results. */
+export const meProgressSchema = z.object({
+  week: weekReportSchema.nullable(),
+  recentTests: z.array(testScoreSchema),
 });
 
 export const subjectProgressSchema = z.object({

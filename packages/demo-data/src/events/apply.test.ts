@@ -85,6 +85,7 @@ describe('applyDemoEvents', () => {
       'material.saved',
       'thread.read',
       'ask.cancelled',
+      'test.finished',
     ]);
     expect(DEMO_EVENT_TYPES.filter((t) => !tested.has(t))).toEqual([]);
   });

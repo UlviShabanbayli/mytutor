@@ -60,7 +60,7 @@ export type MeOverview = {
   plan: StudentPlan;
 };
 
-export type GuestOverview = { points: number; honeyCells: number };
+export type GuestOverview = { points: number; honeyCells: number; streak: number };
 
 export type TextbookProgress = {
   id: string;

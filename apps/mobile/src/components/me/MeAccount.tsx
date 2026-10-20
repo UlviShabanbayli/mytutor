@@ -5,9 +5,6 @@ import { ErrorState, LoadingState, Screen } from '@/components/ui';
 import { useMeOverview, useNickname, useParents, useTextbookProgress } from '@/features/me/queries';
 import { rankProgress } from '@/features/me/rank';
 import { useMeStore } from '@/features/me/store';
-import { streakDays } from '@/features/tests/progress';
-import { useTestSessionStore } from '@/features/tests/sessionStore';
-import { useDemoPersona } from '@/lib/demoPersona';
 import { BadgeStrip } from './BadgeStrip';
 import { MeHeader } from './MeHeader';
 import { MeMenu } from './MeMenu';
@@ -19,8 +16,6 @@ export function MeAccount() {
   const overview = useMeOverview();
   const textbooks = useTextbookProgress();
   const parent = useParents().data?.links[0] ?? null;
-  const results = useTestSessionStore((s) => s.results);
-  const persona = useDemoPersona();
   const nickname = useNickname();
   const leagueJoined = useMeStore((s) => s.leagueJoined);
 
@@ -41,8 +36,6 @@ export function MeAccount() {
 
   const me = overview.data;
   const grade = t('common.grade', { count: me.grade, ordinal: true });
-  // The first-day student's streak is what this phone did; Nərmin's is the world's.
-  const streak = persona === 'fresh' ? streakDays(results) : me.streak;
 
   return (
     <Screen className="gap-2.5">
@@ -53,7 +46,7 @@ export function MeAccount() {
       />
       <RankCard points={me.points} progress={rankProgress(me.rank, me.points, me.nextRank)} />
       <View accessibilityLabel={t('me.home.statsLabel')} className="flex-row gap-2">
-        <StatTile icon="wing" value={streak} label={t('me.home.streak')} />
+        <StatTile icon="wing" value={me.streak} label={t('me.home.streak')} />
         <StatTile icon="drop" value={me.weekPoints} label={t('me.home.weekPoints')} />
         <StatTile icon="learn" value={me.honeyCells} label={t('me.home.honeyCells')} />
       </View>

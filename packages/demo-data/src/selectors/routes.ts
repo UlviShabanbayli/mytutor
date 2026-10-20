@@ -13,7 +13,7 @@ import {
 import { roleOf, type DemoRequest } from './common';
 import { goalFromQuery, selectLeaderboard, selectMock, selectNextMock } from './exam';
 import { selectCurriculum, selectHive, selectPlacement } from './learn';
-import { selectLeague, selectMe, selectMyParentCode } from './me';
+import { selectLeague, selectMe, selectMyParentCode, selectMyProgress } from './me';
 import { selectNotifications, selectThread, selectThreads } from './messages';
 import {
   selectChildAssignments,
@@ -57,6 +57,7 @@ const p = (req: DemoRequest, name: string) => req.params[name] ?? '';
 export const DEMO_ROUTES: DemoRoute[] = [
   { path: '/v1/me', select: (w) => selectMe(w) },
   { path: '/v1/me/parent-code', select: (w) => selectMyParentCode(w) },
+  { path: '/v1/me/progress', select: (w) => selectMyProgress(w) },
   { path: '/v1/today', select: (w) => selectToday(w) },
   { path: '/v1/curriculum', select: (w) => selectCurriculum(w) },
   { path: '/v1/hive', select: (w) => selectHive(w) },

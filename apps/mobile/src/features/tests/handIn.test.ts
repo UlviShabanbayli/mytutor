@@ -1,6 +1,6 @@
 import { answerDemo } from '@mytutor/demo-data';
 import { studentAssignmentSchema } from '@mytutor/schemas';
-import { openAssignmentFor } from './handIn';
+import { openAssignmentFor, resultKind } from './handIn';
 
 const NOW = new Date('2026-10-20T06:00:00.000Z');
 
@@ -41,5 +41,15 @@ describe('openAssignmentFor', () => {
       },
     };
     expect(openAssignmentFor([handedIn], 'test-riyaziyyat-7-4-2')).toBeNull();
+  });
+});
+
+describe('resultKind', () => {
+  const study = (kind: 'topic' | 'unit' | 'review' | 'mistakes' | 'demo') =>
+    ({ kind }) as Parameters<typeof resultKind>[0];
+  it('keeps unit and review results apart from practice', () => {
+    expect(
+      ['topic', 'unit', 'review', 'mistakes', 'demo'].map((k) => resultKind(study(k as 'topic'))),
+    ).toEqual(['practice', 'unit', 'review', 'practice', 'practice']);
   });
 });

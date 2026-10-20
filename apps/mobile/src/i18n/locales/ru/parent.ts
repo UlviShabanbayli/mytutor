@@ -238,6 +238,7 @@ export const parent = {
     tests: 'Последние тесты',
     practiceTest: '{{ref}} · Тренировочный тест',
     unitTest: 'Проверка раздела · Рамка {{ref}}',
+    reviewTest: 'Повторение · {{ref}}',
     testMeta: '{{date}} · {{questions}}',
     noTests: 'Тестов пока не было.',
     examLockedTitle: '{{name}}: план экзамена не открыт',

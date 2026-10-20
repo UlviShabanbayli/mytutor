@@ -73,6 +73,7 @@ import type {
   masteryMapSchema,
   matchStepSchema,
   materialSchema,
+  meProgressSchema,
   meResponseSchema,
   mistakeGroupSchema,
   mistakeItemSchema,
@@ -143,6 +144,7 @@ import type {
   weakSpotSchema,
   weakSpotsReportSchema,
   weekOverviewSchema,
+  weekDaySchema,
   weekReportSchema,
   workedExampleSchema,
   workedStepSchema,
@@ -281,7 +283,9 @@ export type Deadline = z.output<typeof deadlineSchema>;
 export type ExamState = z.output<typeof examStateSchema>;
 
 export type TopicRef = z.output<typeof topicRefSchema>;
+export type WeekDay = z.output<typeof weekDaySchema>;
 export type WeekReport = z.output<typeof weekReportSchema>;
+export type MeProgress = z.output<typeof meProgressSchema>;
 export type ReportPage = z.output<typeof reportPageSchema>;
 export type WeekOverview = z.output<typeof weekOverviewSchema>;
 export type ChildOverview = z.output<typeof childOverviewSchema>;
