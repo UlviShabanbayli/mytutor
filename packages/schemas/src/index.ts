@@ -16,3 +16,4 @@ export * from './testQuestion';
 export * from './content';
 export * from './lesson';
 export * from './inlineMath';
+export * from './domain';
