@@ -5,7 +5,7 @@ import { leaderboard } from '../exam/mocks';
 import type { DemoQuery } from './common';
 
 /**
- * GET /v1/exam[/plan|/weak-spots|/mocks|/deadlines], /v1/exam/mocks/:id,
+ * GET /v1/exam[/plan|/weak-spots|/mocks|/deadlines|/next-mock], /v1/exam/mocks/:id,
  * /v1/exam/leaderboard/:scope. The server keeps no state: the app sends the goal it chose
  * (`?goal=graduation_9`, `&group=I`, `&date=YYYY-MM-DD`); without one the student's own goal
  * (the school programme) applies.
@@ -28,6 +28,11 @@ export const selectExam = (world: DemoWorld, goal: StudyGoal): ExamState =>
 
 export function selectMock(world: DemoWorld, id: string): MockExam | null {
   return world.mocks.find((m) => m.id === id) ?? null;
+}
+
+/** The next scheduled general mock (the exam tab's card, the plan's note, registration). */
+export function selectNextMock(world: DemoWorld): MockExam | null {
+  return world.mocks.find((m) => m.kind === 'scheduled') ?? null;
 }
 
 /** Where the student's latest mock stands; null before the first one. */

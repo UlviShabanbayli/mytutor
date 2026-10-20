@@ -1,6 +1,7 @@
 import type {
   DemoWorld,
   LeagueScope,
+  LinkCode,
   LeagueTable,
   MeResponse,
   PlanFeature,
@@ -12,7 +13,7 @@ import { selectClasses } from './classes';
 import { personOf, studentMap } from './common';
 import { RANKS } from '../world/profiles';
 
-/** GET /v1/me and /v1/league. */
+/** GET /v1/me, /v1/me/parent-code and /v1/league. */
 
 const PLAN_FEATURES: PlanFeature[] = [
   { id: 'lessons', free: 'yes', premium: 'yes' },
@@ -88,6 +89,15 @@ export function selectMe(world: DemoWorld): MeResponse | null {
     classComparison: others > 0 ? Math.round((behind.length / others) * 100) : null,
     planFeatures: PLAN_FEATURES,
   };
+}
+
+/** The code the student gives a parent (Mən → Valideyn); null when none is valid now. */
+export function selectMyParentCode(world: DemoWorld): LinkCode | null {
+  return (
+    world.codes.find(
+      (c) => c.kind === 'parent' && c.childId === world.student.personId && c.expiresAt > world.now,
+    ) ?? null
+  );
 }
 
 /** Days until the league week closes on Sunday night. */
