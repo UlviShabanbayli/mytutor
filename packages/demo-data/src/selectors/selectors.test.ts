@@ -6,12 +6,7 @@ import { selectClasses } from './classes';
 import { goalFromQuery, selectExam, selectLeaderboard } from './exam';
 import { selectHive } from './learn';
 import { selectLeague, selectMe } from './me';
-import {
-  selectChildReport,
-  selectParentCode,
-  selectParentHome,
-  selectParentNotes,
-} from './parent';
+import { selectChildReport, selectParentCode, selectParentHome, selectParentNotes } from './parent';
 import { selectInbox, selectInsights, selectTeacherAssignments } from './teacher';
 import { selectToday } from './today';
 
