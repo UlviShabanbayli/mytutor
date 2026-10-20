@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { HexCell, Icon, PressableCard, Text } from '@/components/ui';
+import { HexCell, Icon, PressableCard, StaggerLead, StaggerText, Text } from '@/components/ui';
 import { stepHref } from '@/features/today/plan';
 import type { PlanStep, StepReason } from '@/features/today/types';
 import { HexShape } from './HexShape';
@@ -50,21 +50,23 @@ export function PlanStepRow({ step }: PlanStepRowProps) {
       className="rounded-lg"
       contentClassName="min-h-[66px] flex-row items-center gap-3 rounded-lg px-3 py-2"
     >
-      {step.code ? (
-        <HexCell state={step.cell} size={44} label={step.code} />
-      ) : (
-        <HexShape width={44} height={50} fill="raised">
-          <Icon name="target" size={20} color="honey-text" />
-        </HexShape>
-      )}
-      <View className="min-w-0 flex-1 gap-0.5">
+      <StaggerLead>
+        {step.code ? (
+          <HexCell state={step.cell} size={44} label={step.code} />
+        ) : (
+          <HexShape width={44} height={50} fill="raised">
+            <Icon name="target" size={20} color="honey-text" />
+          </HexShape>
+        )}
+      </StaggerLead>
+      <StaggerText className="gap-0.5">
         <Text className="font-sans-black" numberOfLines={2}>
           {title}
         </Text>
         <Text tone="muted" className="text-xs" numberOfLines={2}>
           {reason}
         </Text>
-      </View>
+      </StaggerText>
       <View className="shrink-0 items-end gap-0.5">
         <Text className="font-sans-bold text-xs text-muted">{length}</Text>
         <Text className="font-sans-black text-sm text-honey-text">

@@ -5,6 +5,7 @@ import { Mascot } from '@/components/mascot/Mascot';
 import { AgeWheel } from '@/components/onboarding/AgeWheel';
 import { InfoNote } from '@/components/onboarding/InfoNote';
 import { StepScreen } from '@/components/onboarding/StepScreen';
+import { StepStill } from '@/components/onboarding/StepStill';
 import { StepTitle } from '@/components/onboarding/StepTitle';
 import { Button } from '@/components/ui';
 import { useAppStore } from '@/features/app/appStore';
@@ -39,7 +40,11 @@ export default function AuthAgeScreen() {
       <StepTitle title={t('onboarding.age.title')} subtitle={t('onboarding.age.subtitle')} />
       <AgeWheel value={age} onChange={setAge} />
       <InfoNote
-        leading={<Mascot moment="aiExplains" size={64} decorative />}
+        leading={
+          <StepStill>
+            <Mascot moment="aiExplains" size={64} decorative />
+          </StepStill>
+        }
         title={t('onboarding.age.noteTitle')}
         text={t('onboarding.age.noteBody')}
       />

@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { HandoffTarget } from '@/components/handoff/HandoffTarget';
 import { HexCell, Icon, Text, type CellState } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { NectarRise } from './NectarRise';

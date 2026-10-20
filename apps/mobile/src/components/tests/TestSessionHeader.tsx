@@ -14,6 +14,8 @@ type TestSessionHeaderProps = {
   /** The run's points counter, on the right of the kind. */
   points?: ReactNode;
   onClose: () => void;
+  /** At the end of the kind's row, e.g. the topic cell that flies to the result. */
+  trailing?: ReactNode;
 };
 
 /** Close, the progress cells with "4/10", and the kind of test with the run's points under them. */

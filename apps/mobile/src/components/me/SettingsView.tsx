@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { AppearancePicker } from '@/components/progress/AppearancePicker';
 import { Button, Screen, ScreenHeader, SegmentedControl } from '@/components/ui';
 import { useAppStore } from '@/features/app/appStore';
+import { showToast } from '@/features/transitions/toastStore';
 import { QUIET_HOURS, type QuietHours, useSettingsStore } from '@/features/me/settingsStore';
 import { useMeStore } from '@/features/me/store';
 import type { AppLocale } from '@/i18n';

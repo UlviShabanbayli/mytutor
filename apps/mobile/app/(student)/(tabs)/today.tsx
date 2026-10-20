@@ -6,7 +6,7 @@ import { RegularContent } from '@/components/today/RegularContent';
 import { TodayError } from '@/components/today/TodayError';
 import { TodayHeader } from '@/components/today/TodayHeader';
 import { TodaySkeleton } from '@/components/today/TodaySkeleton';
-import { Screen } from '@/components/ui';
+import { Screen, SkeletonSwap } from '@/components/ui';
 import { useFirstDay, useMotivation, useOnline, useVisitTracking } from '@/features/today/hooks';
 import { useToday } from '@/features/today/queries';
 import { useTodayHydrated } from '@/features/today/store';
@@ -27,22 +27,28 @@ export default function TodayScreen() {
     <Screen className="gap-3 pt-2">
       <TodayHeader streak={motivation.streak} points={motivation.points} />
       {!online ? <OfflineCard withMascot={!loading && !today.isError && !firstDay} /> : null}
-      {loading ? (
-        <TodaySkeleton />
-      ) : today.isError || !data ? (
+      {!loading && (today.isError || !data) ? (
         <TodayError onRetry={() => void today.refetch()} />
       ) : (
-        <>
-          {firstDay ? (
-            <FirstDayGreeting name={data.studentName} minutes={data.firstStep.firstCellMinutes} />
+        // transitions.skeleton C: the day's skeleton cross-fades into it when it has loaded.
+        <SkeletonSwap pending={loading} skeleton={<TodaySkeleton />} className="gap-3">
+          {data ? (
+            <>
+              {firstDay ? (
+                <FirstDayGreeting
+                  name={data.studentName}
+                  minutes={data.firstStep.firstCellMinutes}
+                />
+              ) : null}
+              <DailyGoalCard motivation={motivation} firstDay={firstDay} />
+              {firstDay ? (
+                <FirstDayContent today={data} />
+              ) : (
+                <RegularContent today={data} online={online} />
+              )}
+            </>
           ) : null}
-          <DailyGoalCard motivation={motivation} firstDay={firstDay} />
-          {firstDay ? (
-            <FirstDayContent today={data} />
-          ) : (
-            <RegularContent today={data} online={online} />
-          )}
-        </>
+        </SkeletonSwap>
       )}
     </Screen>
   );

@@ -101,6 +101,9 @@ export function TestResultView({ study, result }: TestResultViewProps) {
         <View className="px-4 pb-2 pt-2.5">
           <Button label={t('study.common.continue')} onPress={finish} />
         </View>
+        {study.kind === 'mistakes' ? null : (
+          <HandoffOverlay code={study.topicCode ?? ''} to={cell} />
+        )}
       </SafeAreaView>
     </TestMathContext.Provider>
   );

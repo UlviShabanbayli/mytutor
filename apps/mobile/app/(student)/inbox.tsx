@@ -21,7 +21,8 @@ export default function StudentInboxScreen() {
   const online = useOnline();
 
   return (
-    <Screen className="gap-2">
+    // Pulling down checks for news once there is a list (transitions.refresh B).
+    <Screen className="gap-2" onRefresh={inbox.data?.length ? () => inbox.refetch() : undefined}>
       <ScreenHeader
         title={t('today.inbox.title')}
         actions={<ReadAllButton items={inbox.data ?? []} />}

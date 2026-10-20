@@ -7,6 +7,7 @@ import { Mascot } from '@/components/mascot/Mascot';
 import { ChoiceCard } from '@/components/onboarding/ChoiceCard';
 import { NoteLine } from '@/components/onboarding/NoteLine';
 import { StepScreen } from '@/components/onboarding/StepScreen';
+import { StepStill } from '@/components/onboarding/StepStill';
 import { StepTitle } from '@/components/onboarding/StepTitle';
 import { Button, type IconName } from '@/components/ui';
 import { useAppStore } from '@/features/app/appStore';
@@ -59,7 +60,9 @@ export default function OnboardingRoleScreen() {
           subtitle={t('onboarding.role.subtitle')}
           className="flex-1"
         />
-        <Mascot moment="aiThinking" size={92} decorative />
+        <StepStill>
+          <Mascot moment="aiThinking" size={92} decorative />
+        </StepStill>
       </View>
       <View
         accessibilityRole="radiogroup"
