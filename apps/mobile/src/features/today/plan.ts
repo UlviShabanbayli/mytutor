@@ -1,7 +1,9 @@
 import type { Href } from 'expo-router';
 import type { Topic } from '@mytutor/types';
-import { POINTS_PER_CORRECT } from '@/features/study/rewards';
 import type { PlanStep, StepKind } from './types';
+
+/** A practice test step is worth what the world's test steps are worth ("+10"). */
+const TEST_STEP_POINTS = 10;
 
 /** Steps and, when every step's length is known, their total minutes. */
 export function planSummary(steps: PlanStep[]): { count: number; minutes: number | null } {
@@ -30,10 +32,7 @@ export function stepHref(kind: StepKind, targetId: string): Href {
   }
 }
 
-/**
- * A test published from the team's test books (local API only) as an extra practice step,
- * worth the points of its right answers.
- */
+/** A test published from the team's test books (local API only) as an extra practice step. */
 export function testStep(topic: Topic): PlanStep {
   return {
     id: `plan-test-${topic.id}`,
@@ -45,7 +44,7 @@ export function testStep(topic: Topic): PlanStep {
     reason: { kind: 'questions', count: topic.questionCount },
     minutes: null,
     questionCount: topic.questionCount,
-    points: topic.questionCount * POINTS_PER_CORRECT,
+    points: TEST_STEP_POINTS,
   };
 }
 
