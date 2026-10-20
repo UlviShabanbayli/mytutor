@@ -6,6 +6,7 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler';
 import { bookRoutes } from './routes/book';
 import { demoRoutes, type WorldFactory } from './routes/demo';
 import { healthRoutes } from './routes/health';
+import { queryRoutes } from './routes/query';
 import { mediaRoutes, testsRoutes } from './routes/tests';
 import { noTests, type ContentProvider } from './services/content';
 
@@ -20,7 +21,8 @@ export type AppOptions = {
 
 /**
  * One app for two runtimes: the Node entry (local, with the content folder) and the Worker
- * entry (demo world only). Nothing here imports Node; everything is read-only.
+ * entry (demo world only). Nothing here imports Node and nothing is stored: writes arrive as
+ * demo events with each query (`POST /v1/query`).
  */
 export function createApp({
   world = buildDemoWorld,
@@ -34,13 +36,14 @@ export function createApp({
   app.use(
     cors({
       origin: '*',
-      allowMethods: ['GET', 'OPTIONS'],
+      allowMethods: ['GET', 'POST', 'OPTIONS'],
       allowHeaders: [PERSONA_HEADER, 'Content-Type'],
       maxAge: 600,
     }),
   );
   app.route('/health', healthRoutes);
   app.route('/v1', bookRoutes(content));
+  app.route('/v1', queryRoutes(world, now));
   app.route('/v1', demoRoutes(world, now));
   app.route('/tests', testsRoutes(content?.tests ?? noTests));
   app.route('/media', mediaRoutes(content?.tests ?? noTests));
