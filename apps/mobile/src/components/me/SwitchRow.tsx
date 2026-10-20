@@ -1,7 +1,6 @@
 import { View } from 'react-native';
-import { Text } from '@/components/ui';
+import { Switch, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import { ToggleSwitch } from './ToggleSwitch';
 
 type SwitchRowProps = {
   title: string;
@@ -25,7 +24,7 @@ export function SwitchRow({ title, sub, value, onChange, divider }: SwitchRowPro
           </Text>
         ) : null}
       </View>
-      <ToggleSwitch value={value} onChange={onChange} accessibilityLabel={title} />
+      <Switch value={value} onValueChange={onChange} accessibilityLabel={title} />
     </View>
   );
 }

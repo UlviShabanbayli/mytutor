@@ -1,11 +1,10 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Icon, Text } from '@/components/ui';
+import { Icon, Switch, Text } from '@/components/ui';
 import { stepValue } from '@/features/teacher/classroom';
 import { Overline } from './Overline';
 import { Stepper } from './Stepper';
-import { TeacherSwitch } from './TeacherSwitch';
 
 export type AssignSettings = { attempts: number; minutes: number; reminder: boolean };
 
@@ -91,7 +90,7 @@ export function AssignOptions({
             <Text className="font-sans-black text-sm">{t('teacher.assign.reminder')}</Text>
             <Text className="font-sans text-xs text-muted">{t('teacher.assign.reminderBody')}</Text>
           </View>
-          <TeacherSwitch
+          <Switch
             value={value.reminder}
             onValueChange={(reminder) => set({ reminder })}
             accessibilityLabel={t('teacher.assign.reminder')}

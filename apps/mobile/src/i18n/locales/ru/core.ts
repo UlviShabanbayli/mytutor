@@ -30,7 +30,7 @@ export const core = {
     correct: 'Верно',
     wrong: 'Неверно',
     source: 'Источник: {{source}}',
-    codeCopied: 'Код скопирован',
+    holdHint: 'Нажми и удерживай',
   },
   months: {
     '0': 'января',

@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Mascot } from '@/components/mascot/Mascot';
+import { DrawnMark } from '@/components/feedback/DrawnMark';
+import { wrongC } from '@/components/feedback/timelines';
 import { Button, Icon, Text } from '@/components/ui';
 import type { SessionStep } from '@/features/study/types';
+import { useReducedMotionPref } from '@/motion';
 import { fontSize } from '@/theme';
 import { AnswerCompare } from './AnswerCompare';
 import { MathText } from './MathText';
@@ -16,15 +18,28 @@ type WrongFeedbackProps = {
   onContinue: () => void;
 };
 
-/** A calm wrong answer: Vızı consoles, shows the right answer, the source and what happens next. */
+/**
+ * A calm wrong answer: shows the right answer, the source and what happens next. Vızı consoles
+ * from the panel's edge (FeedbackPanel), so the title row leaves her room on the right.
+ */
 export function WrongFeedback({ step, answer, continueLabel, onContinue }: WrongFeedbackProps) {
   const { t } = useTranslation();
+  const reduced = useReducedMotionPref();
   const question = step.kind === 'question' ? step.question : null;
 
   return (
     <>
-      <View className="flex-row items-center gap-3">
-        <Mascot moment="wrong" size={56} decorative />
+      <View className="flex-row items-center gap-3 pr-[60px]">
+        <View className="h-12 w-12 items-center justify-center rounded-full bg-err">
+          <DrawnMark
+            kind="x"
+            size={26}
+            strokeWidth={2.6}
+            color="err-bg"
+            delay={wrongC.panelAt + wrongC.peekAt}
+            reduced={reduced}
+          />
+        </View>
         <View className="min-w-0 flex-1 gap-0.5">
           <Text variant="heading" className="font-display-black text-lg">
             {t('study.feedback.wrongTitle')}

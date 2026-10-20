@@ -19,20 +19,28 @@ export const duration = {
   surface: 320,
   /** Fills of cells and rings. */
   fill: 400,
+  /** feedback.correct, feedback.wrong, feedback.goal: a check or a cross draws itself. */
+  draw: 300,
   /** Celebrations (goal done, cell sealed). */
   celebrate: 900,
   /** The fallback when the student asked for less motion: a short fade instead. */
   reduced: 150,
-  /** micro.camera: the scrim around the frame darkens after the shot. */
-  dim: 160,
-  /** micro.copy: the copied code flashes nectar. */
-  flash: 600,
-  /** micro.typing: one half of the hexagon pulse (a 1400ms loop). */
-  pulse: 700,
-  /** micro.timer: the chip turns from honey to err at 05:00. */
-  warn: 900,
-  /** micro.copy: "Kopyalandı" turns back into "Kopyala". */
-  revert: 1800,
+  /** buttons.grade: the chosen cell swells before it springs back. */
+  pop: 90,
+  /** buttons.tabbar: the icon hops up; micro.badge: the icon bumps. */
+  hop: 110,
+  /** micro.badge: the count badge and an old count leave. */
+  leave: 140,
+  /** buttons.hold: an early release drains the fill; buttons.enable: the button lies down. */
+  release: 150,
+  /** buttons.enable: the colours switch first, then the face stands up. */
+  standUpDelay: 60,
+  /** buttons.hold: how long a finger holds until the action fires (the fill is linear). */
+  hold: 500,
+  /** buttons.loading: one hex cell fills, holds and empties in this loop. */
+  busyLoop: 1200,
+  /** buttons.loading: the next cell starts this much later. */
+  busyStagger: 200,
 } as const;
 
 export const easing = {
@@ -80,6 +88,8 @@ export const spring = {
   unfold: { damping: 16, stiffness: 220, mass: 1 },
   /** feedback.select: the chosen option lifts. */
   lift: { damping: 14, stiffness: 260, mass: 1 },
+  /** feedback.correct: the right-answer panel springs up. */
+  panel: { damping: 16, stiffness: 190, mass: 1 },
   /** transitions.list, feedback rows: hexagons pop in. */
   list: { damping: 14, stiffness: 260, mass: 1 },
   /** hive.cell-tap: a cell is pressed and released. */
