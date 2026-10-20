@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { StatusPill, Text } from '@/components/ui';
-import { CURRENT_TOPIC, demoTopicId } from '@/features/ask/demo';
+import { CHAT_TOPIC } from '@/features/ask/chatTopic';
 import { photosLeft } from '@/features/ask/questions';
 import type { AskUsage } from '@/features/ask/types';
 import { SpotOutlineButton } from '../SpotOutlineButton';
@@ -33,14 +33,14 @@ export function ChatLimitCard({ usage }: ChatLimitCardProps) {
         />
       ) : null}
       <SpotOutlineButton
-        label={t('ask.chat.limitLesson', { topic: CURRENT_TOPIC.number })}
+        label={t('ask.chat.limitLesson', { topic: CHAT_TOPIC.number })}
         icon="play"
-        trailing={t('ask.chat.limitLessonMinutes', { minutes: CURRENT_TOPIC.minutes })}
+        trailing={t('ask.chat.limitLessonMinutes', { minutes: CHAT_TOPIC.minutes })}
         align="start"
         onPress={() =>
           router.push({
             pathname: '/lesson/[id]',
-            params: { id: demoTopicId(CURRENT_TOPIC.number) },
+            params: { id: CHAT_TOPIC.id },
           })
         }
       />

@@ -1,35 +1,39 @@
-import { onlineManager } from '@tanstack/react-query';
 import { create } from 'zustand';
-import { DEMO_CLASS_SUBJECT_ID, type DemoSubjectId } from './demo';
-import type { AskQuestion, AskQueue, CropRect, PhotoDraft, Rotation } from './types';
+import type { AskQuestion as WorldQuestion } from '@mytutor/types';
+import { CLASS_SUBJECT_ID, type AskSubjectId } from './subjects';
+import type { AskQueue, CropRect, PhotoDraft, Rotation } from './types';
 
 export type Feedback = 'yes' | 'no';
 
+/**
+ * What the student does in the ask area on this device. A sent question is a demo event
+ * (`ask.sent`) every role sees; only a question taken offline waits here until it can go.
+ */
 type AskState = {
   /** The photo being prepared: camera or gallery → crop → send. */
   draft: PhotoDraft | null;
-  subjectId: DemoSubjectId;
-  /** Null: the profile's grade. */
+  subjectId: AskSubjectId;
+  /** Null: the student's own grade. */
   grade: number | null;
   note: string;
   queue: AskQueue;
-  /** Questions sent from this device (demo: kept in memory until the ask API exists). */
-  sent: AskQuestion[];
+  /** Questions taken offline, sent as `ask.sent` once the device is online again. */
+  queued: WorldQuestion[];
   cancelledIds: string[];
   feedback: Record<string, Feedback>;
   reportedIds: string[];
   setPhoto: (photo: { uri: string; width: number; height: number }) => void;
   rotate: () => void;
   setCrop: (crop: CropRect | null) => void;
-  setSubject: (subjectId: DemoSubjectId) => void;
+  setSubject: (subjectId: AskSubjectId) => void;
   setGrade: (grade: number) => void;
   setNote: (note: string) => void;
   setQueue: (queue: AskQueue) => void;
-  /** Files the draft as a question and clears it for the next photo. */
-  addSent: (question: AskQuestion) => void;
+  /** Clears the draft for the next photo once it is filed. */
+  clearDraft: () => void;
+  enqueue: (question: WorldQuestion) => void;
+  dequeue: (id: string) => void;
   cancel: (id: string) => void;
-  /** Queued questions go out once the device is online again. */
-  flushQueued: () => void;
   setFeedback: (id: string, feedback: Feedback) => void;
   report: (id: string) => void;
 };
@@ -38,11 +42,11 @@ const nextRotation = (r: Rotation): Rotation => ((r + 90) % 360) as Rotation;
 
 export const useAskStore = create<AskState>()((set) => ({
   draft: null,
-  subjectId: DEMO_CLASS_SUBJECT_ID,
+  subjectId: CLASS_SUBJECT_ID,
   grade: null,
   note: '',
   queue: 'teacher',
-  sent: [],
+  queued: [],
   cancelledIds: [],
   feedback: {},
   reportedIds: [],
@@ -52,33 +56,18 @@ export const useAskStore = create<AskState>()((set) => ({
   setCrop: (crop) => set((s) => (s.draft ? { draft: { ...s.draft, crop } } : s)),
   setSubject: (subjectId) =>
     // Only the class subject has an own teacher; the rest go to the general queue.
-    set({ subjectId, queue: subjectId === DEMO_CLASS_SUBJECT_ID ? 'teacher' : 'general' }),
+    set({ subjectId, queue: subjectId === CLASS_SUBJECT_ID ? 'teacher' : 'general' }),
   setGrade: (grade) => set({ grade }),
   setNote: (note) => set({ note }),
   setQueue: (queue) => set({ queue }),
-  addSent: (question) => set((s) => ({ sent: [question, ...s.sent], draft: null, note: '' })),
+  clearDraft: () => set({ draft: null, note: '' }),
+  enqueue: (question) => set((s) => ({ queued: [question, ...s.queued] })),
+  dequeue: (id) => set((s) => ({ queued: s.queued.filter((q) => q.id !== id) })),
   cancel: (id) =>
     set((s) => ({
       cancelledIds: [...s.cancelledIds, id],
-      sent: s.sent.filter((q) => q.id !== id),
+      queued: s.queued.filter((q) => q.id !== id),
     })),
-  flushQueued: () =>
-    set((s) =>
-      s.sent.some((q) => q.status === 'queued')
-        ? {
-            sent: s.sent.map((q) =>
-              q.status === 'queued'
-                ? { ...q, status: 'sent', sentAt: new Date().toISOString() }
-                : q,
-            ),
-          }
-        : s,
-    ),
   setFeedback: (id, feedback) => set((s) => ({ feedback: { ...s.feedback, [id]: feedback } })),
   report: (id) => set((s) => ({ reportedIds: [...s.reportedIds, id] })),
 }));
-
-// A queued question leaves as soon as the connection is back (the real app uploads it then).
-onlineManager.subscribe((online) => {
-  if (online) useAskStore.getState().flushQueued();
-});

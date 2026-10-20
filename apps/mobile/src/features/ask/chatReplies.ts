@@ -2,7 +2,7 @@
 // with textbook content carries its sources; declines and "not sure" carry none.
 import type { TFunction } from 'i18next';
 import type { ask as azAsk } from '@/i18n/locales/az/ask';
-import { CURRENT_TOPIC, demoTopicId } from './demo';
+import { CHAT_TOPIC } from './chatTopic';
 import type { ChatIntent, ChatMessage, ChatSourceChip } from './types';
 
 type ViziMessage = Extract<ChatMessage, { role: 'vizi' }>;
@@ -14,26 +14,26 @@ export const nextMessageId = () => `m${Date.now().toString(36)}${(counter += 1)}
 function lessonChip(t: TFunction): ChatSourceChip {
   return {
     label: t('ask.demo.chat.sourceLesson', {
-      topic: CURRENT_TOPIC.number,
-      page: CURRENT_TOPIC.page,
+      topic: CHAT_TOPIC.number,
+      page: CHAT_TOPIC.page,
     }),
-    lessonId: demoTopicId(CURRENT_TOPIC.number),
+    lessonId: CHAT_TOPIC.id,
   };
 }
 
 function exampleChip(t: TFunction): ChatSourceChip {
   return {
-    label: t('ask.demo.chat.sourceExample', { n: 2, page: CURRENT_TOPIC.page + 1 }),
-    lessonId: demoTopicId(CURRENT_TOPIC.number),
+    label: t('ask.demo.chat.sourceExample', { n: 2, page: CHAT_TOPIC.page + 1 }),
+    lessonId: CHAT_TOPIC.id,
   };
 }
 
 const bookSource = (t: TFunction) =>
-  t('ask.demo.source', { topic: CURRENT_TOPIC.number, page: CURRENT_TOPIC.page });
+  t('ask.demo.source', { topic: CHAT_TOPIC.number, page: CHAT_TOPIC.page });
 
 export function suggestionsFor(t: TFunction): string[] {
   return [
-    t('ask.demo.chat.suggestExplain', { topic: CURRENT_TOPIC.number }),
+    t('ask.demo.chat.suggestExplain', { topic: CHAT_TOPIC.number }),
     t('ask.demo.chat.suggestPractice'),
     t('ask.demo.chat.suggestMistakes'),
   ];
@@ -105,7 +105,7 @@ export function buildReply(t: TFunction, intent: ChatIntent, practiceCorrect = f
     case 'unsure':
       return reply('unsure', [c('unsure1')], { followUp: 'handoff' });
     case 'greeting':
-      return welcomeReply(t, CURRENT_TOPIC.number);
+      return welcomeReply(t, CHAT_TOPIC.number);
     case 'offtopic':
       return reply('offtopic', [c('offtopic1'), c('offtopic2')], {
         followUp: 'suggestions',

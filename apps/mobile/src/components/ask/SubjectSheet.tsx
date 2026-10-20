@@ -1,15 +1,15 @@
 import { Pressable, ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Icon, Sheet, Text } from '@/components/ui';
-import { DEMO_SUBJECT_IDS, type DemoSubjectId } from '@/features/ask/demo';
+import { ASK_SUBJECT_IDS, type AskSubjectId } from '@/features/ask/subjects';
 import { cn } from '@/lib/cn';
 
 type SubjectSheetProps = {
   visible: boolean;
   onClose: () => void;
-  subjectId: DemoSubjectId;
+  subjectId: AskSubjectId;
   grade: number;
-  onSubject: (id: DemoSubjectId) => void;
+  onSubject: (id: AskSubjectId) => void;
   onGrade: (grade: number) => void;
 };
 
@@ -31,7 +31,7 @@ export function SubjectSheet({
     <Sheet visible={visible} onClose={onClose} title={t('ask.send.subjectSheet')} dragArea="handle">
       <ScrollView className="max-h-[360px]" contentContainerClassName="gap-1">
         <View accessibilityRole="radiogroup" accessibilityLabel={t('ask.send.subject')}>
-          {DEMO_SUBJECT_IDS.map((id) => {
+          {ASK_SUBJECT_IDS.map((id) => {
             const selected = id === subjectId;
             return (
               <Pressable

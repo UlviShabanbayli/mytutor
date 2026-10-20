@@ -7,7 +7,7 @@ import { QuestionMenuSheet } from '@/components/ask/QuestionMenuSheet';
 import { ChatHeader } from '@/components/ask/chat/ChatHeader';
 import { ChatInputBar } from '@/components/ask/chat/ChatInputBar';
 import { ChatThread } from '@/components/ask/chat/ChatThread';
-import { CURRENT_TOPIC } from '@/features/ask/demo';
+import { CHAT_TOPIC } from '@/features/ask/chatTopic';
 import { chatMood } from '@/features/ask/chatScript';
 import { pickFromGallery } from '@/features/ask/photo';
 import { useAskStore } from '@/features/ask/store';
@@ -75,7 +75,7 @@ export default function ViziChatScreen() {
         <ChatThread
           messages={chat.messages}
           origin={origin}
-          topic={{ number: CURRENT_TOPIC.number, title: t('ask.demo.topics.cube') }}
+          topic={{ number: CHAT_TOPIC.number, title: CHAT_TOPIC.title }}
           thinking={chat.thinking}
           canSend={chat.canSend}
           limitReached={chat.limitReached}
