@@ -23,6 +23,8 @@ export const reviewPlanSchema = z.object({
     done: z.number().int().nonnegative(),
   }),
   upcoming: z.array(z.object({ inDays: z.number().int().positive(), cells: z.array(z.string()) })),
+  /** The practice that starts today's review ("test-review"); null with nothing due. */
+  testId: z.string().min(1).nullable(),
 });
 
 export const mistakeItemSchema = z.object({

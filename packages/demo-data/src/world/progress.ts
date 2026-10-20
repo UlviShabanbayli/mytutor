@@ -13,6 +13,7 @@ import { demoSource, readyTopic } from '../curriculum';
 import { LALE, NERMIN, R7, r7 } from '../ids';
 import { CURRENT_TOPIC, levelOf, topicsAt } from '../mastery';
 import { personById } from '../people';
+import { reviewTest } from '../tests';
 import { MISTAKES } from './mistakeItems';
 
 /** What Nərmin did (today, this week, last week) and what review and mistakes follow from it. */
@@ -58,9 +59,10 @@ export function reviewPlan(map: MasteryMap): ReviewPlan {
   const due = topicsAt(map, 'needs_practice').map((t) => cell(t.id));
   const recent = topicsAt(map, 'mastered').reverse();
   const first = recent[0];
+  const test = reviewTest(due);
   return {
     due,
-    questionCount: due.length * 3,
+    questionCount: test?.test.questions.length ?? 0,
     minutes: due.length * 2,
     example: {
       ...cell(first?.id ?? r7('1.1')),
@@ -75,6 +77,7 @@ export function reviewPlan(map: MasteryMap): ReviewPlan {
           { inDays: 6, cells: [] },
         ]
       : [],
+    testId: test?.test.id ?? null,
   };
 }
 

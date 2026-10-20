@@ -8,6 +8,7 @@ import { selectHive } from './learn';
 import { selectLeague, selectMe } from './me';
 import { selectChildReport, selectParentCode, selectParentHome, selectParentNotes } from './parent';
 import { selectInbox, selectInsights, selectTeacherAssignments } from './teacher';
+import { selectReview } from './study';
 import { selectToday } from './today';
 
 const NOW = new Date('2026-10-20T06:00:00.000Z');
@@ -201,6 +202,36 @@ describe('links between resources', () => {
         if (step.target.kind === 'lesson' && world === nermin)
           expect(lessons).toContain(step.target.id);
       }
+    }
+  });
+});
+
+describe('review', () => {
+  it('starts a real practice: the due topics’ questions, sources marked demo', () => {
+    const review = selectReview(nermin);
+    expect(review.testId).toBe('test-review');
+    const test = nermin.tests.find((t) => t.test.id === review.testId);
+    expect([test?.kind, test?.topicCode]).toEqual(['review', '2.2, 3.1']);
+    expect(test?.test.questions.map((q) => q.topicId)).toEqual([
+      'riyaziyyat-7-2-2',
+      'riyaziyyat-7-2-2',
+      'riyaziyyat-7-2-2',
+      'riyaziyyat-7-3-1',
+      'riyaziyyat-7-3-1',
+      'riyaziyyat-7-3-1',
+    ]);
+    expect(review.questionCount).toBe(6);
+    for (const q of test?.test.questions ?? []) expect(q.source.demo).toBe(true);
+    expect(selectReview(fresh).testId).toBeNull();
+    expect(fresh.tests.map((t) => t.test.id)).not.toContain('test-review');
+  });
+
+  it('has topic tests for the review topics with five different options', () => {
+    for (const id of ['test-riyaziyyat-7-2-2', 'test-riyaziyyat-7-3-1']) {
+      const test = nermin.tests.find((t) => t.test.id === id);
+      expect(test?.test.questions).toHaveLength(3);
+      for (const q of test?.test.questions ?? [])
+        if (q.type === 'choice') expect(new Set(q.options.map((o) => o.text)).size).toBe(5);
     }
   });
 });

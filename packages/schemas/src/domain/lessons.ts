@@ -102,7 +102,7 @@ export const sessionStepSchema = z.discriminatedUnion('kind', [
   writtenStepSchema,
 ]);
 
-export const STUDY_TEST_KINDS = ['topic', 'unit', 'mistakes', 'demo'] as const;
+export const STUDY_TEST_KINDS = ['topic', 'unit', 'review', 'mistakes', 'demo'] as const;
 
 /** GET /v1/tests/:id: "test-<topicId>" for a topic, "test-<unitId>" for a unit. */
 export const studyTestSchema = z.object({

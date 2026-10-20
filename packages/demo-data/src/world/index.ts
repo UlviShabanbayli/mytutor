@@ -8,7 +8,7 @@ import { FRESH, NERMIN } from '../ids';
 import { LESSONS } from '../lessons';
 import { rosterMastery } from '../mastery';
 import { PEOPLE } from '../people';
-import { TESTS } from '../tests';
+import { TESTS, reviewTest } from '../tests';
 import { PLACEMENT } from '../tests/placement';
 import { askQuestions, ASK_LIMITS } from './ask';
 import { assignments, submissions } from './assignments';
@@ -70,7 +70,7 @@ export function buildDemoWorld({ now, persona }: BuildOptions): DemoWorld {
     mastery,
     activity: activity(clock, studentId),
     lessons: LESSONS,
-    tests: TESTS,
+    tests: [...TESTS, ...[reviewTest(review.due)].flatMap((t) => t ?? [])],
     placement: PLACEMENT,
     review,
     mistakes: mistakeGroups(clock, studentMap),

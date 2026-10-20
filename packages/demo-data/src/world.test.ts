@@ -54,12 +54,15 @@ describe('buildDemoWorld', () => {
     for (const t of topicIds) expect(t.id).toMatch(/^riyaziyyat-[78]-\d+-\d+$/);
     expect(world.lessons.map((l) => l.id)).toContain('riyaziyyat-7-4-3');
     expect(world.tests.map((t) => t.test.id)).toEqual([
+      'test-riyaziyyat-7-2-2',
+      'test-riyaziyyat-7-3-1',
       'test-riyaziyyat-7-4-1',
       'test-riyaziyyat-7-4-2',
       'test-riyaziyyat-7-4-3',
       'test-riyaziyyat-7-4-4',
       'test-riyaziyyat-7-4-5',
       'test-riyaziyyat-7-u4',
+      'test-review',
     ]);
     const json = JSON.stringify(world);
     for (const old of ['"r7-', 'demo-4.3', '"4.3"-', 'R4T9KB', 'q-cube', 'Murad_11', '481926'])

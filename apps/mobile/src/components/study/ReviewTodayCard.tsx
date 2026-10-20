@@ -34,7 +34,7 @@ export function ReviewTodayCard({ plan }: { plan: ReviewPlan }) {
       <Text className="text-sm text-on-spot opacity-85">
         {t('study.review.todayBody', { count: plan.questionCount })}
       </Text>
-      {/* A crystallized topic's test when it has one, else its mistakes in "Səhvlərim". */}
+      {/* The review practice of the due topics, else their mistakes in "Səhvlərim". */}
       <Button
         label={t('study.review.start', { count: plan.minutes })}
         icon="play"

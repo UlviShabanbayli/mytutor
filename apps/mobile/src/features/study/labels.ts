@@ -6,6 +6,7 @@ export function testKindLabel(t: TFunction, study: StudyTest): string {
   const title = study.topicCode ?? study.test.title;
   if (study.kind === 'mistakes') return t('study.test.kindMistakes');
   if (study.kind === 'unit') return t('study.test.kindUnit', { title });
+  if (study.kind === 'review') return t('study.test.kindReview', { title });
   if (study.kind === 'demo') return t('study.test.kindDemo', { title });
   return t('study.test.kindTopic', { title });
 }
@@ -15,6 +16,8 @@ export function resultKicker(t: TFunction, study: StudyTest): string {
   if (study.kind === 'mistakes') return t('study.result.kickerMistakes');
   if (study.kind === 'unit')
     return t('study.result.kickerUnit', { code: study.topicCode ?? study.test.title });
+  if (study.kind === 'review')
+    return t('study.result.kickerReview', { code: study.topicCode ?? '' });
   if (study.kind === 'demo') return t('study.result.kickerDemo', { code: study.topicCode ?? '' });
   return study.topicCode
     ? t('study.result.kickerTopicCode', { code: study.topicCode })

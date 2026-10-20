@@ -1,9 +1,10 @@
-import type { SessionStep, StudyTest } from '@mytutor/types';
+import type { Question, SessionStep, StudyTest } from '@mytutor/types';
 import { READY_UNITS, demoSource, readyTopic } from '../curriculum';
 import { R7, r7, r7Unit, testIdOf } from '../ids';
 import { personById } from '../people';
 import { LALE } from '../ids';
 import { QUESTIONS } from './questions';
+import { REVIEW_QUESTIONS } from './reviewQuestions';
 
 /** Topic tests "test-<topicId>" for unit 4 and its unit test "test-riyaziyyat-7-u4". */
 
@@ -30,9 +31,12 @@ const EXTRA_4_3: SessionStep[] = [
   },
 ];
 
+/** Every topic with demo questions: unit 4, and the topics review starts with. */
+const TOPIC_QUESTIONS: Record<string, Question[]> = { ...REVIEW_QUESTIONS, ...QUESTIONS };
+
 function topicTest(number: string): StudyTest {
   const topic = readyTopic(r7(number));
-  const questions = QUESTIONS[number] ?? [];
+  const questions = TOPIC_QUESTIONS[number] ?? [];
   return {
     test: {
       id: testIdOf(topic.id),
@@ -71,7 +75,31 @@ function unitTest(unit: string): StudyTest {
   };
 }
 
-export const TESTS: StudyTest[] = [...Object.keys(QUESTIONS).map(topicTest), unitTest('4')];
+export const TESTS: StudyTest[] = [...Object.keys(TOPIC_QUESTIONS).map(topicTest), unitTest('4')];
+
+/** Today's review as one practice: the questions of every due topic, in book order. */
+export const REVIEW_TEST_ID = 'test-review';
+export const REVIEW_POINTS = 10;
+
+export function reviewTest(due: { topicId: string; code: string }[]): StudyTest | null {
+  const questions = due.flatMap((d) => TOPIC_QUESTIONS[d.code] ?? []);
+  const first = due[0];
+  if (!first || questions.length === 0) return null;
+  return {
+    test: {
+      id: REVIEW_TEST_ID,
+      topicId: first.topicId,
+      subjectId: R7,
+      title: 'Təkrar',
+      questions,
+      math: {},
+    },
+    steps: questions.map((q) => ({ kind: 'question' as const, id: q.id, question: q })),
+    kind: 'review',
+    topicCode: due.map((d) => d.code).join(', '),
+    points: REVIEW_POINTS,
+  };
+}
 
 export const questionCountOf = (testId: string) =>
   TESTS.find((t) => t.test.id === testId)?.test.questions.length ?? 0;

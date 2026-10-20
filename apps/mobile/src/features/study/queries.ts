@@ -1,5 +1,4 @@
-import { useQueries, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
-import { testIdOf } from '@mytutor/demo-data';
+import { useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import type { DemoPersona, ReviewPlan, TestResult } from '@mytutor/types';
 import i18n from '@/i18n';
 import { useTestSessionStore } from '@/features/tests/sessionStore';
@@ -84,18 +83,9 @@ export function useReviewPlan() {
 }
 
 /**
- * Where today's review starts: the topic test of the first crystallized topic that has one, or
- * "Səhvlərim" (the mistakes of those topics) when none has a test. Pending while it looks.
+ * Where today's review starts: the world's review practice (the due topics' questions, "test-
+ * review"), or "Səhvlərim" when nothing is due. Never pending: the plan names the test.
  */
 export function useReviewStart(plan: ReviewPlan): { pending: boolean; testId: string | null } {
-  const persona = useDemoPersona();
-  const ids = plan.due.map((cell) => testIdOf(cell.topicId));
-  const tests = useQueries({
-    queries: ids.map((id) => ({
-      queryKey: studyKeys.test(persona, id),
-      queryFn: () => fetchStudyTest(persona, id),
-    })),
-  });
-  if (tests.some((q) => q.isPending)) return { pending: true, testId: null };
-  return { pending: false, testId: tests.find((q) => q.data)?.data?.test.id ?? null };
+  return { pending: false, testId: plan.testId };
 }
