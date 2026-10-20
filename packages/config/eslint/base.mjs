@@ -4,7 +4,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist/**', 'node_modules/**', '.turbo/**', 'drizzle/**'] },
+  { ignores: ['dist/**', 'node_modules/**', '.turbo/**', '.wrangler/**', 'drizzle/**'] },
   js.configs.recommended,
   ...tseslint.configs.strict,
   {

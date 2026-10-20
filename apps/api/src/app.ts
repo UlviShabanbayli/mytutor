@@ -1,26 +1,49 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
+import { PERSONA_HEADER, buildDemoWorld } from '@mytutor/demo-data';
 import { errorHandler, notFoundHandler } from './middleware/error-handler';
+import { bookRoutes } from './routes/book';
+import { demoRoutes, type WorldFactory } from './routes/demo';
 import { healthRoutes } from './routes/health';
 import { mediaRoutes, testsRoutes } from './routes/tests';
-import { publishedTests } from './services/publishedTests';
+import { noTests, type ContentProvider } from './services/content';
 
 export type AppOptions = {
-  /** Where the published content lives (`.published/` inside it). */
-  contentDir: string;
+  /** Builds the demo world per request (default: `buildDemoWorld`). */
+  world?: WorldFactory;
+  /** Book-derived content; only the local Node entry has it. */
+  content?: ContentProvider;
+  /** The request's time (tests pin it). */
+  now?: () => Date;
 };
 
-export function createApp({ contentDir }: AppOptions) {
+/**
+ * One app for two runtimes: the Node entry (local, with the content folder) and the Worker
+ * entry (demo world only). Nothing here imports Node; everything is read-only.
+ */
+export function createApp({
+  world = buildDemoWorld,
+  content,
+  now = () => new Date(),
+}: AppOptions = {}) {
   const app = new Hono();
-  const tests = publishedTests(contentDir);
 
   app.use(logger());
-  // The app's web build runs on another port; everything here is read-only.
-  app.use(cors({ origin: '*', allowMethods: ['GET'] }));
+  // The Expo web build runs on another origin, and the demo is open to everyone: any origin.
+  app.use(
+    cors({
+      origin: '*',
+      allowMethods: ['GET', 'OPTIONS'],
+      allowHeaders: [PERSONA_HEADER, 'Content-Type'],
+      maxAge: 600,
+    }),
+  );
   app.route('/health', healthRoutes);
-  app.route('/tests', testsRoutes(tests));
-  app.route('/media', mediaRoutes(tests));
+  app.route('/v1', bookRoutes(content));
+  app.route('/v1', demoRoutes(world, now));
+  app.route('/tests', testsRoutes(content?.tests ?? noTests));
+  app.route('/media', mediaRoutes(content?.tests ?? noTests));
   app.notFound(notFoundHandler);
   app.onError(errorHandler);
 

@@ -14,6 +14,8 @@ export const sourceRefSchema = z.object({
   grade: z.number().int().min(1).max(11).optional(),
   section: z.string().optional(),
   page: z.number().int().positive().optional(),
+  /** Our own demo item that only points at the book's topic; none of the book's text. */
+  demo: z.boolean().optional(),
 });
 
 export const answerOptionSchema = z.object({
