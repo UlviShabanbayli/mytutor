@@ -33,7 +33,8 @@ export function AnswerFooter({
   const [rewriting, setRewriting] = useState(false);
   const [camera, setCamera] = useState(false);
 
-  if (done) return <Button label={t('teacher.answer.back')} onPress={() => goBack('/teacher/inbox')} />;
+  if (done)
+    return <Button label={t('teacher.answer.back')} onPress={() => goBack('/teacher/inbox')} />;
   return (
     <>
       <View className="flex-row items-center gap-2">
