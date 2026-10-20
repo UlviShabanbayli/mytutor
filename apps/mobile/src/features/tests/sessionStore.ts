@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { PracticeTest, TestAnswers, TestResult } from '@mytutor/types';
+import { useDemoPersonaStore } from '@/lib/demoPersona';
 import { countCorrect } from './scoring';
 
 type ActiveSession = {
@@ -12,7 +13,10 @@ type ActiveSession = {
 
 type TestSessionState = {
   session: ActiveSession | null;
-  /** Finished tests, newest first. In-memory until accounts and the API exist. */
+  /**
+   * Finished tests of this app session, newest first: what the device itself did on top of the
+   * demo world. In memory only, and forgotten when the demo persona changes.
+   */
   results: TestResult[];
   /** Starts a session, or resumes an unfinished one for the same test. */
   start: (testId: string) => void;
@@ -64,6 +68,12 @@ export const useTestSessionStore = create<TestSessionState>((set, get) => ({
     return result;
   },
 }));
+
+// Another persona is another student: no running test and no finished tests carry over.
+useDemoPersonaStore.subscribe((state, previous) => {
+  if (state.persona !== previous.persona)
+    useTestSessionStore.setState({ session: null, results: [] });
+});
 
 /** Questions answered today across finished tests (drives the daily goal). */
 export function answeredToday(results: TestResult[], now = new Date()): number {

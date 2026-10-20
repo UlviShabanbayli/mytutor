@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, SourceLine, Text } from '@/components/ui';
 import { prettyExpression, sameExpression } from '@/features/study/expression';
-import type { StudyLesson } from '@/features/study/types';
+import type { LessonExercise } from '@/features/study/types';
 import { playCue } from '@/lib/cues';
 import { AskViziChip } from './AskViziChip';
 import { ExerciseSheet, type ExerciseOutcome } from './ExerciseSheet';
@@ -14,15 +14,14 @@ import { MathKeypad } from './MathKeypad';
 import { StepLayout } from './StepLayout';
 
 type LessonExerciseStepProps = {
-  lesson: StudyLesson;
+  exercise: LessonExercise;
   onSeeRule: () => void;
   onNext: () => void;
 };
 
-/** Step 4: the student expands the expression; the answer is checked against the book's. */
-export function LessonExerciseStep({ lesson, onSeeRule, onNext }: LessonExerciseStepProps) {
+/** The exercise: the student expands the expression; the answer is checked against the book's. */
+export function LessonExerciseStep({ exercise, onSeeRule, onNext }: LessonExerciseStepProps) {
   const { t } = useTranslation();
-  const { exercise } = lesson;
   const [value, setValue] = useState('');
   const [selection, setSelection] = useState({ start: 0, end: 0 });
   const [outcome, setOutcome] = useState<ExerciseOutcome | null>(null);

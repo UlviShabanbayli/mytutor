@@ -1,20 +1,22 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { IconButton, Text } from '@/components/ui';
-import { LESSON_STEPS } from '@/features/study/lessons';
+import type { LessonStepName } from '@/features/study/types';
 import { cn } from '@/lib/cn';
 
 type LessonHeaderProps = {
+  /** The lesson's steps, in order. */
+  steps: LessonStepName[];
   /** 0-based step index. */
   step: number;
   onClose: () => void;
 };
 
-/** Close, four step segments and "Mətn · 2/4". */
-export function LessonHeader({ step, onClose }: LessonHeaderProps) {
+/** Close, one segment per step and "Mətn · 2/4". */
+export function LessonHeader({ steps, step, onClose }: LessonHeaderProps) {
   const { t } = useTranslation();
-  const total = LESSON_STEPS.length;
-  const name = t(`study.lesson.steps.${LESSON_STEPS[step] ?? 'video'}`);
+  const total = steps.length;
+  const name = t(`study.lesson.steps.${steps[step] ?? 'text'}`);
 
   return (
     <View className="flex-row items-center gap-1.5 px-2 pb-1.5">
@@ -26,7 +28,7 @@ export function LessonHeader({ step, onClose }: LessonHeaderProps) {
         accessibilityValue={{ min: 1, max: total, now: step + 1 }}
         className="flex-1 flex-row gap-1"
       >
-        {LESSON_STEPS.map((key, i) => (
+        {steps.map((key, i) => (
           <View
             key={key}
             className={cn('h-2 flex-1 rounded-full', i <= step ? 'bg-honey' : 'bg-wax')}

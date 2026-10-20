@@ -4,14 +4,13 @@ import { Button, Icon, Text } from '@/components/ui';
 import { Mascot } from '@/components/mascot/Mascot';
 import type { TopicPlace } from '@/features/learn/mastery';
 import { openTest } from '@/features/learn/navigation';
-import { useRealTest, useUnitTest } from '@/features/learn/queries';
+import { useTopicTest, useUnitTest } from '@/features/learn/queries';
 import type { Hive } from '@/features/learn/types';
 import { useLearnText } from '@/features/learn/useLearnText';
 
 type KnowSkipSheetProps = {
   hive: Hive;
   place: TopicPlace;
-  unitIndex: number;
   onClose: () => void;
 };
 
@@ -22,11 +21,11 @@ const SKIP_POINTS = 20;
  * "Bilirəm, keç" (architecture: a topic is never marked known without a short check): what a
  * pass gives, that a miss takes nothing, then the check or the whole unit's test.
  */
-export function KnowSkipSheet({ hive, place, unitIndex, onClose }: KnowSkipSheetProps) {
+export function KnowSkipSheet({ hive, place, onClose }: KnowSkipSheetProps) {
   const { t, source } = useLearnText();
   const insets = useSafeAreaInsets();
-  const { test } = useRealTest(hive, place.globalIndex);
-  const unitTest = useUnitTest(hive, unitIndex).test;
+  const { test } = useTopicTest(place.topic.id);
+  const unitTest = useUnitTest(place.unit.id).test;
   const { topic, unit, index } = place;
   const next = unit.topics[index + 1];
   const count = test?.questionCount ?? 0;

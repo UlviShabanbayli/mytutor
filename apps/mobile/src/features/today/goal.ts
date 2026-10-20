@@ -46,3 +46,11 @@ export function weekCells(active: boolean[], todayIdx: number, progress: GoalPro
 export function flightDayNumber(streak: number, activeToday: boolean): number {
   return activeToday ? Math.max(1, streak) : streak + 1;
 }
+
+/**
+ * The flight days of this week the world knows about: the `streak` days before today (the
+ * streak counts days with the goal met, up to yesterday).
+ */
+export function streakWeek(streak: number, todayIdx: number): boolean[] {
+  return Array.from({ length: 7 }, (_, i) => i < todayIdx && todayIdx - i <= streak);
+}

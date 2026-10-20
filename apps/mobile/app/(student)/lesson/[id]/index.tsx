@@ -2,7 +2,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LessonFlow } from '@/components/study/LessonFlow';
 import { EmptyState, ErrorState, LoadingState, Screen, ScreenHeader } from '@/components/ui';
-import { demoLessons } from '@/features/study/demo';
 import { stepIndexOf } from '@/features/study/lessons';
 import { useLesson } from '@/features/study/queries';
 
@@ -23,8 +22,7 @@ export default function LessonScreen() {
         <ErrorState onRetry={() => void query.refetch()} />
       </Screen>
     );
-  if (!query.data) {
-    const sample = demoLessons[0];
+  if (!query.data)
     return (
       <Screen>
         <ScreenHeader title={t('study.lesson.notFoundTitle')} />
@@ -32,16 +30,11 @@ export default function LessonScreen() {
           moment="aiThinking"
           title={t('study.lesson.notFoundTitle')}
           description={t('study.lesson.notFoundBody')}
-          actionLabel={sample ? t('study.lesson.openSample') : undefined}
-          onAction={
-            sample
-              ? () => router.replace({ pathname: '/lesson/[id]', params: { id: sample.id } })
-              : undefined
-          }
+          actionLabel={t('study.lesson.backToLearn')}
+          onAction={() => router.navigate('/learn')}
         />
       </Screen>
     );
-  }
 
-  return <LessonFlow lesson={query.data} step={stepIndexOf(step)} />;
+  return <LessonFlow lesson={query.data} step={stepIndexOf(step, query.data.steps)} />;
 }

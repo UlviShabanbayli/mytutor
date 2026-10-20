@@ -2,52 +2,52 @@ import { useSyncExternalStore } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import type { DemoPersona } from '@mytutor/types';
 import { daysBetween } from './dates';
 
 type TodayState = {
-  /** Day key of the first visit to "Bu gün": the first-day screen lasts that day. */
-  firstDay: string | null;
   /** Day key of the latest visit, to notice a long break. */
   lastVisit: string | null;
-  /** The student picked "Bilirəm, yoxla" or "Sıfırdan" on the first-day card. */
-  firstStepTaken: boolean;
-  /** Notifications read on this device until the inbox API keeps read state (P1). */
-  readIds: string[];
+  /** Personas who picked "Bilirəm, yoxla" or "Sıfırdan" on the first-day card. */
+  firstStepTaken: DemoPersona[];
   /** Records today's visit and returns the whole days since the previous one (0 if none). */
   visit: (today: string) => number;
-  takeFirstStep: () => void;
-  markRead: (ids: string[]) => void;
+  takeFirstStep: (persona: DemoPersona) => void;
 };
 
 /**
- * What "Bu gün" remembers on the device (architecture: "Vəziyyət, oflayn və real vaxt").
- * Kept with AsyncStorage; the server becomes the source once accounts exist.
+ * What "Bu gün" remembers on the device (architecture: "Vəziyyət, oflayn və real vaxt"): the
+ * last visit and the first step, kept with AsyncStorage. Read state of notifications is a demo
+ * event (`notification.read`), not kept here.
  */
 export const useTodayStore = create<TodayState>()(
   persist(
     (set, get) => ({
-      firstDay: null,
       lastVisit: null,
-      firstStepTaken: false,
-      readIds: [],
+      firstStepTaken: [],
       visit: (today) => {
-        const { firstDay, lastVisit } = get();
-        set({ firstDay: firstDay ?? today, lastVisit: today });
+        const { lastVisit } = get();
+        set({ lastVisit: today });
         return lastVisit ? Math.max(0, daysBetween(lastVisit, today)) : 0;
       },
-      takeFirstStep: () => set({ firstStepTaken: true }),
-      markRead: (ids) => set(({ readIds }) => ({ readIds: [...new Set([...readIds, ...ids])] })),
+      takeFirstStep: (persona) =>
+        set(({ firstStepTaken }) => ({
+          firstStepTaken: firstStepTaken.includes(persona)
+            ? firstStepTaken
+            : [...firstStepTaken, persona],
+        })),
     }),
     {
       name: 'ari-today',
-      version: 1,
+      // v2: the first step is per demo persona and read notifications are demo events.
+      version: 2,
+      migrate: (stored) => {
+        const lastVisit =
+          stored && typeof stored === 'object' && 'lastVisit' in stored ? stored.lastVisit : null;
+        return { lastVisit: typeof lastVisit === 'string' ? lastVisit : null, firstStepTaken: [] };
+      },
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: ({ firstDay, lastVisit, firstStepTaken, readIds }) => ({
-        firstDay,
-        lastVisit,
-        firstStepTaken,
-        readIds,
-      }),
+      partialize: ({ lastVisit, firstStepTaken }) => ({ lastVisit, firstStepTaken }),
     },
   ),
 );

@@ -1,4 +1,4 @@
-import { flightDayNumber, goalProgress, weekCells } from './goal';
+import { flightDayNumber, goalProgress, streakWeek, weekCells } from './goal';
 
 describe('goalProgress', () => {
   it('counts minutes left towards the goal', () => {
@@ -56,5 +56,13 @@ describe('flightDayNumber', () => {
 
   it('keeps a streak that already counts today', () => {
     expect(flightDayNumber(3, true)).toBe(3);
+  });
+});
+
+describe('streakWeek', () => {
+  it('marks the streak days before today', () => {
+    expect(streakWeek(12, 3)).toEqual([true, true, true, false, false, false, false]);
+    expect(streakWeek(2, 3)).toEqual([false, true, true, false, false, false, false]);
+    expect(streakWeek(0, 6)).toEqual([false, false, false, false, false, false, false]);
   });
 });

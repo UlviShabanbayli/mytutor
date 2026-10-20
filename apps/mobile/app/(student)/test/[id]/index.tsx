@@ -10,6 +10,7 @@ import {
   ScreenHeader,
 } from '@/components/ui';
 import { testKindLabel } from '@/features/study/labels';
+import { MISTAKES_TEST_ID } from '@/features/study/mistakes';
 import { useStudyTest } from '@/features/study/queries';
 
 export default function TestScreen() {
@@ -29,19 +30,22 @@ export default function TestScreen() {
         <ErrorState onRetry={() => void query.refetch()} />
       </Screen>
     );
-  if (!query.data)
+  if (!query.data) {
+    // An empty mistakes run, or a topic whose test the demo does not have yet.
+    const run = id === MISTAKES_TEST_ID;
     return (
       <Screen>
-        <ScreenHeader title={t('study.mistakes.title')} />
+        <ScreenHeader title={run ? t('study.mistakes.title') : ''} />
         <EmptyState
-          moment="correct"
-          title={t('study.test.emptyTitle')}
-          description={t('study.test.emptyBody')}
+          moment={run ? 'correct' : 'aiThinking'}
+          title={run ? t('study.test.emptyTitle') : t('study.test.missingTitle')}
+          description={run ? t('study.test.emptyBody') : t('study.test.missingBody')}
           actionLabel={t('study.common.continue')}
           onAction={() => router.replace('/learn')}
         />
       </Screen>
     );
+  }
 
   // The exit dialog makes the running test step back behind it (transitions.dialog C).
   return (

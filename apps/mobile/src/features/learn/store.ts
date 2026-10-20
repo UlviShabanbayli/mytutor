@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import type { DemoPersona } from '@mytutor/types';
+import { useDemoPersona, useDemoPersonaStore } from '@/lib/demoPersona';
 import type { HiveState } from './mastery';
 import type { PlacementAnswer, PlacementOutcome } from './types';
 
@@ -8,15 +10,21 @@ const MAX_RECENT = 3;
 
 type PlacementRecord = { status: 'done' | 'skipped'; outcome?: PlacementOutcome };
 
-type LearnState = {
+/** What one student did on this device in the learn area, on top of the demo world. */
+export type LearnData = {
   /** Textbook the student said their school uses, per hive; `unknown` is "Bilmirəm". */
   textbooks: Record<string, string>;
   placement: Record<string, PlacementRecord>;
   /** What this device adds to each hive: levels from checks, current topic, saved topics. */
   hives: Record<string, HiveState>;
+};
+
+type LearnState = {
+  /** Each demo persona is its own student: Nərmin's device state never shows for "Yeni şagird". */
+  byPersona: Partial<Record<DemoPersona, LearnData>>;
   /** Grades whose content the student wants to hear about. */
   notifyGrades: number[];
-  recentSearches: string[] | null;
+  recentSearches: string[];
   pickTextbook: (hiveId: string, textbookId: string) => void;
   skipPlacement: (hiveId: string) => void;
   finishPlacement: (hiveId: string, outcome: PlacementOutcome) => void;
@@ -25,43 +33,59 @@ type LearnState = {
   addRecentSearch: (query: string) => void;
 };
 
+const EMPTY: LearnData = { textbooks: {}, placement: {}, hives: {} };
 const emptyHive: HiveState = { levels: {}, savedTopicIds: [] };
 
+/** The current persona's learn data, changed by `change`. */
+function update(
+  state: LearnState,
+  change: (data: LearnData) => Partial<LearnData>,
+): Pick<LearnState, 'byPersona'> {
+  const persona = useDemoPersonaStore.getState().persona;
+  const data = state.byPersona[persona] ?? EMPTY;
+  return { byPersona: { ...state.byPersona, [persona]: { ...data, ...change(data) } } };
+}
+
 /**
- * The learn area's device state until the progress API exists (architecture "Vəziyyət, oflayn
- * və real vaxt"): kept with AsyncStorage, replaced by /v1/me/progress and /v1/me/placement.
+ * The learn area's device state (architecture "Vəziyyət, oflayn və real vaxt"): the textbook
+ * choice, the placement check, its levels and downloads. The demo events have no learning
+ * events, so it stays on the device, kept per persona with AsyncStorage.
  */
 export const useLearnStore = create<LearnState>()(
   persist(
     (set) => ({
-      textbooks: {},
-      placement: {},
-      hives: {},
+      byPersona: {},
       notifyGrades: [],
-      recentSearches: null,
+      recentSearches: [],
       pickTextbook: (hiveId, textbookId) =>
-        set((s) => ({ textbooks: { ...s.textbooks, [hiveId]: textbookId } })),
+        set((s) => update(s, (d) => ({ textbooks: { ...d.textbooks, [hiveId]: textbookId } }))),
       skipPlacement: (hiveId) =>
-        set((s) => ({ placement: { ...s.placement, [hiveId]: { status: 'skipped' } } })),
+        set((s) =>
+          update(s, (d) => ({ placement: { ...d.placement, [hiveId]: { status: 'skipped' } } })),
+        ),
       finishPlacement: (hiveId, outcome) =>
-        set((s) => {
-          const hive = s.hives[hiveId] ?? emptyHive;
-          const levels = { ...hive.levels };
-          for (const id of outcome.knownTopicIds) levels[id] = 'mastered';
-          return {
-            placement: { ...s.placement, [hiveId]: { status: 'done', outcome } },
-            hives: {
-              ...s.hives,
-              [hiveId]: { ...hive, levels, currentTopicId: outcome.startTopicId ?? undefined },
-            },
-          };
-        }),
+        set((s) =>
+          update(s, (d) => {
+            const hive = d.hives[hiveId] ?? emptyHive;
+            const levels = { ...hive.levels };
+            for (const id of outcome.knownTopicIds) levels[id] = 'mastered';
+            return {
+              placement: { ...d.placement, [hiveId]: { status: 'done', outcome } },
+              hives: {
+                ...d.hives,
+                [hiveId]: { ...hive, levels, currentTopicId: outcome.startTopicId ?? undefined },
+              },
+            };
+          }),
+        ),
       saveTopics: (hiveId, topicIds) =>
-        set((s) => {
-          const hive = s.hives[hiveId] ?? emptyHive;
-          const savedTopicIds = [...new Set([...hive.savedTopicIds, ...topicIds])];
-          return { hives: { ...s.hives, [hiveId]: { ...hive, savedTopicIds } } };
-        }),
+        set((s) =>
+          update(s, (d) => {
+            const hive = d.hives[hiveId] ?? emptyHive;
+            const savedTopicIds = [...new Set([...hive.savedTopicIds, ...topicIds])];
+            return { hives: { ...d.hives, [hiveId]: { ...hive, savedTopicIds } } };
+          }),
+        ),
       toggleNotify: (grade) =>
         set((s) => ({
           notifyGrades: s.notifyGrades.includes(grade)
@@ -72,24 +96,34 @@ export const useLearnStore = create<LearnState>()(
         set((s) => {
           const q = query.trim();
           if (!q) return {};
-          const rest = (s.recentSearches ?? []).filter((r) => r !== q);
+          const rest = s.recentSearches.filter((r) => r !== q);
           return { recentSearches: [q, ...rest].slice(0, MAX_RECENT) };
         }),
     }),
     {
       name: 'ari-learn',
-      version: 1,
+      // v2: the device state is kept per demo persona; v1 had one student's state.
+      version: 2,
+      migrate: () => ({ byPersona: {}, notifyGrades: [], recentSearches: [] }),
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: ({ textbooks, placement, hives, notifyGrades, recentSearches }) => ({
-        textbooks,
-        placement,
-        hives,
+      partialize: ({ byPersona, notifyGrades, recentSearches }) => ({
+        byPersona,
         notifyGrades,
         recentSearches,
       }),
     },
   ),
 );
+
+/** A piece of the current persona's learn data. */
+export function useLearnData<T>(select: (data: LearnData) => T): T {
+  const persona = useDemoPersona();
+  return useLearnStore((s) => select(s.byPersona[persona] ?? EMPTY));
+}
+
+/** The current persona's learn data, outside React. */
+export const learnDataNow = (): LearnData =>
+  useLearnStore.getState().byPersona[useDemoPersonaStore.getState().persona] ?? EMPTY;
 
 type PlacementSession = {
   hiveId: string | null;

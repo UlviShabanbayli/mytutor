@@ -25,8 +25,13 @@ export default function ReviewScreen() {
               description={t('study.review.emptyBody')}
             />
           )}
-          <ReviewHowCard plan={query.data} />
-          <UpcomingReviews plan={query.data} />
+          {/* Nothing mastered yet (a first-day student): no schedule to explain or show. */}
+          {query.data.due.length > 0 || query.data.upcoming.length > 0 ? (
+            <>
+              <ReviewHowCard plan={query.data} />
+              <UpcomingReviews plan={query.data} />
+            </>
+          ) : null}
         </>
       ) : null}
     </Screen>

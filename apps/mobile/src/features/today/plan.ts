@@ -1,7 +1,9 @@
 import type { Href } from 'expo-router';
 import type { Topic } from '@mytutor/types';
-import { DEMO_TEST_POINTS } from './demo';
 import type { PlanStep, StepKind } from './types';
+
+/** A practice test step is worth what the world's test steps are worth ("+10"). */
+const TEST_STEP_POINTS = 10;
 
 /** Steps and, when every step's length is known, their total minutes. */
 export function planSummary(steps: PlanStep[]): { count: number; minutes: number | null } {
@@ -30,7 +32,7 @@ export function stepHref(kind: StepKind, targetId: string): Href {
   }
 }
 
-/** The real recommended test (tests API) as the plan's practice step. */
+/** A test published from the team's test books (local API only) as an extra practice step. */
 export function testStep(topic: Topic): PlanStep {
   return {
     id: `plan-test-${topic.id}`,
@@ -42,11 +44,11 @@ export function testStep(topic: Topic): PlanStep {
     reason: { kind: 'questions', count: topic.questionCount },
     minutes: null,
     questionCount: topic.questionCount,
-    points: DEMO_TEST_POINTS,
+    points: TEST_STEP_POINTS,
   };
 }
 
-/** The day's steps: the demo plan plus the recommended test, once the API has one. */
+/** The day's steps: the world's plan plus the published practice test, when the API has one. */
 export function withRecommendedTest(plan: PlanStep[], topic: Topic | null | undefined) {
   return topic && topic.questionCount > 0 ? [...plan, testStep(topic)] : plan;
 }

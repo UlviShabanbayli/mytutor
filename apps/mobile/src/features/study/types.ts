@@ -1,134 +1,83 @@
-import type { MathSvg, PracticeTest, Question, SourceRef } from '@mytutor/types';
+import type {
+  LessonExercise,
+  LessonPage,
+  LessonVideo,
+  MathSvg,
+  MistakeItem as WorldMistakeItem,
+  SourceRef,
+  WorkedExample,
+} from '@mytutor/types';
 import type { CellState } from '@/components/ui';
 
-// View types of the study area (lessons, test steps, review, mistakes). The real schemas come
-// with the lessons, review and attempts APIs (architecture Ş4–Ş6, packages/schemas); until then
-// these shapes describe the demo data and what the screens need.
+// The study area (lessons, test steps, review, mistakes) reads the demo world's shapes from
+// @mytutor/types; the types here are only what the screens build on top of them.
 
-/** The whiteboard video of a lesson. */
-export type LessonVideo = {
-  /** HLS or MP4 address; null while the video is still being prepared. */
-  source: string | null;
-  title: string;
-  minutes: number;
-  /** "Bu dərsdə": what the video covers, in two sentences. */
-  summary: string;
-  /** What the poster board shows: a heading and the key formula. */
-  board: { heading: string; formula: string };
-};
-
-/** One page of the lesson text: paragraphs, the rule box, a closing line and a warning note. */
-export type LessonPage = {
-  heading: string;
-  paragraphs: string[];
-  rule: string[] | null;
-  after: string | null;
-  note: string | null;
-  /** A ready question for Vızı ("niyə məhz 3?"), or null. */
-  askVizi: string | null;
-};
-
-export type WorkedStep = { title: string; body: string };
-
-/** A solved example, revealed one step at a time. */
-export type WorkedExample = {
-  number: number;
-  problem: string;
-  steps: WorkedStep[];
-  hint: string;
-  source: string;
-};
-
-/** An exercise whose typed answer is checked against the book's answer. */
-export type LessonExercise = {
-  number: number;
-  prompt: string;
-  expression: string;
-  answer: string;
-  /** Letters the formula keys offer next to ², ³, the signs and the brackets. */
-  variables: string[];
-  source: string;
-};
-
-export type StudyLesson = {
-  id: string;
-  /** Topic number in the textbook, e.g. "4.3". */
-  topicCode: string;
-  topicTitle: string;
-  source: string;
-  video: LessonVideo;
-  pages: LessonPage[];
-  example: WorkedExample;
-  exercise: LessonExercise;
-  /** Points ("bal damcısı") for finishing the lesson. */
-  points: number;
-  /** The topic test the lesson leads to. */
-  testId: string;
-};
-
-/** Match each formula on the left with its partner on the right. */
-export type MatchStep = {
-  kind: 'match';
-  id: string;
-  prompt: string;
-  left: string[];
-  right: string[];
-  /** For each left item, the index of its partner on the right. */
-  pairs: number[];
-  source: string;
-};
-
-/** A written solution sent as photos; a teacher (AI first, then the teacher) checks it. */
-export type WrittenStep = {
-  kind: 'written';
-  id: string;
-  prompt: string;
-  source: string;
-  reviewer: string;
-};
-
-/** One screen of a test session: an API question (choice or number) or a demo-only kind. */
-export type SessionStep =
-  { kind: 'question'; id: string; question: Question } | MatchStep | WrittenStep;
-
-export type TestKind = 'topic' | 'mistakes' | 'demo';
-
-export type StudyTest = {
-  test: PracticeTest;
-  steps: SessionStep[];
-  kind: TestKind;
-  /** Topic number shown with the test ("Mövzu testi · 4.3"), when known. */
-  topicCode: string | null;
-};
+export type {
+  LessonExercise,
+  LessonPage,
+  LessonVideo,
+  MatchStep,
+  ReviewCell,
+  ReviewPlan,
+  SessionStep,
+  StudyLesson,
+  StudyTest,
+  WorkedExample,
+  WorkedStep,
+  WrittenStep,
+} from '@mytutor/types';
 
 export type StepVerdict = 'correct' | 'wrong' | 'pending';
 
-export type ReviewCell = { code: string; title: string };
+/** The steps a lesson screen can have, in order (architecture "Öyrənmə modeli"). */
+export const LESSON_STEPS = ['video', 'text', 'example', 'exercise'] as const;
+export type LessonStepName = (typeof LESSON_STEPS)[number];
 
-/** Today's spaced review (demo until GET /v1/me/review). */
-export type ReviewPlan = {
-  due: ReviewCell[];
-  questionCount: number;
-  minutes: number;
-  /** One topic's schedule, to explain how review works. */
-  example: ReviewCell & { masteredDaysAgo: number; intervals: number[]; done: number };
-  upcoming: { inDays: number; cells: string[] }[];
-};
-
-export type MistakeItem = {
+/** One of the book's own answers to an exercise printed on the topic's pages. */
+export type BookAnswerRow = {
   id: string;
-  /** Question text; formulas between $…$ come from the group's `math`. */
-  stem: string;
-  yours: string;
-  right: string;
-  source: SourceRef | string;
-  explanation: string | null;
-  subjectId: string;
-  finishedAt: string;
+  /** "17" as printed, with the sub-item letters in the text. */
+  exercise: string;
+  page: number;
+  text: string;
 };
+
+/**
+ * What the lesson screens show. The text is the book's approved lesson text when the local API
+ * has the content folder, else the demo lesson's; the video, the worked example and the exercise
+ * come from the demo lesson when the topic has one. A step without content is left out.
+ */
+export type LessonView = {
+  /** The topic id. */
+  id: string;
+  topicCode: string;
+  topicTitle: string;
+  steps: LessonStepName[];
+  video: LessonVideo | null;
+  pages: LessonPage[];
+  /** The text's source line: the book's, or the demo lesson's. */
+  textSource: string;
+  /** Whether the text is the book's approved lesson text. */
+  fromBook: boolean;
+  example: WorkedExample | null;
+  exercise: LessonExercise | null;
+  /** The source line of the video (the demo lesson's). */
+  source: string;
+  /** The book's answers to the exercises on the topic's pages, when the content folder has them. */
+  bookAnswers: { source: string; items: BookAnswerRow[] } | null;
+  /** Points for finishing; null when the demo has no lesson for the topic. */
+  points: number | null;
+  /** The topic test the lesson leads to ("test-<topicId>"). */
+  testId: string;
+};
+
+/** A mistake as "Səhvlərim" shows it: one of the demo world's, or one from a finished test. */
+export type MistakeItem = Omit<WorldMistakeItem, 'source'> & { source: SourceRef | string };
 
 export type MistakeGroup = {
   id: string;
+  /** The topic the group is about; null for a published test outside the curriculum. */
+  topicId: string | null;
   title: string;
   cell: CellState;
   items: MistakeItem[];

@@ -1,10 +1,11 @@
-import { demoHive, demoPlacementQuestions } from './demo';
+import { worldHive, worldPlacement } from './__fixtures__/world';
 import { placementOutcome, placementRange, placementStep } from './placement';
 import type { PlacementAnswer, PlacementQuestion } from './types';
 
-const questions = demoPlacementQuestions;
+const demoHive = worldHive();
+const questions = worldPlacement();
 const byTopic = (n: string) => {
-  const found = questions.find((q) => q.id === `pq-${n}`);
+  const found = questions.find((q) => q.id === `pq-${n.replace('.', '-')}`);
   if (!found) throw new Error(`no question for ${n}`);
   return found;
 };
@@ -28,18 +29,18 @@ describe('placementStep', () => {
   it('starts in the middle unit with its first question', () => {
     const step = placementStep(demoHive, questions, []);
     expect(step.unitIndex).toBe(2);
-    expect(step.next?.id).toBe('pq-3.1');
+    expect(step.next?.id).toBe('pq-3-1');
   });
 
   it('moves up after a passed unit and down after a miss', () => {
     const up = placementStep(demoHive, questions, ['3.1', '3.2', '3.3'].map(byTopic).map(right));
-    expect(up.next?.id).toBe('pq-4.1');
+    expect(up.next?.id).toBe('pq-4-1');
     const down = placementStep(demoHive, questions, [wrong(byTopic('3.1'))]);
-    expect(down.next?.id).toBe('pq-2.1');
+    expect(down.next?.id).toBe('pq-2-1');
   });
 
   it('treats "Bilmirəm" as not known', () => {
-    const step = placementStep(demoHive, questions, [{ questionId: 'pq-3.1', choice: null }]);
+    const step = placementStep(demoHive, questions, [{ questionId: 'pq-3-1', choice: null }]);
     expect(step.unitIndex).toBe(1);
   });
 });

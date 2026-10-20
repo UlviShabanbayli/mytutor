@@ -1,4 +1,10 @@
-import type { MathSvg, PracticeTest, Question, TestResult } from '@mytutor/types';
+import type {
+  MathSvg,
+  MistakeGroup as WorldMistakeGroup,
+  PracticeTest,
+  Question,
+  TestResult,
+} from '@mytutor/types';
 import { isCorrect, rightAnswer } from '@/features/tests/answers';
 import type { MistakeGroup, MistakeItem } from './types';
 
@@ -69,6 +75,7 @@ export function groupMistakes(entries: MistakeEntry[]): MistakeGroup[] {
   for (const entry of entries) {
     const group = groups.get(entry.test.id) ?? {
       id: entry.test.id,
+      topicId: entry.test.topicId,
       title: entry.test.title,
       cell: 'needs_practice' as const,
       items: [],
@@ -78,6 +85,27 @@ export function groupMistakes(entries: MistakeEntry[]): MistakeGroup[] {
     groups.set(entry.test.id, group);
   }
   return [...groups.values()];
+}
+
+/**
+ * The device's mistake groups first, then the demo world's; a world group about the same topic
+ * as a device group takes the device's items first (one group per topic, no item twice).
+ */
+export function mergeMistakes(device: MistakeGroup[], world: WorldMistakeGroup[]): MistakeGroup[] {
+  const merged: MistakeGroup[] = device.map((g) => ({ ...g, items: [...g.items] }));
+  for (const group of world) {
+    const same = merged.find((g) => g.topicId === group.topicId);
+    if (!same) {
+      merged.push(group);
+      continue;
+    }
+    same.title = group.title;
+    same.cell = group.cell;
+    same.math = { ...group.math, ...same.math };
+    const seen = new Set(same.items.map((i) => i.id));
+    same.items.push(...group.items.filter((i) => !seen.has(i.id)));
+  }
+  return merged;
 }
 
 /** A practice test of the newest mistakes; null when there is nothing to practise. */

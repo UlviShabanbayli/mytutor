@@ -21,8 +21,26 @@ export function ComebackSheet({ awayDays }: ComebackSheetProps) {
     <Sheet visible onClose={leaveToToday} title={t('today.comeback.title')} showTitle={false}>
       {comeback.isPending ? (
         <LoadingState />
-      ) : !data ? (
+      ) : comeback.isError ? (
         <ErrorState onRetry={() => void comeback.refetch()} />
+      ) : !data ? (
+        // Back after a break, but nothing crystallized meanwhile.
+        <View className="items-center gap-3 px-1">
+          <Mascot mood="salam" behavior="idle" enter size={128} decorative />
+          <Text variant="heading" className="text-center font-display-black text-xl">
+            {t('today.comeback.title')}
+          </Text>
+          <Text tone="muted" className="text-center">
+            {awayDays
+              ? `${t('today.comeback.away', { count: awayDays })} ${t('today.comeback.nothing')}`
+              : t('today.comeback.nothing')}
+          </Text>
+          <Button
+            label={t('today.comeback.continue')}
+            onPress={leaveToToday}
+            className="self-stretch"
+          />
+        </View>
       ) : (
         <View className="items-center gap-3 px-1">
           <Mascot mood="salam" behavior="idle" enter size={128} decorative />
