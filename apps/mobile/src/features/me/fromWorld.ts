@@ -138,6 +138,7 @@ export function toClassAssignment(a: StudentAssignment, now: Date): ClassAssignm
     ...(a.itemCount !== undefined ? { questions: a.itemCount } : {}),
     due: whenOf(a.dueAt, now),
     status: statusOf(a),
+    late: a.late,
     ...(grade ? { grade: { score: grade.score, max: grade.max } } : {}),
     ...(a.testId ? { testId: a.testId } : {}),
   };

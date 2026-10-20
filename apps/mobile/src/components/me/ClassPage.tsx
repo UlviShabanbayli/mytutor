@@ -37,7 +37,11 @@ export function ClassPage({ summary, feed }: ClassPageProps) {
     setTarget(id);
     setSheet('report');
   };
-  const next = feed.assignments.find((a) => a.status === 'not_started') ?? feed.assignments[0];
+  // The next task: the first one still open, else the first one not handed in, else any.
+  const next =
+    feed.assignments.find((a) => a.status === 'not_started' && !a.late) ??
+    feed.assignments.find((a) => a.status === 'not_started') ??
+    feed.assignments[0];
   const feedEmpty = !feed.announcement && !feed.live && !next && !feed.recording;
 
   return (

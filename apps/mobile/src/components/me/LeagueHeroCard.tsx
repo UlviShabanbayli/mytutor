@@ -39,7 +39,9 @@ export function LeagueHeroCard({ table }: LeagueHeroCardProps) {
           </Text>
           <Text className="font-display-bold text-lg text-on-spot">{leagueName}</Text>
         </View>
-        {table.place === null ? null : (
+        {table.place === null ? (
+          <Text className="max-w-[40%] text-right text-xs text-on-spot opacity-80">{place}</Text>
+        ) : (
           <View className="items-end">
             <Text className="font-display-black text-xl text-on-spot">{table.place}</Text>
             <Text className="text-xs text-on-spot opacity-80">

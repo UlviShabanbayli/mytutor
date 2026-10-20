@@ -16,6 +16,7 @@ describe('formatWhen / formatDay', () => {
     expect(formatWhen(t, { day: 4, time: '20:00' })).toBe('Cümə 20:00');
     expect(formatWhen(t, { day: 'tomorrow', time: '23:59' })).toBe('Sabah 23:59');
     expect(formatWhen(t, { day: 2 })).toBe('Çərşənbə');
+    expect(formatWhen(t, { day: 5, date: '2026-10-10', time: '23:59' })).toBe('10 oktyabr 23:59');
   });
 
   it('writes a date with the month name', () => {

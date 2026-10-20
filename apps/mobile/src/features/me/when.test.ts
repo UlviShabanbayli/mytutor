@@ -17,6 +17,15 @@ describe('when (Baku time)', () => {
     expect(whenOf('2026-10-15T08:00:00.000Z', now, false)).toEqual({ day: 3 });
   });
 
+  it('dates a day more than a week away', () => {
+    // Saturday 10 October.
+    expect(whenOf('2026-10-10T19:59:00.000Z', now)).toEqual({
+      day: 5,
+      date: '2026-10-10',
+      time: '23:59',
+    });
+  });
+
   it('turns a UTC moment late in the evening into the next Baku day', () => {
     expect(dayOf('2026-10-19T21:30:00.000Z')).toBe('2026-10-20');
     expect(clockOf('2026-10-19T21:30:00.000Z')).toBe('01:30');

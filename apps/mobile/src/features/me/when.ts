@@ -20,7 +20,10 @@ export function dayOf(iso: string): string {
   return new Date(Date.parse(iso) + BAKU_OFFSET_MS).toISOString().slice(0, 10);
 }
 
-/** Bu gün / dünən / sabah, or the weekday (Monday = 0), with the time when `withTime`. */
+/**
+ * Bu gün / dünən / sabah, or the weekday (Monday = 0) within a week, else the date; with the time
+ * when `withTime`.
+ */
 export function whenOf(iso: string, now: Date = new Date(), withTime = true): When {
   const clock = makeClock(now);
   const days = clock.daysUntil(iso);
@@ -32,5 +35,6 @@ export function whenOf(iso: string, now: Date = new Date(), withTime = true): Wh
         : days === 1
           ? 'tomorrow'
           : (((((clock.weekday + days) % 7) + 7) % 7) as Extract<When['day'], number>);
-  return withTime ? { day, time: clockOf(iso) } : { day };
+  const far = Math.abs(days) > 6 ? { date: dayOf(iso) } : {};
+  return withTime ? { day, ...far, time: clockOf(iso) } : { day, ...far };
 }

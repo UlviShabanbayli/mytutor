@@ -100,6 +100,8 @@ export type ClassAssignment = {
   questions?: number;
   due: When;
   status: AssignmentStatus;
+  /** Due passed and nothing handed in. */
+  late: boolean;
   grade?: { score: number; max: number };
   /** Where "Başla" leads for a test assignment (a test id of the study area). */
   testId?: string;

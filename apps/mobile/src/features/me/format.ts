@@ -6,9 +6,13 @@ export function formatNumber(value: number): string {
   return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
-/** A day of the demo data: relative words or a weekday (0 = Monday), with an optional time. */
+/**
+ * A day of the demo data: relative words or a weekday (0 = Monday), with an optional time. A
+ * day more than a week away also carries its ISO date (YYYY-MM-DD), which is shown instead.
+ */
 export type When = {
   day: 'today' | 'yesterday' | 'tomorrow' | 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  date?: string;
   time?: string;
 };
 
@@ -24,8 +28,9 @@ const WEEKDAY_KEYS = [
 
 /** "Cümə 20:00", "Bu gün 09:12", "Sabah". */
 export function formatWhen(t: TFunction, when: When): string {
-  const day =
-    typeof when.day === 'number'
+  const day = when.date
+    ? formatDay(t, when.date)
+    : typeof when.day === 'number'
       ? t(WEEKDAY_KEYS[when.day] ?? 'me.when.weekdays.0')
       : t(`me.when.${when.day}`);
   return when.time ? t('me.when.dayTime', { day, time: when.time }) : day;
