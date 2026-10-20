@@ -85,6 +85,7 @@ export function TestResultView({ study, result }: TestResultViewProps) {
                   : t('study.result.cellLearningBody', { percent: MASTERY_PERCENT })
               }
               tone="card"
+              points={score.correct * POINTS_PER_CORRECT}
             />
           )}
           {/* The tiles come in after the score ring (feedback.score C). */}

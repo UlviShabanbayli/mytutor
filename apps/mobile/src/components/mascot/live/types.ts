@@ -37,6 +37,11 @@ export type LiveOptions = {
   /** idle, tap: false flies Vızı out to the upper right, then calls `onExited`. */
   visible?: boolean;
   onExited?: () => void;
+  /**
+   * correct, wrong, done, think: waits this long (ms) before the one-off moment plays, e.g. until
+   * the panel or card around Vızı has entered. A hidden entrance (correct) stays hidden till then.
+   */
+  delay?: number;
   /** greet, correct: the line in Vızı's bubble when the moment peaks (e.g. «Əla!»). */
   say?: string;
   /**

@@ -21,9 +21,8 @@ type NumberRollProps = {
 /**
  * An odometer step (feedback.streak): the old number leaves upwards (220ms) while the new one
  * rolls in from below (260ms, 80ms later). Less motion: the new number, still. Callers give
- * screen readers the new value.
- *
- * TODO(motion-micro): use `RollingNumber` (micro.count) once it lands in components/ui.
+ * screen readers the new value. Every other number rolls with `RollingNumber` (micro.count);
+ * this one keeps the streak moment's own whole-number step and timing.
  */
 export function NumberRoll({ from, to, delay, className }: NumberRollProps) {
   const reduced = useReducedMotionPref();

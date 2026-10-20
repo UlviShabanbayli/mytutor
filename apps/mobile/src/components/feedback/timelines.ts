@@ -19,16 +19,16 @@ export const correctB = {
   pillFrom: 0.6,
 } as const;
 
-/** feedback.wrong C: the right option shows 350ms later, then the warm panel and Vızı peek. */
+/**
+ * feedback.wrong C: the right option shows 350ms later, then the warm panel and Vızı peek; her
+ * tilt and nods come from the rig (vizi.wrong A).
+ */
 export const wrongC = {
   rightAt: 350,
   panelAt: 800,
   peekAt: 250,
   peekRise: 450,
   peekFrom: 30,
-  nodAt: 750,
-  nodHalf: 200,
-  nodDeg: -6,
 } as const;
 
 /** feedback.points C: 8 drops stream into the counter, whose drop fills, then drains. */
@@ -83,7 +83,6 @@ export const lessonDoneB = {
   tilesAt: 1200,
   tileStagger: 150,
   tileFrom: 0.8,
-  count: 900,
   ctaAt: 2000,
 } as const;
 

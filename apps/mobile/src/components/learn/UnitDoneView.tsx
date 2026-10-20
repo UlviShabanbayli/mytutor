@@ -57,7 +57,8 @@ export function UnitDoneView({ hive, unit, next, result }: UnitDoneViewProps) {
           duration={u.vizi[1]}
           ease="pop"
         >
-          <Mascot moment="unitDone" size={150} />
+          {/* vizi.done A as she hops in: arms up, a hop with fast wings, a laugh. */}
+          <Mascot moment="unitDone" behavior="done" delay={u.vizi[0]} size={150} />
         </Appear>
         <Text variant="heading" className="text-center font-display-black text-2xl text-on-honey">
           {t('learn.unitDone.title', { title: unit.title })}

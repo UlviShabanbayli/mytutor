@@ -1,9 +1,8 @@
 import { View } from 'react-native';
 import { PopIn } from '@/components/feedback/PopIn';
 import { lessonDoneB } from '@/components/feedback/timelines';
-import { useCountUp } from '@/components/feedback/useCountUp';
-import { Text } from '@/components/ui';
-import { useReducedMotionPref } from '@/motion';
+import { RollingNumber, Text } from '@/components/ui';
+import { splitAtNumber } from '@/lib/rolling';
 
 type DoneTileProps = {
   value: number;
@@ -14,23 +13,36 @@ type DoneTileProps = {
   delay: number;
 };
 
+const numberClass = 'font-display-black text-xl text-on-honey';
+
 /**
  * A stat on the honey "Dərs bitdi" page (feedback.lessondone B): pops 0.8 → 1 with a small
- * overshoot while its number counts up. Screen readers hear the final value.
+ * overshoot while its number rolls up (micro.count). Screen readers hear the final value.
  */
 export function DoneTile({ value, format, label, delay }: DoneTileProps) {
-  const reduced = useReducedMotionPref();
-  const shown = useCountUp(value, { duration: lessonDoneB.count, delay, reduced });
+  const shown = format(value);
+  const parts = splitAtNumber(shown, value);
 
   return (
     <PopIn delay={delay} from={lessonDoneB.tileFrom} className="flex-1">
       <View
         accessible
-        accessibilityLabel={`${format(value)} ${label}`}
+        accessibilityLabel={`${shown} ${label}`}
         // White veil on honey: the design's one allowed overlay on the honey ground.
         className="gap-0.5 rounded-xl bg-white/45 px-3 py-2.5"
       >
-        <Text className="font-display-black text-xl text-on-honey">{format(shown)}</Text>
+        {parts ? (
+          <RollingNumber
+            value={value}
+            prefix={parts.before}
+            suffix={parts.after}
+            delay={delay}
+            accessible={false}
+            className={numberClass}
+          />
+        ) : (
+          <Text className={numberClass}>{shown}</Text>
+        )}
         <Text className="font-sans-bold text-sm text-on-honey">{label}</Text>
       </View>
     </PopIn>

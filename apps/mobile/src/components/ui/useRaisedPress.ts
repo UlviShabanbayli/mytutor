@@ -14,9 +14,13 @@ const DEPTH = 4;
 
 type RaisedPressOptions = {
   /** buttons.spot: a slower press and a release without visible bounce. */
-  calm: boolean;
+  calm?: boolean;
   /** Disabled: the face lies flat on its edge in wax colours. */
-  off: boolean;
+  off?: boolean;
+  /** How far the face sinks: the height of its edge (4pt, or 2–3pt on cards, rows and keys). */
+  depth?: number;
+  /** The light tap on pressIn; off where the control plays its own cue (e.g. `select`). */
+  cue?: boolean;
 };
 
 /**
@@ -25,9 +29,15 @@ type RaisedPressOptions = {
  * - buttons.spot A: pressIn 120 ms, release with `spring.calm`;
  * - buttons.enable B: when `off` turns false the colours switch in 120 ms (`litStyle` fades the
  *   face colour in over wax), then the face springs up with `spring.standUp`.
- * Haptic Light (`press`) on pressIn.
+ * Haptic Light (`press`) on pressIn. Local raised cards, rows and keys use it too, with their own
+ * edge `depth`.
  */
-export function useRaisedPress({ calm, off }: RaisedPressOptions) {
+export function useRaisedPress({
+  calm = false,
+  off = false,
+  depth = DEPTH,
+  cue = true,
+}: RaisedPressOptions = {}) {
   const reduced = useReducedMotionPref();
   // 1 = lying on the edge (pressed or disabled), 0 = standing up.
   const sink = useSharedValue(off ? 1 : 0);
@@ -44,14 +54,14 @@ export function useRaisedPress({ calm, off }: RaisedPressOptions) {
     sink.set(reduced ? 0 : withDelay(duration.standUpDelay, withSpring(0, spring.standUp)));
   }, [off, reduced, lit, sink]);
 
-  const faceStyle = useAnimatedStyle(() => ({ transform: [{ translateY: DEPTH * sink.get() }] }));
+  const faceStyle = useAnimatedStyle(() => ({ transform: [{ translateY: depth * sink.get() }] }));
   const litStyle = useAnimatedStyle(() => ({ opacity: lit.get() }));
 
   return {
     faceStyle,
     litStyle,
     pressIn: () => {
-      playCue('press');
+      if (cue) playCue('press');
       sink.set(
         withTiming(1, {
           duration: calm ? duration.quick : duration.press,

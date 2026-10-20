@@ -12,6 +12,7 @@ import { useLearnText } from '@/features/learn/useLearnText';
 import { playCue } from '@/lib/cues';
 import { useReducedMotionPref } from '@/motion';
 import { Appear } from './Appear';
+import { PlacementTitle } from './PlacementTitle';
 import { PlacementUnitRow } from './PlacementUnitRow';
 import { StartPointCard } from './StartPointCard';
 
@@ -36,8 +37,6 @@ export function PlacementResultView({ hive, outcome }: PlacementResultViewProps)
   const shown = useLandedCount(Object.values(wave.landAt).flat());
   const p = placementResult;
   const viziAt = wave.end - 100;
-  const title = (n: number) =>
-    count > 0 ? t('learn.result.title', { count: n }) : t('learn.result.titleNone');
 
   useEffect(() => {
     // The success tap comes with Vızı; at once when motion is reduced.
@@ -59,22 +58,15 @@ export function PlacementResultView({ hive, outcome }: PlacementResultViewProps)
           {t('learn.result.overline')}
         </Text>
         <View className="flex-row items-center gap-2.5">
-          <Appear
-            from={{ opacity: 0, y: 10, scale: 0.6 }}
-            delay={viziAt}
-            duration={p.vizi}
-            ease="pop"
-          >
-            <Mascot moment="correct" size={96} />
-          </Appear>
+          {/* vizi.correct C pops Vızı in by itself as the wave ends, then she spins and winks. */}
+          <Mascot
+            moment="correct"
+            behavior="correct"
+            delay={Math.max(0, viziAt - p.viziLead)}
+            size={96}
+          />
           <View className="min-w-0 flex-1 gap-1">
-            <Text
-              variant="heading"
-              accessibilityLabel={title(count)}
-              className="font-display-black text-[26px] leading-[30px]"
-            >
-              {title(shown)}
-            </Text>
+            <PlacementTitle count={count} shown={shown} />
             <Text className="text-sm" tone="muted">
               {t(count > 0 ? 'learn.result.score' : 'learn.result.scoreNone', outcome)}
             </Text>

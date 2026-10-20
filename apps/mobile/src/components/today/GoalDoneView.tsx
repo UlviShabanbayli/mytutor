@@ -45,7 +45,8 @@ export function GoalDoneView({ flightDay, minutes, cells, points, accuracy }: Go
         <Text className="text-center font-sans-black text-sm uppercase tracking-[1.3px] text-on-honey">
           {t('today.goalDone.overline')}
         </Text>
-        <Mascot moment="lessonDone" size={150} decorative />
+        {/* vizi.done A: arms up, a hop with fast wings, a laugh. */}
+        <Mascot moment="lessonDone" behavior="done" size={150} decorative />
         <Text variant="title" className="text-center text-on-honey">
           {t('today.goalDone.title', { count: flightDay })}
         </Text>

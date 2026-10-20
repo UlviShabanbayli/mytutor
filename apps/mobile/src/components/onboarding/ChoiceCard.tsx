@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
-import { Icon, type IconName, Text } from '@/components/ui';
+import Animated from 'react-native-reanimated';
+import { Icon, type IconName, Text, useRaisedPress } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { HexTile } from './HexTile';
 
@@ -35,8 +36,11 @@ export function ChoiceCard({
   language,
   accessibilityLabel,
 }: ChoiceCardProps) {
+  const press = useRaisedPress({ depth: 3 });
   return (
     <Pressable
+      onPressIn={press.pressIn}
+      onPressOut={press.pressOut}
       accessibilityRole="radio"
       accessibilityState={{ checked: selected }}
       accessibilityLabel={accessibilityLabel ?? `${title}. ${description}`}
@@ -44,12 +48,11 @@ export function ChoiceCard({
       onPress={onPress}
       className={cn('rounded-xl pb-[3px]', selected ? 'bg-honey-deep' : 'bg-border')}
     >
-      {({ pressed }) => (
+      <Animated.View style={press.faceStyle}>
         <View
           className={cn(
             'min-h-[72px] flex-row items-center gap-3.5 rounded-xl border-2 px-3.5 py-3',
             selected ? 'border-honey bg-raised' : 'border-border bg-surf',
-            pressed && 'translate-y-[3px]',
           )}
         >
           <HexTile size={48} fill={selected ? 'honey' : 'raised'}>
@@ -83,7 +86,7 @@ export function ChoiceCard({
             {selected ? <Icon name="check" size={16} color="on-honey" /> : null}
           </View>
         </View>
-      )}
+      </Animated.View>
     </Pressable>
   );
 }

@@ -1,25 +1,28 @@
 import { Pressable, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
-import { Text } from '@/components/ui';
+import { Text, useRaisedPress } from '@/components/ui';
 import { cn } from '@/lib/cn';
 
 type ReportButtonProps = { isNew: boolean; onPress: () => void };
 
 /** The child card's raised honey "Hesabat" button with a "Yeni" pill for an unread report. */
 export function ReportButton({ isNew, onPress }: ReportButtonProps) {
+  const press = useRaisedPress({ depth: 3 });
   const { t } = useTranslation();
   return (
     <Pressable
+      onPressIn={press.pressIn}
+      onPressOut={press.pressOut}
       accessibilityRole="button"
       accessibilityLabel={isNew ? t('parent.kids.reportButtonNew') : t('parent.kids.reportButton')}
       onPress={onPress}
       className="flex-1 rounded-md bg-honey-deep pb-[3px]"
     >
-      {({ pressed }) => (
+      <Animated.View style={press.faceStyle}>
         <View
           className={cn(
             'h-[48px] flex-row items-center justify-center gap-1.5 rounded-md bg-honey px-2',
-            pressed && 'translate-y-[3px]',
           )}
         >
           <Text className="font-sans-black text-sm text-on-honey">
@@ -34,7 +37,7 @@ export function ReportButton({ isNew, onPress }: ReportButtonProps) {
             </View>
           ) : null}
         </View>
-      )}
+      </Animated.View>
     </Pressable>
   );
 }

@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Mascot } from '@/components/mascot/Mascot';
-import { Button, DepthDialog, Icon, Text } from '@/components/ui';
+import { Button, DepthDialog, Icon, SuccessCheck, Text } from '@/components/ui';
 
 type TestExitDialogProps = {
   visible: boolean;
@@ -39,15 +39,14 @@ export function TestExitDialog({
           {t('study.test.exitBody')}
         </Text>
         <View className="gap-2 self-stretch rounded-lg bg-raised px-3.5 py-3">
-          <View className="flex-row items-center gap-2.5">
-            <Icon name="check" size={20} color="ok" />
-            <Text className="flex-1 font-sans-semibold text-sm">
-              {t('study.test.saved', { count: answered })}
-            </Text>
-          </View>
-          <View className="flex-row items-center gap-2.5">
-            <Icon name="pin" size={20} color="honey-text" />
-            <Text className="flex-1 font-sans-semibold text-sm">
+          {/* micro.done A: the answers given so far are safe. */}
+          <SuccessCheck layout="row" body={t('study.test.saved', { count: answered })} />
+          <View className="flex-row items-center gap-3">
+            {/* As wide as the check's 40pt mark, so both lines start together. */}
+            <View className="w-10 items-center">
+              <Icon name="pin" size={20} color="honey-text" />
+            </View>
+            <Text className="flex-1 text-sm">
               {t('study.test.position', { n: position, total })}
             </Text>
           </View>
