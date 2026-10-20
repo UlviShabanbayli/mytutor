@@ -16,6 +16,7 @@
   "dependencies": {
     "@expo/vector-icons": "^15.1.1",
     "@mytutor/config": "workspace:*",
+    "@mytutor/demo-data": "workspace:*",
     "@mytutor/schemas": "workspace:*",
     "@mytutor/types": "workspace:*",
     "@react-native-async-storage/async-storage": "2.2.0",

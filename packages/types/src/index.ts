@@ -231,3 +231,5 @@ export type ExamKind = z.output<typeof examKindSchema>;
 export type AdmissionGroup = z.output<typeof admissionGroupSchema>;
 export type StudyGoal = z.output<typeof studyGoalSchema>;
 export type OnboardingProfile = z.output<typeof onboardingProfileSchema>;
+
+export * from './domain';

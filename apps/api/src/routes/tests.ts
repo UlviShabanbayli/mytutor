@@ -1,7 +1,6 @@
-import { readFile } from 'node:fs/promises';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import type { TestsStore } from '../services/publishedTests';
+import type { TestsStore } from '../services/content';
 
 /** The app's test practice: subjects → topics → a test with its questions, and their figures. */
 export function testsRoutes(store: TestsStore) {
@@ -23,10 +22,10 @@ export function testsRoutes(store: TestsStore) {
 
 export function mediaRoutes(store: TestsStore) {
   return new Hono().get('/:file', async (c) => {
-    const path = await store.media(c.req.param('file'));
-    if (!path) throw new HTTPException(404, { message: 'File not found' });
+    const bytes = await store.media(c.req.param('file'));
+    if (!bytes) throw new HTTPException(404, { message: 'File not found' });
     c.header('Content-Type', 'image/png');
     c.header('Cache-Control', 'public, max-age=3600');
-    return c.body(new Uint8Array(await readFile(path)));
+    return c.body(bytes);
   });
 }
