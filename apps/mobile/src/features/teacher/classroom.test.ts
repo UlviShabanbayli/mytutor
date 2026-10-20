@@ -6,7 +6,7 @@ import {
   stepValue,
 } from './classroom';
 import { matchesName } from './people';
-import type { ClassMember } from './types';
+import type { RosterEntry } from '@mytutor/types';
 
 describe('makeInviteCode', () => {
   it('joins the class, the subject and three unambiguous characters', () => {
@@ -39,19 +39,29 @@ describe('audienceSize', () => {
 });
 
 describe('filterMembers', () => {
-  const member = (id: string, name: string): ClassMember => ({
-    id,
+  const member = (personId: string, name: string): RosterEntry => ({
+    classId: '7b',
+    personId,
     name,
+    shortName: name,
+    nickname: personId,
     sharesProgress: true,
     mutedInChat: false,
+    activeThisWeek: true,
+    weekPoints: 0,
+    joinedAt: '2026-10-01T10:00:00.000Z',
   });
-  const members = [member('a', 'Nərmin Əliyeva'), member('b', 'Orxan M.'), member('c', 'Nigar M.')];
+  const members = [
+    member('a', 'Nərmin Əliyeva'),
+    member('b', 'Orxan Məmmədov'),
+    member('c', 'Nigar Mustafayeva'),
+  ];
 
   it('filters by name and by group', () => {
     const byName = filterMembers(members, (n) => matchesName(n, 'n'), null);
-    expect(byName.map((m) => m.id)).toEqual(['a', 'b', 'c']);
+    expect(byName.map((m) => m.personId)).toEqual(['a', 'b', 'c']);
     const group = { id: 'g', name: 'Qrup', memberIds: ['b'] };
-    expect(filterMembers(members, () => true, group).map((m) => m.id)).toEqual(['b']);
+    expect(filterMembers(members, () => true, group).map((m) => m.personId)).toEqual(['b']);
   });
 });
 

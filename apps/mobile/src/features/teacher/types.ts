@@ -1,205 +1,86 @@
-import type { CellState } from '@/components/ui';
+import type {
+  AskQuestionView,
+  ChatThreadView,
+  ClassInsights,
+  LiveParticipant,
+  SolutionStep,
+  TeacherAssignment,
+  TeacherClassView,
+  TeacherProfile,
+} from '@mytutor/types';
 
 /*
- * VIEW types of the teacher area for the demo (architecture M1–M8). The real domain schemas
- * come with the teacher API in packages/schemas; until then these describe what the screens
- * show, nothing more.
+ * What the teacher screens show (architecture M1–M8). The shapes are the demo world's domain
+ * types from @mytutor/types; these add only what a screen needs on top of them (a topic's
+ * number and title, a name). views.ts maps the API's answers to them, so components never
+ * read the raw answers.
  */
 
-/** Where a question, an AI answer or a review comes from: book, section, optional page. */
-/** `demo`: our own demo text that only points at the textbook's section, not the book's text. */
-export type SourceView = { book: string; section: string; page?: number; demo?: boolean };
+/** A textbook topic as the teacher area shows it: "4.1 · Cəmin və fərqin kvadratı". */
+export type TopicView = { id: string; number: string; title: string; page: number };
 
-/** A platform topic every material and assignment is bound to (the textbook's contents). */
-export type TopicView = { id: string; title: string; page?: number };
-
-/** M1: unverified teachers open free classes; verified ones unlock paid classes and more. */
-export type VerificationStatus = 'unverified' | 'pending' | 'verified';
-
-export type TeacherProfile = {
-  name: string;
-  subject: string;
-  grade: number;
-  verification: VerificationStatus;
-  /** When the documents were sent (pending verification). */
-  submittedAt: string | null;
-  listing: TutorListingPreview;
-};
-
-/** M8: the marketplace profile; visible to students only after verification. */
-export type TutorListingPreview = {
-  /** Price per hour in manat; null until the teacher sets it. */
-  pricePerHour: number | null;
-  subjects: string[];
-  gradeFrom: number;
-  gradeTo: number;
-  exams: 'graduation_9'[];
-  /** Weekdays, Monday = 0. */
-  days: number[];
-  hours: string;
-  bio: string;
-  reviewCount: number;
-  /** Income this month in manat; null while there are no paid classes. */
-  monthIncome: number | null;
-};
-
-export type ClassGroup = { id: string; name: string; memberIds: string[] };
-
-export type TeacherClass = {
+/** A unit of the ready textbook volume, with the book and part it is in. */
+export type UnitView = {
   id: string;
-  /** "7B": shown inside the class hexagon. */
-  shortName: string;
-  name: string;
-  subject: string;
-  book: string;
-  grade: number;
-  paid: boolean;
-  inviteCode: string;
-  groups: ClassGroup[];
-  studentCount: number;
-  activeThisWeek: number;
-  activeAssignments: number;
-  /** Share of assigned work done, 0–1. */
-  completion: number;
-  chatOpen: boolean;
-  chatUnread: number;
+  number: string;
+  /** "Riyaziyyat 7 (TRİMS)". */
+  bookTitle: string;
+  part: number;
+  topics: TopicView[];
 };
 
-export type ClassMember = {
-  id: string;
-  name: string;
-  /** The student allowed the teacher to see their overall progress (Rollar və icazələr). */
-  sharesProgress: boolean;
-  mutedInChat: boolean;
+/** The teacher's profile with her name. */
+export type TeacherProfileView = TeacherProfile & { name: string };
+
+/** A class with the book line under its name ("Riyaziyyat 7"). */
+export type TeacherClass = TeacherClassView & { book: string };
+
+/** An assignment with its topic and, for a unit test, the unit's number. */
+export type ClassAssignment = TeacherAssignment & {
+  topic: TopicView | null;
+  unitNumber: string | null;
 };
 
-export type AssignmentKind = 'lesson' | 'test' | 'homework' | 'mock';
-
-export type Audience =
-  { type: 'class' } | { type: 'group'; groupId: string } | { type: 'students'; ids: string[] };
-
-export type ClassAssignment = {
-  id: string;
-  classId: string;
-  kind: AssignmentKind;
-  topicId: string;
-  /** Unit number of a unit test ("ana arı hüceyrəsi"). */
-  unit?: number;
-  /** Number of exercises of a homework. */
-  exerciseCount?: number;
-  audience: Audience;
-  dueAt: string;
-  done: number;
-  total: number;
-  /** Homework handed in and waiting for the teacher. */
-  toGrade: number;
-};
-
-export type Announcement = { id: string; classId: string; text: string; at: string };
-
-/** One step of a solution; `edited` once the teacher changed the AI's text. */
-export type SolutionStep = { id: string; label: string; formula: string; edited?: boolean };
-
-/** M6: a student's question with the AI's first-pass solution. */
-export type InboxQuestion = {
-  id: string;
-  studentId: string;
-  studentName: string;
-  classId: string;
-  topicId: string;
+/** M6: a student's question with the steps to show (the teacher's once answered). */
+export type InboxQuestion = AskQuestionView & {
   askedAt: string;
-  text: string;
-  /** What the student wrote next to the photo. */
-  note: string;
-  /** The photo, drawn as a lined page with the formula the student wrote. */
-  photo: { formula: string } | null;
-  ai: { status: 'solving' | 'ready'; steps: SolutionStep[] };
-  source: SourceView;
-  /** Approved by the teacher: the student now sees "Müəllim təsdiqlədi". */
+  /** Answered by the teacher: the student now sees "Müəllim təsdiqlədi". */
   approved: boolean;
+  aiStatus: 'solving' | 'ready';
+  steps: SolutionStep[];
 };
 
-export type Submission = {
-  id: string;
-  assignmentId: string;
-  studentId: string;
-  studentName: string;
-  submittedAt: string;
-  /** The handwritten pages as lines (a photo in the real app). */
-  pages: string[][];
-  ai: { correct: number[]; note: string; suggested: number };
-  source: SourceView;
-  grade: number | null;
-  comment: string;
-};
+/** M7: the class report, with the unit's number for the subtitle. */
+export type InsightsView = ClassInsights & { unitNumber: string };
 
-export type MaterialKind = 'lesson' | 'video' | 'test' | 'question';
-
-export type Material = {
-  id: string;
-  kind: MaterialKind;
-  title: string;
-  /** Questions of a test, blocks of a lesson, minutes of a video. */
-  size: number;
-  views?: number;
-  /** `class`: published to the teacher's own classes; catalog items go through review. */
-  state: 'draft' | 'class' | 'in_review' | 'approved';
-  updatedAt: string;
-};
-
-/** A question of our bank: included in a test as it is, never edited (M3). */
-export type BankQuestion = { id: string; topicId: string; text: string; source: SourceView };
-
-export type InsightRow = { studentId: string; name: string; levels: CellState[] };
-
-export type ClassInsights = {
-  classId: string;
-  unit: number;
-  days: number;
-  topics: string[];
-  completion: number;
-  activeThisWeek: number;
-  studentCount: number;
-  /** Only students who allowed it; the rest are counted, never shown. */
-  rows: InsightRow[];
-  hiddenCount: number;
-  missed: { id: string; text: string; source: SourceView; wrong: number; total: number }[];
-};
-
-export type LiveParticipant = {
+/** A tile in the live room; the teacher's own tile is `me`. */
+export type LiveTile = {
   id: string;
   name: string;
-  state: 'me' | 'muted' | 'hand' | 'weak';
+  state: 'me' | Exclude<LiveParticipant['state'], 'speaking'>;
 };
 
+/** M5: the live room with names on the tiles and the board as lines of text. */
 export type LiveRoom = {
   id: string;
   classId: string;
   title: string;
-  topicId: string;
+  topic: TopicView | null;
   startsAt: string;
   minutes: number;
   present: number;
   total: number;
-  participants: LiveParticipant[];
+  participants: LiveTile[];
   hands: { studentId: string; name: string; at: string }[];
   board: string[];
   chatUnread: number;
 };
 
-export type ChatMessage = { id: string; author: string | null; text: string; at: string };
+/** A conversation in the list, with the child a parent writes about. */
+export type Conversation = ChatThreadView & { childName: string | null };
 
-export type Conversation = {
-  id: string;
-  kind: 'class' | 'parent' | 'student';
-  title: string;
-  /** The parent's child, for "Valideyn · …". */
-  child?: string;
-  unread: number;
-  messages: ChatMessage[];
-};
-
+/** The bell's list: who asked, which homework waits, the verification. */
 export type TeacherNotice =
-  | { id: string; kind: 'question'; name: string; at: string }
-  | { id: string; kind: 'homework'; count: number; topicId: string; at: string }
-  | { id: string; kind: 'verification'; at: string };
+  | { id: string; read: boolean; at: string; kind: 'question'; name: string }
+  | { id: string; read: boolean; at: string; kind: 'homework'; count: number; topic: string }
+  | { id: string; read: boolean; at: string; kind: 'verification' };

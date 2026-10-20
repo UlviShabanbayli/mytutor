@@ -8,10 +8,15 @@ import { SubjectField, type SubjectKey } from '@/components/teacher/SubjectField
 import { TeacherHeader } from '@/components/teacher/TeacherHeader';
 import { TeacherScreen } from '@/components/teacher/TeacherScreen';
 import { Banner, Button, Input } from '@/components/ui';
-import { useCreateClass, useTeacherProfile } from '@/features/teacher/queries';
+import { NoteLine } from '@/components/teacher/NoteLine';
+import { useCreateClass } from '@/features/teacher/mutations';
+import { useTeacherProfile } from '@/features/teacher/queries';
 import type { TeacherClass } from '@/features/teacher/types';
 
-/** New class and its invite code (design t-class-new, M2): a free class opens at once. */
+/**
+ * New class and its invite code (design t-class-new, M2): a free class opens at once. The demo
+ * shows the code but does not keep the class (no shared demo event for it yet).
+ */
 export default function NewClassScreen() {
   const { t } = useTranslation();
   const profile = useTeacherProfile();
@@ -69,12 +74,11 @@ export default function NewClassScreen() {
       {created ? (
         <>
           <InviteCodeCard cls={created} />
+          <NoteLine icon="info">{t('teacher.classNew.demoNote')}</NoteLine>
           <Button
             variant="secondary"
-            label={t('teacher.classNew.openClass')}
-            onPress={() =>
-              router.replace({ pathname: '/teacher/class/[id]', params: { id: created.id } })
-            }
+            label={t('teacher.classNew.backToClasses')}
+            onPress={() => router.replace('/teacher/classes')}
           />
         </>
       ) : (

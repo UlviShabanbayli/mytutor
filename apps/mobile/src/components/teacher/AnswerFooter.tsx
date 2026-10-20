@@ -1,8 +1,8 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, IconButton } from '@/components/ui';
+import { goBack } from '@/features/teacher/navigation';
 import { ConfirmSheet } from './ConfirmSheet';
 import { SmallButton } from './SmallButton';
 import { SoonSheet } from './SoonSheet';
@@ -33,7 +33,8 @@ export function AnswerFooter({
   const [rewriting, setRewriting] = useState(false);
   const [camera, setCamera] = useState(false);
 
-  if (done) return <Button label={t('teacher.answer.back')} onPress={() => router.back()} />;
+  if (done)
+    return <Button label={t('teacher.answer.back')} onPress={() => goBack('/teacher/inbox')} />;
   return (
     <>
       <View className="flex-row items-center gap-2">

@@ -2,8 +2,7 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, SourceLine, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import type { BankQuestion } from '@/features/teacher/types';
-import { useTeacherFormat } from '@/features/teacher/useTeacherFormat';
+import type { BankQuestion } from '@mytutor/types';
 import { CheckBox } from './CheckBox';
 
 type BankQuestionRowProps = { question: BankQuestion; selected: boolean; onToggle: () => void };
@@ -11,7 +10,6 @@ type BankQuestionRowProps = { question: BankQuestion; selected: boolean; onToggl
 /** A bank question to tick into the test; it goes in as it is (never edited). */
 export function BankQuestionRow({ question: q, selected, onToggle }: BankQuestionRowProps) {
   const { t } = useTranslation();
-  const f = useTeacherFormat();
 
   return (
     <Pressable
@@ -31,7 +29,7 @@ export function BankQuestionRow({ question: q, selected, onToggle }: BankQuestio
       <CheckBox checked={selected} />
       <View className="min-w-0 flex-1 gap-[5px]">
         <Text className="font-sans-semibold text-sm leading-[20px]">{q.text}</Text>
-        <SourceLine source={f.source(q.source)} />
+        <SourceLine source={q.source} />
         <View className="h-[22px] flex-row items-center gap-1 self-start rounded-[7px] bg-wax px-[7px]">
           <Icon name="lock" size={12} color="lock-ink" />
           <Text className="font-sans-black text-2xs text-lock-ink">

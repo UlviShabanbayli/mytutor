@@ -5,7 +5,7 @@ import { TeacherHeader } from '@/components/teacher/TeacherHeader';
 import { TeacherScreen } from '@/components/teacher/TeacherScreen';
 import { ErrorState, LoadingState } from '@/components/ui';
 import { shortName } from '@/features/teacher/people';
-import { useInboxQuestion, useTeacherClasses, useTopics } from '@/features/teacher/queries';
+import { useInboxQuestion, useTeacherClasses, useTopicUnit } from '@/features/teacher/queries';
 import { useTeacherFormat } from '@/features/teacher/useTeacherFormat';
 
 /** Answer a student's question by checking the AI's solution (design t-answer). */
@@ -15,8 +15,8 @@ export default function AnswerScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const question = useInboxQuestion(id);
   const classes = useTeacherClasses();
-  const topics = useTopics();
   const q = question.data;
+  const unit = useTopicUnit(q?.topicId ?? null);
   const cls = classes.data?.find((c) => c.id === q?.classId);
   const header = (
     <TeacherHeader
@@ -33,17 +33,17 @@ export default function AnswerScreen() {
     />
   );
 
-  if (question.isError || topics.isError)
+  if (question.isError || unit.isError)
     return (
       <TeacherScreen header={header}>
         <ErrorState onRetry={() => void question.refetch()} />
       </TeacherScreen>
     );
-  if (!q || !topics.data)
+  if (!q || !unit.data)
     return (
       <TeacherScreen header={header}>
         <LoadingState />
       </TeacherScreen>
     );
-  return <AnswerEditor key={q.id} header={header} question={q} topics={topics.data} />;
+  return <AnswerEditor key={q.id} header={header} question={q} topics={unit.data.topics} />;
 }

@@ -15,6 +15,8 @@ type AssignOptionsProps = {
   isTest: boolean;
   questionCount: number;
   topicId: string;
+  /** "4.1", for the questions' line. */
+  topicNumber: string;
 };
 
 /** Attempts and time limit, the questions Vızı picked from the bank, and the reminder. */
@@ -24,6 +26,7 @@ export function AssignOptions({
   isTest,
   questionCount,
   topicId,
+  topicNumber,
 }: AssignOptionsProps) {
   const { t } = useTranslation();
   const set = (patch: Partial<AssignSettings>) => onChange({ ...value, ...patch });
@@ -76,7 +79,7 @@ export function AssignOptions({
                 {t('teacher.assign.questions', { count: questionCount })}
               </Text>
               <Text className="font-sans text-xs text-muted">
-                {t('teacher.assign.questionsMeta', { topic: topicId })}
+                {t('teacher.assign.questionsMeta', { topic: topicNumber })}
               </Text>
             </View>
             <Text className="font-sans-black text-sm text-honey-text">

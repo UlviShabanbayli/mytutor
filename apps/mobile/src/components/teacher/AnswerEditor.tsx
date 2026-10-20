@@ -1,11 +1,11 @@
-import { router } from 'expo-router';
 import { type ReactNode, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Banner, LoadingState, SourceLine, StatusPill, Text } from '@/components/ui';
-import { useApproveAnswer } from '@/features/teacher/queries';
-import type { InboxQuestion, SolutionStep, TopicView } from '@/features/teacher/types';
-import { useTeacherFormat } from '@/features/teacher/useTeacherFormat';
+import type { SolutionStep } from '@mytutor/types';
+import { useApproveAnswer } from '@/features/teacher/mutations';
+import { goBack } from '@/features/teacher/navigation';
+import type { InboxQuestion, TopicView } from '@/features/teacher/types';
 import { AiVisibilityNote } from './AiVisibilityNote';
 import { AnswerFooter } from './AnswerFooter';
 import { QuestionHeader } from './QuestionHeader';
@@ -17,9 +17,9 @@ import { TopicLinkRow } from './TopicLinkRow';
 type AnswerEditorProps = { header: ReactNode; question: InboxQuestion; topics: TopicView[] };
 
 let stepSeq = 0;
-const blankStep = (label: string): SolutionStep => ({
+const blankStep = (text: string): SolutionStep => ({
   id: `new-${++stepSeq}`,
-  label,
+  text,
   formula: '',
   edited: true,
 });
@@ -27,13 +27,12 @@ const blankStep = (label: string): SolutionStep => ({
 /** Check the AI's solution (M6): approve it, fix steps or write it yourself; AI-marked until then. */
 export function AnswerEditor({ header, question: q, topics }: AnswerEditorProps) {
   const { t } = useTranslation();
-  const f = useTeacherFormat();
   const approve = useApproveAnswer();
-  const [steps, setSteps] = useState(q.ai.steps);
-  const [topicId, setTopicId] = useState(q.topicId);
+  const [steps, setSteps] = useState(q.steps);
+  const [topicId, setTopicId] = useState(q.topicId ?? '');
   const [editing, setEditing] = useState<string | null>(null);
   const [showEmpty, setShowEmpty] = useState(false);
-  const solving = q.ai.status === 'solving' && steps.length === 0;
+  const solving = q.aiStatus === 'solving' && steps.length === 0;
   const done = q.approved;
   const valid = steps.length > 0 && steps.every((s) => s.formula.trim() !== '');
 
@@ -51,7 +50,8 @@ export function AnswerEditor({ header, question: q, topics }: AnswerEditorProps)
       setShowEmpty(true);
       return;
     }
-    approve.mutate({ id: q.id, steps, topicId }, { onSuccess: () => router.back() });
+    const topic = topicId !== q.topicId ? (topics.find((x) => x.id === topicId) ?? null) : null;
+    approve.mutate({ question: q, steps, topic }, { onSuccess: () => goBack('/teacher/inbox') });
   };
 
   return (
@@ -113,7 +113,7 @@ export function AnswerEditor({ header, question: q, topics }: AnswerEditorProps)
       {showEmpty && !valid ? (
         <Banner kind="error" message={t('teacher.answer.emptySteps')} />
       ) : null}
-      <SourceLine source={f.source(q.source)} />
+      {q.source ? <SourceLine source={q.source} /> : null}
       <TopicLinkRow topics={topics} value={topicId} onChange={setTopicId} locked={done} />
       {done ? (
         <Text tone="ok" className="font-sans-bold">

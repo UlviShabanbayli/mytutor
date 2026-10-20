@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { phoneNumberSchema } from '@mytutor/schemas';
 import { CodeFlash, CopyButton, IconButton, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import { useInviteByPhone } from '@/features/teacher/queries';
+import { useInviteByPhone } from '@/features/teacher/mutations';
 import { inviteLink, shareText } from '@/features/teacher/share';
 import type { TeacherClass } from '@/features/teacher/types';
 import { useThemeColors } from '@/theme';
@@ -21,7 +21,7 @@ export function InvitePanel({ cls }: InvitePanelProps) {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState<string | null>(null);
-  const link = inviteLink(cls.inviteCode);
+  const link = inviteLink(cls.joinCode);
 
   const send = () => {
     const parsed = phoneNumberSchema.safeParse(phone);
@@ -52,14 +52,14 @@ export function InvitePanel({ cls }: InvitePanelProps) {
           </Text>
           <CodeFlash flash={flash}>
             <Text selectable className="font-display-black text-md tracking-[0.7px]">
-              {cls.inviteCode}
+              {cls.joinCode}
             </Text>
           </CodeFlash>
         </View>
         <CopyButton
           variant="outline"
           compact
-          text={cls.inviteCode}
+          text={cls.joinCode}
           label={t('teacher.members.copy')}
           copiedLabel={t('teacher.members.copied')}
           onCopied={() => setFlash((n) => n + 1)}
@@ -70,7 +70,7 @@ export function InvitePanel({ cls }: InvitePanelProps) {
           accessibilityLabel={t('teacher.members.shareLink')}
           onPress={() =>
             void shareText(
-              t('teacher.classNew.shareMessage', { class: cls.name, code: cls.inviteCode, link }),
+              t('teacher.classNew.shareMessage', { class: cls.name, code: cls.joinCode, link }),
             )
           }
         />

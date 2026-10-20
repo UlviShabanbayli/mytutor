@@ -2,10 +2,10 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, Text } from '@/components/ui';
-import type { VerificationStatus } from '@/features/teacher/types';
+import type { TeacherVerification } from '@mytutor/types';
 import { SmallButton } from './SmallButton';
 
-type VerifyBannerProps = { status: VerificationStatus };
+type VerifyBannerProps = { status: TeacherVerification };
 
 /** M1: free classes work at once; this says what verification adds (hidden once verified). */
 export function VerifyBanner({ status }: VerifyBannerProps) {

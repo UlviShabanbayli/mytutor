@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, Text } from '@/components/ui';
-import type { SolutionStep } from '@/features/teacher/types';
+import type { SolutionStep } from '@mytutor/types';
 import { useThemeColors } from '@/theme';
 import { SmallButton } from './SmallButton';
 
@@ -29,7 +29,7 @@ export function SolutionStepRow({
 }: SolutionStepRowProps) {
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const [label, setLabel] = useState(step.label);
+  const [label, setLabel] = useState(step.text);
   const [formula, setFormula] = useState(step.formula);
   const field =
     'min-h-[44px] rounded-md border-2 border-border bg-page px-3 font-sans text-base text-ink';
@@ -63,7 +63,7 @@ export function SolutionStepRow({
               label={t('teacher.answer.stepSave')}
               icon="check"
               onPress={() =>
-                onSave({ ...step, label: label.trim(), formula: formula.trim(), edited: true })
+                onSave({ ...step, text: label.trim(), formula: formula.trim(), edited: true })
               }
             />
             <SmallButton
@@ -78,7 +78,7 @@ export function SolutionStepRow({
         <>
           <View accessible className="min-w-0 flex-1 gap-0.5">
             <Text className="font-sans-bold text-xs text-muted">
-              {step.label}
+              {step.text}
               {step.edited ? ` · ${t('teacher.answer.edited')}` : ''}
             </Text>
             <Text className="font-sans-black text-base leading-[21px]">{step.formula}</Text>

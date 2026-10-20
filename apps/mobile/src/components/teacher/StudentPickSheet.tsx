@@ -2,12 +2,12 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Sheet, Text } from '@/components/ui';
 import { toggleId } from '@/features/teacher/testBuilder';
-import type { ClassMember } from '@/features/teacher/types';
+import type { RosterEntry } from '@mytutor/types';
 import { CheckBox } from './CheckBox';
 
 type StudentPickSheetProps = {
   visible: boolean;
-  members: ClassMember[];
+  members: RosterEntry[];
   value: string[];
   onChange: (ids: string[]) => void;
   onClose: () => void;
@@ -32,14 +32,14 @@ export function StudentPickSheet({
     >
       <ScrollView className="max-h-[360px]" contentContainerClassName="gap-1">
         {members.map((m) => {
-          const on = value.includes(m.id);
+          const on = value.includes(m.personId);
           return (
             <Pressable
-              key={m.id}
+              key={m.personId}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: on }}
               accessibilityLabel={m.name}
-              onPress={() => onChange(toggleId(value, m.id))}
+              onPress={() => onChange(toggleId(value, m.personId))}
               className="min-h-touch flex-row items-center gap-3 rounded-md px-2 active:bg-raised"
             >
               <CheckBox checked={on} />

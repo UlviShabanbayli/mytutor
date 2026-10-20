@@ -2,19 +2,19 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Input, Sheet } from '@/components/ui';
-import { usePostAnnouncement } from '@/features/teacher/queries';
+import type { PostedAnnouncement } from './AnnouncementsPanel';
 
 type AnnounceSheetProps = {
-  classId: string;
   visible: boolean;
   onClose: () => void;
-  onPosted: () => void;
+  onPosted: (item: PostedAnnouncement) => void;
 };
 
+let postedSeq = 0;
+
 /** "Elan yaz": one message to the whole class, sent as a notification. */
-export function AnnounceSheet({ classId, visible, onClose, onPosted }: AnnounceSheetProps) {
+export function AnnounceSheet({ visible, onClose, onPosted }: AnnounceSheetProps) {
   const { t } = useTranslation();
-  const post = usePostAnnouncement();
   const [text, setText] = useState('');
   const [showError, setShowError] = useState(false);
 
@@ -23,16 +23,9 @@ export function AnnounceSheet({ classId, visible, onClose, onPosted }: AnnounceS
       setShowError(true);
       return;
     }
-    post.mutate(
-      { classId, text },
-      {
-        onSuccess: () => {
-          setText('');
-          onClose();
-          onPosted();
-        },
-      },
-    );
+    onPosted({ id: `posted-${++postedSeq}`, text: text.trim(), at: new Date().toISOString() });
+    setText('');
+    onClose();
   };
 
   return (
@@ -48,7 +41,7 @@ export function AnnounceSheet({ classId, visible, onClose, onPosted }: AnnounceS
           multiline
           error={showError ? t('teacher.class.announceError') : undefined}
         />
-        <Button label={t('teacher.class.announceSubmit')} loading={post.isPending} onPress={send} />
+        <Button label={t('teacher.class.announceSubmit')} onPress={send} />
       </View>
     </Sheet>
   );

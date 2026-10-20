@@ -3,22 +3,29 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Sheet, Text } from '@/components/ui';
-import { useSetMemberMuted, useToggleGroupMember } from '@/features/teacher/queries';
-import type { ClassMember, TeacherClass } from '@/features/teacher/types';
+import type { RosterEntry } from '@mytutor/types';
+import type { TeacherClass } from '@/features/teacher/types';
 import { ActionItem } from './ActionItem';
 
 type MemberActionsSheetProps = {
-  member: ClassMember | null;
+  member: RosterEntry | null;
   cls: TeacherClass;
   onClose: () => void;
-  onRemove: (member: ClassMember) => void;
+  onToggleGroup: (groupId: string, personId: string) => void;
+  onMute: (personId: string, muted: boolean) => void;
+  onRemove: (member: RosterEntry) => void;
 };
 
 /** The "⋯" menu of a student (M2): report, groups, mute in chat, remove from the class. */
-export function MemberActionsSheet({ member, cls, onClose, onRemove }: MemberActionsSheetProps) {
+export function MemberActionsSheet({
+  member,
+  cls,
+  onClose,
+  onToggleGroup,
+  onMute,
+  onRemove,
+}: MemberActionsSheetProps) {
   const { t } = useTranslation();
-  const mute = useSetMemberMuted();
-  const toggleGroup = useToggleGroupMember();
   const [groupsOpen, setGroupsOpen] = useState(false);
   const close = () => {
     setGroupsOpen(false);
@@ -55,7 +62,7 @@ export function MemberActionsSheet({ member, cls, onClose, onRemove }: MemberAct
                 </Text>
               ) : (
                 cls.groups.map((g) => {
-                  const inGroup = g.memberIds.includes(member.id);
+                  const inGroup = g.memberIds.includes(member.personId);
                   return (
                     <ActionItem
                       key={g.id}
@@ -63,9 +70,7 @@ export function MemberActionsSheet({ member, cls, onClose, onRemove }: MemberAct
                       checked={inGroup}
                       icon="users"
                       label={g.name}
-                      onPress={() =>
-                        toggleGroup.mutate({ classId: cls.id, groupId: g.id, memberId: member.id })
-                      }
+                      onPress={() => onToggleGroup(g.id, member.personId)}
                     />
                   );
                 })
@@ -76,7 +81,7 @@ export function MemberActionsSheet({ member, cls, onClose, onRemove }: MemberAct
             icon="chat"
             label={member.mutedInChat ? t('teacher.members.unmute') : t('teacher.members.mute')}
             onPress={() => {
-              mute.mutate({ classId: cls.id, memberId: member.id, muted: !member.mutedInChat });
+              onMute(member.personId, !member.mutedInChat);
               close();
             }}
           />

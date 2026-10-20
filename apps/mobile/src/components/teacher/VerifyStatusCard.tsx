@@ -2,10 +2,10 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Mascot } from '@/components/mascot/Mascot';
 import { Icon, Text } from '@/components/ui';
-import type { VerificationStatus } from '@/features/teacher/types';
+import type { TeacherVerification } from '@mytutor/types';
 import { useTeacherFormat } from '@/features/teacher/useTeacherFormat';
 
-type VerifyStatusCardProps = { status: VerificationStatus; submittedAt: string | null };
+type VerifyStatusCardProps = { status: TeacherVerification; submittedAt: string | null };
 
 /** Where the verification stands, with Vızı thinking it over. */
 export function VerifyStatusCard({ status, submittedAt }: VerifyStatusCardProps) {

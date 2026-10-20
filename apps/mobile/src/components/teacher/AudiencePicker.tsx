@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import type { Audience, ClassMember, TeacherClass } from '@/features/teacher/types';
+import type { Audience, RosterEntry } from '@mytutor/types';
+import type { TeacherClass } from '@/features/teacher/types';
 import { ChoiceChip } from './ChoiceChip';
 import { Overline } from './Overline';
 import { StudentPickSheet } from './StudentPickSheet';
 
 type AudiencePickerProps = {
   cls: TeacherClass;
-  members: ClassMember[];
+  members: RosterEntry[];
   value: Audience;
   onChange: (audience: Audience) => void;
 };
