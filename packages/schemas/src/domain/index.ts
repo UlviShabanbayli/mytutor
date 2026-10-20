@@ -14,6 +14,7 @@ export * from './messages';
 export * from './notifications';
 export * from './league';
 export * from './exam';
+export * from './examMocks';
 export * from './parent';
 export * from './me';
 export * from './classViews';

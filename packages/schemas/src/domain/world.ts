@@ -9,7 +9,7 @@ import {
   schoolClassSchema,
 } from './classes';
 import { masteryMapSchema } from './course';
-import { examStateSchema, mockExamSchema, mockRunSchema } from './exam';
+import { examStateSchema, mockExamSchema, mockRunSchema } from './examMocks';
 import { curriculumResponseSchema, placementQuestionSchema } from './hive';
 import { leagueRowSchema, badgeSchema } from './league';
 import { studyLessonSchema, studyTestSchema } from './lessons';
