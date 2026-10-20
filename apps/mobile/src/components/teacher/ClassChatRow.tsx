@@ -1,9 +1,8 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Icon, Text } from '@/components/ui';
+import { Icon, Switch, Text } from '@/components/ui';
 import { useSetClassChat } from '@/features/teacher/queries';
 import type { TeacherClass } from '@/features/teacher/types';
-import { TeacherSwitch } from './TeacherSwitch';
 
 type ClassChatRowProps = { cls: TeacherClass; mutedCount: number };
 
@@ -29,7 +28,7 @@ export function ClassChatRow({ cls, mutedCount }: ClassChatRowProps) {
           {parts.filter(Boolean).join(' · ')}
         </Text>
       </View>
-      <TeacherSwitch
+      <Switch
         value={open}
         onValueChange={(v) => setChat.mutate({ classId: cls.id, open: v })}
         accessibilityLabel={
