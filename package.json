@@ -6,7 +6,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --ui=tui --filter=@mytutor/api --filter=@mytutor/mobile",
     "dev:worker": "pnpm --filter @mytutor/api dev:worker",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
