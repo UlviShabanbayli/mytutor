@@ -23,7 +23,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <View className="flex-1 items-center justify-center gap-3 px-6 py-12">
-      <Mascot moment={moment} size={140} />
+      <Mascot moment={moment} behavior="idle" enter size={140} />
       <Text variant="heading" className="text-center">
         {title}
       </Text>

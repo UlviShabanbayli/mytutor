@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, ErrorState, Icon, LoadingState, Sheet, Text } from '@/components/ui';
@@ -7,12 +8,14 @@ import { useMotivationData } from '@/features/today/queries';
 
 /**
  * The streak stopped: praise what was done, offer a short restart and explain the hive guard
- * (streak freeze). Nothing is taken away (no hearts, no lives).
+ * (streak freeze). Nothing is taken away (no hearts, no lives). Vızı droops and sighs
+ * (vizi.streak A); "restart" lets it spring back up before the sheet closes.
  */
 export function StreakSheet() {
   const { t } = useTranslation();
   const motivation = useMotivationData();
   const data = motivation.data;
+  const [restarting, setRestarting] = useState(false);
 
   return (
     <Sheet visible onClose={leaveToToday} title={t('today.streak.title')} showTitle={false}>
@@ -22,7 +25,14 @@ export function StreakSheet() {
         <ErrorState onRetry={() => void motivation.refetch()} />
       ) : (
         <View className="items-center gap-3 px-1 pb-2">
-          <Mascot moment="streakBroken" size={128} decorative />
+          <Mascot
+            moment="streakBroken"
+            behavior="streak"
+            recovered={restarting}
+            onDone={leaveToToday}
+            size={128}
+            decorative
+          />
           <Text variant="heading" className="text-center font-display-black text-xl">
             {t('today.streak.title')}
           </Text>
@@ -38,7 +48,7 @@ export function StreakSheet() {
           </View>
           <Button
             label={t('today.streak.restart')}
-            onPress={leaveToToday}
+            onPress={() => setRestarting(true)}
             className="self-stretch"
           />
         </View>

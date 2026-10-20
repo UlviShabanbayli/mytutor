@@ -15,7 +15,7 @@ export function AskOfflineBanner() {
       accessibilityLabel={`${t('ask.home.offlineTitle')}. ${t('ask.home.offlineBody')}`}
       className="flex-row items-center gap-2.5 rounded-xl bg-info-bg px-3 py-2.5"
     >
-      <Mascot mood="yuxulu" size={52} decorative />
+      <Mascot mood="yuxulu" behavior="sleepy" size={52} decorative />
       <View className="min-w-0 flex-1 gap-0.5">
         <View className="flex-row items-center gap-1.5">
           <Icon name="offline" size={18} color="info" />
