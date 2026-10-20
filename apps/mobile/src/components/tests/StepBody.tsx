@@ -68,7 +68,7 @@ export function StepBody({ step, answer, checked, onAnswer, onSubmit }: StepBody
                 state={optionState(step.question, option.key, answer, checked)}
                 disabled={checked}
                 onPress={() => {
-                  playCue('tap');
+                  playCue('select');
                   onAnswer(option.key);
                 }}
               />

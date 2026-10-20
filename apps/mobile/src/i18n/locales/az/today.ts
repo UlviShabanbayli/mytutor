@@ -167,6 +167,8 @@ export const today = {
     pointsCaption: 'bal damcısı',
     accuracy: '{{value}}%',
     accuracyCaption: 'düz cavab',
+    streak_one: 'uçuş günü ardıcıl',
+    streak_other: 'uçuş günü ardıcıl',
     continue: 'Davam et',
   },
   inbox: {

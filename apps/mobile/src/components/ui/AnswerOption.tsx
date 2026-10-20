@@ -1,8 +1,11 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
+import { AnswerVerdict } from '@/components/feedback/AnswerVerdict';
 import { cn } from '@/lib/cn';
-import { Icon } from './Icon';
+import { useReducedMotionPref } from '@/motion';
+import { useAnswerMotion, useShownAnswer } from './answerMotion';
 import { Text } from './Text';
 
 export type AnswerState = 'idle' | 'selected' | 'correct' | 'wrong' | 'disabled';
@@ -45,7 +48,8 @@ const letterText: Record<AnswerState, string> = {
 
 /**
  * One A–E answer: 56pt, 14pt corners, 2pt border. Correct and wrong are never color alone:
- * they carry an icon and the words "Düz" / "Səhv".
+ * they carry an icon and the words "Düz" / "Səhv". Motion: feedback.select B (the chosen option
+ * lifts onto its honey-deep edge), feedback.correct B and the calm feedback.wrong C marks.
  */
 export function AnswerOption({
   letter,
@@ -56,7 +60,13 @@ export function AnswerOption({
   className,
 }: AnswerOptionProps) {
   const { t } = useTranslation();
+  const reduced = useReducedMotionPref();
+  const shown = useShownAnswer(state, reduced);
+  const { faceStyle, edgeStyle, letterStyle } = useAnswerMotion(shown, reduced);
+  // A verdict that appears after mount (on "Yoxla") animates in; one shown from the start does not.
+  const [markedAtMount] = useState(state === 'correct' || state === 'wrong');
   const verdict = state === 'correct' ? t('ui.correct') : state === 'wrong' ? t('ui.wrong') : null;
+  const shownVerdict = shown === 'correct' || shown === 'wrong' ? shown : null;
 
   return (
     <Pressable
@@ -68,41 +78,43 @@ export function AnswerOption({
       }}
       disabled={state === 'disabled' || onPress === undefined}
       onPress={onPress}
-      className={cn('rounded-md', state === 'selected' && 'bg-honey-deep pb-[3px]', className)}
+      // The 3pt under the face is the honey-deep edge of the chosen option; it is always
+      // reserved so choosing never moves the options below.
+      className={cn('rounded-md pb-[3px]', className)}
     >
-      <View
-        className={cn(
-          'min-h-14 flex-row items-center gap-3 rounded-md border-2 px-3 py-2',
-          box[state],
-        )}
-      >
+      <View pointerEvents="none" className="absolute inset-x-0 bottom-0 top-[3px]">
+        <Animated.View style={edgeStyle}>
+          <View className="flex-1 rounded-md bg-honey-deep" />
+        </Animated.View>
+      </View>
+      <Animated.View style={faceStyle}>
         <View
           className={cn(
-            'h-[30px] w-[30px] items-center justify-center rounded-xs',
-            letterBox[state],
+            'min-h-14 flex-row items-center gap-3 rounded-md border-2 px-3 py-2',
+            box[shown],
           )}
         >
-          <Text className={cn('font-sans-black text-sm', letterText[state])}>{letter}</Text>
-        </View>
-        <View className="min-w-0 flex-1">{children}</View>
-        {verdict ? (
-          <View className="flex-row items-center gap-1">
-            <Icon
-              name={state === 'correct' ? 'check' : 'x'}
-              size={16}
-              color={state === 'correct' ? 'ok' : 'err'}
-            />
-            <Text
+          <Animated.View style={letterStyle}>
+            <View
               className={cn(
-                'font-sans-black text-xs',
-                state === 'correct' ? 'text-ok' : 'text-err',
+                'h-[30px] w-[30px] items-center justify-center rounded-xs',
+                letterBox[shown],
               )}
             >
-              {verdict}
-            </Text>
-          </View>
-        ) : null}
-      </View>
+              <Text className={cn('font-sans-black text-sm', letterText[shown])}>{letter}</Text>
+            </View>
+          </Animated.View>
+          <View className="min-w-0 flex-1">{children}</View>
+          {shownVerdict ? (
+            <AnswerVerdict
+              key={shownVerdict}
+              verdict={shownVerdict}
+              label={shownVerdict === 'correct' ? t('ui.correct') : t('ui.wrong')}
+              animate={!markedAtMount}
+            />
+          ) : null}
+        </View>
+      </Animated.View>
     </Pressable>
   );
 }
