@@ -19,3 +19,4 @@ export * from './me';
 export * from './classViews';
 export * from './teacher';
 export * from './world';
+export * from './book';

@@ -15,6 +15,8 @@ import type {
   badgeSchema,
   bankQuestionSchema,
   boardLineSchema,
+  bookAnswersSchema,
+  bookLessonSchema,
   chainLinkSchema,
   chatMessageSchema,
   chatMessageViewSchema,
@@ -302,3 +304,6 @@ export type TeacherAssignment = z.output<typeof teacherAssignmentSchema>;
 export type TeacherClassDetail = z.output<typeof teacherClassDetailSchema>;
 export type BankQuestion = z.output<typeof bankQuestionSchema>;
 export type ClassInsights = z.output<typeof classInsightsSchema>;
+
+export type BookLesson = z.output<typeof bookLessonSchema>;
+export type BookAnswers = z.output<typeof bookAnswersSchema>;

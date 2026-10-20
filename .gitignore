@@ -8,6 +8,9 @@ dist/
 # turbo
 .turbo/
 
+# wrangler (the demo API's Worker: local state and dry-run bundles)
+.wrangler/
+
 # Expo
 .expo/
 web-build/

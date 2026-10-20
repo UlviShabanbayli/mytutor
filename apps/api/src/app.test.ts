@@ -9,7 +9,7 @@ import {
   subjectSchema,
 } from '@mytutor/schemas';
 import type { PublishedTests } from '@mytutor/types';
-import { createApp } from './app';
+import { createNodeApp } from './nodeApp';
 
 const published: PublishedTests = {
   schemaVersion: 1,
@@ -79,8 +79,8 @@ afterAll(async () => {
   await rm(contentDir, { recursive: true, force: true });
 });
 
-describe('api', () => {
-  const app = () => createApp({ contentDir });
+describe('published tests (Node entry with a content folder)', () => {
+  const app = () => createNodeApp({ contentDir }).app;
 
   it('GET /health returns ok', async () => {
     const res = await app().request('/health');
