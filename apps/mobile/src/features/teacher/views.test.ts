@@ -13,6 +13,7 @@ import {
 import { answer, ev } from './testWorld';
 import {
   assignmentOf,
+  classDetailOf,
   classOf,
   contentsOf,
   currentUnit,
@@ -54,6 +55,15 @@ describe('teacher views of the demo world', () => {
     const detail = answer('/v1/teacher/classes/7b', teacherClassDetailSchema.parse);
     expect(detail.members).toHaveLength(24);
     expect(detail.members[0]).toMatchObject({ personId: 'nermin', name: 'Nərmin Əliyeva' });
+  });
+
+  it('takes a removed student out of the class’s groups', () => {
+    const removed = ev({ type: 'member.removed', classId: '7b', studentId: 'orxan' });
+    const detail = classDetailOf(
+      contents,
+      answer('/v1/teacher/classes/7b', teacherClassDetailSchema.parse, [removed]),
+    );
+    expect(detail.class.groups[0]?.memberIds).toEqual(['tural', 'leyla', 'sebuhi', 'kamran']);
   });
 
   it('turns a grade into one fewer homework to check, in the list and the bell', () => {
@@ -111,10 +121,19 @@ describe('teacher views of the demo world', () => {
     const [lesson] = answer('/v1/teacher/live', liveLessonSchema.array().parse);
     const roster = answer('/v1/teacher/classes/7b', teacherClassDetailSchema.parse).members;
     if (!lesson) throw new Error('no live lesson');
-    const room = liveRoomOf(contents, lesson, roster, 'lale');
-    expect(room.participants[0]).toMatchObject({ id: 'lale', state: 'me' });
+    const lale = { id: 'lale', name: 'Lalə Həsənova' };
+    const room = liveRoomOf(contents, lesson, roster, lale);
+    expect(room.participants[0]).toMatchObject({ id: 'lale', name: 'Lalə Həsənova', state: 'me' });
     expect(room.hands.map((h) => h.name)).toEqual(['Orxan Məmmədov', 'Aysel Quliyeva']);
     expect([room.total, room.topic?.number]).toEqual([24, '4.2']);
+    const without = liveRoomOf(
+      contents,
+      lesson,
+      roster.filter((m) => m.personId !== 'orxan'),
+      lale,
+    );
+    expect(without.hands.map((h) => h.studentId)).toEqual(['aysel']);
+    expect(without.participants.map((p) => p.id)).not.toContain('orxan');
   });
 
   it('starts the test builder from a draft or from Vızı’s picks', () => {

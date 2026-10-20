@@ -10,6 +10,7 @@ import type {
   Material,
   RosterEntry,
   TeacherAssignment,
+  TeacherClassDetail,
   TeacherClassView,
   TeacherHome,
 } from '@mytutor/types';
@@ -97,14 +98,20 @@ export const insightsOf = (contents: Contents, i: ClassInsights): InsightsView =
   unitNumber: contents.units.find((u) => u.id === i.unitId)?.number ?? '',
 });
 
-/** The live room with names from the class roster; the teacher's own tile is `me`. */
+/**
+ * The live room with names from the class roster; the teacher's own tile is `me`. Students who
+ * are no longer in the class (removed) are not in the room.
+ */
 export function liveRoomOf(
   contents: Contents,
   lesson: LiveLesson,
   roster: RosterEntry[],
-  teacherId: string,
+  teacher: { id: string; name: string },
 ): LiveRoom {
-  const name = (id: string) => roster.find((m) => m.personId === id)?.name ?? id;
+  const names = new Map(roster.map((m) => [m.personId, m.name]));
+  names.set(teacher.id, teacher.name);
+  const inRoom = (id: string) => names.has(id);
+  const name = (id: string) => names.get(id) ?? id;
   return {
     id: lesson.id,
     classId: lesson.classId,
@@ -114,18 +121,38 @@ export function liveRoomOf(
     minutes: lesson.minutes,
     present: lesson.room.present,
     total: roster.length,
-    participants: lesson.room.participants.map((p) => ({
-      id: p.personId,
-      name: name(p.personId),
-      state: p.personId === teacherId ? 'me' : p.state === 'speaking' ? 'muted' : p.state,
-    })),
-    hands: lesson.room.hands.map((h) => ({
-      studentId: h.personId,
-      name: name(h.personId),
-      at: h.at,
-    })),
+    participants: lesson.room.participants
+      .filter((p) => inRoom(p.personId))
+      .map((p) => ({
+        id: p.personId,
+        name: name(p.personId),
+        state: p.personId === teacher.id ? 'me' : p.state === 'speaking' ? 'muted' : p.state,
+      })),
+    hands: lesson.room.hands
+      .filter((h) => inRoom(h.personId))
+      .map((h) => ({
+        studentId: h.personId,
+        name: name(h.personId),
+        at: h.at,
+      })),
     board: lesson.board.map((line) => line.text),
     chatUnread: lesson.room.chatUnread,
+  };
+}
+
+/** A class's roster and groups; a removed student leaves the groups too. */
+export function classDetailOf(contents: Contents, detail: TeacherClassDetail) {
+  const ids = new Set(detail.members.map((m) => m.personId));
+  return {
+    class: {
+      ...classOf(detail.class),
+      groups: detail.class.groups.map((g) => ({
+        ...g,
+        memberIds: g.memberIds.filter((id) => ids.has(id)),
+      })),
+    },
+    members: detail.members,
+    assignments: detail.assignments.map((a) => assignmentOf(contents, a)),
   };
 }
 

@@ -1,10 +1,10 @@
-import { router } from 'expo-router';
 import { type ReactNode, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Banner, LoadingState, SourceLine, StatusPill, Text } from '@/components/ui';
 import type { SolutionStep } from '@mytutor/types';
 import { useApproveAnswer } from '@/features/teacher/mutations';
+import { goBack } from '@/features/teacher/navigation';
 import type { InboxQuestion, TopicView } from '@/features/teacher/types';
 import { AiVisibilityNote } from './AiVisibilityNote';
 import { AnswerFooter } from './AnswerFooter';
@@ -51,7 +51,7 @@ export function AnswerEditor({ header, question: q, topics }: AnswerEditorProps)
       return;
     }
     const topic = topicId !== q.topicId ? (topics.find((x) => x.id === topicId) ?? null) : null;
-    approve.mutate({ question: q, steps, topic }, { onSuccess: () => router.back() });
+    approve.mutate({ question: q, steps, topic }, { onSuccess: () => goBack('/teacher/inbox') });
   };
 
   return (

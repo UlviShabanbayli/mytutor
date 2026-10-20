@@ -219,7 +219,10 @@ export function useLiveRoom(id: string) {
       const lesson = live.find((l) => l.id === id);
       if (!lesson) throw notFound(`live lesson ${id}`);
       const detail = await api.getClass(persona, lesson.classId);
-      return liveRoomOf(contents, lesson, detail.members, home.profile.personId);
+      return liveRoomOf(contents, lesson, detail.members, {
+        id: home.profile.personId,
+        name: home.person.fullName,
+      });
     },
   });
 }

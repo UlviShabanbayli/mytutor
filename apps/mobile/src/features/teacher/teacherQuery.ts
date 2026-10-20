@@ -2,7 +2,7 @@ import { type QueryClient, queryOptions, useQueryClient } from '@tanstack/react-
 import type { DemoPersona } from '@mytutor/types';
 import { useDemoPersona } from '@/lib/demoPersona';
 import * as api from './api';
-import { assignmentOf, classOf, contentsOf } from './views';
+import { assignmentOf, classDetailOf, contentsOf } from './views';
 
 /**
  * Query keys and shared queries of the teacher area. Every key starts with the persona, so
@@ -48,11 +48,7 @@ export const classQuery = (persona: DemoPersona, client: QueryClient, id: string
         api.getClass(persona, id),
         client.ensureQueryData(contentsQuery(persona)),
       ]);
-      return {
-        class: classOf(detail.class),
-        members: detail.members,
-        assignments: detail.assignments.map((a) => assignmentOf(contents, a)),
-      };
+      return classDetailOf(contents, detail);
     },
     enabled: id !== '',
   });
