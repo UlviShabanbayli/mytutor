@@ -4,8 +4,8 @@ import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Banner, Icon, IconButton, Text } from '@/components/ui';
-import { canCopy, copyText, makeMessage } from '@/features/me/chat';
-import { useClassMessages, useIsOnline } from '@/features/me/queries';
+import { canCopy, copyText } from '@/features/me/chat';
+import { useClassMessages, useIsOnline, useSendMessage } from '@/features/me/queries';
 import { useMeStore } from '@/features/me/store';
 import type { ChatMessage, ClassSummary } from '@/features/me/types';
 import { ChatBubble } from './ChatBubble';
@@ -15,15 +15,18 @@ import { InfoSheet } from './InfoSheet';
 import { OptionsSheet, type SheetOption } from './OptionsSheet';
 import { ReportSheet } from './ReportSheet';
 
-type ClassChatProps = { summary: ClassSummary; studentName: string };
+type ClassChatProps = { summary: ClassSummary };
 
-/** The class chat: messages are never deleted and every one of them can be reported (P6). */
-export function ClassChat({ summary, studentName }: ClassChatProps) {
+/**
+ * The class chat: messages are never deleted and every one of them can be reported (P6). A sent
+ * message is the demo event `message.sent`, so the teacher's chat shows it too.
+ */
+export function ClassChat({ summary }: ClassChatProps) {
   const { t } = useTranslation();
   const scroll = useRef<ScrollView>(null);
-  const { messages, isPending, isError, refetch } = useClassMessages(summary.id);
+  const { threadId, messages, isPending, isError, refetch } = useClassMessages(summary.id);
   const online = useIsOnline();
-  const send = useMeStore((s) => s.send);
+  const send = useSendMessage();
   const reported = useMeStore((s) => s.reported);
   const report = useMeStore((s) => s.report);
   const [menuFor, setMenuFor] = useState<ChatMessage | null>(null);
@@ -145,14 +148,11 @@ export function ClassChat({ summary, studentName }: ClassChatProps) {
         ) : null}
         <ChatComposer
           replyTo={replyTo}
-          disabled={!online}
+          disabled={!online || threadId === null}
           onCancelReply={() => setReplyTo(null)}
           onAttach={() => setSheet('attach')}
           onSend={(text) => {
-            send(
-              summary.id,
-              makeMessage(text, { name: studentName, replyTo: replyTo ?? undefined }),
-            );
+            if (threadId) send(threadId, text);
             setReplyTo(null);
           }}
         />

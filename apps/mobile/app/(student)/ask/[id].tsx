@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AskAnswerView } from '@/components/ask/AskAnswerView';
 import { AskStatusView } from '@/components/ask/AskStatusView';
 import { EmptyState, ErrorState, LoadingState, Screen, ScreenHeader } from '@/components/ui';
-import { useAskQuestion } from '@/features/ask/queries';
+import { useAskQuestion, useReadAnswerNotification } from '@/features/ask/queries';
 
 /** One photo question: its status while on the way, the approved answer once a teacher is done. */
 export default function AskQuestionScreen() {
@@ -11,6 +11,7 @@ export default function AskQuestionScreen() {
   // `sent` is set by the send screen, so the status opens with "Sualın göndərildi".
   const { id, sent } = useLocalSearchParams<{ id: string; sent?: string }>();
   const query = useAskQuestion(id);
+  useReadAnswerNotification(id, query.question?.status === 'answered');
 
   if (query.isPending)
     return (

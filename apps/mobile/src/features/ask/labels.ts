@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next';
-import { ANSWER_MINUTES } from './demo';
+import { ANSWER_MINUTES } from './subjects';
 import type { AskQuestion } from './types';
 
 /** One line under a question in the lists: who is on it, or what happened. */

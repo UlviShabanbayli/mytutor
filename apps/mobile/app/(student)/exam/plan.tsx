@@ -2,17 +2,22 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ExamLockedView } from '@/components/exam/ExamLockedView';
 import { PlanView } from '@/components/exam/PlanView';
-import { EmptyState, IconButton, Screen, ScreenHeader } from '@/components/ui';
-import { useAppStore } from '@/features/app/appStore';
-import { DEMO_DAYS_LEFT } from '@/features/exam/demo';
-import { examDaysLeft, examGoalOf } from '@/features/exam/goal';
+import {
+  EmptyState,
+  ErrorState,
+  IconButton,
+  LoadingState,
+  Screen,
+  ScreenHeader,
+} from '@/components/ui';
 import { daysLabel } from '@/features/exam/labels';
+import { useExamGoal } from '@/features/exam/queries';
 import { useExamState } from '@/features/exam/useExamState';
 
 /** Hazırlıq planı: the full plan, or the premium lock on the free plan. */
 export default function ExamPlanScreen() {
   const { t } = useTranslation();
-  const goal = examGoalOf(useAppStore((s) => s.profile.goal));
+  const query = useExamGoal();
   const { locked } = useExamState();
 
   return (
@@ -27,7 +32,11 @@ export default function ExamPlanScreen() {
           />
         }
       />
-      {goal === null ? (
+      {query.isPending ? (
+        <LoadingState />
+      ) : query.isError ? (
+        <ErrorState onRetry={() => void query.refetch()} />
+      ) : query.data.goal === null ? (
         <EmptyState
           moment="weakSpot"
           title={t('exam.empty.title')}
@@ -36,9 +45,9 @@ export default function ExamPlanScreen() {
           onAction={() => router.push('/exam/setup')}
         />
       ) : locked ? (
-        <ExamLockedView days={daysLabel(t, examDaysLeft(goal, new Date(), DEMO_DAYS_LEFT))} />
+        <ExamLockedView days={daysLabel(t, query.data.daysLeft)} />
       ) : (
-        <PlanView goal={goal} />
+        <PlanView daysLeft={query.data.daysLeft} />
       )}
     </Screen>
   );

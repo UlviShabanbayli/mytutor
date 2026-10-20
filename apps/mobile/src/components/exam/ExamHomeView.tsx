@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { ErrorState, SkeletonSwap } from '@/components/ui';
-import { DEMO_DAYS_LEFT } from '@/features/exam/demo';
-import { examDaysLeft, type ExamGoal } from '@/features/exam/goal';
+import { clockTime } from '@/features/exam/calendar';
 import { daysLabel, minutesLabel } from '@/features/exam/labels';
 import { useExamHome } from '@/features/exam/queries';
 import { useExamStore } from '@/features/exam/store';
@@ -14,7 +13,8 @@ import { TodayPlanSection } from './TodayPlanSection';
 import { WeakPreviewCard } from './WeakPreviewCard';
 
 type ExamHomeViewProps = {
-  goal: ExamGoal;
+  /** Days until the goal's exam (the demo counter until the DİM date is known). */
+  daysLeft: number;
   offline: boolean;
 };
 
@@ -22,9 +22,9 @@ type ExamHomeViewProps = {
  * The exam tab with a goal: days left, readiness, today's steps, weak spots and the next mock.
  * Offline it shows what is saved on the phone and keeps the rated mock for later.
  */
-export function ExamHomeView({ goal, offline }: ExamHomeViewProps) {
+export function ExamHomeView({ daysLeft, offline }: ExamHomeViewProps) {
   const { t } = useTranslation();
-  const query = useExamHome(goal);
+  const query = useExamHome();
   const target = useExamStore((s) => s.target);
   const minutesPerDay = useExamStore((s) => s.minutesPerDay);
   const registered = useExamStore((s) => s.registeredMocks);
@@ -40,6 +40,7 @@ export function ExamHomeView({ goal, offline }: ExamHomeViewProps) {
     );
 
   const { readiness, plan, weakSpots, nextMock } = query.data;
+  const updatedAt = plan ? clockTime(new Date(plan.updatedAt)) : '';
   const minutes = minutesLabel(t, minutesPerDay);
   const planLine =
     target === 'unknown'
@@ -50,16 +51,16 @@ export function ExamHomeView({ goal, offline }: ExamHomeViewProps) {
     <SkeletonSwap pending={false} skeleton={null} className="gap-2.5">
       {offline ? <OfflineNotice /> : null}
       <CountdownHero
-        days={daysLabel(t, examDaysLeft(goal, new Date(), DEMO_DAYS_LEFT))}
+        days={daysLabel(t, daysLeft)}
         plan={planLine}
-        note={
-          offline ? t('exam.home.heroUpdated', { time: plan.updatedAt }) : t('exam.home.heroSource')
-        }
+        note={offline ? t('exam.home.heroUpdated', { time: updatedAt }) : t('exam.home.heroSource')}
         showMascot={!offline}
       />
       {offline ? null : <ReadinessCard subjects={readiness} />}
-      <TodayPlanSection steps={plan.today} offline={offline} />
-      {offline || weakSpots.spots.length === 0 ? null : <WeakPreviewCard spots={weakSpots.spots} />}
+      <TodayPlanSection steps={plan?.today ?? []} offline={offline} />
+      {offline || !weakSpots || weakSpots.spots.length === 0 ? null : (
+        <WeakPreviewCard spots={weakSpots.spots} />
+      )}
       <NextMockCard
         mock={nextMock}
         registered={registered.includes(nextMock.id)}

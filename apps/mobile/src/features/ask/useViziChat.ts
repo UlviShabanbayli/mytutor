@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { buildReply, nextMessageId, welcomeReply } from './chatReplies';
 import { awaitsPracticeAnswer, classifyMessage, isPracticeAnswerCorrect } from './chatScript';
 import { useChatStore } from './chatStore';
-import { CURRENT_TOPIC } from './demo';
+import { CHAT_TOPIC } from './chatTopic';
 import { useAskUsage } from './queries';
 import type { ChatIntent, ChatMessage } from './types';
 import { useOnline } from './useOnline';
@@ -28,7 +28,7 @@ export function useViziChat() {
 
   // An empty thread opens with Vızı's welcome; it is not stored, so clearing brings it back.
   const shown: ChatMessage[] =
-    messages.length > 0 ? messages : [welcomeReply(t, CURRENT_TOPIC.number)];
+    messages.length > 0 ? messages : [welcomeReply(t, CHAT_TOPIC.number)];
 
   function send(text: string, intent?: ChatIntent) {
     const trimmed = text.trim();

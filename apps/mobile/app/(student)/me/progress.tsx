@@ -26,7 +26,7 @@ export default function ProgressScreen() {
   const textbooks = useTextbookProgress();
   const comparison = useClassComparison();
   const results = useTestSessionStore((s) => s.results);
-  const inClass = useMeStore((s) => s.classIds.length > 0 && !s.guest);
+  const guest = useMeStore((s) => s.guest);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   if (textbooks.isPending) {
@@ -64,7 +64,7 @@ export default function ProgressScreen() {
         </>
       ) : null}
       <WeekActivity />
-      {inClass && comparison.data !== undefined ? (
+      {!guest && comparison.data != null ? (
         <InfoNote
           icon="users"
           lead={t('me.progress.comparisonLead', { percent: comparison.data })}

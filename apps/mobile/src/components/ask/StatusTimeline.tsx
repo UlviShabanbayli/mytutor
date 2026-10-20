@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Badge, Text } from '@/components/ui';
 import { formatClock } from '@/features/ask/dates';
-import { ANSWER_MINUTES } from '@/features/ask/demo';
+import { ANSWER_MINUTES } from '@/features/ask/subjects';
 import { timelineSteps, type TimelineStep } from '@/features/ask/questions';
 import type { AskQuestion } from '@/features/ask/types';
 import { cn } from '@/lib/cn';

@@ -11,9 +11,9 @@ import {
   selectJoin,
 } from './classes';
 import { roleOf, type DemoRequest } from './common';
-import { goalFromQuery, selectLeaderboard, selectMock } from './exam';
+import { goalFromQuery, selectLeaderboard, selectMock, selectNextMock } from './exam';
 import { selectCurriculum, selectHive, selectPlacement } from './learn';
-import { selectLeague, selectMe } from './me';
+import { selectLeague, selectMe, selectMyParentCode } from './me';
 import { selectNotifications, selectThread, selectThreads } from './messages';
 import {
   selectChildAssignments,
@@ -56,6 +56,7 @@ const p = (req: DemoRequest, name: string) => req.params[name] ?? '';
 
 export const DEMO_ROUTES: DemoRoute[] = [
   { path: '/v1/me', select: (w) => selectMe(w) },
+  { path: '/v1/me/parent-code', select: (w) => selectMyParentCode(w) },
   { path: '/v1/today', select: (w) => selectToday(w) },
   { path: '/v1/curriculum', select: (w) => selectCurriculum(w) },
   { path: '/v1/hive', select: (w) => selectHive(w) },
@@ -71,6 +72,7 @@ export const DEMO_ROUTES: DemoRoute[] = [
   { path: '/v1/exam/mocks', select: (w, r) => exam(w, r).mocks },
   { path: '/v1/exam/mocks/:id', select: (w, r) => selectMock(w, p(r, 'id')) },
   { path: '/v1/exam/deadlines', select: (w, r) => exam(w, r).deadlines },
+  { path: '/v1/exam/next-mock', select: (w) => selectNextMock(w) },
   { path: '/v1/exam/leaderboard/:scope', select: (w, r) => selectLeaderboard(w, p(r, 'scope')) },
   { path: '/v1/ask/questions', select: (w) => selectAskQuestions(w) },
   { path: '/v1/ask/questions/:id', select: (w, r) => selectAskQuestion(w, p(r, 'id')) },

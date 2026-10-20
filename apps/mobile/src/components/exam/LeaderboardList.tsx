@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { EmptyState, Icon, Text } from '@/components/ui';
-import { DEMO_REWARD_PLACES } from '@/features/exam/demo';
+import { REWARD_PLACES } from '@/features/exam/rules';
 import type { Leaderboard } from '@/features/exam/types';
 import { LeaderboardRow } from './LeaderboardRow';
 
@@ -37,7 +37,7 @@ export function LeaderboardList({ board }: LeaderboardListProps) {
         <Icon name="gift" size={20} color="honey-text" />
         <Text className="min-w-0 flex-1 text-xs">
           <Text className="font-sans-black text-xs">
-            {t('exam.board.rewardBold', { count: DEMO_REWARD_PLACES })}
+            {t('exam.board.rewardBold', { count: REWARD_PLACES })}
           </Text>
           {t('exam.board.rewardRest')}
         </Text>

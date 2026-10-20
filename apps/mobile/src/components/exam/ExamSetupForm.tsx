@@ -5,24 +5,28 @@ import { useTranslation } from 'react-i18next';
 import { ADMISSION_GROUPS, EXAM_KINDS } from '@mytutor/schemas';
 import type { AdmissionGroup, ExamKind } from '@mytutor/types';
 import { Button, Icon, Text } from '@/components/ui';
-import { useAppStore } from '@/features/app/appStore';
-import { DEMO_DAYS_LEFT, demoExamSubjects } from '@/features/exam/demo';
-import { examDaysLeft, examGoalOf, type ExamGoal } from '@/features/exam/goal';
+import type { ExamGoal } from '@/features/exam/goal';
 import { daysLabel, minutesLabel } from '@/features/exam/labels';
+import { useExamPreview, useSetExamGoal } from '@/features/exam/queries';
 import { EXAM_MINUTES, EXAM_TARGETS, useExamStore } from '@/features/exam/store';
 import { ChipGroup } from './ChipGroup';
 import { ChoiceRow } from './ChoiceRow';
 import { ExamSubjectsLine } from './ExamSubjectsLine';
 import { FormSection } from './FormSection';
 
+type ExamSetupFormProps = {
+  /** The goal saved now; null for the school programme. */
+  current: ExamGoal | null;
+};
+
 /**
  * Choosing the exam goal: exam kind (and admission group), the optional target result and the
- * daily minutes. Saves the goal to the profile and the plan preferences to the exam store.
+ * daily minutes. Saves the goal as the demo event `exam.goalSet` and the plan preferences to
+ * the exam store. The subjects and the countdown come from the world for the goal being chosen.
  */
-export function ExamSetupForm() {
+export function ExamSetupForm({ current }: ExamSetupFormProps) {
   const { t } = useTranslation();
-  const current = examGoalOf(useAppStore((s) => s.profile.goal));
-  const updateProfile = useAppStore((s) => s.updateProfile);
+  const setGoal = useSetExamGoal();
   const prefs = useExamStore();
   const [exam, setExam] = useState<ExamKind | null>(current?.exam ?? null);
   const [group, setGroup] = useState<AdmissionGroup | null>(current?.group ?? null);
@@ -38,10 +42,11 @@ export function ExamSetupForm() {
         date: current?.exam === exam ? current.date : null,
       }
     : null;
+  const preview = useExamPreview(complete ? draft : null).data;
 
   const save = () => {
     if (!draft || !complete) return;
-    updateProfile({ goal: draft });
+    setGoal(draft);
     prefs.setPlanPrefs({ target, minutesPerDay: minutes });
     // Back to /exam even when setup was opened by a link (then the stack below is "Bu gün").
     router.dismissTo('/exam');
@@ -81,11 +86,9 @@ export function ExamSetupForm() {
           />
         </FormSection>
       ) : null}
-      {exam && (exam !== 'admission' || group) ? (
-        <ExamSubjectsLine subjects={demoExamSubjects(exam, group)} />
-      ) : null}
+      {complete && preview ? <ExamSubjectsLine subjects={preview.subjects} /> : null}
 
-      {draft ? (
+      {complete && preview ? (
         <View
           accessible
           accessibilityLabel={t('exam.setup.dateA11y')}
@@ -95,7 +98,7 @@ export function ExamSetupForm() {
           <View className="min-w-0 flex-1 gap-0.5">
             <Text className="font-sans-black text-base">
               {t('exam.setup.dateTitle', {
-                days: daysLabel(t, examDaysLeft(draft, new Date(), DEMO_DAYS_LEFT)),
+                days: daysLabel(t, preview.daysLeft),
               })}
             </Text>
             <Text tone="muted" className="text-xs">

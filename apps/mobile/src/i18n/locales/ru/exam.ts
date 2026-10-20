@@ -87,7 +87,7 @@ export const exam = {
   weakCount_other: '{{count}} слабых места',
   evidence: {
     recent: 'За последние {{mocks}} пробных — {{errors}}',
-    last: 'В последнем пробном — {{wrong}} из {{asked}}',
+    last: 'В последнем пробном — {{errors}}',
     some: '{{errors}} в {{mocks}} пробных',
   },
   mockTitle: {
@@ -331,7 +331,6 @@ export const exam = {
       expand: 'Запиши выражение в виде многочлена:',
       factor: 'Разложи на множители:',
     },
-    source: 'демо-вопрос · {{book}} · {{topic}}',
     optionsA11y: 'Варианты ответа',
     selected: 'выбрано',
     saved: 'Ответ сохранён',

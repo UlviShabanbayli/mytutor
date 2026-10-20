@@ -1,4 +1,5 @@
-import { demoQuestions } from './demo';
+import { buildDemoWorld, selectAskQuestions } from '@mytutor/demo-data';
+import { toAskQuestion } from './fromWorld';
 import {
   chatLeft,
   filterCounts,
@@ -11,8 +12,8 @@ import {
 import type { AskQuestion } from './types';
 
 const t = ((key: string) => key) as never;
-const now = new Date(2026, 9, 18, 15, 0);
-const questions = demoQuestions(t, now);
+const world = buildDemoWorld({ now: new Date('2026-10-18T11:00:00.000Z'), persona: 'nermin' });
+const questions = selectAskQuestions(world).map((q) => toAskQuestion(t, q));
 
 const at = (q: AskQuestion, date: Date): AskQuestion => ({ ...q, sentAt: date.toISOString() });
 
@@ -64,7 +65,7 @@ describe('limits', () => {
   });
 });
 
-describe('demo questions', () => {
+describe("the world's questions", () => {
   it('mark AI text until a teacher approves, and cite a source', () => {
     for (const q of questions) {
       expect(q.source).not.toBeNull();

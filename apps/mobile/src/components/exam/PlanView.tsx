@@ -1,8 +1,7 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { EmptyState, ErrorState, Icon, LoadingState, Text } from '@/components/ui';
-import { DEMO_DAYS_LEFT } from '@/features/exam/demo';
-import { examDaysLeft, type ExamGoal } from '@/features/exam/goal';
+import { clockTime } from '@/features/exam/calendar';
 import { dayMonth, daysLabel, minutesLabel, stepsLabel, weekdayName } from '@/features/exam/labels';
 import { usePlan } from '@/features/exam/queries';
 import { useExamStore } from '@/features/exam/store';
@@ -10,11 +9,12 @@ import { StepRow } from './StepRow';
 import { WeekStrip } from './WeekStrip';
 
 type PlanViewProps = {
-  goal: ExamGoal;
+  /** Days until the goal's exam (the demo counter until the DİM date is known). */
+  daysLeft: number;
 };
 
 /** The preparation plan: the week, what moved, today's steps with reasons, the next mock. */
-export function PlanView({ goal }: PlanViewProps) {
+export function PlanView({ daysLeft }: PlanViewProps) {
   const { t } = useTranslation();
   const query = usePlan();
   const minutesPerDay = useExamStore((s) => s.minutesPerDay);
@@ -24,6 +24,7 @@ export function PlanView({ goal }: PlanViewProps) {
   if (query.isError) return <ErrorState onRetry={() => void query.refetch()} />;
 
   const { plan, nextMock } = query.data;
+  if (!plan) return null;
   const today = new Date();
   const total = plan.today.reduce((sum, s) => sum + s.minutes, 0);
 
@@ -32,14 +33,14 @@ export function PlanView({ goal }: PlanViewProps) {
       <View className="flex-row flex-wrap items-center justify-between gap-2">
         <Text tone="muted" className="font-sans-bold text-sm">
           {t('exam.plan.meta', {
-            days: daysLabel(t, examDaysLeft(goal, today, DEMO_DAYS_LEFT)),
+            days: daysLabel(t, daysLeft),
             minutes: minutesLabel(t, minutesPerDay),
           })}
         </Text>
         <View className="flex-row items-center gap-1">
           <Icon name="refresh" size={14} color="muted" />
           <Text tone="muted" className="text-sm">
-            {t('exam.plan.updated', { time: plan.updatedAt })}
+            {t('exam.plan.updated', { time: clockTime(new Date(plan.updatedAt)) })}
           </Text>
         </View>
       </View>

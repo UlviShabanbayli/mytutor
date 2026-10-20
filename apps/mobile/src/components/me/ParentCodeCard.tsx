@@ -3,8 +3,7 @@ import { Pressable, Share, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, CodeFlash, CopyButton, Icon, Text } from '@/components/ui';
 import { canCopy } from '@/features/me/chat';
-import { formatCode, formatMinSec, secondsLeft } from '@/features/me/codes';
-import { PARENT_CODE_TTL_MS } from '@/features/me/demo';
+import { PARENT_CODE_TTL_MS, formatCode, formatMinSec, secondsLeft } from '@/features/me/codes';
 
 type ParentCodeCardProps = {
   code: { value: string; expiresAt: number } | null;

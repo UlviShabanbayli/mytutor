@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { Icon, type IconName, Text, useRaisedPress } from '@/components/ui';
-import { ANSWER_MINUTES } from '@/features/ask/demo';
+import { ANSWER_MINUTES } from '@/features/ask/subjects';
 import { HexBadge } from './HexBadge';
 
 type AskCameraCardProps = {

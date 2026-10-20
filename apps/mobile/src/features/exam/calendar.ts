@@ -20,32 +20,9 @@ export function weekdayIndex(date: Date): number {
   return (date.getDay() + 6) % 7;
 }
 
-/** The first `weekday` (Monday = 0) at least `minDays` days after `today`, at hours:minutes. */
-export function upcomingWeekday(
-  today: Date,
-  weekday: number,
-  minDays: number,
-  hours: number,
-  minutes: number,
-): Date {
-  let ahead = (weekday - weekdayIndex(today) + 7) % 7;
-  while (ahead < minDays) ahead += 7;
-  const day = addDays(startOfDay(today), ahead);
-  day.setHours(hours, minutes, 0, 0);
-  return day;
-}
-
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** "11:00" */
 export function clockTime(date: Date): string {
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
-/** Days until an ISO date (YYYY-MM-DD), never below zero; null for a malformed date. */
-export function daysUntilIso(iso: string, today: Date): number | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-  if (!match) return null;
-  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
-  return Math.max(0, daysBetween(today, date));
 }

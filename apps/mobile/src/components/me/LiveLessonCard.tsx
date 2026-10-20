@@ -8,7 +8,7 @@ import { cn } from '@/lib/cn';
 import { Hex } from './Hex';
 
 type LiveLessonCardProps = {
-  live: ClassFeed['live'];
+  live: NonNullable<ClassFeed['live']>;
   reminded: boolean;
   onRemind: () => void;
 };

@@ -76,7 +76,7 @@ export const exam = {
   weakCount_other: '{{count}} zəif yer',
   evidence: {
     recent: 'Son {{mocks}} sınaqda {{errors}}',
-    last: 'Son sınaqda {{asked}} sualdan {{wrong}}',
+    last: 'Son sınaqda {{errors}}',
     some: '{{mocks}} sınaqda {{errors}}',
   },
   mockTitle: {
@@ -315,7 +315,6 @@ export const exam = {
       expand: 'İfadəni çoxhədli şəklində yaz:',
       factor: 'Vuruqlara ayır:',
     },
-    source: 'demo sual · {{book}} · {{topic}}',
     optionsA11y: 'Cavab variantları',
     selected: 'seçilib',
     saved: 'Cavab yadda saxlandı',

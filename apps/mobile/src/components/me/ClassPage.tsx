@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconButton, Screen, ScreenHeader, Text } from '@/components/ui';
+import { useClassMembership } from '@/features/me/queries';
 import { useMeStore } from '@/features/me/store';
 import type { ClassFeed, ClassSummary } from '@/features/me/types';
 import { AnnouncementCard } from './AnnouncementCard';
@@ -29,14 +30,19 @@ export function ClassPage({ summary, feed }: ClassPageProps) {
   const [target, setTarget] = useState<string>(summary.id);
   const reported = useMeStore((s) => s.reported);
   const report = useMeStore((s) => s.report);
-  const reminded = useMeStore((s) => s.reminders.includes(feed.live.id));
+  const reminders = useMeStore((s) => s.reminders);
   const toggleReminder = useMeStore((s) => s.toggleReminder);
-  const leaveClass = useMeStore((s) => s.leaveClass);
+  const { leave } = useClassMembership();
   const askReport = (id: string) => {
     setTarget(id);
     setSheet('report');
   };
-  const next = feed.assignments.find((a) => a.status === 'not_started') ?? feed.assignments[0];
+  // The next task: the first one still open, else the first one not handed in, else any.
+  const next =
+    feed.assignments.find((a) => a.status === 'not_started' && !a.late) ??
+    feed.assignments.find((a) => a.status === 'not_started') ??
+    feed.assignments[0];
+  const feedEmpty = !feed.announcement && !feed.live && !next && !feed.recording;
 
   return (
     <Screen className="gap-2.5">
@@ -76,19 +82,26 @@ export function ClassPage({ summary, feed }: ClassPageProps) {
       />
       {section === 'feed' ? (
         <>
-          <AnnouncementCard
-            item={feed.announcement}
-            teacher={summary}
-            reported={reported.includes(feed.announcement.id)}
-            onReport={() => askReport(feed.announcement.id)}
-          />
-          <LiveLessonCard
-            live={feed.live}
-            reminded={reminded}
-            onRemind={() => toggleReminder(feed.live.id)}
-          />
+          {feed.announcement ? (
+            <AnnouncementCard
+              item={feed.announcement}
+              teacher={summary}
+              reported={reported.includes(feed.announcement.id)}
+              onReport={() => feed.announcement && askReport(feed.announcement.id)}
+            />
+          ) : null}
+          {feed.live ? (
+            <LiveLessonCard
+              live={feed.live}
+              reminded={reminders.includes(feed.live.id)}
+              onRemind={() => feed.live && toggleReminder(feed.live.id)}
+            />
+          ) : null}
           {next ? <AssignmentCard item={next} /> : null}
-          <RecordingRow item={feed.recording} onPress={() => setSheet('recording')} />
+          {feed.recording ? (
+            <RecordingRow item={feed.recording} onPress={() => setSheet('recording')} />
+          ) : null}
+          {feedEmpty ? <Text tone="muted">{t('me.classPage.feedEmpty')}</Text> : null}
         </>
       ) : null}
       {section === 'assignments' ? (
@@ -142,7 +155,7 @@ export function ClassPage({ summary, feed }: ClassPageProps) {
         danger
         onClose={() => setSheet(null)}
         onConfirm={() => {
-          leaveClass(summary.id);
+          leave(summary.id);
           router.back();
         }}
       />

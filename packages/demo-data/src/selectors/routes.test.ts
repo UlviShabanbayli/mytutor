@@ -19,6 +19,7 @@ import {
   hiveSchema,
   leaderboardSchema,
   leagueTableSchema,
+  linkCodeSchema,
   liveLessonSchema,
   materialSchema,
   meResponseSchema,
@@ -59,6 +60,7 @@ const GOAL = 'goal=graduation_9';
 /** Every route with a request that finds something in Nərmin's world, and its schema. */
 const CASES: [path: string, schema: z.ZodType][] = [
   ['/v1/me', meResponseSchema],
+  ['/v1/me/parent-code', linkCodeSchema],
   ['/v1/today', todayResponseSchema],
   ['/v1/curriculum', curriculumResponseSchema],
   ['/v1/hive', hiveSchema],
@@ -74,6 +76,7 @@ const CASES: [path: string, schema: z.ZodType][] = [
   [`/v1/exam/mocks?${GOAL}`, mockListItemSchema.array()],
   ['/v1/exam/mocks/variant-2', mockExamSchema],
   [`/v1/exam/deadlines?${GOAL}`, deadlineSchema.array()],
+  ['/v1/exam/next-mock', mockExamSchema],
   ['/v1/exam/leaderboard/country', leaderboardSchema],
   ['/v1/ask/questions', askQuestionViewSchema.array()],
   ['/v1/ask/questions/q-nermin-1', askQuestionViewSchema],

@@ -27,7 +27,7 @@ const FREE = [
 export function ExamLockedView({ days }: ExamLockedViewProps) {
   const { t } = useTranslation();
   const plan = usePlan();
-  const tip = plan.data?.plan.today[0];
+  const tip = plan.data?.plan?.today[0];
 
   return (
     <View className="gap-2.5">

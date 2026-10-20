@@ -105,10 +105,7 @@ export function evidenceText(t: TFunction, evidence: Evidence): string {
         errors: errorsLabel(t, evidence.errors),
       });
     case 'last':
-      return t('exam.evidence.last', {
-        asked: evidence.asked,
-        wrong: errorsLabel(t, evidence.wrong),
-      });
+      return t('exam.evidence.last', { errors: errorsLabel(t, evidence.errors) });
     case 'some':
       return t('exam.evidence.some', {
         mocks: evidence.mocks,

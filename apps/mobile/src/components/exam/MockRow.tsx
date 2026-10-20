@@ -17,7 +17,7 @@ type MockRowProps = {
 export function MockRow({ item, attempt, onPress }: MockRowProps) {
   const { t } = useTranslation();
 
-  if ('preparing' in item) {
+  if (item.preparing) {
     const title = subjectName(t, item.subject);
     const meta = t('exam.mocks.metaPreparing');
     const tag = t('exam.mocks.tagPreparing');

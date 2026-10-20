@@ -5,7 +5,7 @@ import { AskViziCard } from '@/components/ask/AskViziCard';
 import { PhotoLimitRow } from '@/components/ask/PhotoLimitRow';
 import { RecentQuestions } from '@/components/ask/RecentQuestions';
 import { CollapsingTitle } from '@/components/ui';
-import { useAskQuestions, useAskUsage } from '@/features/ask/queries';
+import { useAskQuestions, useAskUsage, useSendQueuedQuestions } from '@/features/ask/queries';
 import { useOnline } from '@/features/ask/useOnline';
 
 /**
@@ -17,6 +17,7 @@ export default function AskScreen() {
   const online = useOnline();
   const questions = useAskQuestions();
   const { usage } = useAskUsage();
+  useSendQueuedQuestions();
 
   return (
     <CollapsingTitle

@@ -1,20 +1,30 @@
+import type {
+  AssignmentKind,
+  BadgeId,
+  BoardLine,
+  LeagueId,
+  Material,
+  ParentRelation,
+  RankId,
+  StudentPlan,
+} from '@mytutor/types';
 import type { CellState, IconName } from '@/components/ui';
 import type { ColorName } from '@/theme';
 import type { When } from './format';
 
-// VIEW types of the "Mən" area for the demo. The real shapes come with the motivation,
-// classes, parent-link and entitlement APIs (architecture Ş10, Ş11, V1, P2, P4) and will live
-// in packages/schemas then.
+// VIEW types of the "Mən" area. The data comes from the demo world (`/v1/me`, `/v1/classes`,
+// `/v1/assignments`, `/v1/messages`, `/v1/league`; shapes in packages/schemas/src/domain) and is
+// mapped to these shapes in `fromWorld.ts`, with moments as relative days in Baku time.
 
-/** Ranks in order (design: Sürfə → Gənc arı → İşçi arı → Bal ustası → Pətək ustası). */
-export const RANK_IDS = ['larva', 'young', 'worker', 'honeyMaster', 'hiveMaster'] as const;
-export type RankId = (typeof RANK_IDS)[number];
-
-/** Weekly leagues in order (design: Yonca → Lalə → Qızılgül → Nərgiz → Xarıbülbül). */
-export const LEAGUE_IDS = ['clover', 'tulip', 'rose', 'narcissus', 'kharibulbul'] as const;
-export type LeagueId = (typeof LEAGUE_IDS)[number];
-
-export type BadgeId = 'firstHoney' | 'week' | 'precise' | 'mock' | 'sealMaster';
+export { LEAGUE_IDS, RANK_IDS } from '@mytutor/schemas';
+export type {
+  BadgeId,
+  LeagueId,
+  LeagueRow,
+  LeagueTable,
+  PlanFeature,
+  RankId,
+} from '@mytutor/types';
 
 export type BadgeView = {
   id: BadgeId;
@@ -24,19 +34,30 @@ export type BadgeView = {
 };
 
 export type MeOverview = {
+  personId: string;
+  /** The name the app greets with (the account's name until the student gives one). */
   name: string;
-  /** Demo grade, used only when first launch did not pick one. */
   grade: number;
+  nickname: string;
   shields: number;
   points: number;
   weekPoints: number;
+  /** Days in a row with the daily goal met. */
+  streak: number;
   /** Topics at "Bal" (mastered) or better. */
   honeyCells: number;
+  rank: RankId;
+  /** The next rank and the points it starts at; null at the top rank. */
+  nextRank: { id: RankId; minPoints: number } | null;
+  /** Earned badges only. */
   badges: BadgeView[];
   badgesTotal: number;
   unreadInClasses: number;
-  league: { id: LeagueId; place: number };
-  plan: 'free' | 'premium';
+  /** Classes the student is in; none on the first day. */
+  classCount: number;
+  /** This week's league; null before the first points. */
+  league: { id: LeagueId; place: number } | null;
+  plan: StudentPlan;
 };
 
 export type GuestOverview = { points: number; honeyCells: number };
@@ -51,30 +72,19 @@ export type TextbookProgress = {
   levels: Record<CellState, number>;
 };
 
-export type LeagueRow = { place: number; nickname: string; points: number; me?: boolean };
-
-export type LeagueTable = {
-  league: LeagueId;
-  /** Place of the student in the table. */
-  place: number;
-  daysLeft: number;
-  promote: number;
-  demote: number;
-  rows: LeagueRow[];
-};
-
 export type ClassSummary = {
   id: string;
   short: string;
   name: string;
+  teacherId: string;
   teacher: string;
   teacherInitials: string;
   students: number;
   unread: number;
   newMessages: number;
   newAnnouncements: number;
-  nextAssignment: { title: string; due: When };
-  nextLive: When;
+  nextAssignment: { id: string; title: string; due: When } | null;
+  nextLive: When | null;
   jar: { percent: number; done: number; goal: number; mine: number };
 };
 
@@ -82,24 +92,36 @@ export type AssignmentStatus = 'not_started' | 'submitted' | 'checked';
 
 export type ClassAssignment = {
   id: string;
-  kind: 'test' | 'homework';
+  kind: AssignmentKind;
+  /** Topic number ("4.2"). */
   topic: string;
+  topicId: string;
   title: string;
   questions?: number;
   due: When;
   status: AssignmentStatus;
+  /** Due passed and nothing handed in. */
+  late: boolean;
   grade?: { score: number; max: number };
   /** Where "Başla" leads for a test assignment (a test id of the study area). */
   testId?: string;
 };
 
+export type ClassMaterial = {
+  id: string;
+  kind: Material['kind'];
+  title: string;
+  /** KB for a file, questions for a test, blocks for a lesson, seconds for a video. */
+  size: number;
+};
+
 export type ClassFeed = {
-  announcement: { id: string; text: string; time: When };
-  live: { id: string; when: When; topic: string };
+  announcement: { id: string; text: string; time: When } | null;
+  live: { id: string; when: When; topic: string } | null;
   /** `date` is an ISO day (YYYY-MM-DD). */
-  recording: { id: string; date: string; title: string; minutes: number };
+  recording: { id: string; date: string; title: string; minutes: number } | null;
   assignments: ClassAssignment[];
-  materials: { id: string; kind: 'file' | 'lesson'; title: string; meta: string }[];
+  materials: ClassMaterial[];
 };
 
 export type AssignmentDetail = {
@@ -111,7 +133,7 @@ export type AssignmentDetail = {
   due: When;
   status: AssignmentStatus;
   topic: { id: string; number: string; title: string; source: string };
-  attachment: { name: string; size: string };
+  attachment: { name: string; sizeKb: number } | null;
   submission: { sentAt: When; photos: number } | null;
   feedback: {
     teacher: string;
@@ -144,25 +166,19 @@ export type LiveSession = {
   time: string;
   participants: number;
   unreadChat: number;
-  /** Connection quality of the student's device (demo). */
+  /** Connection quality of the student's device in the demo room. */
   network: 'good' | 'weak';
-  board: { lines: { text: string; tone: 'ink' | 'honey'; size: 'lg' | 'md'; indent?: boolean }[] };
+  board: { lines: BoardLine[] };
   source: string;
 };
 
 export type ParentLinkView = {
+  /** The parent's person id. */
   id: string;
   name: string;
-  relation: 'mother' | 'father' | 'guardian';
+  relation: ParentRelation;
   /** ISO day the link was made. */
   since: string;
 };
 
-export type ParentRequest = { id: string; name: string; relation: ParentLinkView['relation'] };
-
-/** A plan feature row: what free and premium give. */
-export type PlanFeature = {
-  id: 'lessons' | 'review' | 'askAi' | 'askPhoto' | 'examPlan' | 'videos' | 'offline';
-  free: 'yes' | 'no' | 'limited' | 'basic' | 'some';
-  premium: 'yes' | 'unlimited' | 'full' | 'all';
-};
+export type ParentRequest = { id: string; name: string; relation: ParentRelation };
