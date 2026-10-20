@@ -29,8 +29,8 @@ const look = {
 
 /**
  * After "Yoxla" or "Kitabın cavabını göstər": the verdict, the book's answer and its source. Same
- * as the book: the panel springs up and "+5 bal" pops (feedback.correct B); different: it rises
- * calmly and Vızı peeks over its edge (feedback.wrong C).
+ * as the book: the panel springs up, Vızı cheers (vizi.correct C) and "+5 bal" pops
+ * (feedback.correct B); different: it rises calmly and Vızı peeks over its edge (feedback.wrong C).
  */
 export function ExerciseSheet({ exercise, outcome, onRetry, onContinue }: ExerciseSheetProps) {
   const { t } = useTranslation();
@@ -53,8 +53,11 @@ export function ExerciseSheet({ exercise, outcome, onRetry, onContinue }: Exerci
         style={{ paddingBottom: Math.max(insets.bottom, 12) + 8 }}
       >
         <View className={cn('flex-row items-center gap-2.5', !l.moment && 'pr-[60px]')}>
-          {l.moment ? (
-            <PopIn delay={same ? correctB.badgeAt : 0} from={same ? 0 : 1}>
+          {same ? (
+            // vizi.correct C: the rig pops Vızı in by itself, then she spins, grins and winks.
+            <Mascot moment="correct" behavior="correct" size={64} decorative />
+          ) : l.moment ? (
+            <PopIn from={1}>
               <Mascot moment={l.moment} size={64} decorative />
             </PopIn>
           ) : null}

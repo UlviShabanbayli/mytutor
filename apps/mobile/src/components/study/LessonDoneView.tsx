@@ -45,7 +45,8 @@ export function LessonDoneView({ lesson, minutes, questions }: LessonDoneViewPro
           </Text>
         </FadeUp>
         <PopIn from={mascotFrom} duration={mascot}>
-          <Mascot moment="lessonDone" size={170} decorative />
+          {/* vizi.done A inside the spring-in: arms up, a hop with fast wings, a laugh. */}
+          <Mascot moment="lessonDone" behavior="done" size={170} decorative />
         </PopIn>
         <FadeUp delay={head(1)} contentClassName="items-center gap-3">
           <Text variant="title" className="text-center text-on-honey">
