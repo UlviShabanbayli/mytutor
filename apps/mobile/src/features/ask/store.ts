@@ -19,6 +19,8 @@ type AskState = {
   queue: AskQueue;
   /** Questions taken offline, sent as `ask.sent` once the device is online again. */
   queued: WorldQuestion[];
+  /** Photos of questions sent from this device, by question id (an inline photo stays here). */
+  photos: Record<string, string>;
   cancelledIds: string[];
   feedback: Record<string, Feedback>;
   reportedIds: string[];
@@ -31,6 +33,7 @@ type AskState = {
   setQueue: (queue: AskQueue) => void;
   /** Clears the draft for the next photo once it is filed. */
   clearDraft: () => void;
+  keepPhoto: (id: string, uri: string) => void;
   enqueue: (question: WorldQuestion) => void;
   dequeue: (id: string) => void;
   cancel: (id: string) => void;
@@ -47,6 +50,7 @@ export const useAskStore = create<AskState>()((set) => ({
   note: '',
   queue: 'teacher',
   queued: [],
+  photos: {},
   cancelledIds: [],
   feedback: {},
   reportedIds: [],
@@ -61,6 +65,7 @@ export const useAskStore = create<AskState>()((set) => ({
   setNote: (note) => set({ note }),
   setQueue: (queue) => set({ queue }),
   clearDraft: () => set({ draft: null, note: '' }),
+  keepPhoto: (id, uri) => set((s) => ({ photos: { ...s.photos, [id]: uri } })),
   enqueue: (question) => set((s) => ({ queued: [question, ...s.queued] })),
   dequeue: (id) => set((s) => ({ queued: s.queued.filter((q) => q.id !== id) })),
   cancel: (id) =>

@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { onlineManager, useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { askQuestionViewSchema, askUsageSchema, notificationSchema } from '@mytutor/schemas';
-import type { AskQuestion as WorldQuestion, DemoPersona } from '@mytutor/types';
+import type { DemoPersona } from '@mytutor/types';
 import { useClasses, useMe } from '@/features/me/queries';
 import { apiGet } from '@/lib/api';
 import { useDemoWrite } from '@/lib/demoEvents';
@@ -12,7 +12,8 @@ import { daysAgo } from './dates';
 import { queuedView, toAskQuestion } from './fromWorld';
 import { sortNewest } from './questions';
 import { useAskStore } from './store';
-import { CLASS_SUBJECT_ID, worldSubjectId, type AskSubjectId } from './subjects';
+import { newQuestion } from './newQuestion';
+import { CLASS_SUBJECT_ID, type AskSubjectId } from './subjects';
 import type { AskQueue, AskUsage } from './types';
 import { useOnline } from './useOnline';
 
@@ -44,12 +45,17 @@ export function useAskQuestions() {
   });
   const queued = useAskStore((s) => s.queued);
   const cancelled = useAskStore((s) => s.cancelledIds);
+  const photos = useAskStore((s) => s.photos);
 
   const data = useMemo(() => {
     if (!query.data) return undefined;
-    const all = [...queued.map(queuedView), ...query.data].map((q) => toAskQuestion(t, q));
+    const all = [...queued.map(queuedView), ...query.data].map((q) => ({
+      ...toAskQuestion(t, q),
+      // A photo kept on this device when the event could not carry it.
+      photoUri: q.photoUri ?? photos[q.id] ?? null,
+    }));
     return sortNewest(all.filter((q) => !cancelled.includes(q.id)));
-  }, [query.data, queued, cancelled, t]);
+  }, [query.data, queued, cancelled, photos, t]);
 
   return { ...query, data };
 }
@@ -128,30 +134,22 @@ export function useSendQuestion() {
   return useMutation({
     networkMode: 'always',
     mutationFn: async ({ subjectId, grade, note, queue }: SendInput): Promise<{ id: string }> => {
-      const { draft, enqueue, clearDraft } = useAskStore.getState();
+      const { draft, enqueue, clearDraft, keepPhoto } = useAskStore.getState();
       if (!draft) throw new Error('No photo to send');
       if (!studentId) throw new Error('The student is not loaded yet');
-      const own = queue === 'teacher' && subjectId === CLASS_SUBJECT_ID ? teacher : null;
-      const subject = t(`ask.demo.subjects.${subjectId}`);
-      const question: WorldQuestion = {
-        id: `q-${studentId}-${Date.now().toString(36)}`,
+      const subjectName = t(`ask.demo.subjects.${subjectId}`);
+      const question = newQuestion({
         studentId,
-        classId: own?.classId ?? null,
-        queue: own ? 'teacher' : 'general',
-        teacherId: own?.teacherId ?? null,
-        subjectId: worldSubjectId(subjectId, grade),
-        topicId: null,
-        title: t('ask.demo.newQuestionTitle', { subject }),
-        mark: subject,
+        subjectId,
+        grade,
+        note,
+        teacher: queue === 'teacher' && subjectId === CLASS_SUBJECT_ID ? teacher : null,
         photoUri: draft.uri,
-        note: note.trim(),
-        status: 'sent',
-        timeline: [{ event: 'sent', at: new Date().toISOString() }],
-        aiDraft: { status: 'solving', answer: null, steps: [] },
-        answer: null,
-        source: null,
-        similar: [],
-      };
+        subjectName,
+        title: t('ask.demo.newQuestionTitle', { subject: subjectName }),
+        now: new Date(),
+      });
+      keepPhoto(question.id, draft.uri);
       if (onlineManager.isOnline()) write({ type: 'ask.sent', question });
       else enqueue({ ...question, status: 'queued' });
       clearDraft();
