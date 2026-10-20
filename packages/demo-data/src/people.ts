@@ -13,7 +13,8 @@ export function person(id: string, fullName: string, roles: Role[]): Person {
     lastName,
     fullName,
     shortName: lastName ? `${firstName} ${lastInitial}.` : firstName,
-    initials: `${firstName[0] ?? ''}${lastInitial}`.toLocaleUpperCase('az'),
+    // toUpperCase, not the locale-aware form, so every runtime gives the same letters.
+    initials: `${firstName[0] ?? ''}${lastInitial}`.toUpperCase(),
     roles,
   };
 }

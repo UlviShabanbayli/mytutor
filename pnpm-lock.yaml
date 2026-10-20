@@ -410,6 +410,9 @@ importers:
       '@mytutor/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@mytutor/demo-data':
+        specifier: workspace:*
+        version: link:../../packages/demo-data
       '@mytutor/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
