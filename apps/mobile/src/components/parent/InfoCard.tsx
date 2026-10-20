@@ -8,16 +8,25 @@ type InfoCardProps = {
   body: string;
   /** `info`: a blue note; `error`: the plain reason something did not work (an alert). */
   tone?: 'info' | 'error';
+  /** Read out when it appears (an answer to what the user just did); errors always are. */
+  announce?: boolean;
   className?: string;
 };
 
 /** A soft-coloured card with an icon, a bold line and a short explanation. */
-export function InfoCard({ icon, title, body, tone = 'info', className }: InfoCardProps) {
+export function InfoCard({
+  icon,
+  title,
+  body,
+  tone = 'info',
+  announce = false,
+  className,
+}: InfoCardProps) {
   const error = tone === 'error';
   return (
     <View
       accessibilityRole={error ? 'alert' : undefined}
-      accessibilityLiveRegion={error ? 'assertive' : 'none'}
+      accessibilityLiveRegion={error ? 'assertive' : announce ? 'polite' : 'none'}
       className={cn(
         'flex-row items-start gap-3 rounded-lg px-3.5 py-3',
         error ? 'bg-err-bg' : 'bg-info-bg',

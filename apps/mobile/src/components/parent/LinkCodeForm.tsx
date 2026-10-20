@@ -28,20 +28,20 @@ export function LinkCodeForm() {
     if (submit.isError) submit.reset();
   };
 
-  const send = () => submit.mutate(code, { onSuccess: () => router.dismissTo('/parent/kids') });
+  const toKids = () => router.dismissTo('/parent/kids');
+  const send = () => submit.mutate(code, { onSuccess: toKids });
+  // Already linked is not a mistake: the child is on "Uşaqlarım", and the way back is offered.
+  const linked = reason?.reason === 'already_linked' ? reason : null;
 
-  const errorText = reason
-    ? reason.reason === 'expired'
-      ? { title: t('parent.code.expiredTitle'), body: t('parent.code.expiredBody') }
-      : reason.reason === 'already_linked'
-        ? {
-            title: t('parent.code.linkedTitle', { name: reason.childName ?? '' }),
-            body: t('parent.code.linkedBody'),
-          }
+  const errorText = linked
+    ? null
+    : reason
+      ? reason.reason === 'expired'
+        ? { title: t('parent.code.expiredTitle'), body: t('parent.code.expiredBody') }
         : { title: t('parent.code.notFoundTitle'), body: t('parent.code.notFoundBody') }
-    : submit.isError
-      ? { title: t('common.errorTitle'), body: t('common.errorDescription') }
-      : null;
+      : submit.isError
+        ? { title: t('common.errorTitle'), body: t('common.errorDescription') }
+        : null;
 
   return (
     <View className="flex-1 gap-4">
@@ -63,15 +63,27 @@ export function LinkCodeForm() {
         />
       </View>
       {errorText ? <InfoCard tone="error" icon="warning" {...errorText} /> : null}
+      {linked ? (
+        <InfoCard
+          icon="check"
+          announce
+          title={t('parent.code.linkedTitle', { name: linked.childName ?? '' })}
+          body={t('parent.code.linkedBody')}
+        />
+      ) : null}
       <CodeWhereCard />
       <IconNote icon="shield" text={t('parent.code.safety')} className="px-1" />
       <View className="min-h-4 flex-1" />
-      <Button
-        label={t('parent.code.submit')}
-        disabled={code.length < LENGTH || errorText !== null}
-        loading={submit.isPending}
-        onPress={send}
-      />
+      {linked ? (
+        <Button label={t('parent.state.toKids')} onPress={toKids} />
+      ) : (
+        <Button
+          label={t('parent.code.submit')}
+          disabled={code.length < LENGTH || errorText !== null}
+          loading={submit.isPending}
+          onPress={send}
+        />
+      )}
     </View>
   );
 }

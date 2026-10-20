@@ -46,8 +46,13 @@ export const fetchThreadDetail = (persona: DemoPersona, threadId: string) =>
     }),
   );
 
-export const fetchNotes = (persona: DemoPersona) =>
-  apiGet('/v1/parent/notes', { persona, parse: announcementSchema.array().parse });
+/** The teachers' class notes; none from an API that does not serve them yet. */
+export async function fetchNotes(persona: DemoPersona) {
+  const notes = await orNull(
+    apiGet('/v1/parent/notes', { persona, parse: announcementSchema.array().parse }),
+  );
+  return notes ?? [];
+}
 
 export async function fetchReport(
   persona: DemoPersona,

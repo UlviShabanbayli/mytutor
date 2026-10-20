@@ -130,7 +130,8 @@ export const parent = {
     notFoundTitle: 'Bu kod tapılmadı',
     notFoundBody: 'Simvolları yoxla. Kod düz görünürsə, övladından yeni kod yaratmasını xahiş et.',
     linkedTitle: '{{name}} ilə bağlantın artıq var',
-    linkedBody: 'Onun hesabatı «Uşaqlarım» bölməsində görünür.',
+    linkedBody:
+      'Onun hesabatı «Uşaqlarım» bölməsində görünür. Bağlantını «Mən» bölməsində dayandıra bilərsən.',
   },
   report: {
     title: 'Həftəlik hesabat',
