@@ -1,7 +1,7 @@
 import { answerDemo } from '@mytutor/demo-data';
 import { studentAssignmentSchema, todayResponseSchema } from '@mytutor/schemas';
 import type { DemoEvent } from '@mytutor/types';
-import { ApiError, createApiGet, fallbackDelayMs } from './api';
+import { ApiError, createApiGet, fallbackDelayMs, getJson } from './api';
 
 const NOW = new Date('2026-10-20T06:00:00.000Z');
 
@@ -131,5 +131,28 @@ describe('fallbackDelayMs', () => {
       expect(fallbackDelayMs(path)).toBe(fallbackDelayMs(path));
     }
     expect(new Set(paths.map(fallbackDelayMs)).size).toBeGreaterThan(1);
+  });
+});
+
+describe('getJson', () => {
+  it('gives up after the timeout with status 0, so no skeleton waits for a missing API', async () => {
+    const hanging = ((_url: string, init?: RequestInit) =>
+      new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(new Error('aborted')));
+      })) as typeof fetch;
+    await expect(
+      getJson('tests/recommended', { timeoutMs: 20, fetchImpl: hanging }),
+    ).rejects.toMatchObject({
+      status: 0,
+    });
+  });
+
+  it('returns the JSON, and keeps an API error as one', async () => {
+    const ok = (async () => json({ id: 't_1' })) as typeof fetch;
+    expect(await getJson('tests/recommended', { fetchImpl: ok })).toEqual({ id: 't_1' });
+    const missing = (async () => json({}, 404)) as typeof fetch;
+    await expect(getJson('tests/nope', { fetchImpl: missing })).rejects.toMatchObject({
+      status: 404,
+    });
   });
 });

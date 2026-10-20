@@ -23,14 +23,33 @@ export class ApiError extends Error {
   }
 }
 
-export async function getJson(path: string): Promise<unknown> {
-  const res = await fetch(apiUrl(path));
+/** How long the API gets before the app answers from its own demo data. */
+export const API_TIMEOUT_MS = 2500;
+
+/**
+ * A GET of the API (the published tests and their figures). Like `apiGet`, it gives the API
+ * 2.5 s: without an API it fails fast (status 0) instead of keeping a skeleton row waiting.
+ */
+export async function getJson(
+  path: string,
+  {
+    timeoutMs = API_TIMEOUT_MS,
+    fetchImpl = fetch,
+  }: { timeoutMs?: number; fetchImpl?: typeof fetch } = {},
+): Promise<unknown> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res: Response;
+  try {
+    res = await fetchImpl(apiUrl(path), { signal: controller.signal });
+  } catch {
+    throw new ApiError(0, `No answer from the API: ${path}`);
+  } finally {
+    clearTimeout(timer);
+  }
   if (!res.ok) throw new ApiError(res.status, `${res.status} ${path}`);
   return res.json();
 }
-
-/** How long the API gets before the app answers from its own demo data. */
-export const API_TIMEOUT_MS = 2500;
 
 /**
  * The simulated latency of an offline answer: 300–900 ms, always the same for a path, so

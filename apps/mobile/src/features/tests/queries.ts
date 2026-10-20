@@ -11,6 +11,7 @@ export function useSubjects() {
   return useQuery({ queryKey: testKeys.subjects, queryFn: fetchSubjects });
 }
 
+/** No retries: without an API (or on the Worker) the plan just goes on without this step. */
 export function useRecommendedTopic() {
-  return useQuery({ queryKey: testKeys.recommended, queryFn: fetchRecommendedTopic });
+  return useQuery({ queryKey: testKeys.recommended, queryFn: fetchRecommendedTopic, retry: false });
 }
