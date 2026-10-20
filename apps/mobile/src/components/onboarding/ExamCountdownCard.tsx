@@ -12,7 +12,7 @@ type ExamCountdownCardProps = {
 /** The inverted card with days left until the chosen exam; always marked as an estimate. */
 export function ExamCountdownCard({ option }: ExamCountdownCardProps) {
   const { t } = useTranslation();
-  const countdown = useExamCountdown(option.exam);
+  const countdown = useExamCountdown(option);
   const kind =
     option.exam === 'admission'
       ? t('onboarding.exam.countdown.kind.admission', { group: option.group })

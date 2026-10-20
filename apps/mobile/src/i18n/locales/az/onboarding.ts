@@ -161,6 +161,9 @@ export const onboarding = {
     notFoundTitle: 'Bu kod tapılmadı',
     notFoundBody: 'Simvolları yoxla və ya övladından yeni kod istə.',
     errorBody: 'Kodu indi yoxlaya bilmirəm. Bir azdan yenidən cəhd et.',
+    expiredTitle: 'Bu kodun vaxtı bitib',
+    expiredBody: 'Kod 15 dəqiqə işləyir. Övladından yeni kod yaratmasını xahiş et.',
+    alreadyLinked: '{{name}} ilə bağlantın artıq var. Hesabatı «Uşaqlarım» bölməsində görəcəksən.',
     howTitle: 'Necə işləyir',
     steps: {
       '1': 'Övladın tətbiqdə Mən → Valideyn bölməsində kod yaradır.',

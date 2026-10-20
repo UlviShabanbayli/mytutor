@@ -35,6 +35,14 @@ export type TeacherDraft = { subjects: SubjectId[]; grades: number[]; bio: strin
 /** The child a parent's code points to (architecture V1). */
 export type LinkedChild = { name: string; grade: number };
 
+/** What a typed child code opens: whose it is, and whether it can still link. */
+export type ChildCodeLookup = LinkedChild & {
+  childId: string;
+  expired: boolean;
+  /** This parent already follows the child. */
+  alreadyLinked: boolean;
+};
+
 /** One line of the "Hazırdır!" summary. */
 export type SummaryRow = {
   /** Short text in the hexagon: "7", "M", "20". */
