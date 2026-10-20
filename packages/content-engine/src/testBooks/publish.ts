@@ -1,8 +1,6 @@
 import { createHash } from 'node:crypto';
-import { z } from 'zod';
 import { SUBJECTS } from '@mytutor/schemas';
 import type {
-  AiCall,
   MathSvg,
   OptionKey,
   PracticeTest,
@@ -13,21 +11,20 @@ import type {
   TestQuestion,
   Topic,
 } from '@mytutor/types';
-import { callClaude, type CallSpec } from '../knowledge/claude';
 import { formulasIn, mathSvg } from './mathSvg';
-import { TEST_PARAPHRASE_SYSTEM, TEST_PARAPHRASE_VERSION } from './prompts';
 
 /**
- * Questions of a test book as the app takes them: one test per subsection, the wording in our
- * own words (numbers and formulas untouched, checked by code), formulas typeset, figures
- * named for the API. A question is published only when all of that holds.
+ * Questions of a test book as the app takes them: one test per subsection, the wording exactly
+ * as the book prints it (test books are written and tried out by teachers, so questions are
+ * used as they are), formulas typeset, figures named for the API. A question is published
+ * only when all of that holds.
  */
 
 /** A number as an answer the student can type: "36", "-4", "2,8". */
 const NUMBER = /^-?\d+(?:[.,]\d+)?$/;
 
 /** Why a question is left out of the app, for the report. */
-export type Skip = 'type' | 'answer' | 'flagged' | 'paraphrase' | 'math';
+export type Skip = 'type' | 'answer' | 'flagged' | 'math';
 
 /** Which questions the app can take now: choice ones with their option, open ones with a number. */
 export function publishable(q: TestQuestion): Skip | null {
@@ -37,40 +34,6 @@ export function publishable(q: TestQuestion): Skip | null {
   return 'type';
 }
 
-/** Numbers written outside formulas, in order: a rewording must keep every one. */
-const numbersIn = (text: string) => text.replace(/\$[^$]+\$/g, ' ').match(/\d+(?:[.,]\d+)?/g) ?? [];
-
-const sameItems = (a: string[], b: string[]) =>
-  a.length === b.length && [...a].sort().join('\u0000') === [...b].sort().join('\u0000');
-
-/** True when `reworded` keeps every formula and number of `original`. */
-export const keepsFacts = (original: string, reworded: string) =>
-  sameItems(formulasIn(original), formulasIn(reworded)) &&
-  sameItems(numbersIn(original), numbersIn(reworded));
-
-const paraphraseSchema = z.object({
-  questions: z.array(z.object({ id: z.string(), stem: z.string() })),
-});
-
-export function paraphraseSpec(questions: TestQuestion[]): CallSpec<typeof paraphraseSchema> {
-  return {
-    id: `test-paraphrase:${questions[0]?.id ?? ''}`,
-    stage: 'test_paraphrase',
-    model: 'claude-opus-5-5',
-    effort: 'low',
-    promptVersion: TEST_PARAPHRASE_VERSION,
-    system: TEST_PARAPHRASE_SYSTEM,
-    content: [
-      {
-        type: 'text',
-        text: questions.map((q) => `QUESTION ${q.id}\n${q.stem}`).join('\n\n'),
-      },
-    ],
-    schema: paraphraseSchema,
-    blockIds: [],
-  };
-}
-
 /** Stable ids from what a thing is: the same subsection is the same topic on every publish. */
 const idOf = (prefix: string, ...parts: string[]) =>
   `${prefix}${createHash('sha1').update(parts.join('\u0000')).digest('hex').slice(0, 10)}`;
@@ -78,8 +41,6 @@ const idOf = (prefix: string, ...parts: string[]) =>
 export type PublishInput = {
   book: TestBook;
   questions: TestQuestion[];
-  client: Parameters<typeof callClaude>[0];
-  cacheDir: string;
   /** Path the API serves a question's figure at, from the figure's file in the book folder. */
   figurePath: (file: string) => string;
   now?: () => Date;
@@ -88,36 +49,15 @@ export type PublishInput = {
 export async function publishTests({
   book,
   questions,
-  client,
-  cacheDir,
   figurePath,
   now = () => new Date(),
-}: PublishInput): Promise<{
-  published: PublishedTests;
-  skipped: Record<Skip, number>;
-  calls: AiCall[];
-}> {
-  const skipped: Record<Skip, number> = { type: 0, answer: 0, flagged: 0, paraphrase: 0, math: 0 };
+}: PublishInput): Promise<{ published: PublishedTests; skipped: Record<Skip, number> }> {
+  const skipped: Record<Skip, number> = { type: 0, answer: 0, flagged: 0, math: 0 };
   const candidates = questions.filter((q) => {
     const why = publishable(q);
     if (why) skipped[why]++;
     return why === null;
   });
-
-  // Reworded a subsection at a time, twenty at most per call.
-  const calls: AiCall[] = [];
-  const reworded = new Map<string, string>();
-  const runs: TestQuestion[][] = [];
-  for (const q of candidates) {
-    const last = runs.at(-1);
-    if (last && last.length < 20 && last[0]?.subsection === q.subsection) last.push(q);
-    else runs.push([q]);
-  }
-  for (const run of runs) {
-    const answer = await callClaude(client, paraphraseSpec(run), cacheDir);
-    calls.push(answer.call);
-    for (const r of answer.output.questions) reworded.set(r.id, r.stem.trim());
-  }
 
   const math = new Map<string, MathSvg | null>();
   const typeset = async (latex: string) => {
@@ -129,12 +69,7 @@ export async function publishTests({
   const topics: Topic[] = [];
   const tests: PracticeTest[] = [];
   for (const q of candidates) {
-    const stem = reworded.get(q.id);
-    if (!stem || !keepsFacts(q.stem, stem)) {
-      skipped.paraphrase++;
-      continue;
-    }
-    const formulas = [...formulasIn(stem), ...q.options.flatMap((o) => formulasIn(o.text))];
+    const formulas = [...formulasIn(q.stem), ...q.options.flatMap((o) => formulasIn(o.text))];
     const svgs = await Promise.all(formulas.map(typeset));
     if (svgs.some((s) => s === null)) {
       skipped.math++;
@@ -168,7 +103,7 @@ export async function publishTests({
       id: q.id,
       topicId,
       type: q.type === 'open' ? 'open' : 'choice',
-      stem,
+      stem: q.stem.trim(),
       options:
         q.type === 'choice'
           ? q.options.map((o) => ({ key: o.key as OptionKey, text: o.text }))
@@ -204,6 +139,5 @@ export async function publishTests({
       publishedAt: now().toISOString(),
     },
     skipped,
-    calls,
   };
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { TestQuestion } from '@mytutor/types';
-import { keepsFacts, publishable } from './publish';
+import type { TestBook, TestQuestion } from '@mytutor/types';
+import { publishable, publishTests } from './publish';
 
 const question = (fields: Partial<TestQuestion>) =>
   ({
@@ -28,16 +28,17 @@ describe('publish', () => {
     expect(open('6 m, 32')).toBe('answer');
   });
 
-  it('keeps a rewording only when every formula and number survives', () => {
-    const original = 'Cəmi 2500 olan $a$ və $b$ ədədlərindən 7 böyükdür.';
-    expect(keepsFacts(original, '$a$ ilə $b$-nin cəmi 2500-dür; biri 7 vahid böyükdür.')).toBe(
-      true,
-    );
-    expect(keepsFacts(original, '$a$ ilə $b$-nin cəmi 250-dir; biri 7 vahid böyükdür.')).toBe(
-      false,
-    );
-    expect(keepsFacts(original, '$a$ ilə $c$-nin cəmi 2500-dür; biri 7 vahid böyükdür.')).toBe(
-      false,
-    );
+  it('publishes a question exactly as the book prints it', async () => {
+    const book = { id: 'tb_abcdefghij', title: 'Test kitabı', subject: 'riyaziyyat' } as TestBook;
+    const stem = 'Hansı ədəd 7-dən böyükdür?';
+    const { published } = await publishTests({
+      book,
+      questions: [
+        question({ id: 'q_1', stem, subsection: 'Natural ədədlər', figures: [], pages: [] }),
+      ],
+      figurePath: (file) => file,
+      now: () => new Date(0),
+    });
+    expect(published.tests[0]?.questions[0]?.stem).toBe(stem);
   });
 });
