@@ -27,7 +27,11 @@ describe('student selectors', () => {
       'lesson:4.3',
       'assignment:4.2',
     ]);
-    expect(today.assignments.map((a) => a.id)).toEqual(['quiz-4-2']);
+    expect(today.assignments.map((a) => `${a.id}:${a.state}`)).toEqual([
+      'hw-4-1:submitted',
+      'quiz-4-2:not_started',
+      'lesson-4-3:submitted',
+    ]);
     expect(today.motivation.points).toEqual({ total: 2140, week: 340, today: 45 });
     const first = selectToday(fresh);
     expect([first.plan, first.assignments, first.unfinishedLesson]).toEqual([[], [], null]);

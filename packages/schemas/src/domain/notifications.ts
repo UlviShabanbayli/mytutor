@@ -23,6 +23,14 @@ export const notificationSchema = z.discriminatedUnion('kind', [
   z.object({ ...base, kind: z.literal('newAssignment'), assignmentId: z.string().min(1) }),
   z.object({
     ...base,
+    kind: z.literal('assignmentGraded'),
+    assignmentId: z.string().min(1),
+    teacherId: z.string().min(1),
+    score: z.number().nonnegative(),
+    outOf: z.number().positive(),
+  }),
+  z.object({
+    ...base,
     kind: z.literal('reviewDue'),
     cells: z.number().int().positive(),
     minutes: z.number().int().positive(),
