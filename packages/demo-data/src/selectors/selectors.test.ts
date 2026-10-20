@@ -6,7 +6,12 @@ import { selectClasses } from './classes';
 import { goalFromQuery, selectExam, selectLeaderboard } from './exam';
 import { selectHive } from './learn';
 import { selectLeague, selectMe } from './me';
-import { selectChildReport, selectParentCode, selectParentHome } from './parent';
+import {
+  selectChildReport,
+  selectParentCode,
+  selectParentHome,
+  selectParentNotes,
+} from './parent';
 import { selectInbox, selectInsights, selectTeacherAssignments } from './teacher';
 import { selectToday } from './today';
 
@@ -158,6 +163,17 @@ describe('teacher and parent', () => {
     ]);
     expect(report?.assignments).toEqual({ onTime: 3, total: 3 });
     expect(selectChildReport(nermin, 'elvin', 0)).toBeNull();
+  });
+
+  it('tells Səbinə which class and teacher Nərmin has, and Lalə’s notes to 7B only', () => {
+    const nerminCard = selectParentHome(nermin)?.children[0];
+    expect(nerminCard).toMatchObject({
+      classId: '7b',
+      className: '7B',
+      classLabel: '7B · Riyaziyyat',
+      teacherId: 'lale',
+    });
+    expect(selectParentNotes(nermin).map((n) => n.classId)).toEqual(['7b']);
   });
 
   it('reads the parent codes: K7Q42M works, M4T8QW has run out', () => {

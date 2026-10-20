@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { z } from 'zod';
 import {
+  announcementSchema,
   askQuestionViewSchema,
   askUsageSchema,
   chatThreadDetailSchema,
@@ -94,6 +95,7 @@ const CASES: [path: string, schema: z.ZodType][] = [
   ['/v1/parent/codes/K7Q42M', parentCodeLookupSchema],
   ['/v1/parent/messages', chatThreadViewSchema.array()],
   ['/v1/parent/messages/dm-lale-sebine', chatThreadDetailSchema],
+  ['/v1/parent/notes', announcementSchema.array()],
   ['/v1/parent/notifications', notificationSchema.array()],
   ['/v1/parent/prefs', notificationPrefsSchema],
   ['/v1/teacher', teacherHomeSchema],

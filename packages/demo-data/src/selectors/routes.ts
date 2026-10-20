@@ -22,6 +22,7 @@ import {
   selectNotificationPrefs,
   selectParentCode,
   selectParentHome,
+  selectParentNotes,
 } from './parent';
 import { selectLesson, selectMistakes, selectReview, selectTest } from './study';
 import {
@@ -103,6 +104,7 @@ export const DEMO_ROUTES: DemoRoute[] = [
   { path: '/v1/parent/codes/:code', select: (w, r) => selectParentCode(w, p(r, 'code')) },
   { path: '/v1/parent/messages', select: (w) => selectThreads(w, 'parent') },
   { path: '/v1/parent/messages/:id', select: (w, r) => selectThread(w, p(r, 'id'), 'parent') },
+  { path: '/v1/parent/notes', select: (w) => selectParentNotes(w) },
   { path: '/v1/parent/notifications', select: (w) => selectNotifications(w, 'parent') },
   { path: '/v1/parent/prefs', select: (w) => selectNotificationPrefs(w) },
   { path: '/v1/teacher', select: (w) => selectTeacherHome(w) },
