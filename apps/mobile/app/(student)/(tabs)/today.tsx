@@ -15,7 +15,7 @@ import { useTodayHydrated } from '@/features/today/store';
 export default function TodayScreen() {
   const today = useToday();
   const hydrated = useTodayHydrated();
-  const firstDay = useFirstDay();
+  const firstDay = useFirstDay(today.data);
   const online = useOnline();
   const motivation = useMotivation(firstDay);
   useVisitTracking(hydrated);

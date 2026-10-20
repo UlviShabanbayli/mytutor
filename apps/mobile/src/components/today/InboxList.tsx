@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { StaggerGroup, StaggerItem, Text } from '@/components/ui';
 import { inboxDayHeading } from '@/features/today/format';
 import { groupInbox, inboxHref, isUnread } from '@/features/today/inbox';
-import { useTodayStore } from '@/features/today/store';
 import type { InboxItem } from '@/features/today/types';
+import { useDemoWrite } from '@/lib/demoEvents';
 import { InboxRow } from './InboxRow';
 
 type InboxListProps = {
@@ -13,13 +13,13 @@ type InboxListProps = {
 };
 
 /**
- * Notifications by day, newest first; opening one marks it read and goes to its screen. The
+ * Notifications by day, newest first; opening one marks it read (a demo event, so the read state
+ * holds on every screen) and goes to its screen. The
  * rows come in one after another when the list first shows (transitions.list C).
  */
 export function InboxList({ items }: InboxListProps) {
   const { t } = useTranslation();
-  const readIds = useTodayStore((s) => s.readIds);
-  const markRead = useTodayStore((s) => s.markRead);
+  const write = useDemoWrite();
   const groups = groupInbox(items, new Date());
   // Rows are counted across the day groups, so the stagger runs down the whole list.
   const offsets = groups.map((_, g) =>
@@ -41,9 +41,10 @@ export function InboxList({ items }: InboxListProps) {
               <StaggerItem key={item.id} index={(offsets[g] ?? 0) + i}>
                 <InboxRow
                   item={item}
-                  unread={isUnread(item, readIds)}
+                  unread={isUnread(item)}
                   onPress={() => {
-                    markRead([item.id]);
+                    if (isUnread(item))
+                      write({ type: 'notification.read', notificationId: item.id });
                     router.push(inboxHref(item));
                   }}
                 />

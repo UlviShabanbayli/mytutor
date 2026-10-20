@@ -122,6 +122,11 @@ export const today = {
     meta: '{{className}} · {{subject}} · {{teacher}}',
     title: 'Домашнее задание: {{title}}',
     label: '{{title}}. {{meta}}. Срок: {{due}}',
+    labelState: '{{title}}. {{meta}}. {{state}}',
+    submitted: 'Сдано',
+    submittedLabel: 'Сдано, учитель проверяет',
+    grade: '{{score}}/{{max}}',
+    gradeLabel: 'Оценка: {{score}} из {{max}}',
   },
   due: {
     today: 'Сегодня {{time}}',
@@ -173,6 +178,8 @@ export const today = {
     cellLabel: '{{code}} {{title}}: нужно повторить',
     review: 'Повторить · {{minutes}} мин',
     later: 'Позже',
+    nothing: 'Ни одна ячейка не кристаллизовалась — продолжай с того места, где остановился.',
+    continue: 'Продолжить',
   },
   streak: {
     title: 'Серия полётов прервалась',
@@ -232,6 +239,7 @@ export const today = {
     emptyTitle: 'Входящих пока нет',
     emptyBody: 'Здесь появятся новые задания, ответы учителя и напоминания о повторении.',
     offline: 'Нет интернета. Новые уведомления придут, когда появится связь.',
+    teacher: 'Учитель',
     item: {
       answerReady: {
         title: 'Ответ на твой вопрос готов',
@@ -240,6 +248,10 @@ export const today = {
       newAssignment: {
         title: 'Новое задание · {{className}}',
         body: '{{title}} — срок: {{due}}.',
+      },
+      assignmentGraded: {
+        title: 'Задание оценено: {{score}}/{{outOf}}',
+        body: '{{teacher}} проверил(а) работу «{{title}}». Посмотри отзыв.',
       },
       reviewDue: {
         title: 'Пора повторить',

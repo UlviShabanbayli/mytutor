@@ -15,6 +15,8 @@ function look(item: InboxItem): BadgeLook | null {
       return null;
     case 'newAssignment':
       return { fill: 'raised', textClass: 'text-honey-text', text: item.className };
+    case 'assignmentGraded':
+      return { fill: 'ok-bg', textClass: 'text-ok', text: String(item.score) };
     case 'reviewDue':
       return { fill: 'crystal', textClass: 'text-crystal-ink', text: String(item.cells) };
     case 'streak':

@@ -1,17 +1,18 @@
 import { useEffect, useSyncExternalStore } from 'react';
-import { onlineManager, useQuery } from '@tanstack/react-query';
+import { onlineManager } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
 import { useAppStore } from '@/features/app/appStore';
-import { fetchTest } from '@/features/tests/api';
+import { useStudyTest } from '@/features/study/queries';
 import { streakDays, todayIndex, weekActivity } from '@/features/tests/progress';
-import { testKeys } from '@/features/tests/queries';
 import { useTestSessionStore } from '@/features/tests/sessionStore';
+import { useDemoPersona } from '@/lib/demoPersona';
 import { dayKey } from './dates';
 import {
   COMEBACK_AFTER_DAYS,
   DEFAULT_GOAL_MINUTES,
   flightDayNumber,
   goalProgress,
+  streakWeek,
   weekCells,
   type DayCell,
   type GoalProgress,
@@ -20,7 +21,7 @@ import { unreadCount } from './inbox';
 import { stepHref } from './plan';
 import { useInbox, useMotivationData } from './queries';
 import { useTodayStore } from './store';
-import type { LessonPart, MotivationData, UnfinishedLesson } from './types';
+import type { LessonPart, MotivationData, TodayData, UnfinishedLesson } from './types';
 
 /** Connection state as TanStack Query sees it (browser events on the web). */
 export function useOnline(): boolean {
@@ -30,13 +31,19 @@ export function useOnline(): boolean {
   );
 }
 
-/** The first day of a guest who has not started anything yet. */
-export function useFirstDay(): boolean {
-  const firstDay = useTodayStore((s) => s.firstDay);
-  const firstStepTaken = useTodayStore((s) => s.firstStepTaken);
+/** Whether the world's student has not begun anything: no honey, no lesson, no plan. */
+export const isNewStudent = (today: TodayData) =>
+  today.motivation.points.total === 0 && today.unfinishedLesson === null && today.plan.length === 0;
+
+/**
+ * The first day: a student the world knows as new ("Yeni şagird") who has neither taken the
+ * first step nor finished a test on this device.
+ */
+export function useFirstDay(today: TodayData | undefined): boolean {
+  const persona = useDemoPersona();
+  const taken = useTodayStore((s) => s.firstStepTaken.includes(persona));
   const hasActivity = useTestSessionStore((s) => s.results.length > 0 || s.session !== null);
-  const today = dayKey(new Date());
-  return !firstStepTaken && !hasActivity && (firstDay === null || firstDay === today);
+  return today !== undefined && isNewStudent(today) && !taken && !hasActivity;
 }
 
 /** Records the visit once the stored state is loaded; a long break opens the comeback sheet. */
@@ -61,18 +68,22 @@ export type Motivation = {
 };
 
 /**
- * Streak and week come from the student's real finished tests (on the device); points and
- * today's minutes from the demo until the motivation API counts them (P2). The goal is the
+ * The day's numbers: the world's streak, points and minutes, with the tests finished on this
+ * device on top (a first-day student's streak and week are only those). The goal is the
  * student's own choice of 10, 20 or 30 minutes.
  */
 export function useMotivation(firstDay: boolean): Motivation {
   const data = useMotivationData().data;
   const results = useTestSessionStore((s) => s.results);
-  const goal = useAppStore((s) => s.profile.dailyMinutes) ?? DEFAULT_GOAL_MINUTES;
+  const own = useAppStore((s) => s.profile.dailyMinutes);
+  const goal = own ?? data?.dailyMinutes ?? DEFAULT_GOAL_MINUTES;
   const now = new Date();
-  const active = weekActivity(results, now);
   const todayIdx = todayIndex(now);
-  const streak = streakDays(results, now);
+  const device = weekActivity(results, now);
+  const known = streakWeek(data?.streak ?? 0, todayIdx);
+  const active = device.map((on, i) => on || (known[i] ?? false));
+  const activeToday = device[todayIdx] === true;
+  const streak = Math.max((data?.streak ?? 0) + (activeToday ? 1 : 0), streakDays(results, now));
   const progress = goalProgress(firstDay ? 0 : (data?.minutesToday ?? 0), goal);
 
   return {
@@ -80,7 +91,7 @@ export function useMotivation(firstDay: boolean): Motivation {
     points: firstDay ? 0 : (data?.points ?? 0),
     progress,
     week: weekCells(active, todayIdx, progress),
-    flightDay: flightDayNumber(streak, active[todayIdx] === true),
+    flightDay: flightDayNumber(streak, activeToday),
     data,
   };
 }
@@ -96,27 +107,23 @@ export type ContinueItem = {
   href: Href;
 };
 
-/** "Davam et": a test left halfway (real session) first, else the unfinished lesson. */
+/** "Davam et": a test left halfway (on this device) first, else the unfinished lesson. */
 export function useContinueItem(lesson: UnfinishedLesson | null): ContinueItem | null {
   const session = useTestSessionStore((s) => s.session);
   const testId = session?.testId ?? '';
-  const test = useQuery({
-    queryKey: testKeys.test(testId),
-    queryFn: () => fetchTest(testId),
-    enabled: session !== null,
-  });
+  const test = useStudyTest(testId, session !== null);
 
   if (session) {
     if (!test.data) return null;
     return {
       kind: 'test',
-      code: null,
-      title: test.data.title,
+      code: test.data.topicCode,
+      title: test.data.test.title,
       subject: null,
       part: null,
       // The current question counts as done once its answer has been checked.
       done: session.index + (session.checked ? 1 : 0),
-      total: test.data.questions.length,
+      total: test.data.steps.length,
       href: stepHref('test', session.testId),
     };
   }
@@ -136,8 +143,7 @@ export function useContinueItem(lesson: UnfinishedLesson | null): ContinueItem |
 /** Unread notifications for the bell. */
 export function useUnreadCount(): number {
   const items = useInbox().data;
-  const readIds = useTodayStore((s) => s.readIds);
-  return items ? unreadCount(items, readIds) : 0;
+  return items ? unreadCount(items) : 0;
 }
 
 /** Closes a moment screen (sheet or celebration) back to "Bu gün". */

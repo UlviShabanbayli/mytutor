@@ -94,7 +94,20 @@ export function inboxText(
     case 'answerReady':
       return {
         title: t('today.inbox.item.answerReady.title'),
-        body: t('today.inbox.item.answerReady.body', { teacher: item.teacher }),
+        body: t('today.inbox.item.answerReady.body', {
+          teacher: item.teacher ?? t('today.inbox.teacher'),
+        }),
+      };
+    case 'assignmentGraded':
+      return {
+        title: t('today.inbox.item.assignmentGraded.title', {
+          score: item.score,
+          outOf: item.outOf,
+        }),
+        body: t('today.inbox.item.assignmentGraded.body', {
+          teacher: item.teacher ?? t('today.inbox.teacher'),
+          title: item.title,
+        }),
       };
     case 'newAssignment':
       return {

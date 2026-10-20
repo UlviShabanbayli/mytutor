@@ -1,18 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchRecommendedTopic, fetchSubjects, fetchTest } from './api';
+import { fetchRecommendedTopic, fetchSubjects } from './api';
 
-export const testKeys = {
-  subjects: ['subjects'] as const,
-  test: (id: string) => ['tests', id] as const,
-  recommended: ['tests', 'recommended'] as const,
+/** The tests published from the team's test books (local API only; empty on the Worker). */
+const testKeys = {
+  subjects: ['tests', 'published', 'subjects'] as const,
+  recommended: ['tests', 'published', 'recommended'] as const,
 };
 
 export function useSubjects() {
   return useQuery({ queryKey: testKeys.subjects, queryFn: fetchSubjects });
-}
-
-export function useTest(testId: string) {
-  return useQuery({ queryKey: testKeys.test(testId), queryFn: () => fetchTest(testId) });
 }
 
 export function useRecommendedTopic() {

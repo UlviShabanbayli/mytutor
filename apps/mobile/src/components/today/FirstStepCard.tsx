@@ -4,6 +4,7 @@ import Animated from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { Text, useRaisedPress } from '@/components/ui';
 import { useTodayStore } from '@/features/today/store';
+import { useDemoPersona } from '@/lib/demoPersona';
 import type { FirstStep } from '@/features/today/types';
 
 type FirstStepCardProps = {
@@ -14,7 +15,9 @@ type FirstStepCardProps = {
 export function FirstStepCard({ step }: FirstStepCardProps) {
   const press = useRaisedPress({ depth: 3 });
   const { t } = useTranslation();
-  const takeFirstStep = useTodayStore((s) => s.takeFirstStep);
+  const persona = useDemoPersona();
+  const take = useTodayStore((s) => s.takeFirstStep);
+  const takeFirstStep = () => take(persona);
 
   const placement = () => {
     takeFirstStep();

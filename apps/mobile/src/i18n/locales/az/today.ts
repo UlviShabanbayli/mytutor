@@ -94,6 +94,11 @@ export const today = {
     meta: '{{className}} · {{subject}} · {{teacher}}',
     title: 'Ev tapşırığı: {{title}}',
     label: '{{title}}. {{meta}}. Son tarix: {{due}}',
+    labelState: '{{title}}. {{meta}}. {{state}}',
+    submitted: 'Göndərildi',
+    submittedLabel: 'Göndərildi, müəllim yoxlayır',
+    grade: '{{score}}/{{max}}',
+    gradeLabel: 'Qiymət: {{score}} / {{max}}',
   },
   due: {
     today: 'Bu gün {{time}}',
@@ -139,6 +144,8 @@ export const today = {
     cellLabel: '{{code}} {{title}}: təkrar lazımdır',
     review: 'Təkrarla · {{minutes}} dəq',
     later: 'Sonra',
+    nothing: 'Heç bir hüceyrə kristallaşmayıb — qaldığın yerdən davam et.',
+    continue: 'Davam et',
   },
   streak: {
     title: 'Uçuş seriyan dayandı',
@@ -183,6 +190,7 @@ export const today = {
     emptyTitle: 'Gələnlər qutun boşdur',
     emptyBody: 'Yeni tapşırıqlar, müəllim cavabları və təkrar xatırlatmaları burada görünəcək.',
     offline: 'İnternet yoxdur. Yeni bildirişlər internet qayıdanda gələcək.',
+    teacher: 'Müəllim',
     item: {
       answerReady: {
         title: 'Sualının cavabı hazırdır',
@@ -191,6 +199,10 @@ export const today = {
       newAssignment: {
         title: 'Yeni tapşırıq · {{className}}',
         body: '{{title}} — son tarix: {{due}}.',
+      },
+      assignmentGraded: {
+        title: 'Tapşırığın qiymətləndi: {{score}}/{{outOf}}',
+        body: '{{teacher}} «{{title}}» işini yoxladı. Rəyə bax.',
       },
       reviewDue: {
         title: 'Təkrar vaxtıdır',
