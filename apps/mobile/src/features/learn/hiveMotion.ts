@@ -36,7 +36,8 @@ export const placementResult = {
   /** The counters tick when a cell is half-way in. */
   land: 110,
   after: 300,
-  vizi: 520,
+  /** Vızı's own pop (vizi.correct C) starts this far into her moment, so she starts early. */
+  viziLead: 200,
   card: 300,
   pulse: 1200,
 } as const;

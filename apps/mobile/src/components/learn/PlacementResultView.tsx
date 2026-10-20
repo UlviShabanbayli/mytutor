@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Icon, Text } from '@/components/ui';
+import { Button, Icon, RollingNumber, Text } from '@/components/ui';
 import { Mascot } from '@/components/mascot/Mascot';
 import { placementResult, placementWave } from '@/features/learn/hiveMotion';
 import { findTopic } from '@/features/learn/mastery';
@@ -10,10 +10,13 @@ import type { Hive, PlacementOutcome } from '@/features/learn/types';
 import { useLandedCount } from '@/features/learn/useLandedCount';
 import { useLearnText } from '@/features/learn/useLearnText';
 import { playCue } from '@/lib/cues';
+import { splitAtNumber } from '@/lib/rolling';
 import { useReducedMotionPref } from '@/motion';
 import { Appear } from './Appear';
 import { PlacementUnitRow } from './PlacementUnitRow';
 import { StartPointCard } from './StartPointCard';
+
+const titleClass = 'font-display-black text-[26px] leading-[30px]';
 
 type PlacementResultViewProps = {
   hive: Hive;
@@ -36,8 +39,8 @@ export function PlacementResultView({ hive, outcome }: PlacementResultViewProps)
   const shown = useLandedCount(Object.values(wave.landAt).flat());
   const p = placementResult;
   const viziAt = wave.end - 100;
-  const title = (n: number) =>
-    count > 0 ? t('learn.result.title', { count: n }) : t('learn.result.titleNone');
+  const title = count > 0 ? t('learn.result.title', { count }) : t('learn.result.titleNone');
+  const titleParts = count > 0 ? splitAtNumber(title, count) : null;
 
   useEffect(() => {
     // The success tap comes with Vızı; at once when motion is reduced.
@@ -59,22 +62,40 @@ export function PlacementResultView({ hive, outcome }: PlacementResultViewProps)
           {t('learn.result.overline')}
         </Text>
         <View className="flex-row items-center gap-2.5">
-          <Appear
-            from={{ opacity: 0, y: 10, scale: 0.6 }}
-            delay={viziAt}
-            duration={p.vizi}
-            ease="pop"
-          >
-            <Mascot moment="correct" size={96} />
-          </Appear>
+          {/* vizi.correct C pops Vızı in by itself as the wave ends, then she spins and winks. */}
+          <Mascot
+            moment="correct"
+            behavior="correct"
+            delay={Math.max(0, viziAt - p.viziLead)}
+            size={96}
+          />
           <View className="min-w-0 flex-1 gap-1">
-            <Text
-              variant="heading"
-              accessibilityLabel={title(count)}
-              className="font-display-black text-[26px] leading-[30px]"
-            >
-              {title(shown)}
-            </Text>
+            {titleParts ? (
+              // The count rolls with the cells (micro.count) between the still words.
+              <View
+                accessible
+                accessibilityRole="header"
+                accessibilityLabel={title}
+                className="flex-row flex-wrap items-end gap-x-[7px]"
+              >
+                {titleParts.before.trim() ? (
+                  <Text className={titleClass}>{titleParts.before.trim()}</Text>
+                ) : null}
+                <RollingNumber
+                  value={shown}
+                  cue={false}
+                  accessible={false}
+                  className={titleClass}
+                />
+                {titleParts.after.trim() ? (
+                  <Text className={titleClass}>{titleParts.after.trim()}</Text>
+                ) : null}
+              </View>
+            ) : (
+              <Text variant="heading" className={titleClass}>
+                {title}
+              </Text>
+            )}
             <Text className="text-sm" tone="muted">
               {t(count > 0 ? 'learn.result.score' : 'learn.result.scoreNone', outcome)}
             </Text>

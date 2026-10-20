@@ -1,10 +1,11 @@
 import { View } from 'react-native';
-import { HexCell, Text } from '@/components/ui';
+import { HexCell, RollingNumber, Text } from '@/components/ui';
 import { placementResult } from '@/features/learn/hiveMotion';
 import type { HiveUnit } from '@/features/learn/types';
 import { useLandedCount } from '@/features/learn/useLandedCount';
 import { useLearnText } from '@/features/learn/useLearnText';
 import { cn } from '@/lib/cn';
+import { splitAtNumber } from '@/lib/rolling';
 import { Appear } from './Appear';
 import { FlatHex } from './FlatHex';
 
@@ -37,6 +38,8 @@ export function PlacementUnitRow({
   const full = filled === total;
   const landed = useLandedCount(landAt);
   const done = landed === filled;
+  const count = splitAtNumber(t('learn.hive.sub.count', { filled, total }), filled);
+  const countClass = cn('font-sans-black text-sm', landed ? 'text-honey-text' : 'text-muted');
 
   return (
     <View
@@ -95,9 +98,19 @@ export function PlacementUnitRow({
           })}
         </View>
       </View>
-      <Text className={cn('font-sans-black text-sm', landed ? 'text-honey-text' : 'text-muted')}>
-        {t('learn.hive.sub.count', { filled: landed, total })}
-      </Text>
+      {/* The count rolls as the cells land (micro.count); the row's label reads the final one. */}
+      {count ? (
+        <RollingNumber
+          value={landed}
+          prefix={count.before}
+          suffix={count.after}
+          cue={false}
+          accessible={false}
+          className={countClass}
+        />
+      ) : (
+        <Text className={countClass}>{t('learn.hive.sub.count', { filled: landed, total })}</Text>
+      )}
     </View>
   );
 }
