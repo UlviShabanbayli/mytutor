@@ -45,6 +45,7 @@ describe('linking with K7Q42M', () => {
 
   it("shows Nərmin on the parent's home and Səbinə in Nərmin's Mən → Valideyn again", () => {
     const kids = toChildViews(home([unlink, link]), []);
+    expect(kids.map((c) => c.childId)).toEqual(['nermin', 'elvin']);
     expect(kids.find((c) => c.childId === 'nermin')).toMatchObject({
       status: 'active',
       grants: ['report', 'progress', 'assignments'],

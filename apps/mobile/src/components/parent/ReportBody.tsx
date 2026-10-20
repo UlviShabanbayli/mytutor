@@ -55,7 +55,7 @@ export function ReportBody({ child, report }: ReportBodyProps) {
           <Text className="text-xs text-muted">{accuracyNote}</Text>
         </ReportTile>
       </View>
-      <ActiveDaysCard days={report.activeDays} />
+      <ActiveDaysCard days={report.activeDays} weekStart={report.weekStart} />
       <NewTopicsCard topics={report.newTopics} completedUnit={report.completedUnit} />
       <ReportStatusTiles
         name={child.name}

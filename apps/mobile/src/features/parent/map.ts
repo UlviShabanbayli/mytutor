@@ -28,15 +28,21 @@ export const parentSelf = (home: ParentHome): ParentSelf => ({
 const activeChild = (home: ParentHome, childId: string | null) =>
   home.children.find((c) => c.childId === childId && c.status === 'active');
 
-/** The children, each week marked new while its report notification is unread. */
+/**
+ * The children, linked ones first (a child linked again comes back above the waiting ones), each
+ * week marked new while its report notification is unread.
+ */
 export function toChildViews(home: ParentHome, notifications: AppNotification[]): ChildView[] {
   const unread = new Set(
     notifications.flatMap((n) => (n.kind === 'weeklyReport' && !n.read ? [n.childId] : [])),
   );
-  return home.children.map((child) => ({
-    ...child,
-    week: child.week ? { ...child.week, reportIsNew: unread.has(child.childId) } : null,
-  }));
+  const rank = (c: ChildOverview) => (c.status === 'active' ? 0 : 1);
+  return [...home.children]
+    .sort((a, b) => rank(a) - rank(b))
+    .map((child) => ({
+      ...child,
+      week: child.week ? { ...child.week, reportIsNew: unread.has(child.childId) } : null,
+    }));
 }
 
 /** A grade in points, a mock's in percent; "late" when the due date passed with nothing in. */
