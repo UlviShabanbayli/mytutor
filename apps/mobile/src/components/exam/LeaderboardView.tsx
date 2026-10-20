@@ -11,12 +11,12 @@ import {
   SegmentedControl,
   Text,
 } from '@/components/ui';
-import { DEMO_CLASS, DEMO_NICKNAME } from '@/features/exam/demo';
 import { groupThousands } from '@/features/exam/format';
 import { mockTitle } from '@/features/exam/labels';
 import { useLeaderboard } from '@/features/exam/queries';
 import { useExamStore } from '@/features/exam/store';
 import type { LeaderboardScope } from '@/features/exam/types';
+import { useClasses, useNickname } from '@/features/me/queries';
 import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardRow } from './LeaderboardRow';
 import { LeaderboardSettingsSheet } from './LeaderboardSettingsSheet';
@@ -28,17 +28,22 @@ export function LeaderboardView() {
   const [settings, setSettings] = useState(false);
   const optIn = useExamStore((s) => s.leaderboardOptIn);
   const setOptIn = useExamStore((s) => s.setLeaderboardOptIn);
+  const nickname = useNickname();
+  const myClass = useClasses().data?.[0];
   const query = useLeaderboard(scope);
+  const board = query.data?.board ?? null;
+  const mock = query.data?.mock ?? null;
 
-  const subtitle = query.data
-    ? t('exam.board.subtitle', {
-        mock: mockTitle(t, { kind: 'scheduled', ...query.data.mock }),
-        participants: t('exam.board.participants', {
-          count: query.data.board.participants,
-          formatted: groupThousands(query.data.board.participants),
-        }),
-      })
-    : undefined;
+  const subtitle =
+    board && mock
+      ? t('exam.board.subtitle', {
+          mock: mockTitle(t, mock),
+          participants: t('exam.board.participants', {
+            count: board.participants,
+            formatted: groupThousands(board.participants),
+          }),
+        })
+      : undefined;
   const header = (
     <ScreenHeader
       title={t('exam.board.title')}
@@ -62,7 +67,7 @@ export function LeaderboardView() {
         <EmptyState
           moment="reward"
           title={t('exam.board.optInTitle')}
-          description={`${t('exam.board.optInBody', { nick: DEMO_NICKNAME })} ${t('exam.board.optInNote')}`}
+          description={`${t('exam.board.optInBody', { nick: nickname })} ${t('exam.board.optInNote')}`}
           actionLabel={t('exam.board.optInCta')}
           onAction={() => setOptIn(true)}
         />
@@ -75,8 +80,15 @@ export function LeaderboardView() {
       <SegmentedControl
         accessibilityLabel={t('exam.board.scopeA11y')}
         segments={[
-          { value: 'class', label: t('exam.board.scopeClass', { name: DEMO_CLASS }) },
-          { value: 'country', label: t('exam.board.scopeCountry') },
+          ...(myClass
+            ? [
+                {
+                  value: 'class' as const,
+                  label: t('exam.board.scopeClass', { name: myClass.shortName }),
+                },
+              ]
+            : []),
+          { value: 'country' as const, label: t('exam.board.scopeCountry') },
         ]}
         value={scope}
         onChange={setScope}
@@ -85,16 +97,22 @@ export function LeaderboardView() {
         <LoadingState />
       ) : query.isError ? (
         <ErrorState onRetry={() => void query.refetch()} />
+      ) : board === null ? (
+        <EmptyState
+          moment="reward"
+          title={t('exam.board.emptyTitle')}
+          description={t('exam.board.emptyBody')}
+        />
       ) : (
         <>
           <ScrollView className="flex-1" contentContainerClassName="pb-2">
-            <LeaderboardList board={query.data.board} />
+            <LeaderboardList board={board} />
           </ScrollView>
           <View className="gap-2 border-t border-border pt-2">
             <LeaderboardRow
-              entry={query.data.board.you}
+              entry={board.you}
               you
-              note={t('exam.board.youTop', { percent: query.data.board.you.topPercent })}
+              note={t('exam.board.youTop', { percent: board.you.topPercent })}
             />
             <View className="flex-row items-center justify-center gap-1.5">
               <Icon name="shield" size={16} color="muted" />
@@ -107,7 +125,7 @@ export function LeaderboardView() {
       )}
       <LeaderboardSettingsSheet
         visible={settings}
-        nick={DEMO_NICKNAME}
+        nick={nickname}
         onClose={() => setSettings(false)}
         onLeave={() => {
           setSettings(false);

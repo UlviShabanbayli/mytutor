@@ -1,11 +1,8 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { EmptyState, ErrorState, LoadingState, Text } from '@/components/ui';
-import { useAppStore } from '@/features/app/appStore';
 import { deadlineText } from '@/features/exam/deadlineText';
 import { groupDeadlines, type DeadlineGroupKey } from '@/features/exam/deadlines';
-import { DEMO_DAYS_LEFT } from '@/features/exam/demo';
-import { examDaysLeft, examGoalOf } from '@/features/exam/goal';
 import { monthHeading } from '@/features/exam/labels';
 import { useDeadlines } from '@/features/exam/queries';
 import { useExamStore } from '@/features/exam/store';
@@ -20,7 +17,6 @@ const boxTone = (d: Deadline) =>
 export function DeadlinesView() {
   const { t } = useTranslation();
   const query = useDeadlines();
-  const goal = examGoalOf(useAppStore((s) => s.profile.goal));
   const reminders = useExamStore((s) => s.reminders);
   const setReminders = useExamStore((s) => s.setReminders);
   const registeredMocks = useExamStore((s) => s.registeredMocks);
@@ -31,8 +27,8 @@ export function DeadlinesView() {
   const today = new Date();
   const groups = groupDeadlines(query.data.items, today);
   const context = {
-    goal,
-    daysLeft: goal ? examDaysLeft(goal, today, DEMO_DAYS_LEFT) : DEMO_DAYS_LEFT,
+    goal: query.data.goal,
+    daysLeft: query.data.daysLeft,
     registered: registeredMocks.includes(query.data.generalMockId),
   };
   const heading = (key: DeadlineGroupKey) =>

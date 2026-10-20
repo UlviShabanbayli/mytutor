@@ -24,7 +24,7 @@ export function WeakSpotsView() {
   if (query.isError) return <ErrorState onRetry={() => void query.refetch()} />;
 
   const report = query.data;
-  if (report.spots.length === 0)
+  if (!report || report.spots.length === 0)
     return (
       <EmptyState
         moment="weakSpot"
@@ -50,7 +50,7 @@ export function WeakSpotsView() {
           text={t('exam.weak.intro', {
             mocks: report.mocks,
             errors: errorsLabel(t, report.errors),
-            root: report.commonRoot,
+            root: report.commonRoot ?? '',
           })}
         />
       </ViziScout>
