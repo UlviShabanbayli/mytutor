@@ -8,11 +8,20 @@ type MockRunHeaderProps = {
   total: number;
   answered: number;
   remainingMs: number;
+  /** The mock's whole time, for the ring around the clock. */
+  totalMs: number;
   onExit: () => void;
 };
 
 /** Exit, "Sual 7 / 25" with the share answered, and the time left. */
-export function MockRunHeader({ index, total, answered, remainingMs, onExit }: MockRunHeaderProps) {
+export function MockRunHeader({
+  index,
+  total,
+  answered,
+  remainingMs,
+  totalMs,
+  onExit,
+}: MockRunHeaderProps) {
   const { t } = useTranslation();
 
   return (
@@ -27,7 +36,7 @@ export function MockRunHeader({ index, total, answered, remainingMs, onExit }: M
           accessibilityLabel={t('exam.run.progressA11y', { answered, total })}
         />
       </View>
-      <TimerPill remainingMs={remainingMs} />
+      <TimerPill remainingMs={remainingMs} totalMs={totalMs} announce />
     </View>
   );
 }

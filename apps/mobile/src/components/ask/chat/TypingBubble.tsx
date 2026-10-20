@@ -1,27 +1,36 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Text } from '@/components/ui';
+import Animated, { FadeOut } from 'react-native-reanimated';
+import { RiseIn, Text, TypingHexes } from '@/components/ui';
+import { duration, useReducedMotionPref } from '@/motion';
 
-/** "Vızı düşünür… dərslikdə axtarır" with three honey dots while the reply is prepared. */
+/**
+ * "Vızı düşünür… dərslikdə axtarır" with three pulsing honeycomb cells while the reply is
+ * prepared (micro.typing B). The bubble rises in and fades out as the answer takes its place.
+ */
 export function TypingBubble() {
   const { t } = useTranslation();
+  const reduced = useReducedMotionPref();
 
   return (
-    <View
-      accessible
-      accessibilityRole="progressbar"
-      accessibilityLabel={t('ask.chat.thinkingA11y')}
-      accessibilityLiveRegion="polite"
-      className="flex-row items-center gap-2.5 self-start rounded-xl rounded-bl-[4px] border border-border bg-surf px-3.5 py-3"
-    >
-      <View className="flex-row gap-[5px]">
-        <View className="h-2 w-2 rounded-full bg-honey" />
-        <View className="h-2 w-2 rounded-full bg-honey opacity-60" />
-        <View className="h-2 w-2 rounded-full bg-honey opacity-30" />
-      </View>
-      <Text variant="caption" tone="muted" className="text-sm">
-        {t('ask.chat.thinking')}
-      </Text>
-    </View>
+    <Animated.View exiting={FadeOut.duration(reduced ? duration.reduced : duration.quick)}>
+      <RiseIn
+        from={8}
+        className="self-start rounded-xl rounded-bl-[4px] border border-border bg-surf px-3.5 py-3"
+      >
+        <View
+          accessible
+          accessibilityRole="progressbar"
+          accessibilityLabel={t('ask.chat.thinkingA11y')}
+          accessibilityLiveRegion="polite"
+          className="flex-row items-center gap-2.5"
+        >
+          <TypingHexes />
+          <Text variant="caption" tone="muted" className="text-sm">
+            {t('ask.chat.thinking')}
+          </Text>
+        </View>
+      </RiseIn>
+    </Animated.View>
   );
 }

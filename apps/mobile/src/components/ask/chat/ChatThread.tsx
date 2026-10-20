@@ -2,8 +2,10 @@ import { useRef } from 'react';
 import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import Animated, { FadeIn, FadeInUp, LayoutAnimationConfig } from 'react-native-reanimated';
 import { Button, Text } from '@/components/ui';
 import type { AskUsage, ChatIntent, ChatMessage, ChatOrigin } from '@/features/ask/types';
+import { duration, easing, useReducedMotionPref } from '@/motion';
 import { ChatContextBar } from './ChatContextBar';
 import { ChatHintActions } from './ChatHintActions';
 import { ChatLimitCard } from './ChatLimitCard';
@@ -32,6 +34,11 @@ export function ChatThread(props: ChatThreadProps) {
   const scroll = useRef<ScrollView>(null);
   const last = props.messages[props.messages.length - 1];
   const followUp = last?.role === 'vizi' && !props.thinking ? last : null;
+  const reduced = useReducedMotionPref();
+  // micro.typing: the thinking bubble fades out in 120ms, then the answer rises in its place.
+  const answerIn = reduced
+    ? FadeIn.duration(duration.reduced)
+    : FadeInUp.delay(duration.quick).duration(duration.base).easing(easing.enter);
 
   return (
     <ScrollView
@@ -47,14 +54,19 @@ export function ChatThread(props: ChatThreadProps) {
           {t(`ask.chat.origin.${props.origin}`)}
         </Text>
       ) : null}
-      {props.messages.map((m) =>
-        m.role === 'student' ? (
-          <StudentBubble key={m.id} text={m.text} />
-        ) : (
-          <ViziBubble key={m.id} message={m} />
-        ),
-      )}
-      {props.thinking ? <TypingBubble /> : null}
+      {/* Messages already there when the chat opens do not animate; new answers do. */}
+      <LayoutAnimationConfig skipEntering>
+        {props.messages.map((m) =>
+          m.role === 'student' ? (
+            <StudentBubble key={m.id} text={m.text} />
+          ) : (
+            <Animated.View key={m.id} entering={answerIn}>
+              <ViziBubble message={m} />
+            </Animated.View>
+          ),
+        )}
+        {props.thinking ? <TypingBubble /> : null}
+      </LayoutAnimationConfig>
       {followUp && props.canSend && followUp.followUp === 'hintActions' ? (
         <ChatHintActions onSend={props.onSend} />
       ) : null}

@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
-import { Text } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { CodeCell } from '@/components/ui';
+import { useCodeCues } from '@/lib/useCodeCues';
 
 type CodeBoxesProps = {
   value: string;
@@ -23,6 +23,7 @@ type CodeBoxesProps = {
 /**
  * A code typed into one hidden field and shown as separate boxes: the next empty box has the
  * caret, filled boxes are warm, a wrong code turns them all red. Tapping any box focuses it.
+ * Characters fade up as they land; a wrong code cross-fades to red (micro.otp A).
  */
 export function CodeBoxes({
   value,
@@ -40,31 +41,17 @@ export function CodeBoxes({
   const boxes = Array.from({ length }, (_, i) => i);
   const focusIndex = Math.min(value.length, length - 1);
 
-  const box = (i: number) => {
-    const char = value[i] ?? '';
-    const active = editable && !error && i === focusIndex && value.length < length;
-    return (
-      <View
-        key={i}
-        className={cn(
-          'h-[60px] min-w-0 flex-1 items-center justify-center rounded-md border-2',
-          error
-            ? 'border-err bg-err-bg'
-            : active
-              ? 'border-honey bg-surf'
-              : char
-                ? 'border-honey-deep bg-raised'
-                : 'border-border bg-surf',
-        )}
-      >
-        {char ? (
-          <Text className="font-display-black text-2xl">{char}</Text>
-        ) : active ? (
-          <View className="h-7 w-0.5 rounded-full bg-honey" />
-        ) : null}
-      </View>
-    );
-  };
+  useCodeCues(value, error);
+
+  const box = (i: number) => (
+    <CodeCell
+      key={i}
+      char={value[i] ?? ''}
+      active={editable && !error && i === focusIndex && value.length < length}
+      error={error}
+      className="h-[60px] min-w-0 flex-1"
+    />
+  );
 
   return (
     <Pressable accessible={false} onPress={() => input.current?.focus()} className="flex-row">
