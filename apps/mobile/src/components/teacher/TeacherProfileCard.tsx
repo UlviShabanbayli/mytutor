@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { Icon, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { initials } from '@/features/teacher/people';
-import type { TeacherProfile } from '@/features/teacher/types';
+import type { TeacherProfileView } from '@/features/teacher/types';
 import { HexBadge } from './HexBadge';
 
-type TeacherProfileCardProps = { profile: TeacherProfile; classes: number; students: number };
+type TeacherProfileCardProps = { profile: TeacherProfileView; classes: number; students: number };
 
 /** The teacher's name, subject and the "Doğrulanıb" badge (dashed while under review). */
 export function TeacherProfileCard({ profile, classes, students }: TeacherProfileCardProps) {

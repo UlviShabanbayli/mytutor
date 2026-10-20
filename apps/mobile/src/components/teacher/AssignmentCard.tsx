@@ -3,7 +3,6 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, PressableCard, ProgressBar, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import { useTopic } from '@/features/teacher/queries';
 import { dueStatus } from '@/features/teacher/time';
 import type { ClassAssignment, TeacherClass } from '@/features/teacher/types';
 import { useTeacherFormat } from '@/features/teacher/useTeacherFormat';
@@ -14,13 +13,12 @@ type AssignmentCardProps = { assignment: ClassAssignment; cls: TeacherClass };
 export function AssignmentCard({ assignment: a, cls }: AssignmentCardProps) {
   const { t } = useTranslation();
   const f = useTeacherFormat();
-  const topic = useTopic(a.topicId);
   const status = dueStatus(new Date(a.dueAt), new Date());
   const over = status === 'past';
   const urgent = status === 'today' || status === 'tomorrow';
   const percent = a.total ? Math.round((100 * a.done) / a.total) : 0;
   const done = t('teacher.assignment.done', { done: a.done, total: a.total, percent });
-  const title = f.assignmentTitle(a, topic);
+  const title = f.assignmentTitle(a);
   const audience = f.audience(a.audience, cls);
   const due = f.due(a.dueAt);
   // Homework opens the check; the rest show their results in the class report.

@@ -1,16 +1,14 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, SourceLine, Text } from '@/components/ui';
-import type { Submission } from '@/features/teacher/types';
-import { useTeacherFormat } from '@/features/teacher/useTeacherFormat';
+import type { SubmissionView } from '@mytutor/types';
 
-type AiReviewCardProps = { submission: Submission };
+type AiReviewCardProps = { ai: NonNullable<SubmissionView['ai']>; source: string };
 
 /** The AI's first look at a homework: a suggestion, always marked AI; the teacher decides. */
-export function AiReviewCard({ submission: s }: AiReviewCardProps) {
+export function AiReviewCard({ ai, source }: AiReviewCardProps) {
   const { t } = useTranslation();
-  const f = useTeacherFormat();
-  const correct = s.ai.correct.map((n) => `№${n}`).join(', ');
+  const correct = ai.correct.map((n) => `№${n}`).join(', ');
 
   return (
     <View
@@ -28,12 +26,12 @@ export function AiReviewCard({ submission: s }: AiReviewCardProps) {
         {correct
           ? t('teacher.grade.aiCorrect', { list: correct })
           : t('teacher.grade.aiNoneCorrect')}
-        {s.ai.note ? ` ${s.ai.note}` : ''}{' '}
+        {ai.note ? ` ${ai.note}` : ''}{' '}
         <Text className="font-sans-black text-sm">
-          {t('teacher.grade.aiSuggest', { grade: s.ai.suggested })}
+          {t('teacher.grade.aiSuggest', { grade: ai.suggested.score, max: ai.suggested.max })}
         </Text>
       </Text>
-      <SourceLine source={f.source(s.source)} />
+      <SourceLine source={source} />
     </View>
   );
 }

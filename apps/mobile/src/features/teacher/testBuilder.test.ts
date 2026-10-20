@@ -1,11 +1,11 @@
 import { canSubmitTest, countByTopic, estimateMinutes, toggleId } from './testBuilder';
-import type { BankQuestion } from './types';
+import type { BankQuestion } from '@mytutor/types';
 
 const q = (id: string, topicId: string): BankQuestion => ({
   id,
   topicId,
   text: id,
-  source: { book: 'Riyaziyyat 7', section: topicId },
+  source: `Riyaziyyat 7 · ${topicId} · demo`,
 });
 
 describe('test builder selection', () => {
@@ -15,8 +15,15 @@ describe('test builder selection', () => {
   });
 
   it('counts the selection per topic and estimates the time', () => {
-    const bank = [q('a', '4.1'), q('b', '4.1'), q('c', '4.2')];
-    expect(countByTopic(['a', 'b', 'c'], bank)).toEqual({ '4.1': 2, '4.2': 1 });
+    const bank = [
+      q('a', 'riyaziyyat-7-4-1'),
+      q('b', 'riyaziyyat-7-4-1'),
+      q('c', 'riyaziyyat-7-4-2'),
+    ];
+    expect(countByTopic(['a', 'b', 'c'], bank)).toEqual({
+      'riyaziyyat-7-4-1': 2,
+      'riyaziyyat-7-4-2': 1,
+    });
     expect(estimateMinutes(4)).toBe(12);
   });
 

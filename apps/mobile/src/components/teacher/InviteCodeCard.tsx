@@ -11,10 +11,10 @@ type InviteCodeCardProps = { cls: TeacherClass };
 export function InviteCodeCard({ cls }: InviteCodeCardProps) {
   const { t } = useTranslation();
   const [flash, setFlash] = useState(0);
-  const link = inviteLink(cls.inviteCode);
+  const link = inviteLink(cls.joinCode);
   const message = t('teacher.classNew.shareMessage', {
     class: cls.name,
-    code: cls.inviteCode,
+    code: cls.joinCode,
     link,
   });
 
@@ -34,7 +34,7 @@ export function InviteCodeCard({ cls }: InviteCodeCardProps) {
           selectable
           className="font-display-black text-[26px] leading-[32px] tracking-[1.3px] text-on-spot"
         >
-          {cls.inviteCode}
+          {cls.joinCode}
         </Text>
       </CodeFlash>
       <View className="flex-row items-center gap-1.5 opacity-85">
@@ -45,7 +45,7 @@ export function InviteCodeCard({ cls }: InviteCodeCardProps) {
       </View>
       <View className="flex-row gap-2">
         <CopyButton
-          text={cls.inviteCode}
+          text={cls.joinCode}
           label={t('teacher.classNew.copy')}
           copiedLabel={t('teacher.classNew.copied')}
           onCopied={() => setFlash((n) => n + 1)}

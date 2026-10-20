@@ -13,18 +13,18 @@ type ConversationRowProps = { conversation: Conversation; onPress: () => void };
 export function ConversationRow({ conversation: c, onPress }: ConversationRowProps) {
   const { t } = useTranslation();
   const f = useTeacherFormat();
-  const last = c.messages[c.messages.length - 1];
+  const last = c.last;
   const subtitle =
     c.kind === 'class'
       ? t('teacher.messages.classChat')
       : c.kind === 'parent'
-        ? t('teacher.messages.parentOf', { child: c.child ?? '' })
+        ? t('teacher.messages.parentOf', { child: c.childName ?? '' })
         : t('teacher.messages.student');
   const preview = last
-    ? last.author === null
+    ? last.mine
       ? t('teacher.messages.fromMe', { text: last.text })
-      : c.kind === 'class'
-        ? t('teacher.messages.from', { name: last.author, text: last.text })
+      : c.kind === 'class' && last.author
+        ? t('teacher.messages.from', { name: last.author.name, text: last.text })
         : last.text
     : '';
   const time = last ? f.ago(new Date(last.at)) : '';

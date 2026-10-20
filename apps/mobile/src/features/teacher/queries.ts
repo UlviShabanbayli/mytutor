@@ -1,111 +1,276 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { ApiError } from '@/lib/api';
 import * as api from './api';
-import type { SolutionStep } from './types';
+import {
+  assignmentsQuery,
+  classQuery,
+  contentsQuery,
+  homeQuery,
+  teacherKey,
+  useTeacherScope,
+} from './teacherQuery';
+import {
+  classOf,
+  conversationOf,
+  currentUnit,
+  inboxQuestionOf,
+  insightsOf,
+  liveRoomOf,
+  noticesOf,
+  profileOf,
+  testStartOf,
+  unitOfTopic,
+} from './views';
 
-export const teacherKeys = {
-  all: ['teacher'] as const,
-  profile: ['teacher', 'profile'] as const,
-  topics: ['teacher', 'topics'] as const,
-  unit: ['teacher', 'unit'] as const,
-  today: ['teacher', 'today'] as const,
-  classes: ['teacher', 'classes'] as const,
-  class: (id: string) => ['teacher', 'classes', id] as const,
-  members: (id: string) => ['teacher', 'classes', id, 'members'] as const,
-  assignments: (id: string) => ['teacher', 'classes', id, 'assignments'] as const,
-  announcements: (id: string) => ['teacher', 'classes', id, 'announcements'] as const,
-  assignment: (id: string) => ['teacher', 'assignments', id] as const,
-  submissions: (id: string) => ['teacher', 'assignments', id, 'submissions'] as const,
-  inbox: ['teacher', 'inbox'] as const,
-  question: (id: string) => ['teacher', 'inbox', id] as const,
-  materials: ['teacher', 'materials'] as const,
-  bank: (topicId: string) => ['teacher', 'bank', topicId] as const,
-  wholeBank: ['teacher', 'bank'] as const,
-  insights: (classId: string) => ['teacher', 'insights', classId] as const,
-  live: ['teacher', 'live'] as const,
-  liveRoom: (id: string) => ['teacher', 'live', id] as const,
-  conversations: ['teacher', 'conversations'] as const,
-  notices: ['teacher', 'notices'] as const,
-};
+/** The teacher area's reads of the demo world. Writes are in mutations.ts. */
 
-export const useTeacherProfile = () =>
-  useQuery({ queryKey: teacherKeys.profile, queryFn: api.fetchProfile });
+const notFound = (what: string) => new ApiError(404, `${what} not found`);
 
-export const useTopics = () => useQuery({ queryKey: teacherKeys.topics, queryFn: api.fetchTopics });
-
-export const useUnit = () => useQuery({ queryKey: teacherKeys.unit, queryFn: api.fetchUnit });
-
-export const useTeacherToday = () =>
-  useQuery({ queryKey: teacherKeys.today, queryFn: api.fetchToday });
-
-/** One platform topic by id ("4.1"), from the cached contents list. */
-export function useTopic(id: string | undefined) {
-  const { data } = useTopics();
-  return data?.find((t) => t.id === id);
+/** The unit a topic is in (the first ready unit for none), for picking a topic near it. */
+export function useTopicUnit(topicId: string | null) {
+  const { persona } = useTeacherScope();
+  return useQuery({
+    ...contentsQuery(persona),
+    select: (c) => (topicId ? unitOfTopic(c, topicId) : null) ?? c.units[0] ?? null,
+  });
 }
 
-export const useTeacherClasses = () =>
-  useQuery({ queryKey: teacherKeys.classes, queryFn: api.fetchClasses });
-
-export const useTeacherClass = (id: string) =>
-  useQuery({
-    queryKey: teacherKeys.class(id),
-    queryFn: () => api.fetchClass(id),
-    enabled: id !== '',
+/** The unit the teacher's classes work on (that of her newest assignment). */
+export function useUnit() {
+  const { persona, client } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'unit'),
+    queryFn: async () => {
+      const [contents, list] = await Promise.all([
+        client.ensureQueryData(contentsQuery(persona)),
+        api.getAssignments(persona),
+      ]);
+      const unit = currentUnit(contents, list);
+      if (!unit) throw notFound('unit');
+      return unit;
+    },
   });
+}
 
-export const useClassMembers = (id: string) =>
-  useQuery({ queryKey: teacherKeys.members(id), queryFn: () => api.fetchMembers(id) });
+export function useTeacherProfile() {
+  const { persona } = useTeacherScope();
+  return useQuery({ ...homeQuery(persona), select: profileOf });
+}
 
-export const useClassAssignments = (id: string) =>
-  useQuery({ queryKey: teacherKeys.assignments(id), queryFn: () => api.fetchAssignments(id) });
+export function useTeacherClasses() {
+  const { persona } = useTeacherScope();
+  return useQuery({ ...homeQuery(persona), select: (h) => h.classes.map(classOf) });
+}
 
-export const useAnnouncements = (id: string) =>
-  useQuery({ queryKey: teacherKeys.announcements(id), queryFn: () => api.fetchAnnouncements(id) });
+export function useTeacherAssignments() {
+  const { persona, client } = useTeacherScope();
+  return useQuery(assignmentsQuery(persona, client));
+}
 
-export const useAssignment = (id: string) =>
-  useQuery({ queryKey: teacherKeys.assignment(id), queryFn: () => api.fetchAssignment(id) });
-
-export const useSubmissions = (assignmentId: string) =>
-  useQuery({
-    queryKey: teacherKeys.submissions(assignmentId),
-    queryFn: () => api.fetchSubmissions(assignmentId),
+export function useAssignment(id: string) {
+  const { persona, client } = useTeacherScope();
+  return useQuery({
+    ...assignmentsQuery(persona, client),
+    select: (list) => list.find((a) => a.id === id) ?? null,
   });
+}
 
-export const useTeacherInbox = () =>
-  useQuery({ queryKey: teacherKeys.inbox, queryFn: api.fetchInbox });
-
-export const useInboxQuestion = (id: string) =>
-  useQuery({ queryKey: teacherKeys.question(id), queryFn: () => api.fetchQuestion(id) });
-
-export const useMaterials = () =>
-  useQuery({ queryKey: teacherKeys.materials, queryFn: api.fetchMaterials });
-
-export const useBank = (topicId: string) =>
-  useQuery({ queryKey: teacherKeys.bank(topicId), queryFn: () => api.fetchBank(topicId) });
-
-export const useTestDraft = (draftId: string | undefined) =>
-  useQuery({
-    queryKey: ['teacher', 'testDraft', draftId ?? 'new'],
-    queryFn: () => api.fetchTestDraft(draftId),
+/** "Bu gün": homework waiting for the teacher and the coming live lessons. */
+export function useTeacherToday() {
+  const { persona, client } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'today'),
+    queryFn: async () => {
+      const [list, live] = await Promise.all([
+        client.fetchQuery(assignmentsQuery(persona, client)),
+        api.getLive(persona),
+      ]);
+      const now = Date.now();
+      return {
+        homework: list.filter((a) => a.kind === 'homework' && a.toGrade > 0),
+        live: live.filter((l) => Date.parse(l.startsAt) + l.minutes * 60_000 > now),
+      };
+    },
   });
+}
 
-export const useWholeBank = () =>
-  useQuery({ queryKey: teacherKeys.wholeBank, queryFn: api.fetchWholeBank });
+export function useTeacherClass(id: string) {
+  const { persona, client } = useTeacherScope();
+  return useQuery({ ...classQuery(persona, client, id), select: (d) => d.class });
+}
 
-export const useClassInsights = (classId: string) =>
-  useQuery({ queryKey: teacherKeys.insights(classId), queryFn: () => api.fetchInsights(classId) });
+export function useClassMembers(id: string) {
+  const { persona, client } = useTeacherScope();
+  return useQuery({ ...classQuery(persona, client, id), select: (d) => d.members });
+}
 
-export const useLiveRooms = () =>
-  useQuery({ queryKey: teacherKeys.live, queryFn: api.fetchLiveRooms });
+export function useClassAssignments(id: string) {
+  const { persona, client } = useTeacherScope();
+  return useQuery({ ...classQuery(persona, client, id), select: (d) => d.assignments });
+}
 
-export const useLiveRoom = (id: string) =>
-  useQuery({ queryKey: teacherKeys.liveRoom(id), queryFn: () => api.fetchLiveRoom(id) });
+export function useAnnouncements(classId: string) {
+  const { persona } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'classes', classId, 'announcements'),
+    queryFn: () => api.getAnnouncements(persona, classId),
+  });
+}
 
-export const useConversations = () =>
-  useQuery({ queryKey: teacherKeys.conversations, queryFn: api.fetchConversations });
+/** Handed-in work of an assignment, waiting ones first. */
+export function useSubmissions(assignmentId: string) {
+  const { persona } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'assignments', assignmentId, 'submissions'),
+    queryFn: async () =>
+      (await api.getSubmissions(persona, assignmentId)).filter((s) => s.submittedAt !== null),
+  });
+}
 
-export const useNotices = () =>
-  useQuery({ queryKey: teacherKeys.notices, queryFn: api.fetchNotices });
+export function useTeacherInbox() {
+  const { persona } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'inbox'),
+    queryFn: async () => (await api.getInbox(persona)).map(inboxQuestionOf),
+  });
+}
+
+export function useInboxQuestion(id: string) {
+  const { persona } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'inbox', id),
+    queryFn: async () => inboxQuestionOf(await api.getQuestion(persona, id)),
+  });
+}
+
+export function useMaterials() {
+  const { persona } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'materials'),
+    queryFn: () => api.getMaterials(persona),
+  });
+}
+
+/** Every bank question, for counting a selection across topics. */
+export function useWholeBank() {
+  const { persona } = useTeacherScope();
+  return useQuery({ queryKey: teacherKey(persona, 'bank'), queryFn: () => api.getBank(persona) });
+}
+
+export function useBank(topicId: string) {
+  const { persona } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'bank'),
+    queryFn: () => api.getBank(persona),
+    select: (bank) => bank.filter((q) => q.topicId === topicId),
+  });
+}
+
+/** Where the test builder starts: a saved draft, or Vızı's picks for a new test. */
+export function useTestDraft(draftId: string | undefined) {
+  const { persona, client } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'testStart', draftId ?? 'new'),
+    queryFn: async () => {
+      const [materials, bank, contents, list] = await Promise.all([
+        api.getMaterials(persona),
+        api.getBank(persona),
+        client.ensureQueryData(contentsQuery(persona)),
+        api.getAssignments(persona),
+      ]);
+      return testStartOf(draftId, materials, bank, currentUnit(contents, list));
+    },
+  });
+}
+
+/** null: no report for this class (none of the teacher's, or nothing to show yet). */
+export function useClassInsights(classId: string) {
+  const { persona, client } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'insights', classId),
+    queryFn: async () => {
+      const contents = await client.ensureQueryData(contentsQuery(persona));
+      try {
+        return insightsOf(contents, await api.getInsights(persona, classId));
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) return null;
+        throw error;
+      }
+    },
+  });
+}
+
+export function useLiveRooms() {
+  const { persona } = useTeacherScope();
+  return useQuery({ queryKey: teacherKey(persona, 'live'), queryFn: () => api.getLive(persona) });
+}
+
+/** The live room with the class roster's names on its tiles. */
+export function useLiveRoom(id: string) {
+  const { persona, client } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'live', id),
+    queryFn: async () => {
+      const [live, home, contents] = await Promise.all([
+        api.getLive(persona),
+        client.ensureQueryData(homeQuery(persona)),
+        client.ensureQueryData(contentsQuery(persona)),
+      ]);
+      const lesson = live.find((l) => l.id === id);
+      if (!lesson) throw notFound(`live lesson ${id}`);
+      const detail = await api.getClass(persona, lesson.classId);
+      return liveRoomOf(contents, lesson, detail.members, {
+        id: home.profile.personId,
+        name: home.person.fullName,
+      });
+    },
+  });
+}
+
+/** The teacher's conversations, newest first, with the child a parent writes about. */
+export function useConversations() {
+  const { persona, client } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'messages'),
+    queryFn: async () => {
+      const [threads, home] = await Promise.all([
+        api.getThreads(persona),
+        client.ensureQueryData(homeQuery(persona)),
+      ]);
+      const rosters = await Promise.all(
+        home.classes.map((c) => client.ensureQueryData(classQuery(persona, client, c.id))),
+      );
+      const names = new Map(rosters.flatMap((r) => r.members.map((m) => [m.personId, m.name])));
+      return threads.map((t) => conversationOf(t, names));
+    },
+  });
+}
+
+/** One conversation with its messages; `null` waits. */
+export function useThread(id: string | null) {
+  const { persona } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'messages', id ?? ''),
+    queryFn: () => api.getThread(persona, id ?? ''),
+    enabled: id !== null,
+  });
+}
+
+/** The bell's list: the teacher's notifications with names and topic numbers. */
+export function useNotices() {
+  const { persona, client } = useTeacherScope();
+  return useQuery({
+    queryKey: teacherKey(persona, 'notices'),
+    queryFn: async () => {
+      const [list, inbox, assignments] = await Promise.all([
+        api.getNotifications(persona),
+        api.getInbox(persona),
+        client.fetchQuery(assignmentsQuery(persona, client)),
+      ]);
+      return noticesOf(list, inbox, assignments);
+    },
+  });
+}
 
 /** Counts on the teacher menu: questions waiting for an answer, conversations with news. */
 export function useTeacherBadges() {
@@ -116,70 +281,3 @@ export function useTeacherBadges() {
     messages: conversations.data?.filter((c) => c.unread > 0).length ?? 0,
   };
 }
-
-/** A demo write: runs the api function, then refreshes everything the teacher area shows. */
-function useTeacherMutation<TVars, TResult>(
-  fn: (vars: TVars) => Promise<TResult>,
-  mutationKey?: readonly string[],
-) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationKey,
-    mutationFn: fn,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: teacherKeys.all }),
-  });
-}
-
-export const useCreateClass = () => useTeacherMutation(api.createClass);
-
-export const useSetClassChat = () =>
-  useTeacherMutation((v: { classId: string; open: boolean }) =>
-    api.setClassChat(v.classId, v.open),
-  );
-
-export const usePostAnnouncement = () =>
-  useTeacherMutation((v: { classId: string; text: string }) =>
-    api.postAnnouncement(v.classId, v.text),
-  );
-
-export const useInviteByPhone = () =>
-  useTeacherMutation((v: { classId: string; phone: string }) =>
-    api.inviteByPhone(v.classId, v.phone),
-  );
-
-export const useAddGroup = () =>
-  useTeacherMutation((v: { classId: string; name: string }) => api.addGroup(v.classId, v.name));
-
-export const useToggleGroupMember = () =>
-  useTeacherMutation((v: { classId: string; groupId: string; memberId: string }) =>
-    api.toggleGroupMember(v.classId, v.groupId, v.memberId),
-  );
-
-export const useSetMemberMuted = () =>
-  useTeacherMutation((v: { classId: string; memberId: string; muted: boolean }) =>
-    api.setMemberMuted(v.classId, v.memberId, v.muted),
-  );
-
-export const useRemoveMember = () =>
-  useTeacherMutation((v: { classId: string; memberId: string }) =>
-    api.removeMember(v.classId, v.memberId),
-  );
-
-export const useCreateAssignment = () => useTeacherMutation(api.createAssignment);
-
-/** Paused while offline (TanStack's online manager) and sent by itself once back online. */
-export const SAVE_GRADE_KEY = ['teacher', 'saveGrade'] as const;
-
-export const useSaveGrade = () =>
-  useTeacherMutation(
-    (v: { submissionId: string; grade: number; comment: string }) =>
-      api.saveGrade(v.submissionId, v.grade, v.comment),
-    SAVE_GRADE_KEY,
-  );
-
-export const useApproveAnswer = () =>
-  useTeacherMutation((v: { id: string; steps: SolutionStep[]; topicId: string }) =>
-    api.approveAnswer(v.id, v.steps, v.topicId),
-  );
-
-export const useSaveTest = () => useTeacherMutation(api.saveTest);

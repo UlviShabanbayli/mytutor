@@ -18,10 +18,7 @@ export function TopicLinkRow({ topics, value, onChange, locked }: TopicLinkRowPr
   const { t } = useTranslation();
   const f = useTeacherFormat();
   const [open, setOpen] = useState(false);
-  const line = f.topicLine(
-    topics.find((x) => x.id === value),
-    value,
-  );
+  const line = f.topicLine(topics.find((x) => x.id === value));
 
   return (
     <View className="min-h-[52px] flex-row items-center gap-2.5 rounded-md bg-raised py-1 pl-3 pr-1">
@@ -52,7 +49,7 @@ export function TopicLinkRow({ topics, value, onChange, locked }: TopicLinkRowPr
                 }}
                 className="min-h-touch flex-row items-center gap-3 rounded-md border border-border bg-page px-3"
               >
-                <Text className="flex-1 font-sans-bold">{f.topicLine(topic, topic.id)}</Text>
+                <Text className="flex-1 font-sans-bold">{f.topicLine(topic)}</Text>
                 {on ? <Icon name="check" size={20} color="honey-text" /> : null}
               </Pressable>
             );

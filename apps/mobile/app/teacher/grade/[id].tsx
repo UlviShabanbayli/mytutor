@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { GradeSession } from '@/components/teacher/GradeSession';
 import { TeacherHeader } from '@/components/teacher/TeacherHeader';
 import { TeacherScreen } from '@/components/teacher/TeacherScreen';
-import { ErrorState, LoadingState } from '@/components/ui';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui';
 import { useAssignment, useSubmissions, useTeacherClass } from '@/features/teacher/queries';
 
 /** Check a homework (design t-grade): handwriting, the AI's first look, grade and comment. */
@@ -16,7 +16,7 @@ export default function GradeScreen() {
   const a = assignment.data;
   const header = (
     <TeacherHeader
-      title={a ? t('teacher.grade.title', { topic: a.topicId }) : ''}
+      title={a ? t('teacher.grade.title', { topic: a.topic?.number ?? a.title }) : ''}
       subtitle={
         a && cls.data
           ? t('teacher.grade.subtitle', { class: cls.data.shortName, count: a.toGrade })
@@ -33,6 +33,15 @@ export default function GradeScreen() {
             void assignment.refetch();
             void submissions.refetch();
           }}
+        />
+      </TeacherScreen>
+    );
+  if (a === null)
+    return (
+      <TeacherScreen header={header}>
+        <EmptyState
+          title={t('teacher.grade.emptyTitle')}
+          description={t('teacher.grade.emptyBody')}
         />
       </TeacherScreen>
     );

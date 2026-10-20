@@ -3,11 +3,11 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui';
 import { useTeacherClasses, useTeacherToday } from '@/features/teacher/queries';
-import { clockTime, hoursUntil } from '@/features/teacher/time';
+import { clockTime, dayOffset, hoursUntil } from '@/features/teacher/time';
 import { SectionHeading } from './SectionHeading';
 import { TaskRow } from './TaskRow';
 
-/** "Bu gün": homework waiting for a check and the next live lesson. */
+/** "Bu gün": homework waiting for a check and the coming live lessons. */
 export function TodaySection() {
   const { t } = useTranslation();
   const today = useTeacherToday();
@@ -27,7 +27,10 @@ export function TodaySection() {
           key={a.id}
           icon="edit"
           title={t('teacher.classes.toGrade', { count: a.toGrade })}
-          meta={t('teacher.classes.toGradeMeta', { class: className(a.classId), topic: a.topicId })}
+          meta={t('teacher.classes.toGradeMeta', {
+            class: className(a.classId),
+            topic: a.topic?.number ?? '',
+          })}
           onPress={() => router.push({ pathname: '/teacher/grade/[id]', params: { id: a.id } })}
         />
       ))}
@@ -48,9 +51,11 @@ export function TodaySection() {
             trailing={
               <View className="rounded-full bg-raised px-2 py-1.5">
                 <Text className="font-sans-black text-xs text-honey-text">
-                  {hours > 0
-                    ? t('teacher.classes.inHours', { count: hours })
-                    : t('teacher.classes.startsNow')}
+                  {dayOffset(starts, now) === 1
+                    ? t('teacher.classes.tomorrow')
+                    : hours > 0
+                      ? t('teacher.classes.inHours', { count: hours })
+                      : t('teacher.classes.startsNow')}
                 </Text>
               </View>
             }

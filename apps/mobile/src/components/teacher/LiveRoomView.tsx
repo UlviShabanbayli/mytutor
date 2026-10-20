@@ -7,7 +7,7 @@ import { Banner, Icon, Text } from '@/components/ui';
 import { upperCase } from '@/lib/letterCase';
 import { firstName, initials } from '@/features/teacher/people';
 import { elapsedClock } from '@/features/teacher/time';
-import type { LiveRoom, TeacherClass, TopicView } from '@/features/teacher/types';
+import type { LiveRoom, LiveTile, TeacherClass } from '@/features/teacher/types';
 import { useTeacherFormat } from '@/features/teacher/useTeacherFormat';
 import { ConfirmSheet } from './ConfirmSheet';
 import { type BoardTool, LiveBoard } from './LiveBoard';
@@ -17,10 +17,10 @@ import { LiveHeader } from './LiveHeader';
 import { ParticipantTile } from './ParticipantTile';
 import { RaisedHandRow } from './RaisedHandRow';
 
-type LiveRoomViewProps = { room: LiveRoom; cls: TeacherClass; topic: TopicView | undefined };
+type LiveRoomViewProps = { room: LiveRoom; cls: TeacherClass };
 
 /** The teacher's live room (M5). Demo: no audio or video service is connected yet. */
-export function LiveRoomView({ room, cls, topic }: LiveRoomViewProps) {
+export function LiveRoomView({ room, cls }: LiveRoomViewProps) {
   const { t, i18n } = useTranslation();
   const f = useTeacherFormat();
   const [seconds, setSeconds] = useState(0);
@@ -40,8 +40,10 @@ export function LiveRoomView({ room, cls, topic }: LiveRoomViewProps) {
 
   const weak = room.participants.find((p) => p.state === 'weak');
   const others = room.present - room.participants.length;
-  const heading = `${room.topicId} · ${upperCase(topic?.title ?? '', i18n.language)}`;
-  const label = (p: LiveRoom['participants'][number]) => {
+  const heading = room.topic
+    ? `${room.topic.number} · ${upperCase(room.topic.title, i18n.language)}`
+    : room.title;
+  const label = (p: LiveTile) => {
     if (p.state === 'me') return mic ? t('teacher.live.meLabelOn') : t('teacher.live.meLabelOff');
     const name = p.name;
     if (p.state === 'hand') return t('teacher.live.handLabel', { name });
