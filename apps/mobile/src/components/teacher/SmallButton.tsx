@@ -1,5 +1,6 @@
 import { Pressable, View } from 'react-native';
-import { Icon, type IconName, Text } from '@/components/ui';
+import Animated from 'react-native-reanimated';
+import { Icon, type IconName, Text, useRaisedPress } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import type { ColorName } from '@/theme';
 
@@ -45,6 +46,8 @@ export function SmallButton({
 }: SmallButtonProps) {
   const s = styles[variant];
   const raised = variant === 'honey' && !disabled;
+  // buttons.primary A on the honey one; the outlined ones only dim while pressed.
+  const press = useRaisedPress({ depth: 3 });
 
   return (
     <Pressable
@@ -54,26 +57,29 @@ export function SmallButton({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
+      onPressIn={raised ? press.pressIn : undefined}
+      onPressOut={raised ? press.pressOut : undefined}
       className={cn('self-start', className)}
     >
       {({ pressed }) => (
         <View className={cn('rounded-md', raised && 'bg-honey-deep pb-[3px]')}>
-          <View
-            className={cn(
-              'h-[44px] flex-row items-center justify-center gap-1.5 rounded-md px-3.5',
-              disabled ? 'bg-wax' : s.face,
-              raised && pressed && 'translate-y-[3px]',
-              !raised && pressed && 'opacity-70',
-            )}
-          >
-            {icon ? <Icon name={icon} size={18} color={disabled ? 'lock-ink' : s.icon} /> : null}
-            <Text
-              numberOfLines={1}
-              className={cn('font-sans-black text-sm', disabled ? 'text-lock-ink' : s.text)}
+          <Animated.View style={press.faceStyle}>
+            <View
+              className={cn(
+                'h-[44px] flex-row items-center justify-center gap-1.5 rounded-md px-3.5',
+                disabled ? 'bg-wax' : s.face,
+                !raised && pressed && 'opacity-70',
+              )}
             >
-              {label}
-            </Text>
-          </View>
+              {icon ? <Icon name={icon} size={18} color={disabled ? 'lock-ink' : s.icon} /> : null}
+              <Text
+                numberOfLines={1}
+                className={cn('font-sans-black text-sm', disabled ? 'text-lock-ink' : s.text)}
+              >
+                {label}
+              </Text>
+            </View>
+          </Animated.View>
         </View>
       )}
     </Pressable>

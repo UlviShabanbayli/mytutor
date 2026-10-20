@@ -13,6 +13,7 @@ import { playCue } from '@/lib/cues';
 import { duration, easing, useReducedMotionPref } from '@/motion';
 import { radius, useThemeColors } from '@/theme';
 import { CopyLabels } from './CopyLabels';
+import { useRaisedPress } from './useRaisedPress';
 
 type CopyButtonProps = {
   /** What goes to the clipboard (or, on phones, to the share sheet). */
@@ -68,7 +69,9 @@ export function CopyButton({
     });
   }, [copied, reduced, done]);
 
-  const press = async () => {
+  // The honey one sinks onto its edge (buttons.primary A); `copy` already plays the tap.
+  const sink = useRaisedPress({ depth: 3, cue: false });
+  const copy = async () => {
     playCue('press');
     if ((await copyOrShare(text)) !== 'copied') return;
     setCopied(true);
@@ -99,7 +102,9 @@ export function CopyButton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={copied ? copiedLabel : (accessibilityLabel ?? label)}
-      onPress={() => void press()}
+      onPress={() => void copy()}
+      onPressIn={honey ? sink.pressIn : undefined}
+      onPressOut={honey ? sink.pressOut : undefined}
       className={className}
     >
       {({ pressed }) => (
@@ -107,23 +112,24 @@ export function CopyButton({
         // NativeWind does not style Reanimated's Animated.View.
         <View className={cn('overflow-hidden rounded-md', honey && 'pb-[3px]')}>
           {honey ? <Animated.View style={[StyleSheet.absoluteFill, edge]} /> : null}
-          <View
-            className={cn(
-              'h-[44px] items-center justify-center overflow-hidden rounded-md px-3.5',
-              honey && pressed && 'translate-y-[3px]',
-              !honey && pressed && 'opacity-70',
-            )}
-          >
-            <Animated.View style={[StyleSheet.absoluteFill, face]} />
-            <CopyLabels
-              label={label}
-              copiedLabel={copiedLabel}
-              done={done}
-              onHoney={honey}
-              shift={reduced ? 0 : 8}
-              compact={compact}
-            />
-          </View>
+          <Animated.View style={sink.faceStyle}>
+            <View
+              className={cn(
+                'h-[44px] items-center justify-center overflow-hidden rounded-md px-3.5',
+                !honey && pressed && 'opacity-70',
+              )}
+            >
+              <Animated.View style={[StyleSheet.absoluteFill, face]} />
+              <CopyLabels
+                label={label}
+                copiedLabel={copiedLabel}
+                done={done}
+                onHoney={honey}
+                shift={reduced ? 0 : 8}
+                compact={compact}
+              />
+            </View>
+          </Animated.View>
         </View>
       )}
     </Pressable>

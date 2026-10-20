@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
-import { Badge, Icon, Text, type IconName } from '@/components/ui';
+import { Badge, Icon, type IconName, Text, useRaisedPress } from '@/components/ui';
 import { minutesLabel } from '@/features/exam/labels';
 import { stepHref } from '@/features/exam/links';
 import type { PlanStep, StepKind } from '@/features/exam/types';
@@ -22,6 +23,7 @@ type StepRowProps = {
 
 /** One plan step: type and minutes, the topic, and its state; a tap opens the work itself. */
 export function StepRow({ step, showReason = false, offline = false }: StepRowProps) {
+  const press = useRaisedPress({ depth: 2 });
   const { t } = useTranslation();
   const minutes = minutesLabel(t, step.minutes);
   const type = t(`exam.steps.name.${step.kind}`);
@@ -32,17 +34,18 @@ export function StepRow({ step, showReason = false, offline = false }: StepRowPr
 
   return (
     <Pressable
+      onPressIn={press.pressIn}
+      onPressOut={press.pressOut}
       accessibilityRole="button"
       accessibilityLabel={t(a11y, { type, title: step.title, minutes })}
       onPress={() => router.push(stepHref(step.target))}
       className={cn('rounded-lg pb-0.5', now ? 'bg-honey-deep' : 'bg-border')}
     >
-      {({ pressed }) => (
+      <Animated.View style={press.faceStyle}>
         <View
           className={cn(
             'min-h-[52px] flex-row items-center gap-2.5 rounded-lg px-2.5 py-1.5',
             now ? 'border-2 border-honey bg-raised' : 'border border-border bg-surf',
-            pressed && 'translate-y-0.5',
           )}
         >
           <HexTile
@@ -75,7 +78,7 @@ export function StepRow({ step, showReason = false, offline = false }: StepRowPr
           ) : null}
           {step.state === 'next' && !saved ? <Icon name="chevron" size={20} color="muted" /> : null}
         </View>
-      )}
+      </Animated.View>
     </Pressable>
   );
 }

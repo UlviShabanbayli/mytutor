@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { cn } from '@/lib/cn';
+import { useRaisedPress } from './useRaisedPress';
 
 type PressableCardProps = {
   children: ReactNode;
@@ -22,8 +24,11 @@ export function PressableCard({
   className,
   contentClassName,
 }: PressableCardProps) {
+  const press = useRaisedPress({ depth: 2 });
   return (
     <Pressable
+      onPressIn={press.pressIn}
+      onPressOut={press.pressOut}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
@@ -32,17 +37,11 @@ export function PressableCard({
       onPress={onPress}
       className={cn('rounded-xl bg-border pb-0.5', disabled && 'opacity-60', className)}
     >
-      {({ pressed }) => (
-        <View
-          className={cn(
-            'rounded-xl border border-border bg-surf p-4',
-            pressed && 'translate-y-0.5',
-            contentClassName,
-          )}
-        >
+      <Animated.View style={press.faceStyle}>
+        <View className={cn('rounded-xl border border-border bg-surf p-4', contentClassName)}>
           {children}
         </View>
-      )}
+      </Animated.View>
     </Pressable>
   );
 }

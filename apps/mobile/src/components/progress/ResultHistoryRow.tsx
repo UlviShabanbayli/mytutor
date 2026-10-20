@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import type { TestResult } from '@mytutor/types';
-import { Icon, Text } from '@/components/ui';
+import { Icon, Text, useRaisedPress } from '@/components/ui';
 import { percent, scoreTier } from '@/features/tests/scoring';
 import { formatDateTime } from '@/i18n/formatDateTime';
 import { cn } from '@/lib/cn';
@@ -18,6 +19,7 @@ const tierClasses = {
 
 /** A finished test: score tile, title, questions and date; opens the test's result. */
 export function ResultHistoryRow({ result }: ResultHistoryRowProps) {
+  const press = useRaisedPress({ depth: 2 });
   const { t } = useTranslation();
   const score = percent(result.correct, result.total);
   const date = formatDateTime(t, new Date(result.finishedAt));
@@ -25,16 +27,17 @@ export function ResultHistoryRow({ result }: ResultHistoryRowProps) {
 
   return (
     <Pressable
+      onPressIn={press.pressIn}
+      onPressOut={press.pressOut}
       accessibilityRole="button"
       accessibilityLabel={t('me.progress.historyLabel', { title: result.title, score, date })}
       onPress={() => router.push({ pathname: '/test/[id]/result', params: { id: result.testId } })}
       className="rounded-md bg-border pb-0.5"
     >
-      {({ pressed }) => (
+      <Animated.View style={press.faceStyle}>
         <View
           className={cn(
             'min-h-[54px] flex-row items-center gap-3 rounded-md border border-border bg-surf px-3 py-1.5',
-            pressed && 'translate-y-0.5',
           )}
         >
           <View
@@ -55,7 +58,7 @@ export function ResultHistoryRow({ result }: ResultHistoryRowProps) {
           </View>
           <Icon name="chevron" size={18} color="muted" />
         </View>
-      )}
+      </Animated.View>
     </Pressable>
   );
 }

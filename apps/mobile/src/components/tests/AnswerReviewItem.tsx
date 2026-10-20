@@ -1,5 +1,6 @@
 import { Pressable, View } from 'react-native';
-import { Icon, Text } from '@/components/ui';
+import Animated from 'react-native-reanimated';
+import { Icon, Text, useRaisedPress } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { fontSize } from '@/theme';
 import { MathText } from './MathText';
@@ -22,18 +23,20 @@ export function AnswerReviewItem({
   accessibilityLabel,
   onPress,
 }: AnswerReviewItemProps) {
+  const press = useRaisedPress({ depth: 2 });
   return (
     <Pressable
+      onPressIn={press.pressIn}
+      onPressOut={press.pressOut}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       onPress={onPress}
       className="rounded-lg bg-border pb-0.5"
     >
-      {({ pressed }) => (
+      <Animated.View style={press.faceStyle}>
         <View
           className={cn(
             'min-h-16 flex-row items-center gap-2.5 rounded-lg border border-border bg-surf py-2 pl-3 pr-2.5',
-            pressed && 'translate-y-0.5',
           )}
         >
           <View className="h-[30px] w-[30px] items-center justify-center rounded-xs bg-err-bg">
@@ -47,7 +50,7 @@ export function AnswerReviewItem({
           </View>
           <Icon name="chevron" size={18} color="muted" />
         </View>
-      )}
+      </Animated.View>
     </Pressable>
   );
 }
