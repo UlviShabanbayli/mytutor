@@ -54,6 +54,10 @@ export const easing = {
   pop: Easing.bezier(0.34, 1.56, 0.64, 1),
   /** Liquid filling a cell — cubic-bezier(.33,0,.2,1). */
   fill: Easing.bezier(0.33, 0, 0.2, 1),
+  /** hive.seal C: a wax outline traced around the cap — cubic-bezier(.45,0,.25,1). */
+  trace: Easing.bezier(0.45, 0, 0.25, 1),
+  /** hive.nectar-honey C, hive.unit-sealed B: a honey glow fading out (CSS ease-out). */
+  glow: Easing.bezier(0, 0, 0.58, 1),
   /** Breathing and other loops. */
   breathe: Easing.inOut(Easing.sin),
   /** Pressing down. */

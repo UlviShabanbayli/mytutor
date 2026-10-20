@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { View } from 'react-native';
 import { unitSummary } from '@/features/learn/mastery';
 import type { Hive, HiveTopic, HiveUnit } from '@/features/learn/types';
 import { cn } from '@/lib/cn';
+import { FrameBody } from './FrameBody';
 import { FrameComb } from './FrameComb';
 import { FrameFooter } from './FrameFooter';
 import { FrameHeader } from './FrameHeader';
@@ -24,6 +26,9 @@ type FrameCardProps = {
 export function FrameCard({ hive, unit, open, online, ...actions }: FrameCardProps) {
   const summary = unitSummary(unit, hive);
   const dim = !online && !summary.onPhone;
+  // A frame open on arrival just shows its cells; one the student opens brings them in.
+  const [seen, setSeen] = useState({ open, toggled: false });
+  if (seen.open !== open) setSeen({ open, toggled: true });
 
   return (
     <View className={cn('pt-[3px]', dim && 'opacity-50')}>
@@ -39,22 +44,22 @@ export function FrameCard({ hive, unit, open, online, ...actions }: FrameCardPro
             unit={unit}
             summary={summary}
             open={open}
+            animate={seen.toggled}
             online={online}
             onToggle={actions.onToggle}
           />
-          {open ? (
-            <>
-              <FrameComb
-                hive={hive}
-                unit={unit}
-                online={online}
-                selectedId={actions.selectedId}
-                onTopic={actions.onTopic}
-                onUnitTest={actions.onUnitTest}
-              />
-              <FrameFooter hive={hive} unit={unit} online={online} />
-            </>
-          ) : null}
+          <FrameBody open={open}>
+            <FrameComb
+              hive={hive}
+              unit={unit}
+              online={online}
+              selectedId={actions.selectedId}
+              enter={seen.toggled}
+              onTopic={actions.onTopic}
+              onUnitTest={actions.onUnitTest}
+            />
+            <FrameFooter hive={hive} unit={unit} online={online} />
+          </FrameBody>
         </View>
       </View>
     </View>

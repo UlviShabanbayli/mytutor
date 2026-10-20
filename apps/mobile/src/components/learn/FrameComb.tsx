@@ -1,9 +1,13 @@
-import { Pressable, View } from 'react-native';
+import type { ReactNode } from 'react';
+import { View } from 'react-native';
+import { frameToggle } from '@/features/learn/hiveMotion';
 import type { Hive, HiveTopic, HiveUnit } from '@/features/learn/types';
 import { useLearnText } from '@/features/learn/useLearnText';
+import { Appear } from './Appear';
+import { CombCell } from './CombCell';
 import { HexComb } from './HexComb';
+import { PressableCell } from './PressableCell';
 import { QueenCell } from './QueenCell';
-import { TopicCell } from './TopicCell';
 
 type FrameCombProps = {
   hive: Hive;
@@ -11,6 +15,8 @@ type FrameCombProps = {
   online: boolean;
   /** The topic a sheet is open for (ringed like the current one). */
   selectedId?: string;
+  /** The student just opened the frame: cells come in one by one (hive.frame-toggle A). */
+  enter: boolean;
   onTopic: (topic: HiveTopic) => void;
   onUnitTest: () => void;
 };
@@ -20,9 +26,20 @@ const CELL_H = Math.round(CELL * 1.125);
 const GAP = 6;
 
 /** An open frame's topics as a comb of tappable cells, ending with its unit test cell. */
-export function FrameComb({ hive, unit, online, selectedId, onTopic, onUnitTest }: FrameCombProps) {
-  const { t, levelAria, levelCaps } = useLearnText();
-  const cells = unit.topics.map((topic) => {
+export function FrameComb({ hive, unit, online, selectedId, enter, ...on }: FrameCombProps) {
+  const { t, levelAria } = useLearnText();
+  // In reading order: cells fade in, rise 8pt and grow from 0.9, 45ms apart.
+  const entering = (node: ReactNode, i: number) => (
+    <Appear
+      play={enter}
+      from={{ opacity: 0, y: 8, scale: 0.9 }}
+      delay={frameToggle.cellFirst + i * frameToggle.cellStep}
+      duration={frameToggle.cellIn}
+    >
+      {node}
+    </Appear>
+  );
+  const cells = unit.topics.map((topic, i) => {
     const here = topic.id === hive.currentTopicId;
     const dim = !online && !hive.savedTopicIds.includes(topic.id);
     const aria = [
@@ -36,22 +53,17 @@ export function FrameComb({ hive, unit, online, selectedId, onTopic, onUnitTest 
     ];
     return {
       key: topic.id,
-      node: (
-        <Pressable
-          accessibilityRole="button"
+      node: entering(
+        <CombCell
+          topic={topic}
+          size={CELL}
+          here={here}
+          selected={topic.id === selectedId}
+          dim={dim}
           accessibilityLabel={aria.filter(Boolean).join(', ')}
-          onPress={() => onTopic(topic)}
-          className="active:opacity-80"
-        >
-          <TopicCell
-            level={topic.level}
-            number={topic.number}
-            word={levelCaps(topic.level)}
-            size={CELL}
-            ring={here || topic.id === selectedId}
-            dim={dim}
-          />
-        </Pressable>
+          onPress={() => on.onTopic(topic)}
+        />,
+        i,
       ),
     };
   });
@@ -61,12 +73,10 @@ export function FrameComb({ hive, unit, online, selectedId, onTopic, onUnitTest 
   ];
   cells.push({
     key: `${unit.id}-test`,
-    node: (
-      <Pressable
-        accessibilityRole="button"
+    node: entering(
+      <PressableCell
         accessibilityLabel={queenAria.filter(Boolean).join(', ')}
-        onPress={onUnitTest}
-        className="active:opacity-80"
+        onPress={on.onUnitTest}
       >
         <QueenCell
           level={unit.unitTest.level}
@@ -74,7 +84,8 @@ export function FrameComb({ hive, unit, online, selectedId, onTopic, onUnitTest 
           word={t('learn.hive.queenWord')}
           dim={!online}
         />
-      </Pressable>
+      </PressableCell>,
+      unit.topics.length,
     ),
   });
 

@@ -1,10 +1,12 @@
 import { View } from 'react-native';
-import Svg, { ClipPath, Defs, G, Line, Polygon, Rect } from 'react-native-svg';
 import { Icon, Text } from '@/components/ui';
+import { CellArt } from '@/components/ui/hex/CellArt';
+import { cellMotionKind } from '@/components/ui/hex/levelChange';
+import { CellMotion } from '@/components/ui/hex/CellMotion';
+import { cellGeometry } from '@/components/ui/hex/geometry';
 import type { MasteryLevel } from '@/features/learn/types';
 import { cn } from '@/lib/cn';
-import { useThemeColors } from '@/theme';
-import { hexPolygon } from './FlatHex';
+import { useReducedMotionPref } from '@/motion';
 import { levelInk, levelText } from './levelStyle';
 
 type QueenCellProps = {
@@ -15,28 +17,40 @@ type QueenCellProps = {
   word?: string;
   /** Offline and not on the phone: faded, with a download mark instead of the word. */
   dim?: boolean;
+  /**
+   * The level before: plays the approved change to `level` once (the unit-done page seals
+   * the queen this way). Silent: the screen plays its own cue.
+   */
+  animateFrom?: MasteryLevel;
+  animationDelay?: number;
 };
 
+/** Where the queen's long sides start and end (19% / 81% of its height). */
 const CORNER = 0.19;
 
 /**
  * "Ana arı hüceyrəsi": the unit test cell, taller than a topic cell, with a star instead of
  * a number. Same five fills as `HexCell` (proposal: a `queen` shape on the primitive).
  */
-export function QueenCell({ level, size, word, dim = false }: QueenCellProps) {
-  const c = useThemeColors();
+export function QueenCell({
+  level,
+  size,
+  word,
+  dim = false,
+  animateFrom,
+  animationDelay = 0,
+}: QueenCellProps) {
+  const reduced = useReducedMotionPref();
   const w = size;
   const h = Math.round(size * 1.45);
-  const outer = hexPolygon(w, h, CORNER);
-  const fill = {
-    not_started: c.wax,
-    lesson_completed: c.wax,
-    mastered: c.honey,
-    reinforced: c.sealed,
-    needs_practice: c.crystal,
-  }[level];
-  const clipId = `queen${w}`;
   const small = w < 30;
+  const geo = cellGeometry(w, h, {
+    corner: CORNER,
+    nectarTop: small ? 0 : h * 0.48,
+    clipId: `queen${w}`,
+  });
+  const from = animateFrom && !reduced ? animateFrom : undefined;
+  const kind = from ? cellMotionKind(from, level) : null;
 
   return (
     <View
@@ -46,28 +60,11 @@ export function QueenCell({ level, size, word, dim = false }: QueenCellProps) {
       // Size is a prop: 11pt in a frame's strip, 54–68pt in a comb.
       style={{ width: w, height: h }}
     >
-      <Svg width={w} height={h} style={{ position: 'absolute' }}>
-        <Defs>
-          <ClipPath id={clipId}>
-            <Polygon points={outer} />
-          </ClipPath>
-        </Defs>
-        <Polygon points={outer} fill={fill} />
-        <G clipPath={`url(#${clipId})`}>
-          {level === 'lesson_completed' ? (
-            <Rect x={0} y={small ? 0 : h * 0.48} width={w} height={h} fill={c.nectar} />
-          ) : null}
-          {level === 'needs_practice' ? (
-            <G stroke={c.surf} strokeWidth={1} opacity={0.6}>
-              <Line x1={w * 0.2} y1={h * 0.3} x2={w * 0.5} y2={h * 0.55} />
-              <Line x1={w * 0.5} y1={h * 0.55} x2={w * 0.8} y2={h * 0.35} />
-            </G>
-          ) : null}
-        </G>
-        {level === 'reinforced' ? (
-          <Polygon points={hexPolygon(w, h, CORNER, w * 0.21, h * 0.22)} fill={c.cap} />
-        ) : null}
-      </Svg>
+      {from && kind ? (
+        <CellMotion geo={geo} kind={kind} from={from} to={level} delay={animationDelay} quiet />
+      ) : (
+        <CellArt geo={geo} state={level} />
+      )}
       {small ? null : (
         <View className="items-center gap-0.5">
           <Icon name="star" size={w < 60 ? 16 : 18} color={levelInk[level]} />

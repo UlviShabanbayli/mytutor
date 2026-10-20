@@ -1,8 +1,10 @@
 import { View } from 'react-native';
+import { unitSealed } from '@/features/learn/hiveMotion';
 import type { HiveUnit } from '@/features/learn/types';
+import { Appear } from './Appear';
 import { HexComb } from './HexComb';
-import { QueenCell } from './QueenCell';
 import { TopicCell } from './TopicCell';
+import { WakingQueen } from './WakingQueen';
 
 type SealedFrameProps = {
   unit: HiveUnit;
@@ -10,13 +12,26 @@ type SealedFrameProps = {
 
 const CELL = 54;
 
-/** The sealed frame of the unit-done moment: every cell honey, the queen cell capped. */
+/**
+ * The sealed frame of the unit-done moment: every cell honey, the queen cell capped. The cells
+ * bounce one by one, then the queen's cap closes and it wakes (hive.unit-sealed B).
+ */
 export function SealedFrame({ unit }: SealedFrameProps) {
-  const cells = unit.topics.map((topic) => ({
+  const cells = unit.topics.map((topic, i) => ({
     key: topic.id,
-    node: <TopicCell level="mastered" number={topic.number} size={CELL} numberSize="sm" />,
+    node: (
+      <Appear
+        from={{}}
+        via={{ scale: 1.1, at: 0.4 }}
+        delay={unitSealed.cells + i * unitSealed.cellStep}
+        duration={unitSealed.bounce}
+        ease="pop"
+      >
+        <TopicCell level="mastered" number={topic.number} size={CELL} numberSize="sm" />
+      </Appear>
+    ),
   }));
-  cells.push({ key: `${unit.id}-test`, node: <QueenCell level="reinforced" size={CELL} /> });
+  cells.push({ key: `${unit.id}-test`, node: <WakingQueen size={CELL} /> });
 
   return (
     <View
