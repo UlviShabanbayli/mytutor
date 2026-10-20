@@ -81,6 +81,8 @@ import type {
   notificationPrefsSchema,
   notificationSchema,
   pageRangeSchema,
+  parentCodeLookupSchema,
+  parentHomeSchema,
   parentLinkViewSchema,
   parentProfileSchema,
   parentRelationSchema,
@@ -285,6 +287,8 @@ export type SubjectProgress = z.output<typeof subjectProgressSchema>;
 export type ChildAssignment = z.output<typeof childAssignmentSchema>;
 export type ChildAssignmentList = z.output<typeof childAssignmentListSchema>;
 export type ConsentRequest = z.output<typeof consentRequestSchema>;
+export type ParentHome = z.output<typeof parentHomeSchema>;
+export type ParentCodeLookup = z.output<typeof parentCodeLookupSchema>;
 
 export type TextbookProgress = z.output<typeof textbookProgressSchema>;
 export type ParentLinkView = z.output<typeof parentLinkViewSchema>;

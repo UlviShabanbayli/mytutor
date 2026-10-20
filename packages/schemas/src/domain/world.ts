@@ -9,7 +9,7 @@ import {
   schoolClassSchema,
 } from './classes';
 import { masteryMapSchema } from './course';
-import { examStateSchema, mockExamSchema } from './exam';
+import { examStateSchema, mockExamSchema, mockRunSchema } from './exam';
 import { curriculumResponseSchema, placementQuestionSchema } from './hive';
 import { leagueRowSchema, badgeSchema } from './league';
 import { studyLessonSchema, studyTestSchema } from './lessons';
@@ -74,7 +74,8 @@ export const demoWorldSchema = z.object({
   placement: z.array(placementQuestionSchema),
   review: reviewPlanSchema,
   mistakes: z.array(mistakeGroupSchema),
-  testScores: z.array(testScoreSchema),
+  /** Recent test results per student. */
+  testScores: z.record(z.string(), z.array(testScoreSchema)),
   assignments: z.array(assignmentSchema),
   submissions: z.array(submissionSchema),
   liveLessons: z.array(liveLessonSchema),
@@ -101,5 +102,8 @@ export const demoWorldSchema = z.object({
   badges: z.array(badgeSchema),
   weekReports: z.record(z.string(), z.array(weekReportSchema)),
   mocks: z.array(mockExamSchema),
+  /** The student's finished mocks. */
+  mockRuns: z.array(mockRunSchema),
+  /** The exam area for the student's goal (see `withExamGoal`). */
   exam: examStateSchema,
 });

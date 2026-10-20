@@ -4,7 +4,9 @@ import { masteryLevelSchema } from './course';
 import {
   childLinkStatusSchema,
   dateTimeSchema,
+  parentProfileSchema,
   parentRelationSchema,
+  personSchema,
   shareCategorySchema,
 } from './people';
 
@@ -19,13 +21,13 @@ export const topicRefSchema = z.object({
   title: z.string().min(1),
 });
 
-/** A week of one child (Monday to Sunday). */
+/** Seven days of one child; the latest report covers the last seven days, ending today. */
 export const weekReportSchema = z.object({
-  /** Monday 00:00 of the week. */
+  /** 00:00 of the report's first day. */
   weekStart: dateTimeSchema,
   minutes: z.number().int().nonnegative(),
   previousMinutes: z.number().int().nonnegative().nullable(),
-  /** Monday first, seven days. */
+  /** The seven days in order, oldest first. */
   activeDays: z.array(z.boolean()).length(7),
   answers: z.object({
     correct: z.number().int().nonnegative(),
@@ -131,4 +133,23 @@ export const consentRequestSchema = z.object({
   childId: z.string().min(1),
   childName: z.string().min(1),
   phoneMasked: z.string().min(1),
+});
+
+/** GET /v1/parent: the parent, the children and the consents waiting for them. */
+export const parentHomeSchema = z.object({
+  person: personSchema,
+  profile: parentProfileSchema,
+  children: z.array(childOverviewSchema),
+  consentRequests: z.array(consentRequestSchema),
+});
+
+/** GET /v1/parent/codes/:code: whose code it is and whether it can still be used. */
+export const parentCodeLookupSchema = z.object({
+  code: z.string().min(1),
+  childId: z.string().min(1),
+  childName: z.string().min(1),
+  grade: z.number().int().min(1).max(11),
+  expired: z.boolean(),
+  /** The parent already follows this child. */
+  alreadyLinked: z.boolean(),
 });

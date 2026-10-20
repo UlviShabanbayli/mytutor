@@ -30,6 +30,8 @@ export const schoolClassSchema = z.object({
 export const classMemberSchema = z.object({
   classId: z.string().min(1),
   personId: z.string().min(1),
+  /** Shown instead of the name in the class league. */
+  nickname: z.string().min(1),
   /** The student allowed the teacher to see their overall progress. */
   sharesProgress: z.boolean(),
   mutedInChat: z.boolean(),

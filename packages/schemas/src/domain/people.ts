@@ -58,7 +58,8 @@ export const studentProfileSchema = z.object({
   /** Streak shields ("qalxan") that keep the streak through a missed day. */
   shields: z.number().int().nonnegative(),
   rank: rankIdSchema,
-  league: z.object({ id: leagueIdSchema, place: z.number().int().positive() }),
+  /** This week's league; null before the first points. */
+  league: z.object({ id: leagueIdSchema, place: z.number().int().positive() }).nullable(),
   goal: studyGoalSchema,
   dailyMinutes: z.number().int().positive(),
   classIds: z.array(z.string()),

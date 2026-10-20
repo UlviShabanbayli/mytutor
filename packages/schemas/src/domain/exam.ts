@@ -116,8 +116,8 @@ export const weakSpotSchema = z.object({
 export const weakSpotsReportSchema = z.object({
   mocks: z.number().int().nonnegative(),
   errors: z.number().int().nonnegative(),
-  /** Where most mistakes lead. */
-  commonRoot: z.string().min(1),
+  /** Where most mistakes lead; null with no weak spots. */
+  commonRoot: z.string().min(1).nullable(),
   spots: z.array(weakSpotSchema),
 });
 
