@@ -1,4 +1,5 @@
-import type { DemoPersona, DemoWorld } from '@mytutor/types';
+import type { DemoEvent, DemoPersona, DemoWorld } from '@mytutor/types';
+import { applyDemoEvents } from '../events';
 import { buildDemoWorld } from '../world';
 import type { DemoQuery, DemoRequest } from './common';
 import { DEMO_ROUTES, type DemoRoute } from './routes';
@@ -74,10 +75,14 @@ export function answerFromWorld(world: DemoWorld, pathWithQuery: string): DemoAn
   return body === null || body === undefined ? notFound(path) : { status: 200, body };
 }
 
-/** Builds the persona's world at `now` and answers the request from it. */
+/**
+ * Builds the persona's world at `now`, applies the device's demo events and answers the
+ * request from it: what `GET path` (no events) or `POST /v1/query` (events) answers.
+ */
 export function answerDemo(
   pathWithQuery: string,
-  options: { persona: DemoPersona; now: Date },
+  options: { persona: DemoPersona; now: Date; events?: readonly DemoEvent[] },
 ): DemoAnswer {
-  return answerFromWorld(buildDemoWorld(options), pathWithQuery);
+  const world = buildDemoWorld({ now: options.now, persona: options.persona });
+  return answerFromWorld(applyDemoEvents(world, options.events ?? []), pathWithQuery);
 }

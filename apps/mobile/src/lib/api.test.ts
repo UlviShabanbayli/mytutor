@@ -1,12 +1,23 @@
 import { answerDemo } from '@mytutor/demo-data';
-import { todayResponseSchema } from '@mytutor/schemas';
+import { studentAssignmentSchema, todayResponseSchema } from '@mytutor/schemas';
+import type { DemoEvent } from '@mytutor/types';
 import { ApiError, createApiGet, fallbackDelayMs } from './api';
 
 const NOW = new Date('2026-10-20T06:00:00.000Z');
 
 type Fetch = (url: string, init: RequestInit) => Promise<Response>;
 
-function setup(fetchImpl: Fetch, timeoutMs = 2500) {
+const graded: DemoEvent = {
+  id: 'ev-1',
+  at: '2026-10-20T05:30:00.000Z',
+  type: 'assignment.graded',
+  assignmentId: 'hw-4-1',
+  studentId: 'nermin',
+  score: 9,
+  outOf: 10,
+};
+
+function setup(fetchImpl: Fetch, timeoutMs = 2500, events: DemoEvent[] = []) {
   const slept: number[] = [];
   const fetchMock = jest.fn(fetchImpl);
   const apiGet = createApiGet({
@@ -17,6 +28,7 @@ function setup(fetchImpl: Fetch, timeoutMs = 2500) {
       slept.push(ms);
     },
     timeoutMs,
+    events: () => events,
   });
   return { apiGet, fetchMock, slept };
 }
@@ -67,6 +79,45 @@ describe('apiGet', () => {
     });
     await expect(offline.apiGet('/v1/lessons/nope', { persona: 'nermin' })).rejects.toBeInstanceOf(
       ApiError,
+    );
+  });
+});
+
+describe('apiGet with demo events', () => {
+  const offline: Fetch = async () => {
+    throw new TypeError('Network request failed');
+  };
+
+  it('asks POST /v1/query with the path and the events', async () => {
+    const { apiGet, fetchMock } = setup(async () => json({ from: 'query' }), 2500, [graded]);
+    expect(await apiGet('/v1/assignments/hw-4-1', { persona: 'nermin' })).toEqual({
+      from: 'query',
+    });
+    const [url, init] = fetchMock.mock.calls[0] ?? [];
+    expect(url).toBe('http://api.test/v1/query');
+    expect(init?.method).toBe('POST');
+    expect(JSON.parse(String(init?.body))).toEqual({
+      path: '/v1/assignments/hw-4-1',
+      events: [graded],
+    });
+  });
+
+  it('keeps a plain GET for book content, which events never change', async () => {
+    const { apiGet, fetchMock } = setup(async () => json({ from: 'book' }), 2500, [graded]);
+    await apiGet('/v1/lessons/riyaziyyat-7-4-3/book', { persona: 'nermin' });
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('http://api.test/v1/lessons/riyaziyyat-7-4-3/book');
+    expect(fetchMock.mock.calls[0]?.[1].method).toBeUndefined();
+  });
+
+  it('applies the same events offline', async () => {
+    const { apiGet } = setup(offline, 2500, [graded]);
+    const hw = await apiGet('/v1/assignments/hw-4-1', {
+      persona: 'nermin',
+      parse: studentAssignmentSchema.parse,
+    });
+    expect(hw.submission?.grade).toEqual({ score: 9, max: 10 });
+    expect(hw).toEqual(
+      answerDemo('/v1/assignments/hw-4-1', { persona: 'nermin', now: NOW, events: [graded] }).body,
     );
   });
 });
