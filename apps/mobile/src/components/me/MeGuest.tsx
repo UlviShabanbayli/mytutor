@@ -5,8 +5,6 @@ import { StatTile } from '@/components/progress/StatTile';
 import { ErrorState, LoadingState, Screen } from '@/components/ui';
 import { useAppStore } from '@/features/app/appStore';
 import { useGuestOverview } from '@/features/me/queries';
-import { streakDays } from '@/features/tests/progress';
-import { useTestSessionStore } from '@/features/tests/sessionStore';
 import { GuestAccountCard } from './GuestAccountCard';
 import { InfoNote } from './InfoNote';
 import { MeHeader } from './MeHeader';
@@ -16,7 +14,6 @@ import { MenuRow } from './MenuRow';
 export function MeGuest() {
   const { t } = useTranslation();
   const overview = useGuestOverview();
-  const results = useTestSessionStore((s) => s.results);
   const grade = useAppStore((s) => s.profile.grade);
 
   if (overview.isPending) {
@@ -48,7 +45,7 @@ export function MeGuest() {
         }
       />
       <View accessibilityLabel={t('me.home.statsLabel')} className="flex-row gap-2">
-        <StatTile icon="wing" value={String(streakDays(results))} label={t('me.home.streak')} />
+        <StatTile icon="wing" value={String(overview.data.streak)} label={t('me.home.streak')} />
         <StatTile icon="drop" value={String(overview.data.points)} label={t('me.guest.points')} />
         <StatTile
           icon="learn"

@@ -52,25 +52,13 @@ export const parent = {
     short: { hoursMinutes: '{{h}} s {{m}} dəq', hours: '{{h}} s', minutes: '{{m}} dəq' },
   },
   percent: '{{value}}%',
+  /** How the parent's link list names what a child shares ("Paylaşır: hesabat, fənlər"). */
   categories: {
-    report: {
-      title: 'Həftəlik hesabat',
-      body: 'Vaxt, aktiv günlər, yeni mövzular, dəqiqlik',
-      short: 'hesabat',
-    },
-    progress: {
-      title: 'Fənlər üzrə irəliləyiş',
-      body: 'Çərçivələr və test nəticələri',
-      short: 'fənlər',
-    },
-    assignments: {
-      title: 'Sinif tapşırıqları',
-      body: 'Vaxtında, gecikmə, müəllimin qiyməti',
-      short: 'tapşırıqlar',
-    },
-    exam: { title: 'İmtahan hazırlığı', body: 'Plan və təxmini hazırlıq', short: 'imtahan' },
+    report: { short: 'hesabat' },
+    progress: { short: 'fənlər' },
+    assignments: { short: 'tapşırıqlar' },
+    exam: { short: 'imtahan' },
   },
-  neverShared: 'Heç vaxt paylaşılmır: Vızı ilə söhbətlər və şəkil sualları.',
   kids: {
     title: 'Uşaqlarım',
     bell: 'Bildirişlər',
@@ -114,9 +102,6 @@ export const parent = {
     awaitingConsentBody:
       '{{name}} üçün hesab sənin razılığınla açılır. SMS kodunu təsdiqlə — hesabat burada görünəcək.',
     giveConsent: 'Razılıq ver',
-    awaitingApproval: 'Təsdiq gözlənilir',
-    awaitingApprovalBody: '{{name}} öz tətbiqində sorğunu təsdiqləməlidir.',
-    openRequest: 'Sorğuya bax',
     addChild: 'Uşaq əlavə et',
   },
   notifications: {
@@ -145,19 +130,8 @@ export const parent = {
     notFoundTitle: 'Bu kod tapılmadı',
     notFoundBody: 'Simvolları yoxla. Kod düz görünürsə, övladından yeni kod yaratmasını xahiş et.',
     linkedTitle: '{{name}} ilə bağlantın artıq var',
-    linkedBody: 'Onun hesabatı «Uşaqlarım» bölməsində görünür.',
-  },
-  pending: {
-    title: 'Təsdiq gözlənilir',
-    accepted: 'Kod qəbul olundu',
-    heading: '{{name}} təsdiqləməlidir',
-    body: '{{nameGen}} tətbiqinə sorğu göndərildi. O təsdiqləyəndə sənə bildiriş göndərəcəyik.',
-    validity: 'Sorğu 24 saat qüvvədədir · {{when}}',
-    chooseTitle: '{{name}} nəyi paylaşacağını özü seçəcək',
-    requestAgain: 'Kodu yenidən istə',
-    cancel: 'Sorğunu ləğv et',
-    emptyTitle: 'Gözləyən sorğu yoxdur',
-    emptyBody: 'Övladının kodunu daxil edəndə sorğu burada görünəcək.',
+    linkedBody:
+      'Onun hesabatı «Uşaqlarım» bölməsində görünür. Bağlantını «Mən» bölməsində dayandıra bilərsən.',
   },
   report: {
     title: 'Həftəlik hesabat',
@@ -244,6 +218,7 @@ export const parent = {
     tests: 'Son test nəticələri',
     practiceTest: '{{ref}} · Məşq testi',
     unitTest: 'Bölmə sınağı · Çərçivə {{ref}}',
+    reviewTest: 'Təkrar · {{ref}}',
     testMeta: '{{date}} · {{questions}}',
     noTests: 'Hələ test həll olunmayıb.',
     examLockedTitle: '{{name}} imtahan planını paylaşmayıb',
@@ -347,7 +322,6 @@ export const parent = {
     sharesNothing: 'Hələ heç nə paylaşmır',
     stop: 'Bağlantını dayandır',
     awaitingConsent: '13 yaşdan kiçik · razılığın gözlənilir',
-    awaitingApproval: 'Təsdiq gözlənilir',
     giveConsent: 'Razılıq ver',
     noKids: 'Hələ bağlı uşaq yoxdur.',
     stopTitle: '{{name}} ilə bağlantı dayandırılsın?',

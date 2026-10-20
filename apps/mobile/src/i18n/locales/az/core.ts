@@ -6,6 +6,10 @@ export const core = {
     retry: 'Yenidən cəhd et',
     back: 'Geri',
     close: 'Bağla',
+    saved: 'Yadda saxlandı',
+    refresh: 'Yenilə',
+    refreshing: 'Yenilənir…',
+    refreshed: 'Yeniləndi',
     errorTitle: 'Xəta baş verdi',
     errorDescription: 'Nəsə alınmadı. İnternet bağlantını yoxlayıb yenidən cəhd et.',
     comingSoon: 'Tezliklə',
@@ -24,6 +28,8 @@ export const core = {
     correct: 'Düz',
     wrong: 'Səhv',
     source: 'Mənbə: {{source}}',
+    holdHint: 'Basıb saxla',
+    codeCopied: 'Kod kopyalandı',
   },
   // Month names by Date#getMonth() index; platform Intl data for `az` is often incomplete.
   months: {

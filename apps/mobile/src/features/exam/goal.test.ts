@@ -1,7 +1,5 @@
 import { groupThousands } from './format';
-import { examDaysLeft, examGoalOf, isGoalComplete } from './goal';
-
-const today = new Date(2026, 9, 18);
+import { examGoalOf, isGoalComplete } from './goal';
 
 describe('exam goal', () => {
   it('reads only exam goals', () => {
@@ -10,19 +8,6 @@ describe('exam goal', () => {
     expect(examGoalOf({ kind: 'exam', exam: 'admission', group: 'II', date: null })?.group).toBe(
       'II',
     );
-  });
-
-  it('counts days to a known date, else shows the demo counter', () => {
-    expect(
-      examDaysLeft({ kind: 'exam', exam: 'graduation_11', group: null, date: null }, today, 142),
-    ).toBe(142);
-    expect(
-      examDaysLeft(
-        { kind: 'exam', exam: 'graduation_11', group: null, date: '2026-10-28' },
-        today,
-        142,
-      ),
-    ).toBe(10);
   });
 
   it('needs a group for admission', () => {

@@ -11,6 +11,7 @@ import { goalChoiceOf } from '@/features/onboarding/examOptions';
 import { useOnboardingStore } from '@/features/onboarding/store';
 import type { GoalChoice } from '@/features/onboarding/types';
 import { useStepFlow } from '@/features/onboarding/useStepFlow';
+import { useDemoWrite } from '@/lib/demoEvents';
 
 const GOALS: { goal: GoalChoice; icon: IconName }[] = [
   { goal: 'school', icon: 'book' },
@@ -28,6 +29,7 @@ export default function OnboardingGoalScreen() {
   const setGoalChoice = useOnboardingStore((s) => s.setGoalChoice);
   const [choice, setChoice] = useState<GoalChoice>(goalChoiceOf(storedGoal, storedChoice));
   const flow = useStepFlow();
+  const write = useDemoWrite();
 
   const next = () => {
     setGoalChoice(choice);
@@ -37,6 +39,8 @@ export default function OnboardingGoalScreen() {
     }
     // "Hələ bilmirəm" starts from the general plan: no goal in the profile yet.
     updateProfile({ goal: choice === 'school' ? { kind: 'school' } : null });
+    // The school programme is a goal too: the exam area reads it from the world.
+    if (choice === 'school') write({ type: 'exam.goalSet', goal: { kind: 'school' } });
     flow.next('/onboarding/time');
   };
 

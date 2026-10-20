@@ -1,28 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchRecommendedTopic, fetchSubject, fetchSubjects, fetchTest } from './api';
+import { fetchRecommendedTopic, fetchSubjects } from './api';
 
-export const testKeys = {
-  subjects: ['subjects'] as const,
-  subject: (id: string) => ['subjects', id] as const,
-  test: (id: string) => ['tests', id] as const,
-  recommended: ['tests', 'recommended'] as const,
+/** The tests published from the team's test books (local API only; empty on the Worker). */
+const testKeys = {
+  subjects: ['tests', 'published', 'subjects'] as const,
+  recommended: ['tests', 'published', 'recommended'] as const,
 };
 
 export function useSubjects() {
   return useQuery({ queryKey: testKeys.subjects, queryFn: fetchSubjects });
 }
 
-export function useSubject(subjectId: string) {
-  return useQuery({
-    queryKey: testKeys.subject(subjectId),
-    queryFn: () => fetchSubject(subjectId),
-  });
-}
-
-export function useTest(testId: string) {
-  return useQuery({ queryKey: testKeys.test(testId), queryFn: () => fetchTest(testId) });
-}
-
+/** No retries: without an API (or on the Worker) the plan just goes on without this step. */
 export function useRecommendedTopic() {
-  return useQuery({ queryKey: testKeys.recommended, queryFn: fetchRecommendedTopic });
+  return useQuery({ queryKey: testKeys.recommended, queryFn: fetchRecommendedTopic, retry: false });
 }

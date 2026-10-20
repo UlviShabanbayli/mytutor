@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { formatDayMonth } from '@/features/parent/format';
-import type { TestScore } from '@/features/parent/types';
+import type { TestScore } from '@mytutor/types';
 import { SectionLabel } from './SectionLabel';
 
 type RecentTestsCardProps = { tests: TestScore[] };
@@ -28,13 +28,15 @@ export function RecentTestsCard({ tests }: RecentTestsCardProps) {
             const title =
               test.kind === 'practice'
                 ? t('parent.subject.practiceTest', { ref: test.ref })
-                : t('parent.subject.unitTest', { ref: test.ref });
+                : test.kind === 'review'
+                  ? t('parent.subject.reviewTest', { ref: test.ref })
+                  : t('parent.subject.unitTest', { ref: test.ref });
             const meta = t('parent.subject.testMeta', {
               date: formatDayMonth(t, new Date(test.takenAt), true),
               questions: t('common.questionsCount', { count: test.questions }),
             });
             const score =
-              test.kind === 'practice'
+              test.kind !== 'unit'
                 ? `${test.correct} / ${test.questions}`
                 : t('parent.percent', { value: Math.round((test.correct / test.questions) * 100) });
             return (

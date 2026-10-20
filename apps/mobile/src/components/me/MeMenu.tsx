@@ -6,6 +6,8 @@ import { MenuRow } from './MenuRow';
 
 type MeMenuProps = {
   unread: number;
+  /** The student is in at least one class. */
+  hasClasses: boolean;
   progressValue: string;
   league: { id: LeagueId; place: number } | null;
   parentName: string | null;
@@ -13,7 +15,14 @@ type MeMenuProps = {
 };
 
 /** The account menu of the "Mən" tab: classes, progress, league, parent, privacy, plan, settings. */
-export function MeMenu({ unread, progressValue, league, parentName, plan }: MeMenuProps) {
+export function MeMenu({
+  unread,
+  hasClasses,
+  progressValue,
+  league,
+  parentName,
+  plan,
+}: MeMenuProps) {
   const { t } = useTranslation();
 
   return (
@@ -21,11 +30,13 @@ export function MeMenu({ unread, progressValue, league, parentName, plan }: MeMe
       accessibilityLabel={t('me.home.menuLabel')}
       className="overflow-hidden rounded-[18px] border border-border bg-surf"
     >
+      {/* No class yet (the first day): the row is the prompt to join one by code. */}
       <MenuRow
         icon="users"
         label={t('me.home.classes')}
+        value={hasClasses ? undefined : t('me.home.classesJoin')}
         badge={unread > 0 ? t('me.home.newCount', { count: unread }) : undefined}
-        onPress={() => router.push('/me/classes')}
+        onPress={() => router.push(hasClasses ? '/me/classes' : '/me/join')}
       />
       <MenuRow
         divider

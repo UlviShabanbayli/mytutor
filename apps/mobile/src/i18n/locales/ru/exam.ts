@@ -87,7 +87,7 @@ export const exam = {
   weakCount_other: '{{count}} слабых места',
   evidence: {
     recent: 'За последние {{mocks}} пробных — {{errors}}',
-    last: 'В последнем пробном — {{wrong}} из {{asked}}',
+    last: 'В последнем пробном — {{errors}}',
     some: '{{errors}} в {{mocks}} пробных',
   },
   mockTitle: {
@@ -306,9 +306,13 @@ export const exam = {
   },
   run: {
     exit: 'Выйти из пробного',
+    exitTitle: 'Выйти из пробного?',
+    exitBody: 'Ответы сохранятся, потом продолжишь с того же вопроса.',
+    exitClock: 'Время не останавливается: оно идёт и после выхода.',
     progress: 'Вопрос {{current}} / {{total}}',
     progressA11y: 'Отвечено вопросов: {{answered}} из {{total}}',
     timerA11y: 'Осталось времени: {{minutes}} {{seconds}}',
+    lastMinutes: 'Последние 5 минут — проверь ответы.',
     minutesLong_one: '{{count}} минута',
     minutesLong_few: '{{count}} минуты',
     minutesLong_many: '{{count}} минут',
@@ -327,7 +331,6 @@ export const exam = {
       expand: 'Запиши выражение в виде многочлена:',
       factor: 'Разложи на множители:',
     },
-    source: 'демо-вопрос · {{book}} · {{topic}}',
     optionsA11y: 'Варианты ответа',
     selected: 'выбрано',
     saved: 'Ответ сохранён',

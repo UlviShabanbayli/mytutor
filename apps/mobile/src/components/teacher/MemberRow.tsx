@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Icon, type IconName, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { initials } from '@/features/teacher/people';
-import type { ClassMember } from '@/features/teacher/types';
+import type { RosterEntry } from '@mytutor/types';
 import { HexBadge } from './HexBadge';
 
 type Tag = {
@@ -15,7 +15,7 @@ type Tag = {
 };
 
 type MemberRowProps = {
-  member: ClassMember;
+  member: RosterEntry;
   /** Names of the groups this student is in. */
   groups: string[];
   index: number;

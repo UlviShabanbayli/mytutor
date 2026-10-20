@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Input, Sheet } from '@/components/ui';
-import { usePostAnnouncement } from '@/features/teacher/queries';
+import { usePostAnnouncement } from '@/features/teacher/mutations';
 
 type AnnounceSheetProps = {
   classId: string;
@@ -11,7 +11,7 @@ type AnnounceSheetProps = {
   onPosted: () => void;
 };
 
-/** "Elan yaz": one message to the whole class, sent as a notification. */
+/** "Elan yaz": one message to the whole class (the demo event `announcement.posted`). */
 export function AnnounceSheet({ classId, visible, onClose, onPosted }: AnnounceSheetProps) {
   const { t } = useTranslation();
   const post = usePostAnnouncement();
@@ -23,16 +23,10 @@ export function AnnounceSheet({ classId, visible, onClose, onPosted }: AnnounceS
       setShowError(true);
       return;
     }
-    post.mutate(
-      { classId, text },
-      {
-        onSuccess: () => {
-          setText('');
-          onClose();
-          onPosted();
-        },
-      },
-    );
+    post.mutate({ classId, text });
+    onPosted();
+    setText('');
+    onClose();
   };
 
   return (
@@ -48,7 +42,7 @@ export function AnnounceSheet({ classId, visible, onClose, onPosted }: AnnounceS
           multiline
           error={showError ? t('teacher.class.announceError') : undefined}
         />
-        <Button label={t('teacher.class.announceSubmit')} loading={post.isPending} onPress={send} />
+        <Button label={t('teacher.class.announceSubmit')} onPress={send} />
       </View>
     </Sheet>
   );

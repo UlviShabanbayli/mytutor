@@ -1,126 +1,91 @@
-import { useQueries, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
-import type { PracticeTest, TestResult } from '@mytutor/types';
+import { useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
+import type { DemoPersona, ReviewPlan, TestResult } from '@mytutor/types';
 import i18n from '@/i18n';
-import { fetchTest } from '@/features/tests/api';
-import { testKeys } from '@/features/tests/queries';
 import { useTestSessionStore } from '@/features/tests/sessionStore';
-import {
-  DEMO_TEST_ID,
-  demoLessons,
-  demoMistakeGroups,
-  demoReviewPlan,
-  demoStudyTest,
-} from './demo';
-import { findLesson } from './lessons';
-import { MISTAKES_TEST_ID, buildMistakesTest, collectMistakes, groupMistakes } from './mistakes';
+import { useDemoPersona } from '@/lib/demoPersona';
+import { fetchLesson, fetchReview, fetchStudyTest } from './api';
+import { MISTAKES_TEST_ID, buildMistakesTest, collectMistakes } from './mistakes';
 import { studyTestOf } from './steps';
-import type { MistakeGroup, StudyTest } from './types';
+import type { StudyTest } from './types';
 
 export const studyKeys = {
-  lesson: (id: string) => ['study', 'lesson', id] as const,
-  test: (id: string) => ['study', 'test', id] as const,
-  review: ['study', 'review'] as const,
+  lesson: (persona: DemoPersona, id: string) => ['study', persona, 'lesson', id] as const,
+  test: (persona: DemoPersona, id: string) => ['study', persona, 'test', id] as const,
+  mistakesRun: (persona: DemoPersona) => ['study', persona, 'mistakes-run'] as const,
+  review: (persona: DemoPersona) => ['study', persona, 'review'] as const,
+  mistakes: (persona: DemoPersona) => ['study', persona, 'mistakes'] as const,
+  curriculum: (persona: DemoPersona) => ['study', persona, 'curriculum'] as const,
 };
 
-/** Tests the app builds itself rather than fetching: the demo and the mistakes run. */
-const isLocalTest = (id: string) => id === DEMO_TEST_ID || id === MISTAKES_TEST_ID;
-
-/** Demo lessons (architecture Ş4) until GET /v1/lessons/:id exists; null for an unknown id. */
+/** A topic's lesson (book text first, then the demo lesson); null when it has neither. */
 export function useLesson(id: string) {
+  const persona = useDemoPersona();
   return useQuery({
-    queryKey: studyKeys.lesson(id),
-    queryFn: async () => findLesson(demoLessons, id),
+    queryKey: studyKeys.lesson(persona, id),
+    queryFn: () => fetchLesson(persona, id),
   });
 }
 
-/** Every test a finished result points to, by id: the demo locally, the rest from the API. */
-async function testsOf(client: QueryClient, results: TestResult[]) {
-  const ids = [...new Set(results.map((r) => r.testId))].filter((id) => !isLocalTest(id));
+/** The practice tests the finished results point to, by id (not the mistakes run itself). */
+async function testsOf(client: QueryClient, persona: DemoPersona, results: TestResult[]) {
+  const ids = [...new Set(results.map((r) => r.testId))].filter((id) => id !== MISTAKES_TEST_ID);
   const tests = await Promise.all(
     ids.map((id) =>
-      client.fetchQuery({ queryKey: testKeys.test(id), queryFn: () => fetchTest(id) }),
+      client.fetchQuery({
+        queryKey: studyKeys.test(persona, id),
+        queryFn: () => fetchStudyTest(persona, id),
+      }),
     ),
   );
-  return Object.fromEntries([demoStudyTest.test, ...tests].map((t) => [t.id, t]));
+  return Object.fromEntries(tests.flatMap((t) => (t ? [[t.test.id, t.test] as const] : [])));
 }
 
-async function mistakesStudyTest(client: QueryClient, results: TestResult[]) {
-  const entries = collectMistakes(results, await testsOf(client, results));
+async function mistakesStudyTest(client: QueryClient, persona: DemoPersona) {
+  const results = useTestSessionStore.getState().results;
+  const entries = collectMistakes(results, await testsOf(client, persona, results));
   const test = buildMistakesTest(entries, i18n.t('study.mistakes.testTitle'));
   return test ? { ...studyTestOf(test), kind: 'mistakes' as const } : null;
 }
 
 /**
- * A test session's content: an API test (its questions), the demo test (every step kind) or
- * the run of the student's mistakes. The mistakes run is a snapshot: the result screen shows
- * the same questions; "Hamısını təkrarla" drops it so the next run is built afresh.
+ * A test session's content: a demo-world test, a published test, or the run of the student's
+ * mistakes. The mistakes run is a snapshot: the result screen shows the same questions;
+ * "Hamısını təkrarla" drops it so the next run is built afresh. Null for a test nobody has.
  */
-export function useStudyTest(id: string) {
+export function useStudyTest(id: string, enabled = true) {
   const client = useQueryClient();
-  const local = isLocalTest(id);
-  const api = useQuery({
-    queryKey: testKeys.test(id),
-    queryFn: () => fetchTest(id),
-    select: studyTestOf,
-    enabled: !local,
+  const persona = useDemoPersona();
+  const run = id === MISTAKES_TEST_ID;
+  return useQuery<StudyTest | null>({
+    queryKey: run ? studyKeys.mistakesRun(persona) : studyKeys.test(persona, id),
+    queryFn: () => (run ? mistakesStudyTest(client, persona) : fetchStudyTest(persona, id)),
+    enabled,
+    // The run keeps its questions until it is dropped; a refetch would reshuffle it.
+    staleTime: run ? Infinity : undefined,
   });
-  const own = useQuery<StudyTest | null>({
-    queryKey: studyKeys.test(id),
-    queryFn: () =>
-      id === DEMO_TEST_ID
-        ? Promise.resolve(demoStudyTest)
-        : mistakesStudyTest(client, useTestSessionStore.getState().results),
-    enabled: local,
-    staleTime: Infinity,
-  });
-  return local ? own : api;
 }
 
 /** Forget the last mistakes run so the next one is built from the current mistakes. */
 export function useResetMistakesRun() {
   const client = useQueryClient();
+  const persona = useDemoPersona();
   const restart = useTestSessionStore((s) => s.restart);
   return () => {
-    client.removeQueries({ queryKey: studyKeys.test(MISTAKES_TEST_ID) });
+    client.removeQueries({ queryKey: studyKeys.mistakesRun(persona) });
     restart(MISTAKES_TEST_ID);
   };
 }
 
-/** Today's spaced review (architecture Ş6): demo until GET /v1/me/review exists. */
+/** Today's spaced review (architecture Ş6), derived from the student's mastery. */
 export function useReviewPlan() {
-  return useQuery({ queryKey: studyKeys.review, queryFn: async () => demoReviewPlan });
+  const persona = useDemoPersona();
+  return useQuery({ queryKey: studyKeys.review(persona), queryFn: () => fetchReview(persona) });
 }
 
-type MistakesView =
-  | { status: 'pending' | 'error'; groups: MistakeGroup[]; isDemo: false; retry: () => void }
-  | { status: 'ready'; groups: MistakeGroup[]; isDemo: boolean; retry: () => void };
-
 /**
- * "Səhvlərim": the wrong answers of finished tests, by topic. Before the first finished test
- * the screen shows demo mistakes (marked as an example).
+ * Where today's review starts: the world's review practice (the due topics' questions, "test-
+ * review"), or "Səhvlərim" when nothing is due. Never pending: the plan names the test.
  */
-export function useMistakes(): MistakesView {
-  const results = useTestSessionStore((s) => s.results);
-  const ids = [...new Set(results.map((r) => r.testId))].filter((id) => !isLocalTest(id));
-  const queries = useQueries({
-    queries: ids.map((id) => ({ queryKey: testKeys.test(id), queryFn: () => fetchTest(id) })),
-  });
-  const retry = () => queries.forEach((q) => void q.refetch());
-  if (results.length === 0) {
-    return { status: 'ready', groups: demoMistakeGroups(), isDemo: true, retry };
-  }
-  if (queries.some((q) => q.isPending))
-    return { status: 'pending', groups: [], isDemo: false, retry };
-  const tests: PracticeTest[] = queries.flatMap((q) => (q.data ? [q.data] : []));
-  // Without any of the tests there is nothing to show; a partial set still shows what it can.
-  if (ids.length > 0 && tests.length === 0) {
-    return { status: 'error', groups: [], isDemo: false, retry };
-  }
-  const byId = Object.fromEntries([demoStudyTest.test, ...tests].map((t) => [t.id, t]));
-  return {
-    status: 'ready',
-    groups: groupMistakes(collectMistakes(results, byId)),
-    isDemo: false,
-    retry,
-  };
+export function useReviewStart(plan: ReviewPlan): { pending: boolean; testId: string | null } {
+  return { pending: false, testId: plan.testId };
 }

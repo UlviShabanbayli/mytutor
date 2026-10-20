@@ -1,13 +1,15 @@
 import { View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { PopIn } from '@/components/feedback/PopIn';
+import { RisingPanel } from '@/components/feedback/RisingPanel';
+import { correctB } from '@/components/feedback/timelines';
+import { ViziPeek } from '@/components/feedback/ViziPeek';
 import { Mascot } from '@/components/mascot/Mascot';
 import { Button, SourceLine, StatusPill, Text } from '@/components/ui';
 import { EXERCISE_POINTS } from '@/features/study/rewards';
 import type { LessonExercise } from '@/features/study/types';
 import { cn } from '@/lib/cn';
-import { duration } from '@/theme';
 
 export type ExerciseOutcome = 'same' | 'different' | 'shown';
 
@@ -18,43 +20,60 @@ type ExerciseSheetProps = {
   onContinue: () => void;
 };
 
+// A different answer gets the warm surface and Vızı peeking over the edge (feedback.wrong C).
 const look = {
   same: { box: 'bg-ok-bg', moment: 'correct', title: 'sameTitle', body: 'sameBody' },
-  different: { box: 'bg-err-bg', moment: 'wrong', title: 'differentTitle', body: 'differentBody' },
+  different: { box: 'bg-raised', moment: null, title: 'differentTitle', body: 'differentBody' },
   shown: { box: 'bg-raised', moment: 'aiExplains', title: 'shownTitle', body: 'shownBody' },
 } as const;
 
-/** After "Yoxla" or "Kitabın cavabını göstər": the verdict, the book's answer and its source. */
+/**
+ * After "Yoxla" or "Kitabın cavabını göstər": the verdict, the book's answer and its source. Same
+ * as the book: the panel springs up, Vızı cheers (vizi.correct C) and "+5 bal" pops
+ * (feedback.correct B); different: it rises calmly and Vızı peeks over its edge (feedback.wrong C).
+ */
 export function ExerciseSheet({ exercise, outcome, onRetry, onContinue }: ExerciseSheetProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const l = look[outcome];
+  const same = outcome === 'same';
 
   return (
-    <Animated.View entering={FadeInDown.duration(duration.normal)}>
+    <RisingPanel
+      at={0}
+      springy={same}
+      tone={l.box}
+      overlay={outcome === 'different' ? <ViziPeek panelAt={0} /> : null}
+    >
       <View
         accessibilityViewIsModal
         accessibilityLiveRegion="polite"
-        className={cn('gap-3 rounded-t-3xl px-4 pt-4', l.box)}
+        className="gap-3 px-4 pt-4"
         // The sheet runs under the home indicator; its content stays above it.
         style={{ paddingBottom: Math.max(insets.bottom, 12) + 8 }}
       >
-        <View className="flex-row items-center gap-2.5">
-          <Mascot moment={l.moment} size={64} decorative />
+        <View className={cn('flex-row items-center gap-2.5', !l.moment && 'pr-[60px]')}>
+          {same ? (
+            // vizi.correct C: the rig pops Vızı in by itself, then she spins, grins and winks.
+            <Mascot moment="correct" behavior="correct" size={64} decorative />
+          ) : l.moment ? (
+            <PopIn from={1}>
+              <Mascot moment={l.moment} size={64} decorative />
+            </PopIn>
+          ) : null}
           <View className="min-w-0 flex-1 gap-0.5">
-            <Text
-              variant="heading"
-              className={cn('font-display-black text-lg', outcome === 'same' && 'text-ok')}
-            >
+            <Text variant="heading" className={cn('font-display-black text-lg', same && 'text-ok')}>
               {t(`study.lesson.${l.title}`)}
             </Text>
             <Text className="text-sm">{t(`study.lesson.${l.body}`)}</Text>
           </View>
-          {outcome === 'same' ? (
-            <StatusPill
-              kind="points"
-              label={t('study.common.points', { count: EXERCISE_POINTS })}
-            />
+          {same ? (
+            <PopIn delay={correctB.pillAt} duration={correctB.pill} from={correctB.pillFrom}>
+              <StatusPill
+                kind="points"
+                label={t('study.common.points', { count: EXERCISE_POINTS })}
+              />
+            </PopIn>
           ) : null}
         </View>
         <View className="gap-1 rounded-lg bg-surf px-3 py-2.5">
@@ -65,7 +84,7 @@ export function ExerciseSheet({ exercise, outcome, onRetry, onContinue }: Exerci
           <SourceLine source={exercise.source} />
         </View>
         <View className="flex-row gap-2">
-          {outcome === 'same' ? null : (
+          {same ? null : (
             <Button
               label={t('study.lesson.tryAgain')}
               variant="secondary"
@@ -76,6 +95,6 @@ export function ExerciseSheet({ exercise, outcome, onRetry, onContinue }: Exerci
           <Button label={t('study.common.continue')} onPress={onContinue} className="flex-1" />
         </View>
       </View>
-    </Animated.View>
+    </RisingPanel>
   );
 }

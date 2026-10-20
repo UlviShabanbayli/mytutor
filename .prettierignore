@@ -3,6 +3,7 @@ node_modules
 dist
 .expo
 .turbo
+.wrangler
 apps/api/drizzle
 **/out
 # Generated motion-lab page and its data (see docs/design/motion.md)

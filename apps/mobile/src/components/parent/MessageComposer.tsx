@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Icon } from '@/components/ui';
+import { Icon, useRaisedPress } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { useThemeColors } from '@/theme';
 
@@ -14,6 +15,7 @@ type MessageComposerProps = {
 
 /** The message field and the honey send button pinned under the thread. */
 export function MessageComposer({ teacherName, onSend }: MessageComposerProps) {
+  const press = useRaisedPress({ depth: 3 });
   const { t } = useTranslation();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
@@ -44,6 +46,8 @@ export function MessageComposer({ teacherName, onSend }: MessageComposerProps) {
         className="max-h-28 min-h-[48px] flex-1 rounded-lg border border-border bg-surf px-3.5 py-3 font-sans text-base text-ink"
       />
       <Pressable
+        onPressIn={press.pressIn}
+        onPressOut={press.pressOut}
         accessibilityRole="button"
         accessibilityLabel={t('parent.chat.send')}
         accessibilityState={{ disabled: !ready }}
@@ -51,17 +55,16 @@ export function MessageComposer({ teacherName, onSend }: MessageComposerProps) {
         onPress={send}
         className={cn('rounded-lg', ready && 'bg-honey-deep pb-[3px]')}
       >
-        {({ pressed }) => (
+        <Animated.View style={press.faceStyle}>
           <View
             className={cn(
               'h-[48px] w-[48px] items-center justify-center rounded-lg',
               ready ? 'bg-honey' : 'bg-wax',
-              ready && pressed && 'translate-y-[3px]',
             )}
           >
             <Icon name="send" size={22} color={ready ? 'on-honey' : 'lock-ink'} />
           </View>
-        )}
+        </Animated.View>
       </Pressable>
     </View>
   );

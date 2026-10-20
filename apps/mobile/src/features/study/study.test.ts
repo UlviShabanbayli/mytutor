@@ -1,7 +1,8 @@
+import { answerDemo } from '@mytutor/demo-data';
+import { studyTestSchema } from '@mytutor/schemas';
 import type { PracticeTest, TestResult } from '@mytutor/types';
-import { demoLessons, demoStudyTest } from './demo';
 import { prettyExpression, sameExpression } from './expression';
-import { findLesson, stepIndexOf, topicCodeOf } from './lessons';
+import { stepIndexOf } from './lessons';
 import {
   decodeMatch,
   emptyMatch,
@@ -11,30 +12,31 @@ import {
   pick,
   type MatchState,
 } from './matching';
-import { buildMistakesTest, collectMistakes, groupMistakes } from './mistakes';
+import { buildMistakesTest, collectMistakes, groupMistakes, mergeMistakes } from './mistakes';
 import { applyNumericKey, displayNumber, sanitizeNumeric } from './numericInput';
 import { reviewTimeline } from './review';
 import { isAnswered, scoreSteps, stepVerdict, writtenAnswer } from './steps';
 import { formatClock, isThisWeek } from './time';
-import type { MatchStep } from './types';
+import type { MatchStep, StudyTest } from './types';
 
-const matchStep = demoStudyTest.steps.find((s): s is MatchStep => s.kind === 'match');
-if (!matchStep) throw new Error('demo test has no matching step');
+const NOW = new Date('2026-10-20T06:00:00.000Z');
+
+/** The demo world's 4.3 topic test: three questions, a matching step and a written one. */
+const cubeTest: StudyTest = studyTestSchema.parse(
+  answerDemo('/v1/tests/test-riyaziyyat-7-4-3', { persona: 'nermin', now: NOW }).body,
+);
+const matchStep = cubeTest.steps.find((s): s is MatchStep => s.kind === 'match');
+if (!matchStep) throw new Error('the 4.3 test has no matching step');
 
 describe('lessons', () => {
-  it('finds a lesson by its id or by the topic number at the end of another id', () => {
-    expect(topicCodeOf('riyaziyyat-7-4-3')).toBe('4.3');
-    expect(topicCodeOf('m7-4.1')).toBe('4.1');
-    expect(topicCodeOf('demo')).toBeNull();
-    expect(findLesson(demoLessons, 'riyaziyyat-7-4-3')?.topicCode).toBe('4.3');
-    expect(findLesson(demoLessons, 't4_1')?.topicCode).toBe('4.1');
-    expect(findLesson(demoLessons, '5.6')).toBeNull();
-  });
+  const all = ['video', 'text', 'example', 'exercise'] as const;
 
-  it('reads the step parameter as 1–4', () => {
-    expect([stepIndexOf('3'), stepIndexOf(undefined), stepIndexOf('9'), stepIndexOf('x')]).toEqual([
-      2, 0, 0, 0,
-    ]);
+  it('reads the step parameter as a number, a topic step or a lesson step', () => {
+    expect([stepIndexOf('3', [...all]), stepIndexOf(undefined, [...all])]).toEqual([2, 0]);
+    expect([stepIndexOf('9', [...all]), stepIndexOf('x', [...all])]).toEqual([0, 0]);
+    expect([stepIndexOf('examples', [...all]), stepIndexOf('practice', [...all])]).toEqual([2, 3]);
+    expect(stepIndexOf('text', ['text'])).toBe(0);
+    expect(stepIndexOf('practice', ['text'])).toBe(0);
   });
 });
 
@@ -98,20 +100,22 @@ describe('matching', () => {
 
 describe('session steps', () => {
   it('checks every kind and scores only what the app can check', () => {
-    const [q1, , q3] = demoStudyTest.steps;
-    if (!q1 || !q3) throw new Error('demo steps missing');
+    const [q1, , q3] = cubeTest.steps;
+    if (!q1 || !q3) throw new Error('4.3 steps missing');
     expect(stepVerdict(q1, 'C')).toBe('correct');
     expect(stepVerdict(q3, '28')).toBe('correct');
     expect(isAnswered(matchStep, '2,0,')).toBe(false);
-    const answers = { 'demo-q1': 'C', 'demo-q2': 'A', 'demo-q3': '28', 'demo-match': '2,0,1' };
-    expect(
-      scoreSteps(demoStudyTest.steps, { ...answers, 'demo-written': writtenAnswer(1) }),
-    ).toEqual({ correct: 3, scored: 4, pending: 1 });
+    const answers = { 'q-4-3-1': 'C', 'q-4-3-2': 'A', 'q-4-3-3': '28', 'q-4-3-match': '2,0,1' };
+    expect(scoreSteps(cubeTest.steps, { ...answers, 'q-4-3-written': writtenAnswer(1) })).toEqual({
+      correct: 3,
+      scored: 4,
+      pending: 1,
+    });
   });
 });
 
 describe('mistakes', () => {
-  const test: PracticeTest = demoStudyTest.test;
+  const test: PracticeTest = cubeTest.test;
   const result = (answers: Record<string, string>, finishedAt: string): TestResult => ({
     testId: test.id,
     subjectId: test.subjectId,
@@ -124,17 +128,31 @@ describe('mistakes', () => {
 
   it('keeps questions whose latest answer is wrong', () => {
     const older = result(
-      { 'demo-q1': 'A', 'demo-q2': 'A', 'demo-q3': '28' },
+      { 'q-4-3-1': 'A', 'q-4-3-2': 'A', 'q-4-3-3': '28' },
       '2026-10-17T10:00:00Z',
     );
-    const newer = result({ 'demo-q2': 'B' }, '2026-10-18T10:00:00Z');
+    const newer = result({ 'q-4-3-2': 'B' }, '2026-10-18T10:00:00Z');
     const entries = collectMistakes([newer, older], { [test.id]: test });
-    expect(entries.map((e) => e.question.id)).toEqual(['demo-q1']);
+    expect(entries.map((e) => e.question.id)).toEqual(['q-4-3-1']);
     const [group] = groupMistakes(entries);
     expect(group?.items[0]?.yours).toBe('A · x³ + 8');
     expect(group?.items[0]?.right).toBe('C · x³ + 6x² + 12x + 8');
     expect(buildMistakesTest(entries, 'Səhvlərim')?.questions).toHaveLength(1);
     expect(buildMistakesTest([], 'Səhvlərim')).toBeNull();
+  });
+
+  it("puts the device's mistakes into the world's group of the same topic", () => {
+    const world = answerDemo('/v1/mistakes', { persona: 'nermin', now: NOW }).body as Parameters<
+      typeof mergeMistakes
+    >[1];
+    const entries = collectMistakes([result({ 'q-4-3-1': 'A' }, NOW.toISOString())], {
+      [test.id]: test,
+    });
+    const merged = mergeMistakes(groupMistakes(entries), world);
+    const cube = merged.filter((g) => g.topicId === 'riyaziyyat-7-4-3');
+    expect(cube).toHaveLength(1);
+    expect(cube[0]?.items[0]?.id).toBe('q-4-3-1');
+    expect(merged).toHaveLength(world.length);
   });
 });
 

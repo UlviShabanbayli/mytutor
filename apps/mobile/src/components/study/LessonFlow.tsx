@@ -1,22 +1,25 @@
 import { useEffect } from 'react';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { leaveTo } from '@/features/study/leave';
 import { useStudyStore } from '@/features/study/studyStore';
-import type { StudyLesson } from '@/features/study/types';
+import type { LessonView } from '@/features/study/types';
 import { LessonExampleStep } from './LessonExampleStep';
 import { LessonExerciseStep } from './LessonExerciseStep';
 import { LessonHeader } from './LessonHeader';
 import { LessonTextStep } from './LessonTextStep';
 import { LessonVideoStep } from './LessonVideoStep';
-import { leaveTo } from '@/features/study/leave';
 
 type LessonFlowProps = {
-  lesson: StudyLesson;
-  /** 0-based step (video, text, example, exercise), from the route's `step` parameter. */
+  lesson: LessonView;
+  /** 0-based index into the lesson's steps, from the route's `step` parameter. */
   step: number;
 };
 
-/** The four steps of a lesson; the step lives in the URL, so back and deep links work. */
+/**
+ * The lesson's steps (video, text, example, exercise; a lesson made of the book's text alone has
+ * only the text). The step lives in the URL, so back and deep links work.
+ */
 export function LessonFlow({ lesson, step }: LessonFlowProps) {
   const startLesson = useStudyStore((s) => s.startLesson);
   const finishLesson = useStudyStore((s) => s.finishLesson);
@@ -24,20 +27,32 @@ export function LessonFlow({ lesson, step }: LessonFlowProps) {
     startLesson(lesson.id);
   }, [startLesson, lesson.id]);
 
+  const { steps } = lesson;
+  const name = steps[step] ?? steps[0];
   const go = (index: number) => router.setParams({ step: String(index + 1) });
   const finish = () => {
     finishLesson(lesson.id);
     router.replace({ pathname: '/lesson/[id]/done', params: { id: lesson.id } });
   };
+  const next = () => (step < steps.length - 1 ? go(step + 1) : finish());
+  const textIndex = steps.indexOf('text');
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-page">
-      <LessonHeader step={step} onClose={() => leaveTo('/learn')} />
-      {step === 0 ? <LessonVideoStep lesson={lesson} onNext={() => go(1)} /> : null}
-      {step === 1 ? <LessonTextStep lesson={lesson} onNext={() => go(2)} /> : null}
-      {step === 2 ? <LessonExampleStep lesson={lesson} onNext={() => go(3)} /> : null}
-      {step === 3 ? (
-        <LessonExerciseStep lesson={lesson} onSeeRule={() => go(1)} onNext={finish} />
+      <LessonHeader steps={steps} step={step} onClose={() => leaveTo('/learn')} />
+      {name === 'video' && lesson.video ? (
+        <LessonVideoStep lesson={lesson} video={lesson.video} onNext={next} />
+      ) : null}
+      {name === 'text' ? <LessonTextStep lesson={lesson} n={step + 1} onNext={next} /> : null}
+      {name === 'example' && lesson.example ? (
+        <LessonExampleStep example={lesson.example} onNext={next} />
+      ) : null}
+      {name === 'exercise' && lesson.exercise ? (
+        <LessonExerciseStep
+          exercise={lesson.exercise}
+          onSeeRule={() => go(Math.max(0, textIndex))}
+          onNext={next}
+        />
       ) : null}
     </SafeAreaView>
   );

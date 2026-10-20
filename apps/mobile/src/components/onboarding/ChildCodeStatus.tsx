@@ -1,12 +1,12 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, Text } from '@/components/ui';
-import type { LinkedChild } from '@/features/onboarding/types';
+import type { ChildCodeLookup } from '@/features/onboarding/types';
 import { HexTile } from './HexTile';
 
 type ChildCodeStatusProps = {
-  state: 'checking' | 'found' | 'not_found' | 'error';
-  child?: LinkedChild | null;
+  state: 'checking' | 'found' | 'not_found' | 'expired' | 'error';
+  child?: ChildCodeLookup | null;
 };
 
 /** The result of a typed child code: checking, found (whose it is), not found, or an error. */
@@ -45,11 +45,17 @@ export function ChildCodeStatus({ state, child }: ChildCodeStatusProps) {
               grade: t('common.grade', { count: child.grade, ordinal: true }),
             })}
           </Text>
+          {child.alreadyLinked ? (
+            <Text variant="caption" tone="muted" className="font-sans">
+              {t('onboarding.parentStart.alreadyLinked', { name: child.name })}
+            </Text>
+          ) : null}
         </View>
       </View>
     );
   }
 
+  const refused = state === 'not_found' || state === 'expired';
   return (
     <View
       accessibilityRole="alert"
@@ -57,13 +63,23 @@ export function ChildCodeStatus({ state, child }: ChildCodeStatusProps) {
     >
       <Icon name="warning" size={20} color="err" />
       <View className="min-w-0 flex-1 gap-0.5">
-        {state === 'not_found' ? (
-          <Text className="font-sans-black">{t('onboarding.parentStart.notFoundTitle')}</Text>
+        {refused ? (
+          <Text className="font-sans-black">
+            {t(
+              state === 'expired'
+                ? 'onboarding.parentStart.expiredTitle'
+                : 'onboarding.parentStart.notFoundTitle',
+            )}
+          </Text>
         ) : null}
         <Text variant="caption" tone="muted" className="font-sans">
-          {state === 'not_found'
-            ? t('onboarding.parentStart.notFoundBody')
-            : t('onboarding.parentStart.errorBody')}
+          {t(
+            state === 'expired'
+              ? 'onboarding.parentStart.expiredBody'
+              : state === 'not_found'
+                ? 'onboarding.parentStart.notFoundBody'
+                : 'onboarding.parentStart.errorBody',
+          )}
         </Text>
       </View>
     </View>

@@ -32,12 +32,13 @@ export default function TestBuilderScreen() {
         <LoadingState />
       </TeacherScreen>
     );
-  const topicId = topic && unit.data.topicIds.includes(topic) ? topic : start.data.topicId;
+  const topicIds = unit.data.topics.map((x) => x.id);
+  const topicId = topic && topicIds.includes(topic) ? topic : start.data.topicId;
   return (
     <TestBuilder
       header={header}
-      topicIds={unit.data.topicIds}
-      initial={{ ...start.data, topicId }}
+      topics={unit.data.topics}
+      initial={{ ...start.data, topicId, draftId: draft }}
     />
   );
 }

@@ -3,6 +3,9 @@ import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { TestResult } from '@mytutor/types';
+import { FadeUp } from '@/components/feedback/FadeUp';
+import { scoreC, scoreEnd } from '@/components/feedback/timelines';
+import { HandoffOverlay } from '@/components/handoff/HandoffOverlay';
 import { CellChange } from '@/components/study/CellChange';
 import { Button, IconButton, Text } from '@/components/ui';
 import { resultKicker } from '@/features/study/labels';
@@ -12,7 +15,7 @@ import {
   POINTS_PER_CORRECT,
   cellAfterTest,
 } from '@/features/study/rewards';
-import { scoreSteps } from '@/features/study/steps';
+import { scoreSteps, stepVerdict } from '@/features/study/steps';
 import { useStudyStore } from '@/features/study/studyStore';
 import { formatClock } from '@/features/study/time';
 import type { StudyTest } from '@/features/study/types';
@@ -22,6 +25,7 @@ import { PremiumTeaser } from './PremiumTeaser';
 import { ResultHero } from './ResultHero';
 import { ResultMistakes } from './ResultMistakes';
 import { ResultStats } from './ResultStats';
+import type { ScoreMark } from './ScoreHexRing';
 
 type TestResultViewProps = {
   study: StudyTest;
@@ -35,6 +39,10 @@ export function TestResultView({ study, result }: TestResultViewProps) {
   const score = scoreSteps(study.steps, result.answers);
   const share = percent(score.correct, score.scored);
   const cell = cellAfterTest(share);
+  const marks = study.steps.map((step): ScoreMark => {
+    const verdict = stepVerdict(step, result.answers[step.id]);
+    return verdict === 'correct' ? 'ok' : verdict === 'wrong' ? 'review' : 'pending';
+  });
   const seconds = startedAt ? (new Date(result.finishedAt).getTime() - startedAt) / 1000 : null;
   const finish = () => router.dismissTo('/learn');
   const stats = [
@@ -60,8 +68,9 @@ export function TestResultView({ study, result }: TestResultViewProps) {
           </Text>
         </View>
         <ScrollView contentContainerClassName="gap-3 px-4 pb-4">
-          <ResultHero correct={score.correct} total={score.scored} />
-          {study.kind === 'mistakes' ? null : (
+          <ResultHero correct={score.correct} total={score.scored} marks={marks} />
+          {/* Mistakes and a review span several topics: no single cell changes. */}
+          {study.kind === 'mistakes' || study.kind === 'review' ? null : (
             <CellChange
               code={study.topicCode ?? ''}
               from="lesson_completed"
@@ -77,9 +86,13 @@ export function TestResultView({ study, result }: TestResultViewProps) {
                   : t('study.result.cellLearningBody', { percent: MASTERY_PERCENT })
               }
               tone="card"
+              points={score.correct * POINTS_PER_CORRECT}
             />
           )}
-          <ResultStats stats={stats} />
+          {/* The tiles come in after the score ring (feedback.score C). */}
+          <FadeUp delay={scoreEnd(marks.length) + scoreC.outsAfter}>
+            <ResultStats stats={stats} />
+          </FadeUp>
           {score.pending > 0 ? (
             <Text variant="caption" tone="muted">
               {t('study.result.pending', { count: score.pending })}
@@ -91,6 +104,9 @@ export function TestResultView({ study, result }: TestResultViewProps) {
         <View className="px-4 pb-2 pt-2.5">
           <Button label={t('study.common.continue')} onPress={finish} />
         </View>
+        {study.kind === 'mistakes' || study.kind === 'review' ? null : (
+          <HandoffOverlay code={study.topicCode ?? ''} to={cell} />
+        )}
       </SafeAreaView>
     </TestMathContext.Provider>
   );

@@ -19,10 +19,48 @@ export const duration = {
   surface: 320,
   /** Fills of cells and rings. */
   fill: 400,
+  /** feedback.correct, feedback.wrong, feedback.goal: a check or a cross draws itself. */
+  draw: 300,
   /** Celebrations (goal done, cell sealed). */
   celebrate: 900,
   /** The fallback when the student asked for less motion: a short fade instead. */
   reduced: 150,
+  /** buttons.grade: the chosen cell swells before it springs back. */
+  pop: 90,
+  /** buttons.tabbar: the icon hops up; micro.badge: the icon bumps. */
+  hop: 110,
+  /** micro.badge: the count badge and an old count leave. */
+  leave: 140,
+  /** buttons.hold: an early release drains the fill; buttons.enable: the button lies down. */
+  release: 150,
+  /** buttons.enable: the colours switch first, then the face stands up. */
+  standUpDelay: 60,
+  /** buttons.hold: how long a finger holds until the action fires (the fill is linear). */
+  hold: 500,
+  /** buttons.loading: one hex cell fills, holds and empties in this loop. */
+  busyLoop: 1200,
+  /** buttons.loading: the next cell starts this much later. */
+  busyStagger: 200,
+  /** micro.camera: the scrim around the frame darkens after the shot. */
+  dim: 160,
+  /** micro.copy: the copied code flashes nectar. */
+  flash: 600,
+  /** micro.typing: one half of the hexagon pulse (a 1400ms loop). */
+  pulse: 700,
+  /** micro.timer: the chip turns from honey to err at 05:00. */
+  warn: 900,
+  /** micro.copy: "Kopyalandı" turns back into "Kopyala". */
+  revert: 1800,
+  /** transitions.onboarding: the new step's content slides in. */
+  step: 260,
+  /** transitions.toast: the banner and the toast leave (y 24 + fade). */
+  dismiss: 180,
+  /** transitions.toast: how long "Yadda saxlandı" stays. */
+  toastHold: 1800,
+  /** transitions.refresh: Vızı hovers 3pt up or down while the list reloads (one way). */
+  hover: 700,
+  /** transitions.handoff: the topic cell flies from the test header to the result card. */
+  fly: 420,
 } as const;
 
 export const easing = {
@@ -36,10 +74,18 @@ export const easing = {
   pop: Easing.bezier(0.34, 1.56, 0.64, 1),
   /** Liquid filling a cell — cubic-bezier(.33,0,.2,1). */
   fill: Easing.bezier(0.33, 0, 0.2, 1),
+  /** hive.seal C: a wax outline traced around the cap — cubic-bezier(.45,0,.25,1). */
+  trace: Easing.bezier(0.45, 0, 0.25, 1),
+  /** hive.nectar-honey C, hive.unit-sealed B: a honey glow fading out (CSS ease-out). */
+  glow: Easing.bezier(0, 0, 0.58, 1),
   /** Breathing and other loops. */
   breathe: Easing.inOut(Easing.sin),
   /** Pressing down. */
   press: Easing.out(Easing.quad),
+  /** micro.done: a ring drawing itself, even at both ends — cubic-bezier(.65,0,.35,1). */
+  draw: Easing.bezier(0.65, 0, 0.35, 1),
+  /** micro.timer: colour tweens — ease-in-out. */
+  inOut: Easing.inOut(Easing.ease),
 } as const;
 
 /**
@@ -66,6 +112,8 @@ export const spring = {
   unfold: { damping: 16, stiffness: 220, mass: 1 },
   /** feedback.select: the chosen option lifts. */
   lift: { damping: 14, stiffness: 260, mass: 1 },
+  /** feedback.correct: the right-answer panel springs up. */
+  panel: { damping: 16, stiffness: 190, mass: 1 },
   /** transitions.list, feedback rows: hexagons pop in. */
   list: { damping: 14, stiffness: 260, mass: 1 },
   /** hive.cell-tap: a cell is pressed and released. */
@@ -82,4 +130,8 @@ export const spring = {
   badge: { damping: 11, stiffness: 220, mass: 1 },
   /** micro.count: rolling digits. */
   digits: { damping: 15, stiffness: 160, mass: 1 },
+  /** micro.field: the focus ring settles after its pulse. */
+  ring: { damping: 16, stiffness: 240, mass: 1 },
+  /** transitions.refresh: the list springs back after a pull. */
+  pullBack: { damping: 20, stiffness: 220, mass: 1 },
 } as const satisfies Record<string, WithSpringConfig>;

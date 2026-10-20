@@ -2,19 +2,19 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, SourceLine, Text } from '@/components/ui';
 import { VideoPlayer } from '@/components/video/VideoPlayer';
-import type { StudyLesson } from '@/features/study/types';
+import type { LessonVideo, LessonView } from '@/features/study/types';
 import { Kicker } from './Kicker';
 import { StepLayout } from './StepLayout';
 
 type LessonVideoStepProps = {
-  lesson: StudyLesson;
+  lesson: LessonView;
+  video: LessonVideo;
   onNext: () => void;
 };
 
-/** Step 1: the whiteboard video, its title and what the lesson covers. */
-export function LessonVideoStep({ lesson, onNext }: LessonVideoStepProps) {
+/** The whiteboard video, its title and what the lesson covers. */
+export function LessonVideoStep({ lesson, video, onNext }: LessonVideoStepProps) {
   const { t } = useTranslation();
-  const { video } = lesson;
 
   return (
     <StepLayout footer={<Button label={t('study.common.continue')} onPress={onNext} />}>

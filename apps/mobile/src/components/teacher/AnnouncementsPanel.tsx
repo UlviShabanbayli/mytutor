@@ -14,11 +14,11 @@ export function AnnouncementsPanel({ classId }: AnnouncementsPanelProps) {
 
   if (list.isPending) return <LoadingState />;
   if (list.isError) return <ErrorState onRetry={() => void list.refetch()} />;
-  if (list.data.length === 0)
-    return <Text tone="muted">{t('teacher.class.emptyAnnouncements')}</Text>;
+  const all = list.data;
+  if (all.length === 0) return <Text tone="muted">{t('teacher.class.emptyAnnouncements')}</Text>;
   return (
     <View className="gap-2">
-      {list.data.map((a) => (
+      {all.map((a) => (
         <Card key={a.id} className="gap-1 rounded-lg p-3">
           <Text>{a.text}</Text>
           <Text variant="caption" tone="muted">

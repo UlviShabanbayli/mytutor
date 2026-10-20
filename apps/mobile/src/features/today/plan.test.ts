@@ -37,9 +37,9 @@ describe('stepHref', () => {
   it('leads each kind straight to its screen', () => {
     expect(stepHref('review', 'x')).toBe('/review');
     expect(stepHref('mock', 'x')).toBe('/exam/mocks');
-    expect(stepHref('lesson', 'r7-4-3')).toEqual({
+    expect(stepHref('lesson', 'riyaziyyat-7-4-3')).toEqual({
       pathname: '/lesson/[id]',
-      params: { id: 'r7-4-3' },
+      params: { id: 'riyaziyyat-7-4-3' },
     });
     expect(stepHref('assignment', 'a1')).toEqual({
       pathname: '/assignment/[id]',

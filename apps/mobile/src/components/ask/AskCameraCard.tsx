@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
-import { Icon, type IconName, Text } from '@/components/ui';
-import { ANSWER_MINUTES } from '@/features/ask/demo';
-import { cn } from '@/lib/cn';
+import { Icon, type IconName, Text, useRaisedPress } from '@/components/ui';
+import { ANSWER_MINUTES } from '@/features/ask/subjects';
 import { HexBadge } from './HexBadge';
 
 type AskCameraCardProps = {
@@ -21,10 +21,13 @@ function Chip({ icon, label }: { icon: IconName; label: string }) {
 
 /** The main action of the tab: photograph a question (works offline too, it waits). */
 export function AskCameraCard({ online }: AskCameraCardProps) {
+  const press = useRaisedPress({ depth: 4, calm: true });
   const { t } = useTranslation();
 
   return (
     <Pressable
+      onPressIn={press.pressIn}
+      onPressOut={press.pressOut}
       accessibilityRole="button"
       accessibilityLabel={
         online
@@ -34,8 +37,8 @@ export function AskCameraCard({ online }: AskCameraCardProps) {
       onPress={() => router.push('/ask/camera')}
       className="rounded-2xl bg-honey-deep pb-1"
     >
-      {({ pressed }) => (
-        <View className={cn('gap-3 rounded-2xl bg-spot p-4', pressed && 'translate-y-1')}>
+      <Animated.View style={press.faceStyle}>
+        <View className="gap-3 rounded-2xl bg-spot p-4">
           <View className="flex-row items-center gap-3.5">
             <HexBadge icon="camera" />
             <View className="min-w-0 flex-1 gap-1">
@@ -60,7 +63,7 @@ export function AskCameraCard({ online }: AskCameraCardProps) {
             )}
           </View>
         </View>
-      )}
+      </Animated.View>
     </Pressable>
   );
 }

@@ -54,7 +54,7 @@ export default function TeacherClassScreen() {
           subtitle={t('teacher.class.subtitle', {
             book: c.book,
             type: c.paid ? t('teacher.paid') : t('teacher.free'),
-            code: c.inviteCode,
+            code: c.joinCode,
           })}
         />
       }

@@ -1,11 +1,11 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Icon, Text } from '@/components/ui';
-import type { TeacherProfile } from '@/features/teacher/types';
+import type { TeacherProfileView } from '@/features/teacher/types';
 
 const DAY_KEYS = ['0', '1', '2', '3', '4', '5', '6'] as const;
 
-type MarketPreviewProps = { profile: TeacherProfile; onEdit: () => void };
+type MarketPreviewProps = { profile: TeacherProfileView; onEdit: () => void };
 
 /** How the tutor-market profile will look (M8); locked until verification. */
 export function MarketPreview({ profile, onEdit }: MarketPreviewProps) {

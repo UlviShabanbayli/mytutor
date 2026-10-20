@@ -1,21 +1,20 @@
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Icon, Text } from '@/components/ui';
-import { copyText, inviteLink, shareText } from '@/features/teacher/share';
+import { CodeFlash, CopyButton, Icon, Text } from '@/components/ui';
+import { inviteLink, shareText } from '@/features/teacher/share';
 import type { TeacherClass } from '@/features/teacher/types';
-import { SmallButton } from './SmallButton';
 
 type InviteCodeCardProps = { cls: TeacherClass };
 
 /** The new class's invite code on the inverted spot card: copy it or share the link. */
 export function InviteCodeCard({ cls }: InviteCodeCardProps) {
   const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
-  const link = inviteLink(cls.inviteCode);
+  const [flash, setFlash] = useState(0);
+  const link = inviteLink(cls.joinCode);
   const message = t('teacher.classNew.shareMessage', {
     class: cls.name,
-    code: cls.inviteCode,
+    code: cls.joinCode,
     link,
   });
 
@@ -30,12 +29,14 @@ export function InviteCodeCard({ cls }: InviteCodeCardProps) {
           {t('teacher.classNew.readyTitle')}
         </Text>
       </View>
-      <Text
-        selectable
-        className="font-display-black text-[26px] leading-[32px] tracking-[1.3px] text-on-spot"
-      >
-        {cls.inviteCode}
-      </Text>
+      <CodeFlash flash={flash}>
+        <Text
+          selectable
+          className="font-display-black text-[26px] leading-[32px] tracking-[1.3px] text-on-spot"
+        >
+          {cls.joinCode}
+        </Text>
+      </CodeFlash>
       <View className="flex-row items-center gap-1.5 opacity-85">
         <Icon name="link" size={16} color="on-spot" />
         <Text selectable numberOfLines={1} className="flex-1 font-sans text-sm text-on-spot">
@@ -43,11 +44,12 @@ export function InviteCodeCard({ cls }: InviteCodeCardProps) {
         </Text>
       </View>
       <View className="flex-row gap-2">
-        <SmallButton
-          label={copied ? t('teacher.classNew.copied') : t('teacher.classNew.copy')}
-          icon={copied ? 'check' : undefined}
-          onPress={() => void copyText(cls.inviteCode).then(setCopied)}
-          className="flex-1 self-stretch"
+        <CopyButton
+          text={cls.joinCode}
+          label={t('teacher.classNew.copy')}
+          copiedLabel={t('teacher.classNew.copied')}
+          onCopied={() => setFlash((n) => n + 1)}
+          className="flex-1"
         />
         <Pressable
           accessibilityRole="button"

@@ -9,11 +9,16 @@ import { SendFooter } from '@/components/ask/SendFooter';
 import { SendPhotoCard } from '@/components/ask/SendPhotoCard';
 import { SubjectField } from '@/components/ask/SubjectField';
 import { SubjectSheet } from '@/components/ask/SubjectSheet';
-import { Icon, Screen, ScreenHeader, Text } from '@/components/ui';
-import { DEMO_CLASS_SUBJECT_ID } from '@/features/ask/demo';
-import { useAskUsage, useSendQuestion, useStudentGrade } from '@/features/ask/queries';
+import { Icon, LoadingState, Screen, ScreenHeader, Text } from '@/components/ui';
+import {
+  useAskUsage,
+  useClassTeacher,
+  useSendQuestion,
+  useStudentGrade,
+} from '@/features/ask/queries';
 import { photosLeft } from '@/features/ask/questions';
 import { useAskStore } from '@/features/ask/store';
+import { CLASS_SUBJECT_ID } from '@/features/ask/subjects';
 import { useOnline } from '@/features/ask/useOnline';
 
 /** Sualı göndər: subject, an optional note, who answers; then the question's status. */
@@ -25,28 +30,34 @@ export default function AskSendScreen() {
   const grade = useStudentGrade();
   const { usage } = useAskUsage();
   const send = useSendQuestion();
+  const classTeacher = useClassTeacher();
   const [picking, setPicking] = useState(false);
 
   if (!draft) return <NoPhotoState />;
+  if (grade === undefined)
+    return (
+      <Screen>
+        <LoadingState />
+      </Screen>
+    );
 
-  const hasOwnTeacher = subjectId === DEMO_CLASS_SUBJECT_ID;
+  const ownTeacher = subjectId === CLASS_SUBJECT_ID ? classTeacher : null;
   const subjectValue = t('ask.send.subjectValue', {
     subject: t(`ask.demo.subjects.${subjectId}`),
     grade: t('common.grade', { count: grade, ordinal: true }),
   });
 
-  function submit() {
+  const submit = () =>
     send.mutate(
-      { subjectId, grade, note, queue: hasOwnTeacher ? queue : 'general' },
+      { subjectId, grade, note, queue: ownTeacher ? queue : 'general' },
       {
         onSuccess: (question) => {
           // Back from the status goes to the Ask tab, not into the camera flow again.
           router.dismissAll();
-          router.push({ pathname: '/ask/[id]', params: { id: question.id } });
+          router.push({ pathname: '/ask/[id]', params: { id: question.id, sent: '1' } });
         },
       },
     );
-  }
 
   return (
     <Screen scroll={false} className="gap-0 px-0 py-0">
@@ -57,7 +68,7 @@ export default function AskSendScreen() {
         <SendPhotoCard draft={draft} />
         <SubjectField value={subjectValue} onPress={() => setPicking(true)} />
         <NoteField value={note} onChange={setNote} />
-        <AnswererPicker value={queue} onChange={setQueue} hasOwnTeacher={hasOwnTeacher} />
+        <AnswererPicker value={queue} onChange={setQueue} ownTeacher={ownTeacher} />
         <View className="flex-row items-center gap-2.5 rounded-md bg-info-bg px-3 py-2.5">
           <Icon name="eye" size={20} color="info" />
           <Text variant="caption" className="flex-1">

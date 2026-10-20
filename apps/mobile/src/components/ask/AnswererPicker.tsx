@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, Text } from '@/components/ui';
-import { ANSWER_MINUTES } from '@/features/ask/demo';
+import type { ClassTeacher } from '@/features/ask/queries';
+import { ANSWER_MINUTES } from '@/features/ask/subjects';
 import { initials } from '@/features/ask/labels';
 import type { AskQueue } from '@/features/ask/types';
 import { cn } from '@/lib/cn';
@@ -10,8 +11,8 @@ import { cn } from '@/lib/cn';
 type AnswererPickerProps = {
   value: AskQueue;
   onChange: (queue: AskQueue) => void;
-  /** The student is in a class of this subject: the class teacher can answer first. */
-  hasOwnTeacher: boolean;
+  /** The teacher of the student's class in this subject, who can answer first; null for none. */
+  ownTeacher: ClassTeacher | null;
 };
 
 type OptionProps = {
@@ -57,7 +58,7 @@ function Option({ selected, title, hint, avatar, onPress }: OptionProps) {
 }
 
 /** Who answers: the student's own teacher (when there is one) or the verified teachers' queue. */
-export function AnswererPicker({ value, onChange, hasOwnTeacher }: AnswererPickerProps) {
+export function AnswererPicker({ value, onChange, ownTeacher }: AnswererPickerProps) {
   const { t } = useTranslation();
 
   return (
@@ -65,18 +66,18 @@ export function AnswererPicker({ value, onChange, hasOwnTeacher }: AnswererPicke
       <Text variant="overline" tone="muted" className="text-xs">
         {t('ask.send.who')}
       </Text>
-      {hasOwnTeacher ? (
+      {ownTeacher ? (
         <Option
           selected={value === 'teacher'}
           title={t('ask.send.ownTeacher', {
-            teacher: t('ask.demo.teacherShort'),
-            className: t('ask.demo.className'),
+            teacher: ownTeacher.teacherName,
+            className: ownTeacher.className,
           })}
           hint={t('ask.send.ownTeacherHint', { minutes: ANSWER_MINUTES.teacher })}
           avatar={
             <View className="h-10 w-10 items-center justify-center rounded-full bg-honey">
               <Text className="font-sans-black text-sm text-on-honey">
-                {initials(t('ask.demo.teacherFull'))}
+                {initials(ownTeacher.teacherName)}
               </Text>
             </View>
           }
@@ -84,7 +85,7 @@ export function AnswererPicker({ value, onChange, hasOwnTeacher }: AnswererPicke
         />
       ) : null}
       <Option
-        selected={value === 'general' || !hasOwnTeacher}
+        selected={value === 'general' || !ownTeacher}
         title={t('ask.send.general')}
         hint={t('ask.send.generalHint', { minutes: ANSWER_MINUTES.general })}
         avatar={

@@ -3,7 +3,7 @@ import { HivePreparing } from '@/components/learn/HivePreparing';
 import { PlacementResultView } from '@/components/learn/PlacementResultView';
 import { EmptyState, ErrorState, LoadingState, Screen, ScreenHeader } from '@/components/ui';
 import { useHive } from '@/features/learn/queries';
-import { useLearnStore } from '@/features/learn/store';
+import { useLearnData } from '@/features/learn/store';
 import { useLearnText } from '@/features/learn/useLearnText';
 
 /** The result of "Bilirəm, yoxla" (kept on the device until the placement API exists). */
@@ -12,7 +12,7 @@ export default function PlacementResultScreen() {
   const { subjectId } = useLocalSearchParams<{ subjectId: string }>();
   const view = useHive(subjectId);
   const hiveId = view.status === 'ready' ? view.hive.id : subjectId;
-  const outcome = useLearnStore((s) => s.placement[hiveId]?.outcome);
+  const outcome = useLearnData((d) => d.placement[hiveId]?.outcome);
 
   if (view.status === 'pending')
     return (

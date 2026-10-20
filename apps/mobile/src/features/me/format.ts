@@ -1,13 +1,18 @@
 import type { TFunction } from 'i18next';
+import type { ClassMaterial } from './types';
 
 /** 2140 → "2 140" (a no-break space between thousands, as Azerbaijani and Russian write them). */
 export function formatNumber(value: number): string {
   return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
-/** A day of the demo data: relative words or a weekday (0 = Monday), with an optional time. */
+/**
+ * A day of the demo data: relative words or a weekday (0 = Monday), with an optional time. A
+ * day more than a week away also carries its ISO date (YYYY-MM-DD), which is shown instead.
+ */
 export type When = {
   day: 'today' | 'yesterday' | 'tomorrow' | 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  date?: string;
   time?: string;
 };
 
@@ -23,8 +28,9 @@ const WEEKDAY_KEYS = [
 
 /** "Cümə 20:00", "Bu gün 09:12", "Sabah". */
 export function formatWhen(t: TFunction, when: When): string {
-  const day =
-    typeof when.day === 'number'
+  const day = when.date
+    ? formatDay(t, when.date)
+    : typeof when.day === 'number'
       ? t(WEEKDAY_KEYS[when.day] ?? 'me.when.weekdays.0')
       : t(`me.when.${when.day}`);
   return when.time ? t('me.when.dayTime', { day, time: when.time }) : day;
@@ -68,4 +74,26 @@ export function formatDay(t: TFunction, isoDate: string, short = false): string 
     ? t(SHORT_MONTH_KEYS[i] ?? 'me.when.monthsShort.0')
     : t(MONTH_KEYS[i] ?? 'months.0');
   return `${Number(day)} ${name}`;
+}
+
+/** "240 KB", "Video · 7 dəq", "Test · 3 sual": what a shared material is, by its kind. */
+export function materialMeta(t: TFunction, m: Pick<ClassMaterial, 'kind' | 'size'>): string {
+  switch (m.kind) {
+    case 'file':
+      return t('me.classPage.material.file', { size: m.size });
+    case 'video':
+      return t('me.classPage.material.video', { count: Math.max(1, Math.round(m.size / 60)) });
+    case 'lesson':
+      return t('me.classPage.material.lesson', { count: m.size });
+    case 'test':
+      return t('me.classPage.material.test', { count: m.size });
+    case 'question':
+      return t('me.classPage.material.question');
+  }
+}
+
+/** "+994500000001" → "+994 50 000 00 01". */
+export function formatPhone(e164: string): string {
+  const d = e164.replace(/^\+994/, '');
+  return `+994 ${d.slice(0, 2)} ${d.slice(2, 5)} ${d.slice(5, 7)} ${d.slice(7, 9)}`;
 }

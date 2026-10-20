@@ -10,7 +10,7 @@ import { useHive, usePlacementQuestions } from '@/features/learn/queries';
 export default function PlacementIntroScreen() {
   const { subjectId } = useLocalSearchParams<{ subjectId: string }>();
   const view = useHive(subjectId);
-  const questions = usePlacementQuestions(view.status === 'ready' ? view.hive.id : subjectId);
+  const questions = usePlacementQuestions();
 
   if (view.status === 'pending' || questions.isPending)
     return (

@@ -1,25 +1,51 @@
 import { View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
-import { Text } from '@/components/ui';
+import { DrawnMark } from '@/components/feedback/DrawnMark';
+import { goalC } from '@/components/feedback/timelines';
+import { RollingNumber, Text } from '@/components/ui';
 import type { GoalProgress } from '@/features/today/goal';
-import { useThemeColors } from '@/theme';
-
-// 80pt (the design draws 64) so "/ 20 dəq" at 11pt fits inside the stroke.
-const SIZE = 80;
-const RADIUS = 34;
-const STROKE = 7;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+import { cn } from '@/lib/cn';
+import { useReducedMotionPref } from '@/motion';
+import { GoalArc } from './GoalArc';
+import { goalCheckAt, useGoalRingMotion } from './useGoalRingMotion';
 
 type GoalRingProps = {
   progress: GoalProgress;
+  /** 80pt on the goal card (the design draws 64; "/ 20 dəq" at 11pt needs the room). */
+  size?: number;
+  /** `honey`: an ink ring on a light track, for the honey goal-done screen. */
+  tone?: 'card' | 'honey';
+  /** Plays feedback.goal C, growing from this share (e.g. 0.75); null shows the ring as is. */
+  celebrateFrom?: number | null;
 };
 
-/** Minutes done today as a honey ring on wax, the number in the middle. */
-export function GoalRing({ progress }: GoalRingProps) {
+/**
+ * Minutes done today as a honey ring on wax, the number in the middle. A reached goal has a
+ * honey centre with a check; feedback.goal C brings it there (a drop rides the arc, falls in,
+ * honey rises, the check draws).
+ */
+export function GoalRing({
+  progress,
+  size = 80,
+  tone = 'card',
+  celebrateFrom = null,
+}: GoalRingProps) {
   const { t } = useTranslation();
-  const colors = useThemeColors();
+  const reduced = useReducedMotionPref();
+  const honeyTone = tone === 'honey';
+  const radius = size * 0.425;
+  const stroke = size * 0.0875;
+  const disc = 2 * (radius - stroke / 2 - size * 0.04);
+  const playing = celebrateFrom !== null && !reduced;
+  const m = useGoalRingMotion(progress.fraction, progress.complete, celebrateFrom, reduced);
   const percent = Math.round(progress.fraction * 100);
+
+  const honeyStyle = useAnimatedStyle(() => ({
+    flex: 1,
+    transform: [{ translateY: disc * (1 - m.honey.value) }],
+  }));
+  const midStyle = useAnimatedStyle(() => ({ opacity: m.mid.value }));
 
   return (
     <View
@@ -28,36 +54,57 @@ export function GoalRing({ progress }: GoalRingProps) {
       accessibilityLabel={t('today.goal.ringLabel', { done: progress.done, goal: progress.goal })}
       accessibilityValue={{ min: 0, max: 100, now: percent }}
       className="items-center justify-center"
-      // The ring is drawn at a fixed design size in SVG units.
-      style={{ width: SIZE, height: SIZE }}
+      // The ring is drawn at a size given by the caller, in SVG units.
+      style={{ width: size, height: size }}
     >
-      <Svg width={SIZE} height={SIZE} style={{ position: 'absolute' }}>
-        <Circle
-          cx={SIZE / 2}
-          cy={SIZE / 2}
-          r={RADIUS}
-          fill="none"
-          stroke={colors.wax}
-          strokeWidth={STROKE}
-        />
-        {progress.fraction > 0 ? (
-          <Circle
-            cx={SIZE / 2}
-            cy={SIZE / 2}
-            r={RADIUS}
-            fill="none"
-            stroke={colors.honey}
-            strokeWidth={STROKE}
-            strokeLinecap="round"
-            strokeDasharray={`${CIRCUMFERENCE * progress.fraction} ${CIRCUMFERENCE}`}
-            transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
+      <GoalArc size={size} radius={radius} stroke={stroke} honeyTone={honeyTone} motion={m} />
+      {progress.complete ? (
+        <View
+          className="absolute overflow-hidden rounded-full"
+          // The centre disc follows the ring's size.
+          style={{ width: disc, height: disc }}
+        >
+          <Animated.View style={honeyStyle}>
+            <View className={cn('flex-1', honeyTone ? 'bg-on-honey' : 'bg-honey')} />
+          </Animated.View>
+        </View>
+      ) : null}
+      <Animated.View style={midStyle}>
+        <View className="items-center">
+          {/* The minutes roll up from where the ring starts (micro.count); the ring reads them. */}
+          <RollingNumber
+            value={progress.done}
+            from={playing ? Math.round((celebrateFrom ?? 0) * progress.goal) : undefined}
+            rollIn={playing}
+            delay={playing ? goalC.startAt : 0}
+            accessible={false}
+            className={cn(
+              'font-display-black text-lg leading-[20px]',
+              honeyTone && 'text-on-honey',
+            )}
           />
-        ) : null}
-      </Svg>
-      <Text className="font-display-black text-lg leading-[20px]">{progress.done}</Text>
-      <Text className="font-sans-bold text-2xs leading-[13px] text-muted">
-        {t('today.goal.ringCaption', { goal: progress.goal })}
-      </Text>
+          <Text
+            className={cn(
+              'font-sans-bold text-2xs leading-[13px]',
+              honeyTone ? 'text-on-honey' : 'text-muted',
+            )}
+          >
+            {t('today.goal.ringCaption', { goal: progress.goal })}
+          </Text>
+        </View>
+      </Animated.View>
+      {progress.complete ? (
+        <View className="absolute">
+          <DrawnMark
+            kind="check"
+            size={size * 0.37}
+            strokeWidth={2.8}
+            color={honeyTone ? 'honey' : 'on-honey'}
+            delay={goalCheckAt}
+            reduced={!playing}
+          />
+        </View>
+      ) : null}
     </View>
   );
 }

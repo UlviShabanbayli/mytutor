@@ -1,19 +1,24 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { HexCell, Text } from '@/components/ui';
-import { weekdayName } from '@/features/parent/format';
+import { addDays, weekdayIndex, weekdayName } from '@/features/parent/format';
 import { ReportTile, TileValue } from './ReportTile';
 
-type ActiveDaysCardProps = { days: boolean[] };
+type ActiveDaysCardProps = {
+  days: boolean[];
+  /** The first of the seven days (the report covers the last seven days, ending today). */
+  weekStart: string;
+};
 
-/** Seven small cells, Monday first: honey on days with learning, wax on the others. */
-export function ActiveDaysCard({ days }: ActiveDaysCardProps) {
+/** Seven small cells, oldest day first: honey on days with learning, wax on the others. */
+export function ActiveDaysCard({ days, weekStart }: ActiveDaysCardProps) {
   const { t } = useTranslation();
+  const dayOf = (i: number) => weekdayIndex(addDays(new Date(weekStart), i));
   const count = days.filter(Boolean).length;
   const spoken = days
     .map((on, i) =>
       t(on ? 'parent.report.dayActive' : 'parent.report.dayIdle', {
-        day: weekdayName(t, i, true),
+        day: weekdayName(t, dayOf(i), true),
       }),
     )
     .join(', ');
@@ -30,7 +35,9 @@ export function ActiveDaysCard({ days }: ActiveDaysCardProps) {
           {days.map((on, i) => (
             <View key={i} className="items-center gap-[3px]">
               <HexCell state={on ? 'mastered' : 'not_started'} size={22} />
-              <Text className="font-sans-black text-2xs text-muted">{weekdayName(t, i)}</Text>
+              <Text className="font-sans-black text-2xs text-muted">
+                {weekdayName(t, dayOf(i))}
+              </Text>
             </View>
           ))}
         </View>

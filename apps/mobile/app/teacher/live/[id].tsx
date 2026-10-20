@@ -4,7 +4,7 @@ import { LiveRoomView } from '@/components/teacher/LiveRoomView';
 import { TeacherHeader } from '@/components/teacher/TeacherHeader';
 import { TeacherScreen } from '@/components/teacher/TeacherScreen';
 import { ErrorState, LoadingState } from '@/components/ui';
-import { useLiveRoom, useTeacherClass, useTopic } from '@/features/teacher/queries';
+import { useLiveRoom, useTeacherClass } from '@/features/teacher/queries';
 
 /** The live lesson room (design t-live, M5). */
 export default function LiveScreen() {
@@ -12,7 +12,6 @@ export default function LiveScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const room = useLiveRoom(id);
   const cls = useTeacherClass(room.data?.classId ?? '');
-  const topic = useTopic(room.data?.topicId);
 
   if (room.isError || cls.isError)
     return (
@@ -26,5 +25,5 @@ export default function LiveScreen() {
         <LoadingState />
       </TeacherScreen>
     );
-  return <LiveRoomView room={room.data} cls={cls.data} topic={topic} />;
+  return <LiveRoomView room={room.data} cls={cls.data} />;
 }

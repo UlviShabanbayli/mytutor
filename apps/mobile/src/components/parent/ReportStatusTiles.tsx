@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import type { WeekReport } from '@/features/parent/types';
+import type { WeekReport } from '@mytutor/types';
 
 type ReportStatusTilesProps = {
   name: string;

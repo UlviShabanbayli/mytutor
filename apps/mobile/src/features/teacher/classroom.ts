@@ -1,5 +1,5 @@
 import { upperCase } from '@/lib/letterCase';
-import type { Audience, ClassGroup, ClassMember } from './types';
+import type { Audience, ClassGroup, RosterEntry } from '@mytutor/types';
 
 // No 0/O or 1/I/L: a code read aloud or copied from a board must not be ambiguous.
 const CODE_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
@@ -34,11 +34,11 @@ export function audienceSize(audience: Audience, studentCount: number, groups: C
 
 /** Members shown for a name query and an optional group filter (null = everyone). */
 export function filterMembers(
-  members: ClassMember[],
+  members: RosterEntry[],
   matches: (name: string) => boolean,
   group: ClassGroup | null,
 ) {
-  return members.filter((m) => matches(m.name) && (!group || group.memberIds.includes(m.id)));
+  return members.filter((m) => matches(m.name) && (!group || group.memberIds.includes(m.personId)));
 }
 
 /** Clamp a stepper value after one press of − or +. */

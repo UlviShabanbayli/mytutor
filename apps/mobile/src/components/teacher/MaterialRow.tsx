@@ -2,16 +2,19 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, type IconName, PressableCard, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import type { Material, MaterialKind } from '@/features/teacher/types';
+import type { Material } from '@mytutor/types';
 import { useTeacherFormat } from '@/features/teacher/useTeacherFormat';
+import { materialSize } from '@/features/teacher/views';
 
-const ICONS: Record<MaterialKind, IconName> = {
+const ICONS: Record<Material['kind'], IconName> = {
+  file: 'file',
   lesson: 'book',
   video: 'video',
   test: 'list',
   question: 'edit',
 };
 const SIZE_KEYS = {
+  file: 'teacher.create.sizeFile',
   lesson: 'teacher.create.sizeLesson',
   video: 'teacher.create.sizeVideo',
   test: 'teacher.create.sizeTest',
@@ -31,9 +34,11 @@ export function MaterialRow({ material: m, onPress }: MaterialRowProps) {
       : m.views !== undefined
         ? t('teacher.create.views', { count: m.views })
         : t('teacher.create.sentOn', { date: f.date(updated) });
-  const meta = [t(`teacher.create.${m.kind}`), t(SIZE_KEYS[m.kind], { count: m.size }), when].join(
-    ' · ',
-  );
+  const meta = [
+    t(`teacher.create.${m.kind}`),
+    t(SIZE_KEYS[m.kind], { count: materialSize(m) }),
+    when,
+  ].join(' · ');
   const pill =
     m.state === 'in_review'
       ? {

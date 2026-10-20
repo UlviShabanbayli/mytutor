@@ -1,11 +1,18 @@
 import { router } from 'expo-router';
+import { useEffect, useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Icon, Text } from '@/components/ui';
 import { Mascot } from '@/components/mascot/Mascot';
+import { placementResult, placementWave } from '@/features/learn/hiveMotion';
 import { findTopic } from '@/features/learn/mastery';
 import type { Hive, PlacementOutcome } from '@/features/learn/types';
+import { useLandedCount } from '@/features/learn/useLandedCount';
 import { useLearnText } from '@/features/learn/useLearnText';
+import { playCue } from '@/lib/cues';
+import { useReducedMotionPref } from '@/motion';
+import { Appear } from './Appear';
+import { PlacementTitle } from './PlacementTitle';
 import { PlacementUnitRow } from './PlacementUnitRow';
 import { StartPointCard } from './StartPointCard';
 
@@ -14,10 +21,30 @@ type PlacementResultViewProps = {
   outcome: PlacementOutcome;
 };
 
-/** What the check found: cells filled per unit, the start point, then start there. */
+/**
+ * What the check found: cells filled per unit, the start point, then start there. The known
+ * cells fill in a diagonal wave, then Vızı pops in and the start cell pulses twice
+ * (hive.placement-result C).
+ */
 export function PlacementResultView({ hive, outcome }: PlacementResultViewProps) {
   const { t } = useLearnText();
+  const reduced = useReducedMotionPref();
   const count = outcome.knownTopicIds.length;
+  const wave = useMemo(
+    () => placementWave(hive.units, outcome.knownTopicIds, outcome.startTopicId),
+    [hive.units, outcome.knownTopicIds, outcome.startTopicId],
+  );
+  const shown = useLandedCount(Object.values(wave.landAt).flat());
+  const p = placementResult;
+  const viziAt = wave.end - 100;
+
+  useEffect(() => {
+    // The success tap comes with Vızı; at once when motion is reduced.
+    const id = setTimeout(() => playCue('complete'), reduced ? 0 : viziAt);
+    return () => clearTimeout(id);
+    // Once, when the result opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const place = outcome.startTopicId ? findTopic(hive, outcome.startTopicId) : null;
   const knownBefore = place
     ? place.unit.topics.slice(0, place.index).filter((x) => outcome.knownTopicIds.includes(x.id))
@@ -31,11 +58,15 @@ export function PlacementResultView({ hive, outcome }: PlacementResultViewProps)
           {t('learn.result.overline')}
         </Text>
         <View className="flex-row items-center gap-2.5">
-          <Mascot moment="correct" size={96} />
+          {/* vizi.correct C pops Vızı in by itself as the wave ends, then she spins and winks. */}
+          <Mascot
+            moment="correct"
+            behavior="correct"
+            delay={Math.max(0, viziAt - p.viziLead)}
+            size={96}
+          />
           <View className="min-w-0 flex-1 gap-1">
-            <Text variant="heading" className="font-display-black text-[26px] leading-[30px]">
-              {count > 0 ? t('learn.result.title', { count }) : t('learn.result.titleNone')}
-            </Text>
+            <PlacementTitle count={count} shown={shown} />
             <Text className="text-sm" tone="muted">
               {t(count > 0 ? 'learn.result.score' : 'learn.result.scoreNone', outcome)}
             </Text>
@@ -52,10 +83,18 @@ export function PlacementResultView({ hive, outcome }: PlacementResultViewProps)
               knownIds={outcome.knownTopicIds}
               startId={outcome.startTopicId}
               divider={i > 0}
+              cellAt={wave.cellAt}
+              landAt={wave.landAt[unit.id] ?? []}
             />
           ))}
         </View>
-        <StartPointCard start={place?.topic ?? null} knownBefore={knownBefore} />
+        <Appear from={{ opacity: 0, y: 12 }} delay={wave.end} duration={p.card}>
+          <StartPointCard
+            start={place?.topic ?? null}
+            knownBefore={knownBefore}
+            pulseAt={wave.end + p.card}
+          />
+        </Appear>
         {count > 0 ? (
           <View className="flex-row items-start gap-2">
             <Icon name="drop" size={16} color="honey-text" />

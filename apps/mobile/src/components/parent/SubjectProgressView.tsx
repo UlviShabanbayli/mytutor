@@ -1,14 +1,15 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { subjectTotals } from '@/features/parent/report';
-import type { ChildLink, SubjectProgress } from '@/features/parent/types';
+import type { SubjectProgress } from '@mytutor/types';
+import type { ChildView } from '@/features/parent/types';
 import { LockedNote } from './LockedNote';
 import { RecentTestsCard } from './RecentTestsCard';
 import { SectionLabel } from './SectionLabel';
 import { SubjectSummaryCard } from './SubjectSummaryCard';
 import { UnitRow } from './UnitRow';
 
-type SubjectProgressViewProps = { child: ChildLink; subject: SubjectProgress };
+type SubjectProgressViewProps = { child: ChildView; subject: SubjectProgress };
 
 /** A textbook's hive box from the parent's side: frames, cells, recent tests, the exam plan. */
 export function SubjectProgressView({ child, subject }: SubjectProgressViewProps) {

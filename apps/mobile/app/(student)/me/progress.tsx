@@ -16,17 +16,29 @@ import {
   ScreenHeader,
   Text,
 } from '@/components/ui';
-import { useClassComparison, useTextbookProgress } from '@/features/me/queries';
+import { useClassComparison, useMyProgress, useTextbookProgress } from '@/features/me/queries';
 import { useMeStore } from '@/features/me/store';
 import { useTestSessionStore } from '@/features/tests/sessionStore';
 
-/** "İrəliləyiş": mastery per textbook (demo), this week and results history (real). */
+/**
+ * "İrəliləyiş": mastery per textbook, the last seven days and the recent results, all from the
+ * demo world (a finished test is a `test.finished` event).
+ */
 export default function ProgressScreen() {
   const { t } = useTranslation();
   const textbooks = useTextbookProgress();
   const comparison = useClassComparison();
-  const results = useTestSessionStore((s) => s.results);
-  const inClass = useMeStore((s) => s.classIds.length > 0 && !s.guest);
+  const progress = useMyProgress();
+  const recent = progress.data?.recentTests ?? [];
+  // A result finished in this app session opens its answers; an older one opens the test.
+  const onDevice = useTestSessionStore((s) => s.results);
+  const open = (testId: string | null) => {
+    if (!testId) return undefined;
+    const done = onDevice.some((r) => r.testId === testId);
+    return () =>
+      router.push({ pathname: done ? '/test/[id]/result' : '/test/[id]', params: { id: testId } });
+  };
+  const guest = useMeStore((s) => s.guest);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   if (textbooks.isPending) {
@@ -64,7 +76,7 @@ export default function ProgressScreen() {
         </>
       ) : null}
       <WeekActivity />
-      {inClass && comparison.data !== undefined ? (
+      {!guest && comparison.data != null ? (
         <InfoNote
           icon="users"
           lead={t('me.progress.comparisonLead', { percent: comparison.data })}
@@ -75,7 +87,7 @@ export default function ProgressScreen() {
         <Text accessibilityRole="header" className="font-display-bold text-base">
           {t('me.progress.historyTitle')}
         </Text>
-        {results.length === 0 ? (
+        {recent.length === 0 ? (
           <Card className="gap-2">
             <Text className="font-sans-black">{t('me.progress.historyEmptyTitle')}</Text>
             <Text tone="muted" className="text-sm">
@@ -89,7 +101,18 @@ export default function ProgressScreen() {
             />
           </Card>
         ) : (
-          results.map((r) => <ResultHistoryRow key={r.finishedAt} result={r} />)
+          recent.map((r) => (
+            <ResultHistoryRow
+              key={r.id}
+              result={{
+                title: r.title,
+                correct: r.correct,
+                total: r.questions,
+                finishedAt: r.takenAt,
+              }}
+              onPress={open(r.testId)}
+            />
+          ))
         )}
       </View>
     </Screen>

@@ -40,7 +40,7 @@ export function InboxCard({ question: q, className, book, index }: InboxCardProp
   const wait = f.wait(q.askedAt);
   const status = q.approved
     ? t('teacher.inbox.statusApproved')
-    : q.ai.status === 'ready'
+    : q.aiStatus === 'ready'
       ? t('teacher.inbox.statusSolved')
       : t('teacher.inbox.statusSolving');
 
@@ -49,7 +49,7 @@ export function InboxCard({ question: q, className, book, index }: InboxCardProp
       accessibilityLabel={t('teacher.inbox.cardLabel', {
         name: q.studentName,
         wait,
-        text: q.text,
+        text: q.title,
         status,
       })}
       onPress={() => router.push({ pathname: '/teacher/answer/[id]', params: { id: q.id } })}
@@ -61,7 +61,7 @@ export function InboxCard({ question: q, className, book, index }: InboxCardProp
         <View className="min-w-0 flex-1">
           <Text className="font-sans-black">{q.studentName}</Text>
           <Text className="font-sans-semibold text-xs text-muted">
-            {t('teacher.inbox.meta', { class: className, book, topic: q.topicId })}
+            {t('teacher.inbox.meta', { class: className, book, topic: q.topic?.number ?? '' })}
           </Text>
         </View>
         {q.approved ? null : (
@@ -78,7 +78,7 @@ export function InboxCard({ question: q, className, book, index }: InboxCardProp
           </View>
         )}
       </View>
-      <Text className="font-sans text-sm leading-[20px]">{q.text}</Text>
+      <Text className="font-sans text-sm leading-[20px]">{q.title}</Text>
       <View className="flex-row flex-wrap items-center gap-1.5">
         {q.approved ? (
           <Chip
@@ -88,7 +88,7 @@ export function InboxCard({ question: q, className, book, index }: InboxCardProp
             text="text-ok"
             color="ok"
           />
-        ) : q.ai.status === 'ready' ? (
+        ) : q.aiStatus === 'ready' ? (
           <Chip
             icon="check"
             label={t('teacher.inbox.solved')}
@@ -105,15 +105,13 @@ export function InboxCard({ question: q, className, book, index }: InboxCardProp
             color="lock-ink"
           />
         )}
-        {q.photo ? (
-          <Chip
-            icon="image"
-            label={t('teacher.inbox.photo')}
-            box="bg-raised"
-            text="text-honey-text"
-            color="honey-text"
-          />
-        ) : null}
+        <Chip
+          icon="image"
+          label={t('teacher.inbox.photo')}
+          box="bg-raised"
+          text="text-honey-text"
+          color="honey-text"
+        />
       </View>
     </PressableCard>
   );

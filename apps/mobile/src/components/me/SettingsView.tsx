@@ -4,16 +4,18 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { AppearancePicker } from '@/components/progress/AppearancePicker';
-import { Button, Screen, ScreenHeader } from '@/components/ui';
+import { Button, Screen, ScreenHeader, SegmentedControl } from '@/components/ui';
 import { useAppStore } from '@/features/app/appStore';
+import { showToast } from '@/features/transitions/toastStore';
 import { QUIET_HOURS, type QuietHours, useSettingsStore } from '@/features/me/settingsStore';
+import { useNickname } from '@/features/me/queries';
 import { useMeStore } from '@/features/me/store';
 import type { AppLocale } from '@/i18n';
 import { ChoiceSheet } from './ChoiceSheet';
 import { ConfirmSheet } from './ConfirmSheet';
+import { DemoSettingsGroup } from './DemoSettingsGroup';
 import { NicknameSheet } from './NicknameSheet';
 import { NotificationChips } from './NotificationChips';
-import { PillTabs } from './PillTabs';
 import { SettingsGroup } from './SettingsGroup';
 import { SettingsRow } from './SettingsRow';
 import { SwitchRow } from './SwitchRow';
@@ -33,7 +35,7 @@ export function SettingsView() {
   const resetOnboarding = useAppStore((s) => s.resetOnboarding);
   const settings = useSettingsStore();
   const guest = useMeStore((s) => s.guest);
-  const nickname = useMeStore((s) => s.nickname);
+  const nickname = useNickname();
   const goal = GOALS.find((g) => GOAL_MINUTES[g] === minutes) ?? '20';
   const close = () => setSheet(null);
   const leave = () => {
@@ -85,12 +87,15 @@ export function SettingsView() {
           icon="target"
           label={t('me.settings.dailyGoal')}
           accessory={
-            <PillTabs
+            <SegmentedControl
               compact
               accessibilityLabel={t('me.settings.dailyGoal')}
               value={goal}
-              onChange={(v) => updateProfile({ dailyMinutes: GOAL_MINUTES[v] })}
-              options={GOALS.map((g) => ({
+              onChange={(v) => {
+                updateProfile({ dailyMinutes: GOAL_MINUTES[v] });
+                showToast(t('common.saved'));
+              }}
+              segments={GOALS.map((g) => ({
                 value: g,
                 label: g === goal ? t('me.settings.minutes', { count: Number(g) }) : g,
               }))}
@@ -125,6 +130,7 @@ export function SettingsView() {
           />
         )}
       </SettingsGroup>
+      <DemoSettingsGroup />
       <SettingsGroup title={t('me.settings.aboutGroup')}>
         <SettingsRow
           icon="info"

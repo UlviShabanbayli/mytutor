@@ -1,18 +1,10 @@
-// VIEW types of the ask area (photo question → AI → teacher, and the Vızı chat) for the demo.
-// The real schemas come with the ask and AI APIs (architecture Ş8, Ş9) in packages/schemas.
+import type { AskQueue, AskStatus, SimilarQuestion, SolutionStep } from '@mytutor/types';
 
-/** Where a photo question is: queued on the device → sent → AI draft → teacher → answered. */
-export type AskStatus = 'queued' | 'sent' | 'teacher_checking' | 'answered';
+// VIEW types of the ask area (photo question → AI → teacher, and the Vızı chat). A question
+// comes from the demo world (`AskQuestionView`, packages/schemas/src/domain) and is mapped to
+// this shape in `fromWorld.ts`; the chat is scripted on the device.
 
-/** Who answers: the student's own class teacher, or the shared queue of verified teachers. */
-export type AskQueue = 'teacher' | 'general';
-
-export type SolutionStep = {
-  /** What the step does, in the student's language. */
-  text: string;
-  /** The maths of the step, e.g. "(a + b)³ = a³ + 3a²b + 3ab² + b³". */
-  formula: string;
-};
+export type { AskQueue, AskStatus, AskUsage, SimilarQuestion, SolutionStep } from '@mytutor/types';
 
 export type AskTopicRef = {
   id: string;
@@ -21,14 +13,6 @@ export type AskTopicRef = {
   title: string;
   lessonId: string;
   lessonMinutes: number;
-};
-
-export type SimilarQuestion = {
-  id: string;
-  text: string;
-  /** Source line text without the "Mənbə:" prefix. */
-  source: string;
-  topicId: string;
 };
 
 export type AskQuestion = {
@@ -52,7 +36,7 @@ export type AskQuestion = {
   aiDraft: { answer: string; steps: SolutionStep[] } | null;
   answer: {
     steps: SolutionStep[];
-    /** Full name of the approving teacher. */
+    /** The approving teacher ("Lalə müəllim"). */
     teacherName: string;
     /** What the teacher changed, if anything. */
     teacherNote: string | null;
@@ -62,14 +46,6 @@ export type AskQuestion = {
   source: string | null;
   topic: AskTopicRef | null;
   similar: SimilarQuestion[];
-};
-
-/** Today's free-plan allowance (the server counts it by plan; P4). */
-export type AskUsage = {
-  photoUsed: number;
-  photoLimit: number;
-  chatUsed: number;
-  chatLimit: number;
 };
 
 export type AskSubject = { id: string; name: string };

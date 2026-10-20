@@ -1,7 +1,6 @@
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, SourceLine, Text } from '@/components/ui';
-import { DEMO_QUESTION_BOOK } from '@/features/exam/demoQuestions';
 import type { MockQuestion } from '@/features/exam/types';
 import { cn } from '@/lib/cn';
 
@@ -53,9 +52,7 @@ export function MockQuestionCard({
       </View>
       <Text className="font-sans-semibold text-md">{t(`exam.run.prompt.${question.prompt}`)}</Text>
       <Text className="py-1 text-center font-sans-black text-3xl">{question.expression}</Text>
-      <SourceLine
-        source={t('exam.run.source', { book: DEMO_QUESTION_BOOK, topic: question.topic })}
-      />
+      <SourceLine source={question.source} />
     </View>
   );
 }

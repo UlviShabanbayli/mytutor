@@ -17,7 +17,7 @@ export default function PlacementQuestionScreen() {
   const { subjectId } = useLocalSearchParams<{ subjectId: string }>();
   const view = useHive(subjectId);
   const hiveId = view.status === 'ready' ? view.hive.id : subjectId;
-  const questions = usePlacementQuestions(hiveId);
+  const questions = usePlacementQuestions();
   // A session of another hive (or none, after a reload) starts this one from the beginning.
   const session = usePlacementSession((s) => (s.hiveId === hiveId ? s.answers : NO_ANSWERS));
 

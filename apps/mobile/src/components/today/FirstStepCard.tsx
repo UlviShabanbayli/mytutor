@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
-import { Text } from '@/components/ui';
+import { Text, useRaisedPress } from '@/components/ui';
 import { useTodayStore } from '@/features/today/store';
+import { useDemoPersona } from '@/lib/demoPersona';
 import type { FirstStep } from '@/features/today/types';
-import { cn } from '@/lib/cn';
 
 type FirstStepCardProps = {
   step: FirstStep;
@@ -12,8 +13,11 @@ type FirstStepCardProps = {
 
 /** First day: test what you know ("Bilirəm, yoxla") or start from the first topic. */
 export function FirstStepCard({ step }: FirstStepCardProps) {
+  const press = useRaisedPress({ depth: 3 });
   const { t } = useTranslation();
-  const takeFirstStep = useTodayStore((s) => s.takeFirstStep);
+  const persona = useDemoPersona();
+  const take = useTodayStore((s) => s.takeFirstStep);
+  const takeFirstStep = () => take(persona);
 
   const placement = () => {
     takeFirstStep();
@@ -37,22 +41,19 @@ export function FirstStepCard({ step }: FirstStepCardProps) {
       </Text>
       <View className="flex-row gap-2">
         <Pressable
+          onPressIn={press.pressIn}
+          onPressOut={press.pressOut}
           accessibilityRole="button"
           onPress={placement}
           className="flex-1 rounded-md bg-honey-deep pb-[3px]"
         >
-          {({ pressed }) => (
-            <View
-              className={cn(
-                'min-h-[50px] items-center justify-center rounded-md bg-honey px-2',
-                pressed && 'translate-y-[3px]',
-              )}
-            >
+          <Animated.View style={press.faceStyle}>
+            <View className="min-h-[50px] items-center justify-center rounded-md bg-honey px-2">
               <Text className="text-center font-sans-black text-on-honey">
                 {t('today.firstDay.placement')}
               </Text>
             </View>
-          )}
+          </Animated.View>
         </Pressable>
         <Pressable
           accessibilityRole="button"

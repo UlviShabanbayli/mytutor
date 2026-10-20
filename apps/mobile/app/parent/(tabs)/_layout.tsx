@@ -1,12 +1,14 @@
 import { Tabs } from 'expo-router/js-tabs';
 import { useTranslation } from 'react-i18next';
 import { RoleTabBar } from '@/components/navigation/RoleTabBar';
+import { useTabMotion } from '@/features/transitions/useTabMotion';
 import type { TabItem } from '@/components/navigation/TabBarItem';
 import { useUnreadMessageCount } from '@/features/parent/queries';
 
 /** Parent menu (design): Uşaqlarım, Mesajlar, Mən. Parents only watch; nothing here edits. */
 export default function ParentTabsLayout() {
   const { t } = useTranslation();
+  const tabMotion = useTabMotion();
   // Unread teacher messages and class notes (demo data until the parent API exists).
   const unread = useUnreadMessageCount();
   const items: TabItem[] = [
@@ -17,7 +19,7 @@ export default function ParentTabsLayout() {
 
   return (
     <Tabs
-      screenOptions={{ headerShown: false }}
+      screenOptions={tabMotion}
       tabBar={(props) => <RoleTabBar {...props} items={items} menuLabel={t('tabs.menuParent')} />}
     >
       {items.map((item) => (

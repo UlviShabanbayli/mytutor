@@ -1,11 +1,11 @@
-import type { ChatMessage } from './types';
+import type { ThreadMessage } from './types';
 
-export type DayGroup = { key: string; date: Date; messages: ChatMessage[] };
+export type DayGroup = { key: string; date: Date; messages: ThreadMessage[] };
 
 const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
 /** Messages in time order, split by calendar day (the thread's "BU GÜN" separators). */
-export function groupByDay(messages: ChatMessage[]): DayGroup[] {
+export function groupByDay(messages: ThreadMessage[]): DayGroup[] {
   const sorted = [...messages].sort((a, b) => a.at.localeCompare(b.at));
   const groups: DayGroup[] = [];
   for (const message of sorted) {

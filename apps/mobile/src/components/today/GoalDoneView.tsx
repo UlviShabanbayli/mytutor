@@ -6,6 +6,9 @@ import { Text } from '@/components/ui';
 import { Mascot } from '@/components/mascot/Mascot';
 import { leaveToToday } from '@/features/today/hooks';
 import { playCue } from '@/lib/cues';
+import { useReducedMotionPref } from '@/motion';
+import { GoalDoneProgress } from './GoalDoneProgress';
+import { goalCheckAt } from './useGoalRingMotion';
 
 type GoalDoneViewProps = {
   flightDay: number;
@@ -28,10 +31,13 @@ function Stat({ value, caption }: { value: string; caption: string }) {
 /** The daily goal reached: Vızı celebrates the day's flight, honey and correct answers. */
 export function GoalDoneView({ flightDay, minutes, cells, points, accuracy }: GoalDoneViewProps) {
   const { t } = useTranslation();
+  const reduced = useReducedMotionPref();
 
+  // The success tap lands with the ring's check (feedback.goal C).
   useEffect(() => {
-    playCue('complete');
-  }, []);
+    const timer = setTimeout(() => playCue('complete'), reduced ? 0 : goalCheckAt);
+    return () => clearTimeout(timer);
+  }, [reduced]);
 
   return (
     <SafeAreaView className="flex-1 bg-honey">
@@ -39,7 +45,8 @@ export function GoalDoneView({ flightDay, minutes, cells, points, accuracy }: Go
         <Text className="text-center font-sans-black text-sm uppercase tracking-[1.3px] text-on-honey">
           {t('today.goalDone.overline')}
         </Text>
-        <Mascot moment="lessonDone" size={210} decorative />
+        {/* vizi.done A: arms up, a hop with fast wings, a laugh. */}
+        <Mascot moment="lessonDone" behavior="done" size={150} decorative />
         <Text variant="title" className="text-center text-on-honey">
           {t('today.goalDone.title', { count: flightDay })}
         </Text>
@@ -49,6 +56,7 @@ export function GoalDoneView({ flightDay, minutes, cells, points, accuracy }: Go
             cells: t('today.goalDone.cells', { count: cells }),
           })}
         </Text>
+        <GoalDoneProgress goal={minutes} flightDay={flightDay} />
         <View className="flex-row gap-2.5 self-stretch">
           <Stat
             value={t('today.goalDone.points', { count: points })}

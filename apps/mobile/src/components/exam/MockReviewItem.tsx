@@ -2,7 +2,6 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { OptionKey } from '@mytutor/types';
 import { AnswerOption, SourceLine, Text } from '@/components/ui';
-import { DEMO_QUESTION_BOOK } from '@/features/exam/demoQuestions';
 import type { MockQuestion } from '@/features/exam/types';
 
 type MockReviewItemProps = {
@@ -53,9 +52,7 @@ export function MockReviewItem({ question, number, answer }: MockReviewItemProps
           <Text className="font-sans-semibold text-base">{right.text}</Text>
         </AnswerOption>
       ) : null}
-      <SourceLine
-        source={t('exam.run.source', { book: DEMO_QUESTION_BOOK, topic: question.topic })}
-      />
+      <SourceLine source={question.source} />
     </View>
   );
 }

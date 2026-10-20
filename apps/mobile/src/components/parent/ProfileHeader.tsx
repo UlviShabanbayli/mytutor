@@ -1,10 +1,10 @@
 import { View } from 'react-native';
 import { Text } from '@/components/ui';
-import type { ParentProfile } from '@/features/parent/types';
+import type { ParentSelf } from '@/features/parent/types';
 import { HexAvatar } from './HexAvatar';
 import { ParentChip } from './ParentChip';
 
-type ProfileHeaderProps = { profile: ParentProfile | undefined };
+type ProfileHeaderProps = { profile: ParentSelf | undefined };
 
 /** "Mən" tab top: the parent's hexagon, name and masked phone number. */
 export function ProfileHeader({ profile }: ProfileHeaderProps) {

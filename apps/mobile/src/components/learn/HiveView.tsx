@@ -30,7 +30,7 @@ export function HiveView({ hive, online, openUnitId }: HiveViewProps) {
     openUnitId ?? hive.units.find((u) => u.topics.some((x) => x.id === hive.currentTopicId))?.id;
   const [open, setOpen] = useState<string[]>(firstOpen ? [firstOpen] : []);
   const [cell, setCell] = useState<TopicPlace | null>(null);
-  const [queen, setQueen] = useState<{ unit: HiveUnit; index: number } | null>(null);
+  const [queen, setQueen] = useState<HiveUnit | null>(null);
   const [justSaved, setJustSaved] = useState(false);
   const ids = allTopics(hive).map((x) => x.id);
   const saved = ids.every((id) => hive.savedTopicIds.includes(id));
@@ -73,7 +73,7 @@ export function HiveView({ hive, online, openUnitId }: HiveViewProps) {
               selectedId={cell?.topic.id}
               onToggle={() => toggle(unit.id)}
               onTopic={pickTopic}
-              onUnitTest={() => setQueen({ unit, index })}
+              onUnitTest={() => setQueen(unit)}
             />
           ))}
         </ScrollView>
@@ -81,15 +81,7 @@ export function HiveView({ hive, online, openUnitId }: HiveViewProps) {
       {cell ? (
         <CellSheet hive={hive} place={cell} online={online} onClose={() => setCell(null)} />
       ) : null}
-      {queen ? (
-        <QueenSheet
-          hive={hive}
-          unit={queen.unit}
-          unitIndex={queen.index}
-          online={online}
-          onClose={() => setQueen(null)}
-        />
-      ) : null}
+      {queen ? <QueenSheet unit={queen} online={online} onClose={() => setQueen(null)} /> : null}
     </SafeAreaView>
   );
 }

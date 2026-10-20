@@ -22,12 +22,7 @@ export default function KnowSkipScreen() {
     return (
       <>
         {options}
-        <KnowSkipSheet
-          hive={view.hive}
-          place={view.place}
-          unitIndex={view.hive.units.indexOf(view.place.unit)}
-          onClose={close}
-        />
+        <KnowSkipSheet hive={view.hive} place={view.place} onClose={close} />
       </>
     );
   return (

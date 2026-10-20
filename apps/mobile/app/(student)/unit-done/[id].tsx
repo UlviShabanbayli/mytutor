@@ -1,10 +1,10 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { UnitDoneView } from '@/components/learn/UnitDoneView';
 import { EmptyState, ErrorState, LoadingState, Screen, ScreenHeader } from '@/components/ui';
-import { unitResultOf, useUnit } from '@/features/learn/queries';
+import { useUnit } from '@/features/learn/queries';
 import { useLearnText } from '@/features/learn/useLearnText';
 
-/** The unit-sealed moment, by unit id (or its number, "4"). */
+/** The unit-sealed moment, by unit id ("riyaziyyat-7-u4"). */
 export default function UnitDoneScreen() {
   const { t } = useLearnText();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -16,7 +16,7 @@ export default function UnitDoneScreen() {
         hive={view.hive}
         unit={view.unit}
         next={view.hive.units[view.index + 1]}
-        result={unitResultOf(view.unit.id)}
+        result={view.unit.unitTest.result}
       />
     );
   return (

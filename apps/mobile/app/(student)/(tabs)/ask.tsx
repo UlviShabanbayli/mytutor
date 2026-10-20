@@ -1,29 +1,30 @@
-import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { AskCameraCard } from '@/components/ask/AskCameraCard';
 import { AskOfflineBanner } from '@/components/ask/AskOfflineBanner';
 import { AskViziCard } from '@/components/ask/AskViziCard';
 import { PhotoLimitRow } from '@/components/ask/PhotoLimitRow';
 import { RecentQuestions } from '@/components/ask/RecentQuestions';
-import { Screen, Text } from '@/components/ui';
-import { useAskQuestions, useAskUsage } from '@/features/ask/queries';
+import { CollapsingTitle } from '@/components/ui';
+import { useAskQuestions, useAskUsage, useSendQueuedQuestions } from '@/features/ask/queries';
 import { useOnline } from '@/features/ask/useOnline';
 
-/** Soruş tab: photograph a question for a teacher, or ask Vızı; the latest questions below. */
+/**
+ * Soruş tab: photograph a question for a teacher, or ask Vızı; the latest questions below. The
+ * large title shrinks into a bar as the page scrolls (micro.header B).
+ */
 export default function AskScreen() {
   const { t } = useTranslation();
   const online = useOnline();
   const questions = useAskQuestions();
   const { usage } = useAskUsage();
+  useSendQueuedQuestions();
 
   return (
-    <Screen className="gap-3">
-      <View className="gap-0.5">
-        <Text variant="overline" tone="muted" className="text-xs">
-          {t('ask.home.overline')}
-        </Text>
-        <Text variant="title">{t('ask.home.title')}</Text>
-      </View>
+    <CollapsingTitle
+      overline={t('ask.home.overline')}
+      title={t('ask.home.title')}
+      className="gap-3 pt-3"
+    >
       {online ? null : <AskOfflineBanner />}
       <AskCameraCard online={online} />
       <AskViziCard online={online} />
@@ -34,6 +35,6 @@ export default function AskScreen() {
         isError={questions.isError}
         onRetry={() => void questions.refetch()}
       />
-    </Screen>
+    </CollapsingTitle>
   );
 }

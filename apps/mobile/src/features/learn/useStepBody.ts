@@ -1,11 +1,13 @@
-import type { Topic } from '@mytutor/types';
 import type { TopicStep } from './types';
 import { useLearnText } from './useLearnText';
 
-/** The line under a step's name; the test's comes from the real test it opens. */
+/** The line under a step's name; the test's comes from the topic test it opens. */
 export function useStepBody() {
   const { t } = useLearnText();
-  return (step: TopicStep, test: { test: Topic | null; isPending: boolean }) => {
+  return (
+    step: TopicStep,
+    test: { test: { questionCount: number } | null; isPending: boolean },
+  ) => {
     const n = { done: step.done ?? 0, total: step.total ?? 0, minutes: step.minutes ?? 0 };
     switch (step.kind) {
       case 'lesson':

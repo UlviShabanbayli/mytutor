@@ -1,21 +1,14 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { publishedTestsSchema } from '@mytutor/schemas';
-import type { PracticeTest, PublishedTests, Subject, Topic } from '@mytutor/types';
+import type { PublishedTests } from '@mytutor/types';
+import type { TestsStore } from './content';
 
 /**
  * The tests published for the app (`<content>/.published/tests/<subject>.json`, written by
  * `content-engine test-publish`), read from disk and kept until a file changes. Temporary until
  * the tests live in PostgreSQL (docs/decisions/0001): the routes stay the same then.
  */
-export type TestsStore = {
-  subjects(): Promise<Subject[]>;
-  subject(id: string): Promise<{ subject: Subject; topics: Topic[] } | null>;
-  test(id: string): Promise<PracticeTest | null>;
-  recommended(): Promise<Topic | null>;
-  /** A published figure's file, or null for a name that is not one. */
-  media(file: string): Promise<string | null>;
-};
 
 const MEDIA_NAME = /^[A-Za-z0-9_-]+\.png$/;
 
@@ -55,7 +48,8 @@ export function publishedTests(contentDir: string): TestsStore {
     media: async (file) => {
       if (!MEDIA_NAME.test(file)) return null;
       const path = join(mediaDir, file);
-      return (await stat(path).catch(() => null))?.isFile() ? path : null;
+      if (!(await stat(path).catch(() => null))?.isFile()) return null;
+      return new Uint8Array(await readFile(path));
     },
   };
 }

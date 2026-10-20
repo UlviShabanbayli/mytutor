@@ -1,7 +1,6 @@
 import { combRows } from './comb';
-import { pickRealTest } from './realTest';
+import { worldHive, worldPlacement } from './__fixtures__/world';
 import { buildSearchIndex, searchLearn } from './search';
-import { demoHive, demoPlacementQuestions } from './demo';
 import { foldAz, highlightParts, listJoin, numberRanges } from './text';
 
 describe('Azerbaijani text helpers', () => {
@@ -44,7 +43,7 @@ describe('combRows', () => {
 });
 
 describe('searchLearn', () => {
-  const index = buildSearchIndex(demoHive, demoPlacementQuestions);
+  const index = buildSearchIndex(worldHive(), worldPlacement());
 
   it('finds topics, lessons and questions', () => {
     const found = searchLearn(index, 'kub');
@@ -56,23 +55,5 @@ describe('searchLearn', () => {
 
   it('waits for two letters', () => {
     expect(searchLearn(index, 'k').total).toBe(0);
-  });
-});
-
-describe('pickRealTest', () => {
-  const topic = (id: string, questionCount: number) => ({
-    id,
-    subjectId: 's',
-    title: id,
-    grade: null,
-    questionCount,
-  });
-
-  it('maps positions onto the tests that have questions', () => {
-    const topics = [topic('a', 3), topic('b', 0), topic('c', 5)];
-    expect(pickRealTest(topics, 0)?.id).toBe('a');
-    expect(pickRealTest(topics, 1)?.id).toBe('c');
-    expect(pickRealTest(topics, 2)?.id).toBe('a');
-    expect(pickRealTest([topic('b', 0)], 0)).toBeNull();
   });
 });

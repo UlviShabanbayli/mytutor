@@ -1,9 +1,14 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Text } from '@/components/ui';
-import { Mascot } from '@/components/mascot/Mascot';
+import { SkeletonBlock } from '@/components/ui';
 
-/** The plan's shape in wax while it loads, with Vızı flying in. */
+/** Plan rows the skeleton holds space for (a usual day has two to four). */
+const ROWS = [0, 1, 2];
+
+/**
+ * The day's shape in wax while it loads, each block as tall as what replaces it: the goal
+ * card, "Davam et" and the plan (transitions.skeleton C).
+ */
 export function TodaySkeleton() {
   const { t } = useTranslation();
 
@@ -15,15 +20,16 @@ export function TodaySkeleton() {
       aria-busy
       className="gap-3"
     >
-      <View className="h-[118px] rounded-xl bg-wax" />
-      <View className="h-[104px] rounded-xl bg-wax opacity-80" />
-      <View className="flex-row items-center gap-2.5 px-0.5 py-1">
-        <Mascot moment="loading" size={56} decorative />
-        <Text className="font-sans-bold text-muted">{t('today.loading')}</Text>
+      <SkeletonBlock className="h-[173px] rounded-xl" />
+      <SkeletonBlock className="h-[107px] rounded-xl" />
+      <View className="gap-2">
+        <View className="h-[26px] justify-center">
+          <SkeletonBlock className="h-4 w-36 rounded-full" />
+        </View>
+        {ROWS.map((row) => (
+          <SkeletonBlock key={row} className="h-[68px] rounded-lg" />
+        ))}
       </View>
-      <View className="h-16 rounded-lg bg-wax opacity-70" />
-      <View className="h-16 rounded-lg bg-wax opacity-55" />
-      <View className="h-16 rounded-lg bg-wax opacity-40" />
     </View>
   );
 }

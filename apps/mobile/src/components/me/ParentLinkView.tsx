@@ -3,7 +3,13 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Banner, Screen, ScreenHeader, Text } from '@/components/ui';
 import { parentCategoryCount } from '@/features/me/privacy';
-import { useIsOnline, useParentRequest } from '@/features/me/queries';
+import { makeParentCode } from '@/features/me/codes';
+import {
+  useIsOnline,
+  useParentCodeSource,
+  useParentLinkActions,
+  useParents,
+} from '@/features/me/queries';
 import { useMeStore } from '@/features/me/store';
 import type { ParentLinkView as LinkedParent } from '@/features/me/types';
 import { ConfirmSheet } from './ConfirmSheet';
@@ -13,21 +19,22 @@ import { ParentCodeCard } from './ParentCodeCard';
 import { ParentRequestCard } from './ParentRequestCard';
 
 /**
- * "Valideyn" (architecture V1, student side): make a code, approve the parent who typed it,
- * choose what parents see, and stop a link.
+ * "Valideyn" (architecture V1, student side): show the code a parent types (the world's), answer
+ * a parent who asked, choose what parents see, and stop a link. Answers and stops are demo
+ * events, so the parent's app follows.
  */
 export function ParentLinkView() {
   const { t } = useTranslation();
   const online = useIsOnline();
   const code = useMeStore((s) => s.parentCode);
-  const newCode = useMeStore((s) => s.newParentCode);
+  const showCode = useMeStore((s) => s.showParentCode);
   const grants = useMeStore((s) => s.grants);
   const setGrant = useMeStore((s) => s.setGrant);
-  const links = useMeStore((s) => s.parentLinks);
-  const approve = useMeStore((s) => s.approveParent);
-  const reject = useMeStore((s) => s.rejectParent);
-  const stop = useMeStore((s) => s.stopParentLink);
-  const { request } = useParentRequest();
+  const worldCode = useParentCodeSource().data;
+  const parents = useParents().data;
+  const links = parents?.links ?? [];
+  const request = parents?.requests[0] ?? null;
+  const { approve, unlink } = useParentLinkActions();
   const [stopping, setStopping] = useState<LinkedParent | null>(null);
   const parent = grants.parent;
 
@@ -35,7 +42,12 @@ export function ParentLinkView() {
     <Screen className="gap-2.5">
       <ScreenHeader title={t('me.parentLink.title')} />
       {!online ? <Banner kind="offline" message={t('me.parentLink.offline')} /> : null}
-      <ParentCodeCard code={code} onGenerate={() => newCode()} disabled={!online} />
+      <ParentCodeCard
+        code={code}
+        // The world's code when it has one (K7Q42M for Nərmin), so a parent can type it.
+        onGenerate={() => showCode(worldCode ?? makeParentCode())}
+        disabled={!online || worldCode === undefined}
+      />
       {code ? (
         <Text tone="muted" className="text-sm">
           {t('me.parentLink.instruction')}
@@ -81,8 +93,8 @@ export function ParentLinkView() {
       {request ? (
         <ParentRequestCard
           request={request}
-          onApprove={() => approve(request)}
-          onReject={() => reject(request.id)}
+          onApprove={() => approve(request.id)}
+          onReject={() => unlink(request.id)}
         />
       ) : null}
       {links.length === 0 ? (
@@ -106,7 +118,7 @@ export function ParentLinkView() {
         confirmLabel={t('me.parentLink.stopConfirm')}
         danger
         onClose={() => setStopping(null)}
-        onConfirm={() => stopping && stop(stopping.id)}
+        onConfirm={() => stopping && unlink(stopping.id)}
       />
     </Screen>
   );

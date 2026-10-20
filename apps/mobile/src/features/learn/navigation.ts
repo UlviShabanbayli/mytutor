@@ -1,11 +1,11 @@
 import { router } from 'expo-router';
-import { useLearnStore, usePlacementSession } from './store';
+import { learnDataNow, useLearnStore, usePlacementSession } from './store';
 import { placementOutcome, placementStep } from './placement';
 import type { Hive, HiveTopic, PlacementQuestion, StepKind } from './types';
 
 /*
  * Where the learn screens lead. Lessons belong to the study area: a topic's lesson is opened by
- * the topic id with the step to start at (demo ids, until lessons come from the API).
+ * the topic id with the step to start at.
  */
 
 export function openTopic(topicId: string) {
@@ -36,12 +36,15 @@ export function backOr(fallback: () => void) {
 }
 
 /**
- * Opens a hive box. The first time, the student first says which textbook their school uses
- * and then picks "Bilirəm, yoxla" or "Sıfırdan başla" (architecture Ş3); afterwards straight in.
+ * Opens a hive box. A student who has not begun it first says which textbook their school uses
+ * and then picks "Bilirəm, yoxla" or "Sıfırdan başla" (architecture Ş3); afterwards, and for a
+ * student who already learns in it, straight in.
  */
-export function openHive(hiveId: string) {
-  const { textbooks, placement } = useLearnStore.getState();
-  if (!textbooks[hiveId])
+export function openHive(hive: Pick<Hive, 'id' | 'started'>) {
+  const hiveId = hive.id;
+  const { textbooks, placement } = learnDataNow();
+  if (hive.started) router.push({ pathname: '/subject/[id]', params: { id: hiveId } });
+  else if (!textbooks[hiveId])
     router.push({ pathname: '/learn/textbook', params: { hiveId, first: '1' } });
   else if (!placement[hiveId])
     router.push({ pathname: '/placement/[subjectId]', params: { subjectId: hiveId } });
@@ -50,7 +53,7 @@ export function openHive(hiveId: string) {
 
 /** After the textbook choice: on a first open on to "Haradan başlayaq?", else back. */
 export function afterTextbookPick(hiveId: string, firstOpen: boolean) {
-  const { placement } = useLearnStore.getState();
+  const { placement } = learnDataNow();
   if (firstOpen && !placement[hiveId])
     router.replace({ pathname: '/placement/[subjectId]', params: { subjectId: hiveId } });
   else if (firstOpen) router.replace({ pathname: '/subject/[id]', params: { id: hiveId } });

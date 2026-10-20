@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Mascot } from '@/components/mascot/Mascot';
 import { Button, Icon, IconButton, type IconName, Text } from '@/components/ui';
+import { useNickname } from '@/features/me/queries';
 import { useMeStore } from '@/features/me/store';
 import { LEAGUE_IDS } from '@/features/me/types';
 import { cn } from '@/lib/cn';
@@ -19,7 +20,7 @@ const PROMISES: { icon: IconName; key: 'separate' | 'leaveAnytime' }[] = [
 /** Çiçək liqası is opt-in (architecture P2): what it is, what others see, then join or skip. */
 export function LeagueOptIn() {
   const { t } = useTranslation();
-  const nickname = useMeStore((s) => s.nickname);
+  const nickname = useNickname();
   const join = useMeStore((s) => s.setLeagueJoined);
   const [editing, setEditing] = useState(false);
   const names = LEAGUE_IDS.map((id) => t(`me.leagues.${id}`));

@@ -1,7 +1,9 @@
+import type { ClassInsights } from '@mytutor/types';
 import { hardestTopicIndex, reviewSuggestion } from './insights';
-import type { InsightRow } from './types';
 
-const row = (studentId: string, levels: InsightRow['levels']): InsightRow => ({
+type Row = ClassInsights['rows'][number];
+
+const row = (studentId: string, levels: Row['levels']): Row => ({
   studentId,
   name: studentId,
   levels,
@@ -11,6 +13,12 @@ const rows = [
   row('a', ['mastered', 'needs_practice', 'not_started']),
   row('b', ['needs_practice', 'needs_practice', 'not_started']),
   row('c', ['reinforced', 'mastered', 'lesson_completed']),
+];
+
+const topics = [
+  { id: 'riyaziyyat-7-4-1', number: '4.1' },
+  { id: 'riyaziyyat-7-4-2', number: '4.2' },
+  { id: 'riyaziyyat-7-4-3', number: '4.3' },
 ];
 
 describe('hardestTopicIndex', () => {
@@ -25,8 +33,8 @@ describe('hardestTopicIndex', () => {
 
 describe('reviewSuggestion', () => {
   it('names the topic and the students to review it', () => {
-    const s = reviewSuggestion(rows, ['4.1', '4.2', '4.3']);
-    expect(s?.topicId).toBe('4.2');
+    const s = reviewSuggestion(rows, topics);
+    expect(s?.topic).toEqual({ id: 'riyaziyyat-7-4-2', number: '4.2' });
     expect(s?.students.map((r) => r.studentId)).toEqual(['a', 'b']);
   });
 });

@@ -8,10 +8,14 @@ import { SubjectField, type SubjectKey } from '@/components/teacher/SubjectField
 import { TeacherHeader } from '@/components/teacher/TeacherHeader';
 import { TeacherScreen } from '@/components/teacher/TeacherScreen';
 import { Banner, Button, Input } from '@/components/ui';
-import { useCreateClass, useTeacherProfile } from '@/features/teacher/queries';
+import { useCreateClass } from '@/features/teacher/mutations';
+import { useTeacherProfile } from '@/features/teacher/queries';
 import type { TeacherClass } from '@/features/teacher/types';
 
-/** New class and its invite code (design t-class-new, M2): a free class opens at once. */
+/**
+ * New class and its invite code (design t-class-new, M2): a free class opens at once, as the
+ * demo event `class.created`, so it is in the list and students can join with the code.
+ */
 export default function NewClassScreen() {
   const { t } = useTranslation();
   const profile = useTeacherProfile();
@@ -30,7 +34,7 @@ export default function NewClassScreen() {
       return;
     }
     create.mutate(
-      { subject: t(`teacher.subjects.${subject}`), grade, name },
+      { subjectKey: subject, subject: t(`teacher.subjects.${subject}`), grade, name, paid },
       { onSuccess: setCreated },
     );
   };
@@ -71,10 +75,8 @@ export default function NewClassScreen() {
           <InviteCodeCard cls={created} />
           <Button
             variant="secondary"
-            label={t('teacher.classNew.openClass')}
-            onPress={() =>
-              router.replace({ pathname: '/teacher/class/[id]', params: { id: created.id } })
-            }
+            label={t('teacher.classNew.backToClasses')}
+            onPress={() => router.replace('/teacher/classes')}
           />
         </>
       ) : (

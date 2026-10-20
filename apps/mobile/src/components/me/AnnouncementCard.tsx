@@ -6,7 +6,7 @@ import type { ClassFeed, ClassSummary } from '@/features/me/types';
 import { TeacherTag } from './TeacherTag';
 
 type AnnouncementCardProps = {
-  item: ClassFeed['announcement'];
+  item: NonNullable<ClassFeed['announcement']>;
   teacher: Pick<ClassSummary, 'teacher' | 'teacherInitials'>;
   reported: boolean;
   onReport: () => void;

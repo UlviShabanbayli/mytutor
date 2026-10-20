@@ -3,21 +3,20 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Banner, Button, SourceLine, Text } from '@/components/ui';
 import { useIsOnline } from '@/features/study/online';
-import type { StudyLesson } from '@/features/study/types';
+import type { WorkedExample } from '@/features/study/types';
 import { Kicker } from './Kicker';
 import { StepLayout } from './StepLayout';
 import { WorkedStepItem } from './WorkedStepItem';
 
 type LessonExampleStepProps = {
-  lesson: StudyLesson;
+  example: WorkedExample;
   onNext: () => void;
 };
 
-/** Step 3: a solved example; each step opens on request, so the student thinks first. */
-export function LessonExampleStep({ lesson, onNext }: LessonExampleStepProps) {
+/** A solved example; each step opens on request, so the student thinks first. */
+export function LessonExampleStep({ example, onNext }: LessonExampleStepProps) {
   const { t } = useTranslation();
   const online = useIsOnline();
-  const { example } = lesson;
   const [shown, setShown] = useState(1);
   const hidden = example.steps[shown];
 

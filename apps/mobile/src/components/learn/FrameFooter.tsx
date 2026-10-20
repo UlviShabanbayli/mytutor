@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
-import { Icon, Text } from '@/components/ui';
+import Animated from 'react-native-reanimated';
+import { Icon, Text, useRaisedPress } from '@/components/ui';
 import { listJoin, numberRanges } from '@/features/learn/text';
 import type { Hive, HiveUnit } from '@/features/learn/types';
 import { useLearnText } from '@/features/learn/useLearnText';
-import { cn } from '@/lib/cn';
 
 type FrameFooterProps = {
   hive: Hive;
@@ -17,6 +17,7 @@ type FrameFooterProps = {
  * offline, which of the frame's cells are on the phone and which need the internet.
  */
 export function FrameFooter({ hive, unit, online }: FrameFooterProps) {
+  const press = useRaisedPress({ depth: 3 });
   const { t } = useLearnText();
   const current = unit.topics.find((topic) => topic.id === hive.currentTopicId);
 
@@ -58,6 +59,8 @@ export function FrameFooter({ hive, unit, online }: FrameFooterProps) {
         </Text>
       </View>
       <Pressable
+        onPressIn={press.pressIn}
+        onPressOut={press.pressOut}
         accessibilityRole="button"
         accessibilityLabel={t('learn.hive.hereAria', {
           number: current.number,
@@ -66,19 +69,14 @@ export function FrameFooter({ hive, unit, online }: FrameFooterProps) {
         onPress={go}
         className="rounded-[12px] bg-honey-deep pb-[3px]"
       >
-        {({ pressed }) => (
-          <View
-            className={cn(
-              'h-[44px] flex-row items-center gap-1.5 rounded-[12px] bg-honey px-3.5',
-              pressed && 'translate-y-[3px]',
-            )}
-          >
+        <Animated.View style={press.faceStyle}>
+          <View className="h-[44px] flex-row items-center gap-1.5 rounded-[12px] bg-honey px-3.5">
             <Icon name="play" size={16} color="on-honey" />
             <Text className="font-sans-black text-sm text-on-honey">
               {t('learn.hive.hereAction')}
             </Text>
           </View>
-        )}
+        </Animated.View>
       </Pressable>
     </View>
   );

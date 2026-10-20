@@ -1,5 +1,6 @@
 import { Pressable, View } from 'react-native';
-import { Icon, Text } from '@/components/ui';
+import Animated from 'react-native-reanimated';
+import { Icon, Text, useRaisedPress } from '@/components/ui';
 import type { TopicStep } from '@/features/learn/types';
 import { useLearnText } from '@/features/learn/useLearnText';
 import { cn } from '@/lib/cn';
@@ -16,6 +17,7 @@ type StepRowProps = {
 
 /** One of the topic's four steps: hex badge (done, current, to do, test), name, state. */
 export function StepRow({ step, n, body, disabled = false, onPress }: StepRowProps) {
+  const press = useRaisedPress({ depth: 2 });
   const { t } = useLearnText();
   const current = step.state === 'current';
   const done = step.state === 'done';
@@ -24,6 +26,8 @@ export function StepRow({ step, n, body, disabled = false, onPress }: StepRowPro
 
   return (
     <Pressable
+      onPressIn={press.pressIn}
+      onPressOut={press.pressOut}
       accessibilityRole="button"
       accessibilityLabel={[t('learn.step.aria', { n, name, body }), right]
         .filter(Boolean)
@@ -37,12 +41,11 @@ export function StepRow({ step, n, body, disabled = false, onPress }: StepRowPro
         disabled && 'opacity-60',
       )}
     >
-      {({ pressed }) => (
+      <Animated.View style={press.faceStyle}>
         <View
           className={cn(
             'min-h-14 flex-row items-center gap-3 rounded-lg px-2.5 py-1.5',
             current ? 'border-2 border-honey bg-raised' : 'border border-border bg-surf',
-            pressed && 'translate-y-0.5',
           )}
         >
           <FlatHex size={36} color={done ? 'ok-bg' : current ? 'honey' : 'wax'}>
@@ -74,7 +77,7 @@ export function StepRow({ step, n, body, disabled = false, onPress }: StepRowPro
           ) : null}
           <Icon name="chevron" size={18} color="muted" />
         </View>
-      )}
+      </Animated.View>
     </Pressable>
   );
 }

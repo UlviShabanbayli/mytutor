@@ -6,13 +6,15 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --ui=tui --filter=@mytutor/api --filter=@mytutor/mobile",
+    "dev:worker": "pnpm --filter @mytutor/api dev:worker",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "deploy:demo-api": "pnpm --filter @mytutor/api deploy:demo-api"
   },
   "devDependencies": {
     "prettier": "^3.9.9",

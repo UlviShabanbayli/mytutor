@@ -6,8 +6,8 @@ import { FooterScreen } from '@/components/me/FooterScreen';
 import { JoinClassForm } from '@/components/me/JoinClassForm';
 import { JoinCodeField } from '@/components/me/JoinCodeField';
 import { Banner, Button, Icon, ScreenHeader, Text } from '@/components/ui';
-import { CODE_LENGTH, normalizeCode } from '@/features/me/codes';
-import { useIsOnline, useJoinLookup } from '@/features/me/queries';
+import { CLASS_CODE_LENGTH, normalizeClassCode } from '@/features/me/codes';
+import { useClassMembership, useIsOnline, useJoinLookup } from '@/features/me/queries';
 import { useMeStore } from '@/features/me/store';
 
 type JoinStatus = 'checking' | 'already' | 'found' | 'notFound';
@@ -23,19 +23,19 @@ const STATUS = {
 export default function JoinClassScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams<{ code?: string }>();
-  const [code, setCode] = useState(normalizeCode(params.code ?? ''));
+  const [code, setCode] = useState(normalizeClassCode(params.code ?? ''));
   const lookup = useJoinLookup(code);
   const online = useIsOnline();
   const guest = useMeStore((s) => s.guest);
-  const classIds = useMeStore((s) => s.classIds);
-  const joinClass = useMeStore((s) => s.joinClass);
+  const { join } = useClassMembership();
 
   if (guest) return <Redirect href={{ pathname: '/auth/account', params: { reason: 'class' } }} />;
 
-  const complete = code.length === CODE_LENGTH;
-  const found = complete ? (lookup.data ?? null) : null;
+  const complete = code.length === CLASS_CODE_LENGTH;
+  const result = complete ? (lookup.data ?? null) : null;
+  const found = result?.found ?? null;
   const notFound = complete && lookup.isSuccess && lookup.data === null;
-  const already = found !== null && classIds.includes(found.id);
+  const already = result?.member === true;
   const status: JoinStatus | null = !complete
     ? null
     : lookup.isFetching
@@ -58,7 +58,7 @@ export default function JoinClassScreen() {
           disabled={found === null}
           onPress={() => {
             if (!found) return;
-            joinClass(found.id);
+            if (!already) join(found.id);
             router.replace({ pathname: '/class/[id]', params: { id: found.id } });
           }}
         />

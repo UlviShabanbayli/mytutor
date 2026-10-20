@@ -1,11 +1,10 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Icon, Text } from '@/components/ui';
+import { Icon, Switch, Text } from '@/components/ui';
 import { stepValue } from '@/features/teacher/classroom';
 import { Overline } from './Overline';
 import { Stepper } from './Stepper';
-import { TeacherSwitch } from './TeacherSwitch';
 
 export type AssignSettings = { attempts: number; minutes: number; reminder: boolean };
 
@@ -16,6 +15,8 @@ type AssignOptionsProps = {
   isTest: boolean;
   questionCount: number;
   topicId: string;
+  /** "4.1", for the questions' line. */
+  topicNumber: string;
 };
 
 /** Attempts and time limit, the questions Vızı picked from the bank, and the reminder. */
@@ -25,6 +26,7 @@ export function AssignOptions({
   isTest,
   questionCount,
   topicId,
+  topicNumber,
 }: AssignOptionsProps) {
   const { t } = useTranslation();
   const set = (patch: Partial<AssignSettings>) => onChange({ ...value, ...patch });
@@ -77,7 +79,7 @@ export function AssignOptions({
                 {t('teacher.assign.questions', { count: questionCount })}
               </Text>
               <Text className="font-sans text-xs text-muted">
-                {t('teacher.assign.questionsMeta', { topic: topicId })}
+                {t('teacher.assign.questionsMeta', { topic: topicNumber })}
               </Text>
             </View>
             <Text className="font-sans-black text-sm text-honey-text">
@@ -91,7 +93,7 @@ export function AssignOptions({
             <Text className="font-sans-black text-sm">{t('teacher.assign.reminder')}</Text>
             <Text className="font-sans text-xs text-muted">{t('teacher.assign.reminderBody')}</Text>
           </View>
-          <TeacherSwitch
+          <Switch
             value={value.reminder}
             onValueChange={(reminder) => set({ reminder })}
             accessibilityLabel={t('teacher.assign.reminder')}

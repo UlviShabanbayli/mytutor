@@ -1,6 +1,7 @@
 import { Pressable, View } from 'react-native';
-import { Text } from '@/components/ui';
+import { SelectPop, Text } from '@/components/ui';
 import { useLearnText } from '@/features/learn/useLearnText';
+import { playCue } from '@/lib/cues';
 import { cn } from '@/lib/cn';
 
 const GRADES = [5, 6, 7, 8, 9, 10, 11];
@@ -12,7 +13,7 @@ type GradePickerProps = {
   onChange: (grade: number) => void;
 };
 
-/** Grades 5–11 as a radio row; every grade is open. */
+/** Grades 5–11 as a radio row; every grade is open. The chosen one pops (buttons.grade B). */
 export function GradePicker({ value, ownGrade, onChange }: GradePickerProps) {
   const { t, grade } = useLearnText();
 
@@ -27,26 +28,34 @@ export function GradePicker({ value, ownGrade, onChange }: GradePickerProps) {
         const own = n === ownGrade;
         return (
           <View key={n} className="min-w-0 flex-1 gap-1">
-            <Pressable
-              accessibilityRole="radio"
-              accessibilityState={{ checked: on }}
-              accessibilityLabel={own ? `${grade(n)}, ${t('learn.tab.yourGrade')}` : grade(n)}
-              onPress={() => onChange(n)}
-              className={cn('rounded-md', on && 'bg-honey-deep pb-[3px]')}
-            >
-              <View
-                className={cn(
-                  'h-[44px] items-center justify-center rounded-md',
-                  on ? 'bg-honey' : 'border border-border bg-surf',
-                )}
+            <SelectPop selected={on}>
+              <Pressable
+                accessibilityRole="radio"
+                accessibilityState={{ checked: on }}
+                accessibilityLabel={own ? `${grade(n)}, ${t('learn.tab.yourGrade')}` : grade(n)}
+                onPress={() => {
+                  if (!on) playCue('select');
+                  onChange(n);
+                }}
+                className={cn('rounded-md', on && 'bg-honey-deep pb-[3px]')}
               >
-                <Text
-                  className={cn('font-display-black text-base', on ? 'text-on-honey' : 'text-ink')}
+                <View
+                  className={cn(
+                    'h-[44px] items-center justify-center rounded-md',
+                    on ? 'bg-honey' : 'border border-border bg-surf',
+                  )}
                 >
-                  {n}
-                </Text>
-              </View>
-            </Pressable>
+                  <Text
+                    className={cn(
+                      'font-display-black text-base',
+                      on ? 'text-on-honey' : 'text-ink',
+                    )}
+                  >
+                    {n}
+                  </Text>
+                </View>
+              </Pressable>
+            </SelectPop>
             {/* The mark is wider than its column, so it spills over its neighbours. */}
             <View
               accessibilityElementsHidden

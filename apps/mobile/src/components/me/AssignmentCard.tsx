@@ -24,6 +24,15 @@ export function AssignmentCard({ item }: AssignmentCardProps) {
       ? `${t('me.classPage.status.checked')} · ${t('me.classPage.score', item.grade)}`
       : t(`me.classPage.status.${item.status}`);
   const startTest = item.kind === 'test' && item.status === 'not_started' && item.testId;
+  const openLesson = item.kind === 'lesson';
+  const overline =
+    item.kind === 'test'
+      ? t('me.classPage.testOverline', { count: item.questions ?? 0 })
+      : item.kind === 'mock'
+        ? t('me.classPage.mockOverline', { count: item.questions ?? 0 })
+        : item.kind === 'lesson'
+          ? t('me.classPage.lessonOverline')
+          : t('me.classPage.homeworkOverline');
   const s = statusClasses[item.status];
 
   return (
@@ -37,9 +46,7 @@ export function AssignmentCard({ item }: AssignmentCardProps) {
         </Hex>
         <View className="flex-1 gap-0.5">
           <Text variant="overline" tone="muted">
-            {item.kind === 'test'
-              ? t('me.classPage.testOverline', { count: item.questions ?? 0 })
-              : t('me.classPage.homeworkOverline')}
+            {overline}
           </Text>
           <Text className="font-sans-black text-sm">{item.title}</Text>
         </View>
@@ -60,7 +67,9 @@ export function AssignmentCard({ item }: AssignmentCardProps) {
           onPress={() =>
             startTest
               ? router.push({ pathname: '/test/[id]', params: { id: startTest } })
-              : router.push({ pathname: '/assignment/[id]', params: { id: item.id } })
+              : openLesson
+                ? router.push({ pathname: '/lesson/[id]', params: { id: item.topicId } })
+                : router.push({ pathname: '/assignment/[id]', params: { id: item.id } })
           }
         />
       </View>

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui';
 import { summaryClauses, type SummaryClause } from '@/features/parent/report';
 import { genitiveAz, joinList } from '@/features/parent/text';
-import type { WeekReport } from '@/features/parent/types';
+import type { WeekReport } from '@mytutor/types';
 
 type ReportSummaryCardProps = { name: string; report: WeekReport };
 

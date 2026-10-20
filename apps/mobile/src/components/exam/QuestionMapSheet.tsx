@@ -14,6 +14,8 @@ type QuestionMapSheetProps = {
   flagged: string[];
   index: number;
   remainingMs: number;
+  /** The mock's whole time, for the ring around the clock. */
+  totalMs: number;
   onJump: (index: number) => void;
   onClose: () => void;
   onFinish: () => void;
@@ -23,7 +25,8 @@ const PER_ROW = 5;
 
 /** Every question at a glance; jump to one, or finish after a calm check of what is left. */
 export function QuestionMapSheet(props: QuestionMapSheetProps) {
-  const { questions, answers, flagged, index, remainingMs, onJump, onClose, onFinish } = props;
+  const { questions, answers, flagged, index, remainingMs, totalMs, onJump, onClose, onFinish } =
+    props;
   const { t } = useTranslation();
   const counts = countMap(questions, answers, flagged);
   const rows = Array.from({ length: Math.ceil(questions.length / PER_ROW) }, (_, r) =>
@@ -40,7 +43,7 @@ export function QuestionMapSheet(props: QuestionMapSheetProps) {
         <Text variant="heading" className="min-w-0 flex-1">
           {t('exam.map.title')}
         </Text>
-        <TimerPill remainingMs={remainingMs} size="sm" />
+        <TimerPill remainingMs={remainingMs} totalMs={totalMs} size="sm" />
         <IconButton icon="close" accessibilityLabel={t('common.close')} onPress={onClose} />
       </View>
       <MapLegend counts={counts} />

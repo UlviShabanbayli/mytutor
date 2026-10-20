@@ -4,7 +4,7 @@ import { Icon, Text } from '@/components/ui';
 import { formatDay } from '@/features/me/format';
 import type { ClassFeed } from '@/features/me/types';
 
-type RecordingRowProps = { item: ClassFeed['recording']; onPress: () => void };
+type RecordingRowProps = { item: NonNullable<ClassFeed['recording']>; onPress: () => void };
 
 /** A recorded live lesson of the class: date, topic and length. */
 export function RecordingRow({ item, onPress }: RecordingRowProps) {

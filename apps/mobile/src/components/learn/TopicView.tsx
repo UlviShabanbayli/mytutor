@@ -2,13 +2,17 @@ import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Banner, Button, IconButton, SourceLine, Text } from '@/components/ui';
+import { cellMotionKind, cellTimeline } from '@/components/ui/hex/levelChange';
+import { LevelSwap } from '@/components/ui/hex/LevelSwap';
 import { findTopic, nextStep, type TopicPlace } from '@/features/learn/mastery';
 import { backOr, openKnowSkip, openStep } from '@/features/learn/navigation';
-import { useRealTest } from '@/features/learn/queries';
+import { useTopicTest } from '@/features/learn/queries';
+import { useLevelChange } from '@/features/learn/seenLevels';
 import { useLearnStore } from '@/features/learn/store';
 import type { Hive } from '@/features/learn/types';
 import { useLearnText } from '@/features/learn/useLearnText';
 import { useStepBody } from '@/features/learn/useStepBody';
+import { useReducedMotionPref } from '@/motion';
 import { CenterHeader } from './CenterHeader';
 import { LevelPill } from './LevelPill';
 import { MaterialCard } from './MaterialCard';
@@ -27,13 +31,17 @@ export function TopicView({ hive, place, online }: TopicViewProps) {
   const { t, source, levelCaps } = useLearnText();
   const stepBody = useStepBody();
   const saveTopics = useLearnStore((s) => s.saveTopics);
-  const real = useRealTest(hive, place.globalIndex);
+  const real = useTopicTest(place.topic.id);
   const { unit, topic, index } = place;
   const saved = hive.savedTopicIds.includes(topic.id);
   const blocked = !online && !saved;
   const testId = real.test?.id ?? null;
   const prereqs = topic.prerequisites.flatMap((id) => findTopic(hive, id)?.topic ?? []);
   const toHive = () => router.replace({ pathname: '/subject/[id]', params: { id: hive.id } });
+  // A level that moved since the student last saw it plays once (hive.fill-nectar and others).
+  const reduced = useReducedMotionPref();
+  const from = useLevelChange(topic.id, topic.level);
+  const kind = from && !reduced ? cellMotionKind(from, topic.level) : null;
 
   return (
     <SafeAreaView className="flex-1 bg-page">
@@ -62,12 +70,23 @@ export function TopicView({ hive, place, online }: TopicViewProps) {
             word={levelCaps(topic.level)}
             size={92}
             numberSize="lg"
+            animateFrom={from}
+            fromWord={from ? levelCaps(from) : undefined}
           />
           <View className="min-w-0 flex-1 items-start gap-2">
             <Text variant="heading" className="text-[18px] leading-[24px]">
               {topic.title}
             </Text>
-            <LevelPill level={topic.level} />
+            {kind && from ? (
+              <LevelSwap
+                align="start"
+                at={cellTimeline[kind].swap}
+                before={<LevelPill level={from} />}
+                after={<LevelPill level={topic.level} />}
+              />
+            ) : (
+              <LevelPill level={topic.level} />
+            )}
           </View>
         </View>
         <SourceLine source={source(hive, topic)} />

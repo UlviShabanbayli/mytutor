@@ -1,0 +1,9 @@
+# The hosted demo API: the demo world only, no book content (see src/worker.ts).
+# Local: `pnpm --filter @mytutor/api dev:worker`. Deploy: `pnpm deploy:demo-api`, run by the lead
+# after the user confirms; it reads CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID from the
+# repo-root .env.
+name = "ari-demo-api"
+main = "src/worker.ts"
+# The newest date the pinned wrangler's local runtime supports (wrangler 4.151.1, workerd
+# 2026-10-19); move it forward together with wrangler.
+compatibility_date = "2026-10-19"

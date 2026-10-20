@@ -3,8 +3,10 @@ import { type ReactNode, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Banner, ErrorState } from '@/components/ui';
-import { useBank, useSaveTest, useWholeBank } from '@/features/teacher/queries';
+import { useSaveTest } from '@/features/teacher/mutations';
+import { useBank, useWholeBank } from '@/features/teacher/queries';
 import { countByTopic, toggleId } from '@/features/teacher/testBuilder';
+import type { TopicView } from '@/features/teacher/types';
 import { BankLoadingRow } from './BankLoadingRow';
 import { BankQuestionRow } from './BankQuestionRow';
 import { BuilderFooter, type TestAudience } from './BuilderFooter';
@@ -18,12 +20,12 @@ import { TeacherScreen } from './TeacherScreen';
 type TestBuilderProps = {
   /** Gets the live selection count so the header can say "4 sual seçildi". */
   header: (selectedCount: number) => ReactNode;
-  topicIds: string[];
-  initial: { title: string | null; topicId: string; questionIds: string[] };
+  topics: TopicView[];
+  initial: { title: string | null; topicId: string; questionIds: string[]; draftId?: string };
 };
 
 /** Build a test from our bank (M3): pick questions per topic, choose class or catalog. */
-export function TestBuilder({ header, topicIds, initial }: TestBuilderProps) {
+export function TestBuilder({ header, topics, initial }: TestBuilderProps) {
   const { t } = useTranslation();
   const [topic, setTopic] = useState(initial.topicId);
   const [selected, setSelected] = useState(initial.questionIds);
@@ -36,10 +38,15 @@ export function TestBuilder({ header, topicIds, initial }: TestBuilderProps) {
   const counts = countByTopic(selected, whole.data ?? []);
 
   const submit = () => {
-    const topics = topicIds.filter((id) => (counts[id] ?? 0) > 0).join(', ');
+    const picked = topics
+      .filter((x) => (counts[x.id] ?? 0) > 0)
+      .map((x) => x.number)
+      .join(', ');
     save.mutate(
       {
-        title: initial.title ?? t('teacher.builder.autoTitle', { topics }),
+        draftId: initial.draftId,
+        title: initial.title ?? t('teacher.builder.autoTitle', { topics: picked }),
+        topicId: topic,
         questionIds: selected,
         audience,
       },
@@ -73,7 +80,7 @@ export function TestBuilder({ header, topicIds, initial }: TestBuilderProps) {
           onPress={() => setOwn(true)}
         />
       </View>
-      <BuilderTopicTiles topicIds={topicIds} counts={counts} value={topic} onChange={setTopic} />
+      <BuilderTopicTiles topics={topics} counts={counts} value={topic} onChange={setTopic} />
       <NoteLine icon="lock">{t('teacher.builder.locked')}</NoteLine>
       {bank.isPending ? (
         <BankLoadingRow label={t('teacher.builder.loading')} />

@@ -33,6 +33,10 @@ export const learn = {
   },
   levelPill: '{{name}} · {{long}}',
   levelAria: '{{name}}, {{long}}',
+  gain_one: '+{{count}} капля мёда',
+  gain_few: '+{{count}} капли мёда',
+  gain_many: '+{{count}} капель мёда',
+  gain_other: '+{{count}} капли мёда',
   tab: {
     overline: 'ПРЕДМЕТЫ И УЧЕБНИКИ',
     title: 'Учёба',

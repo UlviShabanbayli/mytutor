@@ -1,6 +1,10 @@
 import { View } from 'react-native';
+import { HandoffTarget } from '@/components/handoff/HandoffTarget';
+import { HoneyGain } from '@/components/learn/HoneyGain';
 import { HexCell, Icon, Text, type CellState } from '@/components/ui';
+import { useHandoffArrival } from '@/features/transitions/useHandoffArrival';
 import { cn } from '@/lib/cn';
+import { NectarRise } from './NectarRise';
 
 type CellChangeProps = {
   code: string;
@@ -14,9 +18,17 @@ type CellChangeProps = {
   caption: string;
   /** `honey`: on the honey "Dərs bitdi" page; `card`: a white card on the result. */
   tone: 'honey' | 'card';
+  /** The new cell fills with nectar under a moving wave as it appears (feedback.lessondone B). */
+  rising?: boolean;
+  /** Honey won with the change: a "+N bal" chip rises beside a cell that turns honey. */
+  points?: number;
 };
 
-/** A topic cell moving up a level: the old cell, an arrow, the new bigger cell and its name. */
+/**
+ * A topic cell moving up a level: the old cell, an arrow, the new bigger cell and its name. The
+ * new cell plays the hive's level change from `from` (hive.fill-nectar A, hive.nectar-honey C),
+ * unless the test's handoff already brought it here changed (transitions.handoff B).
+ */
 export function CellChange({
   code,
   from,
@@ -26,8 +38,14 @@ export function CellChange({
   title,
   caption,
   tone,
+  rising = false,
+  points,
 }: CellChangeProps) {
   const honey = tone === 'honey';
+  const size = honey ? 92 : 72;
+  const { flown, landed } = useHandoffArrival(code);
+  const gain = to === 'mastered' && from !== 'mastered' && points !== undefined && landed;
+
   return (
     <View
       accessible
@@ -45,12 +63,25 @@ export function CellChange({
         ) : null}
       </View>
       <Icon name="chevron" size={honey ? 24 : 20} color={honey ? 'on-honey' : 'muted'} />
-      <HexCell state={to} size={honey ? 92 : 72} label={code} />
+      {/* transitions.handoff B: a test's topic cell lands here. */}
+      <HandoffTarget code={code}>
+        {rising && to === 'lesson_completed' ? (
+          <NectarRise size={size} label={code} />
+        ) : (
+          <HexCell state={to} size={size} label={code} animateFrom={flown ? undefined : from} />
+        )}
+      </HandoffTarget>
       <View className={cn('gap-0.5', honey ? '' : 'min-w-0 flex-1')}>
         <Text className={cn('font-sans-black text-md', honey && 'text-on-honey')}>{title}</Text>
         <Text className={cn('text-sm', honey ? 'font-sans-bold text-on-honey' : 'text-muted')}>
           {caption}
         </Text>
+        {gain ? (
+          // After a handoff the chip rises as the cell lands; the flight played the success cue.
+          <View className="mt-1">
+            <HoneyGain points={points} delay={flown ? 0 : undefined} cue={!flown} />
+          </View>
+        ) : null}
       </View>
     </View>
   );

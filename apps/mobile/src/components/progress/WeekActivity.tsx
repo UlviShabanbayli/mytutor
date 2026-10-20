@@ -1,26 +1,46 @@
+import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui';
-import { answeredPerDay, chartMax, goalDays, weekAccuracy } from '@/features/me/weekStats';
-import { todayIndex } from '@/features/tests/progress';
-import { DAILY_GOAL, useTestSessionStore } from '@/features/tests/sessionStore';
+import type { WeekDay } from '@mytutor/types';
+import { useMyProgress } from '@/features/me/queries';
+import { bakuWeekday, chartMax, goalDays } from '@/features/me/weekStats';
+import { DAILY_GOAL } from '@/features/tests/sessionStore';
 import { cn } from '@/lib/cn';
 
-const DAYS = ['0', '1', '2', '3', '4', '5', '6'] as const;
+const DAY_KEYS = ['0', '1', '2', '3', '4', '5', '6'] as const;
 const BAR_AREA = 72;
+const DAY_MS = 24 * 3_600_000;
+
+/** Seven empty days ending today, while the world has no week for the student. */
+const emptyDays = (now: number): WeekDay[] =>
+  Array.from({ length: 7 }, (_, i) => ({
+    date: new Date(now - (6 - i) * DAY_MS).toISOString(),
+    minutes: 0,
+    answered: 0,
+    correct: 0,
+  }));
 
 /**
- * This week from the real results: questions answered, accuracy, days that reached the daily
- * goal, and a bar per day (Monday first) with the goal as a dashed line.
+ * The last seven days from the demo world (finished tests are `test.finished` events): questions
+ * answered, accuracy, days that reached the daily goal, and a bar per day (today last) with the
+ * goal as a dashed line.
  */
 export function WeekActivity() {
   const { t } = useTranslation();
-  const results = useTestSessionStore((s) => s.results);
-  const perDay = answeredPerDay(results);
-  const week = weekAccuracy(results);
+  const progress = useMyProgress();
+  const [now] = useState(() => Date.now());
+  const days = progress.data?.week?.days ?? emptyDays(now);
+  const perDay = days.map((d) => d.answered);
+  const answers = progress.data?.week?.answers ?? { correct: 0, total: 0 };
+  const week = {
+    answered: answers.total,
+    percent: answers.total ? Math.round((answers.correct / answers.total) * 100) : null,
+  };
   const max = chartMax(perDay, DAILY_GOAL);
-  const today = todayIndex();
-  const dayName = (i: number) => t(`me.when.daysShort.${DAYS[i] ?? '0'}`);
+  const today = days.length - 1;
+  const dayName = (i: number) =>
+    t(`me.when.daysShort.${DAY_KEYS[bakuWeekday(days[i]?.date ?? '')] ?? '0'}`);
   const goalBottom = Math.round((DAILY_GOAL / max) * BAR_AREA);
 
   const stats = [
@@ -72,7 +92,10 @@ export function WeekActivity() {
           </Text>
         </View>
         {perDay.map((n, i) => (
-          <View key={DAYS[i]} className="h-[84px] flex-1 items-center justify-end gap-0.5">
+          <View
+            key={days[i]?.date ?? i}
+            className="h-[84px] flex-1 items-center justify-end gap-0.5"
+          >
             <Text tone="muted" className="font-sans-black text-[10px]">
               {n > 0 ? String(n) : t('me.progress.noValue')}
             </Text>
@@ -89,9 +112,9 @@ export function WeekActivity() {
         ))}
       </View>
       <View className="flex-row gap-2" importantForAccessibility="no-hide-descendants">
-        {DAYS.map((d, i) => (
+        {days.map((d, i) => (
           <Text
-            key={d}
+            key={d.date}
             className={cn(
               'flex-1 text-center font-sans-black text-2xs',
               i === today ? 'text-ink' : 'text-muted',

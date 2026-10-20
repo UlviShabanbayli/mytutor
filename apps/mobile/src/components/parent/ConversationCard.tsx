@@ -31,7 +31,7 @@ export function ConversationCard({ conversation: c }: ConversationCardProps) {
         .filter(Boolean)
         .join(', ')}
       onPress={() =>
-        router.push({ pathname: '/parent/chat/[teacherId]', params: { teacherId: c.teacherId } })
+        router.push({ pathname: '/parent/chat/[threadId]', params: { threadId: c.threadId } })
       }
       contentClassName="flex-row items-center gap-2.5 rounded-lg p-3"
       className="rounded-lg"

@@ -18,6 +18,7 @@ import {
 import { useOnboardingStore } from '@/features/onboarding/store';
 import type { ExamOption } from '@/features/onboarding/types';
 import { useStepFlow } from '@/features/onboarding/useStepFlow';
+import { useDemoWrite } from '@/lib/demoEvents';
 
 const DEFAULT_TARGET = 75;
 
@@ -34,6 +35,7 @@ export default function OnboardingExamScreen() {
   );
   const [target, setTarget] = useState(storedTarget ?? DEFAULT_TARGET);
   const flow = useStepFlow();
+  const write = useDemoWrite();
 
   const label = (o: ExamOption, short: boolean) =>
     o.group === null
@@ -43,7 +45,10 @@ export default function OnboardingExamScreen() {
         });
 
   const next = (withTarget: boolean) => {
-    updateProfile({ goal: examGoal(option) });
+    const goal = examGoal(option);
+    updateProfile({ goal });
+    // The exam area reads the goal from the world: the same event "Hədəf seç" writes.
+    write({ type: 'exam.goalSet', goal });
     setExamTarget(withTarget ? target : null);
     flow.next('/onboarding/time');
   };
