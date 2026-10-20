@@ -1,7 +1,9 @@
-import { Pressable } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { cn } from '@/lib/cn';
 import type { ColorName } from '@/theme';
 import { Icon, type IconName } from './Icon';
+import { useWaxPress } from './useWaxPress';
 
 type IconButtonProps = {
   icon: IconName;
@@ -13,7 +15,7 @@ type IconButtonProps = {
   className?: string;
 };
 
-/** Icon-only control with a full 48pt hit area. */
+/** Icon-only control with a full 48pt hit area; pressed, a wax square grows behind the icon. */
 export function IconButton({
   icon,
   accessibilityLabel,
@@ -22,17 +24,24 @@ export function IconButton({
   variant = 'plain',
   className,
 }: IconButtonProps) {
+  const wax = useWaxPress();
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       onPress={onPress}
+      onPressIn={wax.pressIn}
+      onPressOut={wax.pressOut}
       className={cn(
-        'min-h-touch min-w-touch items-center justify-center rounded-md active:bg-wax',
+        'min-h-touch min-w-touch items-center justify-center rounded-md',
         variant === 'outlined' && 'border border-border bg-surf',
         className,
       )}
     >
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, wax.waxStyle]}>
+        <View className="flex-1 rounded-md bg-wax" />
+      </Animated.View>
       <Icon name={icon} size={24} color={color} />
     </Pressable>
   );

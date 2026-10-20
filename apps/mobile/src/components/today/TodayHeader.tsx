@@ -1,9 +1,11 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui';
+import { streakC } from '@/components/feedback/timelines';
 import { todayDateLine } from '@/features/today/format';
 import { InboxBell } from './InboxBell';
 import { StatChip } from './StatChip';
+import { useRiseSinceSeen } from './useRiseSinceSeen';
 
 type TodayHeaderProps = {
   streak: number;
@@ -13,6 +15,8 @@ type TodayHeaderProps = {
 /** Date and "Bu gün", the flight-day and honey counters, and the inbox bell. */
 export function TodayHeader({ streak, points }: TodayHeaderProps) {
   const { t } = useTranslation();
+  // A new flight day rolls in while Vızı flies over the week (feedback.streak C).
+  const rise = useRiseSinceSeen(streak);
 
   return (
     <View className="flex-row items-end gap-2 pb-1">
@@ -28,6 +32,7 @@ export function TodayHeader({ streak, points }: TodayHeaderProps) {
         icon="wing"
         value={streak}
         accessibilityLabel={t('today.header.streak', { count: streak })}
+        roll={rise ? { rise, at: streakC.startAt + streakC.rollAt } : null}
       />
       <StatChip
         icon="drop"

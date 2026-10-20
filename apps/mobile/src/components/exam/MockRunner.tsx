@@ -36,6 +36,7 @@ export function MockRunner({ mock, attempt }: MockRunnerProps) {
   const [exiting, setExiting] = useState(false);
 
   const left = remainingMs(attempt.startedAt, mock.durationMinutes, now);
+  const totalMs = mock.durationMinutes * 60_000;
   const timeUp = left <= 0;
   const total = mock.questions.length;
   const index = Math.min(attempt.index, total - 1);
@@ -60,7 +61,8 @@ export function MockRunner({ mock, attempt }: MockRunnerProps) {
         total={total}
         answered={answered}
         remainingMs={left}
-        onExit={() => (answered > 0 ? setExiting(true) : leave())}
+        totalMs={totalMs}
+        onExit={() => (router.canGoBack() ? router.back() : router.replace('/exam/mocks'))}
       />
       <ScrollView contentContainerClassName="gap-2.5 px-4 pb-4 pt-1">
         <MockQuestionCard
@@ -92,6 +94,7 @@ export function MockRunner({ mock, attempt }: MockRunnerProps) {
         flagged={attempt.flagged}
         index={index}
         remainingMs={left}
+        totalMs={totalMs}
         onJump={(n) => {
           goTo(mock.id, n);
           setMapOpen(false);

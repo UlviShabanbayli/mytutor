@@ -312,6 +312,7 @@ export const exam = {
     progress: 'Вопрос {{current}} / {{total}}',
     progressA11y: 'Отвечено вопросов: {{answered}} из {{total}}',
     timerA11y: 'Осталось времени: {{minutes}} {{seconds}}',
+    lastMinutes: 'Последние 5 минут — проверь ответы.',
     minutesLong_one: '{{count}} минута',
     minutesLong_few: '{{count}} минуты',
     minutesLong_many: '{{count}} минут',

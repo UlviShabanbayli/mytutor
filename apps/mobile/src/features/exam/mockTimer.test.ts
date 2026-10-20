@@ -1,4 +1,12 @@
-import { clockParts, formatClock, remainingMs, spentMinutes } from './mockTimer';
+import {
+  clockParts,
+  crossedIntoLastMinutes,
+  formatClock,
+  isLastMinutes,
+  remainingMs,
+  spentMinutes,
+  timeShare,
+} from './mockTimer';
 
 describe('mock timer', () => {
   const start = Date.UTC(2026, 9, 24, 7, 0);
@@ -19,5 +27,28 @@ describe('mock timer', () => {
   it('reports at least one minute spent', () => {
     expect(spentMinutes(start, start + 58 * 60_000 + 10_000)).toBe(58);
     expect(spentMinutes(start, start + 5_000)).toBe(1);
+  });
+});
+
+describe('last five minutes', () => {
+  const min = 60_000;
+
+  it('starts at 05:00', () => {
+    expect(isLastMinutes(5 * min + 1000)).toBe(false);
+    expect(isLastMinutes(5 * min)).toBe(true);
+  });
+
+  it('is crossed once, not when a screen opens late', () => {
+    expect(crossedIntoLastMinutes(5 * min + 1000, 5 * min)).toBe(true);
+    expect(crossedIntoLastMinutes(5 * min, 4 * min + 59_000)).toBe(false);
+    expect(crossedIntoLastMinutes(null, 3 * min)).toBe(false);
+  });
+});
+
+describe('timeShare', () => {
+  it('is the share of time left, kept within 0–1', () => {
+    expect(timeShare(30 * 60_000, 60 * 60_000)).toBe(0.5);
+    expect(timeShare(-5, 100)).toBe(0);
+    expect(timeShare(5, 0)).toBe(1);
   });
 });

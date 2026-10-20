@@ -42,7 +42,7 @@ export default function AskSendScreen() {
         onSuccess: (question) => {
           // Back from the status goes to the Ask tab, not into the camera flow again.
           router.dismissAll();
-          router.push({ pathname: '/ask/[id]', params: { id: question.id } });
+          router.push({ pathname: '/ask/[id]', params: { id: question.id, sent: '1' } });
         },
       },
     );

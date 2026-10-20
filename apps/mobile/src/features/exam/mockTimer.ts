@@ -25,3 +25,20 @@ export function formatClock(ms: number): string {
 export function spentMinutes(startedAt: number, finishedAt: number): number {
   return Math.max(1, Math.round((finishedAt - startedAt) / MINUTE));
 }
+
+/** The last five minutes of a mock: the timer turns red, calmly (micro.timer B). */
+export const LAST_MINUTES_MS = 5 * MINUTE;
+
+export function isLastMinutes(remaining: number): boolean {
+  return remaining <= LAST_MINUTES_MS;
+}
+
+/** True only on the tick that crosses 05:00, so the warning is said once, not on every open. */
+export function crossedIntoLastMinutes(previous: number | null, remaining: number): boolean {
+  return previous !== null && !isLastMinutes(previous) && isLastMinutes(remaining);
+}
+
+/** Share of the time left, 0–1, for the ring around the clock. */
+export function timeShare(remaining: number, total: number): number {
+  return total > 0 ? Math.min(1, Math.max(0, remaining / total)) : 1;
+}

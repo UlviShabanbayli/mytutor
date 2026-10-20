@@ -205,6 +205,7 @@ export const aiCallSchema = z.object({
     'answers_verify',
     'test_read',
     'test_keys',
+    // Old records only: test questions are no longer reworded (they are used as printed).
     'test_paraphrase',
   ]),
   model: z.string(),

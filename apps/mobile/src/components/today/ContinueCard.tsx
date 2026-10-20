@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Icon, Text } from '@/components/ui';
+import Animated from 'react-native-reanimated';
+import { Icon, Text, useRaisedPress } from '@/components/ui';
 import type { ContinueItem } from '@/features/today/hooks';
 import { cn } from '@/lib/cn';
 
@@ -36,9 +37,13 @@ function StepSegments({ done, total }: { done: number; total: number }) {
   );
 }
 
-/** "Davam et": the inverted hero card that resumes the unfinished lesson or test. */
+/**
+ * "Davam et": the inverted hero card that resumes the unfinished lesson or test. The whole card
+ * is one raised button that sinks onto its honey-deep edge and comes back calmly (buttons.spot A).
+ */
 export function ContinueCard({ item }: ContinueCardProps) {
   const { t } = useTranslation();
+  const press = useRaisedPress({ calm: true, off: false });
   const title = item.code ? `${item.code} · ${item.title}` : item.title;
   const progress =
     item.kind === 'lesson'
@@ -58,15 +63,13 @@ export function ContinueCard({ item }: ContinueCardProps) {
       accessibilityRole="button"
       accessibilityLabel={t('today.continue.action', { title, progress })}
       onPress={() => router.push(item.href)}
-      className="rounded-xl"
+      onPressIn={press.pressIn}
+      onPressOut={press.pressOut}
+      className="rounded-xl pb-1"
     >
-      {({ pressed }) => (
-        <View
-          className={cn(
-            'flex-row items-center gap-3 rounded-xl bg-spot py-3.5 pl-4 pr-3.5',
-            pressed && 'opacity-90',
-          )}
-        >
+      <View className="absolute inset-x-0 bottom-0 top-1 rounded-xl bg-honey-deep" />
+      <Animated.View style={press.faceStyle}>
+        <View className="flex-row items-center gap-3 rounded-xl bg-spot py-3.5 pl-4 pr-3.5">
           <View className="min-w-0 flex-1 gap-1">
             <Text className="font-sans-black text-xs uppercase tracking-[1px] text-honey">
               {t('today.continue.overline')}
@@ -81,17 +84,12 @@ export function ContinueCard({ item }: ContinueCardProps) {
           </View>
           {/* The play button is the card's visual handle; the whole card is the control. */}
           <View className="rounded-xl bg-honey-deep pb-[3px]">
-            <View
-              className={cn(
-                'h-14 w-14 items-center justify-center rounded-xl bg-honey',
-                pressed && 'translate-y-[3px]',
-              )}
-            >
+            <View className="h-14 w-14 items-center justify-center rounded-xl bg-honey">
               <Icon name="play" size={24} color="on-honey" />
             </View>
           </View>
         </View>
-      )}
+      </Animated.View>
     </Pressable>
   );
 }

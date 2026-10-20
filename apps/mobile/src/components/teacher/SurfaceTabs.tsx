@@ -1,5 +1,7 @@
 import { Pressable, View } from 'react-native';
-import { Icon, type IconName, Text } from '@/components/ui';
+import Animated from 'react-native-reanimated';
+import { Icon, type IconName, Text, useSegmentIndicator } from '@/components/ui';
+import { playCue } from '@/lib/cues';
 import { cn } from '@/lib/cn';
 
 export type SurfaceTab<T extends string> = {
@@ -21,7 +23,8 @@ type SurfaceTabsProps<T extends string> = {
 };
 
 /**
- * The design's segmented track: wax ground, the chosen segment raised in white with a 2pt edge.
+ * The design's segmented track: wax ground, the chosen segment raised in white with a 2pt edge,
+ * sliding to the next choice like the segmented control's indicator (buttons.segment A).
  * (The shared SegmentedControl fills the choice with honey; this is the calmer teacher variant.)
  */
 export function SurfaceTabs<T extends string>({
@@ -32,13 +35,22 @@ export function SurfaceTabs<T extends string>({
   role = 'tab',
   className,
 }: SurfaceTabsProps<T>) {
+  const { indicatorStyle, onSegmentLayout } = useSegmentIndicator(
+    tabs.findIndex((tab) => tab.value === value),
+  );
+
   return (
     <View
       accessibilityRole={role === 'tab' ? 'tablist' : 'radiogroup'}
       accessibilityLabel={accessibilityLabel}
       className={cn('flex-row gap-1 rounded-lg bg-wax p-1', className)}
     >
-      {tabs.map((tab) => {
+      <View pointerEvents="none" className="absolute inset-x-0 inset-y-1 flex-row">
+        <Animated.View style={indicatorStyle}>
+          <View className="flex-1 rounded-md bg-surf shadow-sm shadow-border" />
+        </Animated.View>
+      </View>
+      {tabs.map((tab, i) => {
         const selected = tab.value === value;
         return (
           <Pressable
@@ -51,10 +63,13 @@ export function SurfaceTabs<T extends string>({
                 : { checked: selected, disabled: tab.locked === true }
             }
             disabled={tab.locked === true}
-            onPress={() => onChange(tab.value)}
+            onLayout={onSegmentLayout(i)}
+            onPress={() => {
+              if (!selected) playCue('select');
+              onChange(tab.value);
+            }}
             className={cn(
               'min-h-[44px] flex-1 flex-row items-center justify-center gap-1.5 rounded-md px-1 py-0.5',
-              selected && 'bg-surf shadow-sm shadow-border',
             )}
           >
             {tab.locked ? <Icon name="lock" size={16} color="lock-ink" /> : null}

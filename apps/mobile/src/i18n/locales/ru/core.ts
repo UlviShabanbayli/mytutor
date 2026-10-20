@@ -34,6 +34,7 @@ export const core = {
     correct: 'Верно',
     wrong: 'Неверно',
     source: 'Источник: {{source}}',
+    holdHint: 'Нажми и удерживай',
   },
   months: {
     '0': 'января',

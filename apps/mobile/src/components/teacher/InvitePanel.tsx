@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { phoneNumberSchema } from '@mytutor/schemas';
-import { IconButton, Text } from '@/components/ui';
+import { CodeFlash, CopyButton, IconButton, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { useInviteByPhone } from '@/features/teacher/queries';
-import { copyText, inviteLink, shareText } from '@/features/teacher/share';
+import { inviteLink, shareText } from '@/features/teacher/share';
 import type { TeacherClass } from '@/features/teacher/types';
 import { useThemeColors } from '@/theme';
 import { SmallButton } from './SmallButton';
@@ -17,7 +17,7 @@ export function InvitePanel({ cls }: InvitePanelProps) {
   const { t } = useTranslation();
   const colors = useThemeColors();
   const invite = useInviteByPhone();
-  const [copied, setCopied] = useState(false);
+  const [flash, setFlash] = useState(0);
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState<string | null>(null);
@@ -50,14 +50,19 @@ export function InvitePanel({ cls }: InvitePanelProps) {
           <Text variant="overline" tone="muted">
             {t('teacher.members.code')}
           </Text>
-          <Text selectable className="font-display-black text-md tracking-[0.7px]">
-            {cls.inviteCode}
-          </Text>
+          <CodeFlash flash={flash}>
+            <Text selectable className="font-display-black text-md tracking-[0.7px]">
+              {cls.inviteCode}
+            </Text>
+          </CodeFlash>
         </View>
-        <SmallButton
+        <CopyButton
           variant="outline"
-          label={copied ? t('teacher.members.copied') : t('teacher.members.copy')}
-          onPress={() => void copyText(cls.inviteCode).then(setCopied)}
+          compact
+          text={cls.inviteCode}
+          label={t('teacher.members.copy')}
+          copiedLabel={t('teacher.members.copied')}
+          onCopied={() => setFlash((n) => n + 1)}
         />
         <IconButton
           icon="link"

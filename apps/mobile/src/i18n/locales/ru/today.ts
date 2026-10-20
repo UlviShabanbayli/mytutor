@@ -214,6 +214,10 @@ export const today = {
     pointsCaption: 'капли мёда',
     accuracy: '{{value}}%',
     accuracyCaption: 'верных ответов',
+    streak_one: 'день полёта подряд',
+    streak_few: 'дня полёта подряд',
+    streak_many: 'дней полёта подряд',
+    streak_other: 'дня полёта подряд',
     continue: 'Продолжить',
   },
   inbox: {

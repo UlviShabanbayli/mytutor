@@ -28,6 +28,7 @@ export const core = {
     correct: 'Düz',
     wrong: 'Səhv',
     source: 'Mənbə: {{source}}',
+    holdHint: 'Basıb saxla',
   },
   // Month names by Date#getMonth() index; platform Intl data for `az` is often incomplete.
   months: {

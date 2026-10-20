@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Pressable, Share, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, Icon, Text } from '@/components/ui';
-import { canCopy, copyText } from '@/features/me/chat';
+import { Button, CodeFlash, CopyButton, Icon, Text } from '@/components/ui';
+import { canCopy } from '@/features/me/chat';
 import { formatCode, formatMinSec, secondsLeft } from '@/features/me/codes';
 import { PARENT_CODE_TTL_MS } from '@/features/me/demo';
 
@@ -17,7 +17,7 @@ type ParentCodeCardProps = {
 export function ParentCodeCard({ code, onGenerate, disabled = false }: ParentCodeCardProps) {
   const { t } = useTranslation();
   const [now, setNow] = useState(() => Date.now());
-  const [copied, setCopied] = useState(false);
+  const [flash, setFlash] = useState(0);
   const left = code ? secondsLeft(code.expiresAt, now) : 0;
   const active = code !== null && left > 0;
 
@@ -39,13 +39,15 @@ export function ParentCodeCard({ code, onGenerate, disabled = false }: ParentCod
       </Text>
       {active ? (
         <>
-          <Text
-            accessibilityLabel={code.value.split('').join(' ')}
-            selectable
-            className="font-display-black text-4xl tracking-[3px] text-on-spot"
-          >
-            {shown}
-          </Text>
+          <CodeFlash flash={flash}>
+            <Text
+              accessibilityLabel={code.value.split('').join(' ')}
+              selectable
+              className="font-display-black text-4xl tracking-[3px] text-on-spot"
+            >
+              {shown}
+            </Text>
+          </CodeFlash>
           <View accessibilityLiveRegion="none" className="flex-row items-center gap-1.5">
             <Icon name="clock" size={16} color="on-spot" />
             <Text className="text-sm text-on-spot opacity-85">
@@ -57,16 +59,13 @@ export function ParentCodeCard({ code, onGenerate, disabled = false }: ParentCod
           </View>
           <View className="mt-1 flex-row gap-2">
             {canCopy ? (
-              <View className="flex-1">
-                <Button
-                  size="md"
-                  icon={copied ? 'check' : 'file'}
-                  label={copied ? t('me.parentLink.copied') : t('me.parentLink.copy')}
-                  onPress={() => {
-                    void copyText(code.value).then(() => setCopied(true));
-                  }}
-                />
-              </View>
+              <CopyButton
+                text={code.value}
+                label={t('me.parentLink.copy')}
+                copiedLabel={t('me.parentLink.copied')}
+                onCopied={() => setFlash((n) => n + 1)}
+                className="flex-1"
+              />
             ) : null}
             <Pressable
               accessibilityRole="button"
@@ -93,7 +92,6 @@ export function ParentCodeCard({ code, onGenerate, disabled = false }: ParentCod
             disabled={disabled}
             onPress={() => {
               setNow(Date.now());
-              setCopied(false);
               onGenerate();
             }}
           />

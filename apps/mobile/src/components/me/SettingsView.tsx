@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { AppearancePicker } from '@/components/progress/AppearancePicker';
-import { Button, Screen, ScreenHeader } from '@/components/ui';
+import { Button, Screen, ScreenHeader, SegmentedControl } from '@/components/ui';
 import { useAppStore } from '@/features/app/appStore';
 import { showToast } from '@/features/transitions/toastStore';
 import { QUIET_HOURS, type QuietHours, useSettingsStore } from '@/features/me/settingsStore';
@@ -14,7 +14,6 @@ import { ChoiceSheet } from './ChoiceSheet';
 import { ConfirmSheet } from './ConfirmSheet';
 import { NicknameSheet } from './NicknameSheet';
 import { NotificationChips } from './NotificationChips';
-import { PillTabs } from './PillTabs';
 import { SettingsGroup } from './SettingsGroup';
 import { SettingsRow } from './SettingsRow';
 import { SwitchRow } from './SwitchRow';
@@ -86,15 +85,12 @@ export function SettingsView() {
           icon="target"
           label={t('me.settings.dailyGoal')}
           accessory={
-            <PillTabs
+            <SegmentedControl
               compact
               accessibilityLabel={t('me.settings.dailyGoal')}
               value={goal}
-              onChange={(v) => {
-                updateProfile({ dailyMinutes: GOAL_MINUTES[v] });
-                showToast(t('common.saved'));
-              }}
-              options={GOALS.map((g) => ({
+              onChange={(v) => updateProfile({ dailyMinutes: GOAL_MINUTES[v] })}
+              segments={GOALS.map((g) => ({
                 value: g,
                 label: g === goal ? t('me.settings.minutes', { count: Number(g) }) : g,
               }))}

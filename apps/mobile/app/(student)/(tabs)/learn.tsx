@@ -1,18 +1,20 @@
 import { useState } from 'react';
+import { router } from 'expo-router';
 import { View } from 'react-native';
 import { GradeEmpty } from '@/components/learn/GradeEmpty';
 import { GradePicker } from '@/components/learn/GradePicker';
 import { HiveCard } from '@/components/learn/HiveCard';
-import { LearnHeader } from '@/components/learn/LearnHeader';
-import { LearnSkeleton } from '@/components/learn/LearnSkeleton';
 import { OtherSubjects } from '@/components/learn/OtherSubjects';
-import { ErrorState, Icon, Screen, SkeletonSwap, Text } from '@/components/ui';
+import { CollapsingTitle, ErrorState, Icon, IconButton, LoadingState, Text } from '@/components/ui';
 import { useAppStore } from '@/features/app/appStore';
 import { openHive, openTopic } from '@/features/learn/navigation';
 import { DEFAULT_GRADE, useGradeSubjects } from '@/features/learn/queries';
 import { useLearnText } from '@/features/learn/useLearnText';
 
-/** Öyrən: grades 5–11 (all open), the grade's hive box and its other subjects. */
+/**
+ * Öyrən: grades 5–11 (all open), the grade's hive box and its other subjects. The large title
+ * shrinks into a bar as the page scrolls (micro.header B).
+ */
 export default function LearnScreen() {
   const { t, grade: gradeText } = useLearnText();
   const ownGrade = useAppStore((s) => s.profile.grade);
@@ -20,8 +22,18 @@ export default function LearnScreen() {
   const { query, hive, preparing } = useGradeSubjects(grade);
 
   return (
-    <Screen>
-      <LearnHeader />
+    <CollapsingTitle
+      overline={t('learn.tab.overline')}
+      title={t('learn.tab.title')}
+      actions={
+        <IconButton
+          icon="search"
+          variant="outlined"
+          accessibilityLabel={t('learn.tab.search')}
+          onPress={() => router.push('/search')}
+        />
+      }
+    >
       <GradePicker value={grade} ownGrade={ownGrade} onChange={setGrade} />
       {query.isError ? (
         <ErrorState onRetry={() => void query.refetch()} />
@@ -51,6 +63,6 @@ export default function LearnScreen() {
       ) : (
         <GradeEmpty grade={grade} ownGrade={ownGrade} onBack={setGrade} />
       )}
-    </Screen>
+    </CollapsingTitle>
   );
 }

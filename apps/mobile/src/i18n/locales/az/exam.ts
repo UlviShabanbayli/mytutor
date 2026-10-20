@@ -300,6 +300,7 @@ export const exam = {
     progress: 'Sual {{current}} / {{total}}',
     progressA11y: 'Cavablanan suallar: {{answered}} / {{total}}',
     timerA11y: 'Qalan vaxt: {{minutes}} {{seconds}}',
+    lastMinutes: 'Son 5 dəqiqə — cavablarını yoxla.',
     minutesLong_one: '{{count}} dəqiqə',
     minutesLong_other: '{{count}} dəqiqə',
     secondsLong_one: '{{count}} saniyə',
