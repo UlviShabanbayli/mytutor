@@ -1,15 +1,20 @@
 import type { PracticeTest } from '@mytutor/types';
 import { isCorrect } from '@/features/tests/answers';
 import { isMatchComplete, isMatchCorrect } from './matching';
+import { POINTS_PER_CORRECT } from './rewards';
 import type { SessionStep, StepVerdict, StudyTest } from './types';
 
-/** An API test as a session: one step per question. */
+/**
+ * A practice test outside the demo world (a published test, the mistakes run) as a session: one
+ * step per question, worth the points of its right answers.
+ */
 export function studyTestOf(test: PracticeTest): StudyTest {
   return {
     test,
     steps: test.questions.map((question) => ({ kind: 'question', id: question.id, question })),
     kind: 'topic',
     topicCode: null,
+    points: test.questions.length * POINTS_PER_CORRECT,
   };
 }
 

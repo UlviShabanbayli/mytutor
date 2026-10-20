@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Banner, Button, HexCell, ScreenHeader, Text } from '@/components/ui';
+import { Button, HexCell, ScreenHeader, Text } from '@/components/ui';
 import { isThisWeek } from '@/features/study/time';
 import type { MistakeGroup } from '@/features/study/types';
 import { TestMathContext } from '@/features/tests/testMath';
@@ -12,12 +12,12 @@ import { MistakeFilters, type MistakeFilter } from './MistakeFilters';
 type MistakesViewProps = {
   groups: MistakeGroup[];
   subjects: { id: string; title: string }[];
-  isDemo: boolean;
-  onRepeat: () => void;
+  /** "Hamısını təkrarla"; null when there is no test to practise them in. */
+  onRepeat: (() => void) | null;
 };
 
 /** "Səhvlərim": missed questions by topic, filters, and one button to practise them all. */
-export function MistakesView({ groups, subjects, isDemo, onRepeat }: MistakesViewProps) {
+export function MistakesView({ groups, subjects, onRepeat }: MistakesViewProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [filter, setFilter] = useState<MistakeFilter>({ kind: 'all' });
@@ -55,7 +55,6 @@ export function MistakesView({ groups, subjects, isDemo, onRepeat }: MistakesVie
       </View>
       <ScrollView contentContainerClassName="gap-2 px-4 pb-4 pt-1">
         <MistakeFilters subjects={subjects} value={filter} onChange={setFilter} />
-        {isDemo ? <Banner kind="info" message={t('study.mistakes.demoNote')} /> : null}
         <Text variant="caption" tone="muted" className="font-sans">
           {t('study.mistakes.intro')}
         </Text>
@@ -80,16 +79,18 @@ export function MistakesView({ groups, subjects, isDemo, onRepeat }: MistakesVie
         ))}
       </ScrollView>
       {/* The home indicator inset is device-specific, so it cannot be a static class. */}
-      <View
-        className="border-t border-border bg-page px-4 pt-2.5"
-        style={{ paddingBottom: Math.max(insets.bottom, 12) + 8 }}
-      >
-        <Button
-          label={t('study.mistakes.repeatAll', { count: total })}
-          icon="refresh"
-          onPress={onRepeat}
-        />
-      </View>
+      {onRepeat ? (
+        <View
+          className="border-t border-border bg-page px-4 pt-2.5"
+          style={{ paddingBottom: Math.max(insets.bottom, 12) + 8 }}
+        >
+          <Button
+            label={t('study.mistakes.repeatAll', { count: total })}
+            icon="refresh"
+            onPress={onRepeat}
+          />
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 }

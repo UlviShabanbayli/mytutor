@@ -9,17 +9,17 @@ import { lessonDoneB } from '@/components/feedback/timelines';
 import { Mascot } from '@/components/mascot/Mascot';
 import { Button, Icon, Text } from '@/components/ui';
 import { leaveTo } from '@/features/study/leave';
-import type { StudyLesson } from '@/features/study/types';
+import type { LessonView } from '@/features/study/types';
 import { playCue } from '@/lib/cues';
 import { CellChange } from './CellChange';
 import { DoneTile } from './DoneTile';
 
 type LessonDoneViewProps = {
-  lesson: StudyLesson;
-  /** Minutes the four steps took; null when unknown (the screen was opened directly). */
+  lesson: LessonView;
+  /** Minutes the steps took; null when unknown (the screen was opened directly). */
   minutes: number | null;
-  /** Questions in the topic test, for "Növbəti: mövzu testi · 5 sual". */
-  questions: number;
+  /** Questions in the topic test, for "Növbəti: mövzu testi · 5 sual"; null without a test. */
+  questions: number | null;
 };
 
 const { mascot, mascotFrom, headsAt, headStagger, tilesAt, tileStagger, ctaAt } = lessonDoneB;
@@ -70,17 +70,19 @@ export function LessonDoneView({ lesson, minutes, questions }: LessonDoneViewPro
           />
         </FadeUp>
         <View className="flex-row gap-2.5 self-stretch">
-          <DoneTile
-            value={lesson.points}
-            format={(n) => t('study.common.pointsValue', { count: n })}
-            label={t('study.done.points')}
-            delay={tilesAt}
-          />
+          {lesson.points !== null ? (
+            <DoneTile
+              value={lesson.points}
+              format={(n) => t('study.common.pointsValue', { count: n })}
+              label={t('study.done.points')}
+              delay={tilesAt}
+            />
+          ) : null}
           {minutes !== null ? (
             <DoneTile
               value={minutes}
               format={(n) => t('study.done.minutes', { count: n })}
-              label={t('study.done.allSteps')}
+              label={t('study.done.allSteps', { count: lesson.steps.length })}
               delay={tilesAt + tileStagger}
             />
           ) : null}
@@ -91,32 +93,45 @@ export function LessonDoneView({ lesson, minutes, questions }: LessonDoneViewPro
           className="flex-1 self-stretch"
           contentClassName="flex-1 items-center gap-3"
         >
-          <View className="flex-row items-center gap-2">
-            <Icon name="target" size={18} color="on-honey" />
-            <Text className="font-sans-bold text-sm text-on-honey">
-              {t('study.done.next', {
-                questions: t('common.questionsCount', { count: questions }),
-                minutes: Math.max(1, Math.ceil(questions * 0.8)),
-              })}
-            </Text>
-          </View>
+          {questions !== null ? (
+            <View className="flex-row items-center gap-2">
+              <Icon name="target" size={18} color="on-honey" />
+              <Text className="font-sans-bold text-sm text-on-honey">
+                {t('study.done.next', {
+                  questions: t('common.questionsCount', { count: questions }),
+                  minutes: Math.max(1, Math.ceil(questions * 0.8)),
+                })}
+              </Text>
+            </View>
+          ) : null}
           <View className="flex-1" />
-          <Button
-            label={t('study.done.toTest')}
-            variant="spot"
-            onPress={() =>
-              router.replace({ pathname: '/test/[id]', params: { id: lesson.testId } })
-            }
-            className="self-stretch"
-          />
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t('study.common.later')}
-            onPress={() => leaveTo('/learn')}
-            className="min-h-touch items-center justify-center self-stretch rounded-lg active:bg-white/45"
-          >
-            <Text className="font-sans-bold text-on-honey">{t('study.common.later')}</Text>
-          </Pressable>
+          {questions !== null ? (
+            <Button
+              label={t('study.done.toTest')}
+              variant="spot"
+              onPress={() =>
+                router.replace({ pathname: '/test/[id]', params: { id: lesson.testId } })
+              }
+              className="self-stretch"
+            />
+          ) : (
+            <Button
+              label={t('study.done.toLearn')}
+              variant="spot"
+              onPress={() => leaveTo('/learn')}
+              className="self-stretch"
+            />
+          )}
+          {questions !== null ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('study.common.later')}
+              onPress={() => leaveTo('/learn')}
+              className="min-h-touch items-center justify-center self-stretch rounded-lg active:bg-white/45"
+            >
+              <Text className="font-sans-bold text-on-honey">{t('study.common.later')}</Text>
+            </Pressable>
+          ) : null}
         </FadeUp>
       </View>
     </SafeAreaView>
