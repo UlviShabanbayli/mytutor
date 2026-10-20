@@ -117,6 +117,9 @@ export function formatWeekRange(t: TFunction, start: Date, short = false) {
   });
 }
 
+/** The weekday of a date, Monday = 0 (the order of the weekday names). */
+export const weekdayIndex = (date: Date) => (date.getDay() + 6) % 7;
+
 export const weekdayName = (t: TFunction, index: number, long = false) =>
   t((long ? WEEKDAYS_LONG : WEEKDAYS)[index] ?? 'parent.date.weekdays.0');
 

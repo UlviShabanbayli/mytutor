@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { HexCell, Text } from '@/components/ui';
 import { unitStats, type UnitNote } from '@/features/parent/report';
-import type { UnitProgress } from '@/features/parent/types';
+import type { UnitProgress } from '@mytutor/types';
 
 type UnitRowProps = { unit: UnitProgress };
 

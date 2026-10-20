@@ -2,14 +2,14 @@ import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, Text } from '@/components/ui';
-import type { ChildOverview, LinkRequest } from '@/features/parent/types';
+import type { ChildView } from '@/features/parent/types';
 import { ChildCard } from './ChildCard';
 import { ChildRequestCard } from './ChildRequestCard';
 
-type KidsListProps = { kids: ChildOverview[]; request: LinkRequest | null };
+type KidsListProps = { kids: ChildView[] };
 
-/** "Uşaqlarım": linked children, children waiting to be linked, and "add a child". */
-export function KidsList({ kids, request }: KidsListProps) {
+/** "Uşaqlarım": linked children, children waiting for consent, and "add a child". */
+export function KidsList({ kids }: KidsListProps) {
   const { t } = useTranslation();
 
   return (
@@ -31,15 +31,6 @@ export function KidsList({ kids, request }: KidsListProps) {
           />
         ),
       )}
-      {request ? (
-        <ChildRequestCard
-          name={request.childName}
-          status={t('parent.kids.awaitingApproval')}
-          body={t('parent.kids.awaitingApprovalBody', { name: request.childName })}
-          actionLabel={t('parent.kids.openRequest')}
-          onAction={() => router.push('/parent/pending')}
-        />
-      ) : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t('parent.kids.addChild')}

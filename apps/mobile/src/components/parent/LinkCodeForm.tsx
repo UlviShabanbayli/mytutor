@@ -3,8 +3,8 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Text } from '@/components/ui';
-import { LinkCodeError } from '@/features/parent/demo';
-import { useSubmitLinkCode } from '@/features/parent/queries';
+import { LinkCodeError } from '@/features/parent/errors';
+import { useLinkChild } from '@/features/parent/writes';
 import { CodeBoxes } from './CodeBoxes';
 import { CodeWhereCard } from './CodeWhereCard';
 import { IconNote } from './IconNote';
@@ -13,11 +13,14 @@ import { SectionLabel } from './SectionLabel';
 
 const LENGTH = 6;
 
-/** The code the child made, checked by the server; a refused code says why in plain words. */
+/**
+ * The code the child made, checked by the server; a refused code says why in plain words. An
+ * accepted code links the child at once and the parent is back on "Uşaqlarım" with the child.
+ */
 export function LinkCodeForm() {
   const { t } = useTranslation();
   const [code, setCode] = useState('');
-  const submit = useSubmitLinkCode();
+  const submit = useLinkChild();
   const reason = submit.error instanceof LinkCodeError ? submit.error : null;
 
   const change = (next: string) => {
@@ -25,20 +28,20 @@ export function LinkCodeForm() {
     if (submit.isError) submit.reset();
   };
 
-  const send = () => submit.mutate(code, { onSuccess: () => router.replace('/parent/pending') });
+  const toKids = () => router.dismissTo('/parent/kids');
+  const send = () => submit.mutate(code, { onSuccess: toKids });
+  // Already linked is not a mistake: the child is on "Uşaqlarım", and the way back is offered.
+  const linked = reason?.reason === 'already_linked' ? reason : null;
 
-  const errorText = reason
-    ? reason.reason === 'expired'
-      ? { title: t('parent.code.expiredTitle'), body: t('parent.code.expiredBody') }
-      : reason.reason === 'already_linked'
-        ? {
-            title: t('parent.code.linkedTitle', { name: reason.childName ?? '' }),
-            body: t('parent.code.linkedBody'),
-          }
+  const errorText = linked
+    ? null
+    : reason
+      ? reason.reason === 'expired'
+        ? { title: t('parent.code.expiredTitle'), body: t('parent.code.expiredBody') }
         : { title: t('parent.code.notFoundTitle'), body: t('parent.code.notFoundBody') }
-    : submit.isError
-      ? { title: t('common.errorTitle'), body: t('common.errorDescription') }
-      : null;
+      : submit.isError
+        ? { title: t('common.errorTitle'), body: t('common.errorDescription') }
+        : null;
 
   return (
     <View className="flex-1 gap-4">
@@ -60,15 +63,27 @@ export function LinkCodeForm() {
         />
       </View>
       {errorText ? <InfoCard tone="error" icon="warning" {...errorText} /> : null}
+      {linked ? (
+        <InfoCard
+          icon="check"
+          announce
+          title={t('parent.code.linkedTitle', { name: linked.childName ?? '' })}
+          body={t('parent.code.linkedBody')}
+        />
+      ) : null}
       <CodeWhereCard />
       <IconNote icon="shield" text={t('parent.code.safety')} className="px-1" />
       <View className="min-h-4 flex-1" />
-      <Button
-        label={t('parent.code.submit')}
-        disabled={code.length < LENGTH || errorText !== null}
-        loading={submit.isPending}
-        onPress={send}
-      />
+      {linked ? (
+        <Button label={t('parent.state.toKids')} onPress={toKids} />
+      ) : (
+        <Button
+          label={t('parent.code.submit')}
+          disabled={code.length < LENGTH || errorText !== null}
+          loading={submit.isPending}
+          onPress={send}
+        />
+      )}
     </View>
   );
 }

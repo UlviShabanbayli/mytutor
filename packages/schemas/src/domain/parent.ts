@@ -69,7 +69,11 @@ export const childOverviewSchema = z.object({
   childId: z.string().min(1),
   name: z.string().min(1),
   grade: z.number().int().min(1).max(11),
+  /** The child's class ("7b"), its short name ("7B") and full name ("7B · Riyaziyyat"). */
+  classId: z.string().nullable(),
   className: z.string().nullable(),
+  classLabel: z.string().nullable(),
+  teacherId: z.string().nullable(),
   teacherName: z.string().nullable(),
   relation: parentRelationSchema,
   status: childLinkStatusSchema,

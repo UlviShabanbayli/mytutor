@@ -21,6 +21,15 @@ describe('demo verifier', () => {
     });
   });
 
+  it('knows the demo accounts: their numbers sign in instead of starting a new account', async () => {
+    const { verifier } = setup();
+    await verifier.sendCode('+994500000004');
+    await expect(verifier.checkCode('+994500000004', '246810')).resolves.toEqual({
+      status: 'approved',
+      isNewAccount: false,
+    });
+  });
+
   it('needs a sent code first', async () => {
     const { verifier } = setup();
     await expect(verifier.checkCode(PHONE, DEMO_CODE)).resolves.toEqual({ status: 'no_code' });

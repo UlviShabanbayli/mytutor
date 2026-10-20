@@ -11,8 +11,8 @@ import { useThread } from '@/features/parent/queries';
 /** The parent's conversation with the child's teacher (architecture V3). */
 export default function ParentChatScreen() {
   const { t } = useTranslation();
-  const { teacherId } = useLocalSearchParams<{ teacherId: string }>();
-  const thread = useThread(teacherId);
+  const { threadId } = useLocalSearchParams<{ threadId: string }>();
+  const thread = useThread(threadId);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-page">

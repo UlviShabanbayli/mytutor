@@ -7,6 +7,7 @@ import {
   formatDuration,
   formatWeekRange,
   formatWhen,
+  weekdayIndex,
 } from './format';
 
 const t = i18n.t.bind(i18n);
@@ -27,6 +28,12 @@ describe('dates', () => {
     expect(formatWhen(t, new Date(2026, 9, 18, 17, 52), now)).toBe('bu gün, 17:52');
     expect(formatClock(t, new Date(2026, 9, 18, 17, 40), now)).toBe('17:40');
     expect(formatDayMonthTime(t, new Date(2026, 9, 21, 23, 59))).toBe('21 okt, 23:59');
+  });
+
+  it('counts weekdays from Monday, so a report starting on a Wednesday is labelled from Ç', () => {
+    expect(weekdayIndex(new Date(2026, 9, 12))).toBe(0);
+    expect(weekdayIndex(new Date(2026, 9, 14))).toBe(2);
+    expect(weekdayIndex(new Date(2026, 9, 18))).toBe(6);
   });
 
   it('writes week ranges inside and across months', () => {

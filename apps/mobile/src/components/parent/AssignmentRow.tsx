@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn';
 import type { ColorName } from '@/theme';
 import { formatDayMonth, formatDayMonthTime } from '@/features/parent/format';
 import { assignmentTone, type AssignmentTone } from '@/features/parent/report';
-import type { Assignment } from '@/features/parent/types';
+import type { AssignmentItem } from '@/features/parent/types';
 
 const tones: Record<
   AssignmentTone,
@@ -18,7 +18,7 @@ const tones: Record<
   idle: { box: 'bg-wax', text: 'text-lock-ink', color: 'lock-ink', icon: null },
 };
 
-type AssignmentRowProps = { assignment: Assignment };
+type AssignmentRowProps = { assignment: AssignmentItem };
 
 /** One class assignment: title, due or hand-in date, and a status pill with a word and icon. */
 export function AssignmentRow({ assignment: a }: AssignmentRowProps) {

@@ -1,4 +1,5 @@
 import type {
+  Announcement,
   ChildAssignment,
   ChildAssignmentList,
   ChildLink,
@@ -47,7 +48,10 @@ function overview(world: DemoWorld, link: ChildLink): ChildOverview {
     childId: link.childId,
     name: personOf(world, link.childId)?.firstName ?? link.childId,
     grade: GRADES[link.childId] ?? 7,
+    classId: cls?.id ?? null,
     className: cls?.shortName ?? null,
+    classLabel: cls?.name ?? null,
+    teacherId: cls?.teacherId ?? null,
     teacherName: cls ? (personOf(world, cls.teacherId)?.fullName ?? null) : null,
     relation: link.relation,
     status: link.status,
@@ -180,3 +184,15 @@ export function selectParentCode(world: DemoWorld, code: string): ParentCodeLook
 
 export const selectNotificationPrefs = (world: DemoWorld): NotificationPrefs =>
   world.notificationPrefs;
+
+/** GET /v1/parent/notes: the teachers' class notes of the classes the parent's children are in. */
+export function selectParentNotes(world: DemoWorld): Announcement[] {
+  const classIds = new Set(
+    world.childLinks
+      .filter((l) => l.parentId === world.parent.personId && l.status === 'active')
+      .flatMap((l) => classOf(world, l.childId)?.id ?? []),
+  );
+  return world.announcements
+    .filter((a) => classIds.has(a.classId))
+    .sort((a, b) => b.at.localeCompare(a.at));
+}

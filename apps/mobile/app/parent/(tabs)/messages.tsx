@@ -34,7 +34,7 @@ export default function ParentMessagesScreen() {
               <View className="gap-2">
                 <SectionLabel>{t('parent.messages.teachers')}</SectionLabel>
                 {list.map((c) => (
-                  <ConversationCard key={c.teacherId} conversation={c} />
+                  <ConversationCard key={c.threadId} conversation={c} />
                 ))}
               </View>
               {list.some((c) => c.latestNote) ? (

@@ -12,31 +12,41 @@ import { useAppStore } from '@/features/app/appStore';
 import { ROLE_HOME } from '@/features/app/roleHome';
 import { CHILD_CODE_LENGTH, normalizeChildCode } from '@/features/onboarding/childCode';
 import { useChildCode } from '@/features/onboarding/queries';
+import { useLinkChild } from '@/features/parent/writes';
 
 /**
- * The parent's first step after the account (architecture V1): the child's code, whose code it
- * is, and a link request. The child approves it; the parent area shows the waiting state.
+ * The parent's first step after the account (architecture V1): the child's code and whose code
+ * it is. Linking writes `child.linked`, and the parent's home opens with the child on it; a
+ * child the parent already follows needs no new link.
  */
 export default function OnboardingParentScreen() {
   const { t } = useTranslation();
   const completeOnboarding = useAppStore((s) => s.completeOnboarding);
   const [code, setCode] = useState('');
   const lookup = useChildCode(code);
+  const link = useLinkChild();
   const complete = code.length === CHILD_CODE_LENGTH;
+  const found = lookup.data ?? null;
   const status = !complete
     ? null
     : lookup.isPending
       ? 'checking'
-      : lookup.isError
+      : lookup.isError || link.isError
         ? 'error'
-        : lookup.data
-          ? 'found'
-          : 'not_found';
+        : found === null
+          ? 'not_found'
+          : found.expired
+            ? 'expired'
+            : 'found';
 
-  const requestLink = () => {
+  const finish = () => {
     completeOnboarding();
     router.replace(ROLE_HOME.parent);
-    router.push('/parent/pending');
+  };
+
+  const requestLink = () => {
+    if (found?.alreadyLinked) finish();
+    else link.mutate(code, { onSuccess: finish });
   };
 
   return (
@@ -44,8 +54,9 @@ export default function OnboardingParentScreen() {
       step="parent"
       footer={
         <Button
-          label={t('onboarding.parentStart.submit')}
+          label={t(found?.alreadyLinked ? 'onboarding.continue' : 'onboarding.parentStart.submit')}
           disabled={status !== 'found'}
+          loading={link.isPending}
           onPress={requestLink}
         />
       }
@@ -56,15 +67,18 @@ export default function OnboardingParentScreen() {
       />
       <CodeBoxes
         value={code}
-        onChange={setCode}
+        onChange={(next) => {
+          setCode(next);
+          if (link.isError) link.reset();
+        }}
         length={CHILD_CODE_LENGTH}
         kind="letters"
         splitAfter={3}
         normalize={normalizeChildCode}
-        error={status === 'not_found'}
+        error={status === 'not_found' || status === 'expired'}
         accessibilityLabel={t('onboarding.parentStart.codeLabel')}
       />
-      {status ? <ChildCodeStatus state={status} child={lookup.data} /> : null}
+      {status ? <ChildCodeStatus state={status} child={found} /> : null}
       <HowItWorks />
       <NoteLine icon="eye" text={t('onboarding.parentStart.note')} />
     </StepScreen>

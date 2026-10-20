@@ -54,25 +54,13 @@ export const parent = {
     short: { hoursMinutes: '{{h}} ч {{m}} мин', hours: '{{h}} ч', minutes: '{{m}} мин' },
   },
   percent: '{{value}}%',
+  /** How the parent's link list names what a child shares ("Paylaşır: hesabat, fənlər"). */
   categories: {
-    report: {
-      title: 'Недельный отчёт',
-      body: 'Время, активные дни, новые темы, точность',
-      short: 'отчёт',
-    },
-    progress: {
-      title: 'Прогресс по предметам',
-      body: 'Рамки и результаты тестов',
-      short: 'предметы',
-    },
-    assignments: {
-      title: 'Задания класса',
-      body: 'Вовремя, опоздания, оценка учителя',
-      short: 'задания',
-    },
-    exam: { title: 'Подготовка к экзамену', body: 'План и примерная готовность', short: 'экзамен' },
+    report: { short: 'отчёт' },
+    progress: { short: 'предметы' },
+    assignments: { short: 'задания' },
+    exam: { short: 'экзамен' },
   },
-  neverShared: 'Никогда не показывается: чаты с Вызы и вопросы по фото.',
   kids: {
     title: 'Мои дети',
     bell: 'Уведомления',
@@ -122,9 +110,6 @@ export const parent = {
     awaitingConsentBody:
       'Аккаунт для {{name}} открывается с вашего согласия. Подтвердите код из SMS — и отчёт появится здесь.',
     giveConsent: 'Дать согласие',
-    awaitingApproval: 'Ждёт подтверждения',
-    awaitingApprovalBody: '{{name}}: нужно подтвердить запрос в своём приложении.',
-    openRequest: 'Открыть запрос',
     addChild: 'Добавить ребёнка',
   },
   notifications: {
@@ -152,19 +137,7 @@ export const parent = {
     notFoundTitle: 'Такой код не найден',
     notFoundBody: 'Проверьте символы. Если код верный, попросите ребёнка создать новый.',
     linkedTitle: 'Ребёнок уже подключён: {{name}}',
-    linkedBody: 'Отчёт ребёнка виден в разделе «Мои дети».',
-  },
-  pending: {
-    title: 'Ждём подтверждения',
-    accepted: 'Код принят',
-    heading: '{{name}}: нужно подтвердить',
-    body: 'Запрос отправлен в приложение ребёнка. Когда он будет подтверждён, мы пришлём уведомление.',
-    validity: 'Запрос действует 24 часа · {{when}}',
-    chooseTitle: 'Ребёнок сам выберет, чем делиться',
-    requestAgain: 'Запросить код снова',
-    cancel: 'Отменить запрос',
-    emptyTitle: 'Нет ожидающих запросов',
-    emptyBody: 'Когда вы введёте код ребёнка, запрос появится здесь.',
+    linkedBody: 'Отчёт ребёнка виден в разделе «Мои дети». Остановить связь можно в разделе «Я».',
   },
   report: {
     title: 'Недельный отчёт',
@@ -372,7 +345,6 @@ export const parent = {
     sharesNothing: 'Пока ничем не делится',
     stop: 'Остановить связь',
     awaitingConsent: 'До 13 лет · ждёт вашего согласия',
-    awaitingApproval: 'Ждёт подтверждения',
     giveConsent: 'Дать согласие',
     noKids: 'Подключённых детей пока нет.',
     stopTitle: 'Остановить связь с {{name}}?',

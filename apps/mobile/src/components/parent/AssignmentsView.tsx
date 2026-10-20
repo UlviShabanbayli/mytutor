@@ -3,13 +3,13 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { EmptyState, Text } from '@/components/ui';
 import { groupAssignments, type AssignmentFilter } from '@/features/parent/report';
-import type { Assignment } from '@/features/parent/types';
+import type { AssignmentItem } from '@/features/parent/types';
 import { AssignmentRow } from './AssignmentRow';
 import { FilterTabs } from './FilterTabs';
 import { InfoCard } from './InfoCard';
 import { SectionLabel } from './SectionLabel';
 
-type AssignmentsViewProps = { items: Assignment[] };
+type AssignmentsViewProps = { items: AssignmentItem[] };
 
 /** The child's class assignments, open ones first, with an all / active / done filter. */
 export function AssignmentsView({ items }: AssignmentsViewProps) {

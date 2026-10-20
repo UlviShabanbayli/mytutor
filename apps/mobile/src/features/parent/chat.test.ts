@@ -1,7 +1,7 @@
 import { groupByDay } from './chat';
-import type { ChatMessage } from './types';
+import type { ThreadMessage } from './types';
 
-const message = (id: string, at: Date): ChatMessage => ({
+const message = (id: string, at: Date): ThreadMessage => ({
   id,
   from: 'teacher',
   text: id,

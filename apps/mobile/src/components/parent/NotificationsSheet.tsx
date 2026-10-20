@@ -22,7 +22,7 @@ export function NotificationsSheet({ visible, onClose, items }: NotificationsShe
     if (n.kind === 'weekly_report') {
       router.push({ pathname: '/parent/report/[childId]', params: { childId: n.childId } });
     } else {
-      router.push({ pathname: '/parent/chat/[teacherId]', params: { teacherId: n.teacherId } });
+      router.push({ pathname: '/parent/chat/[threadId]', params: { threadId: n.threadId } });
     }
   };
 

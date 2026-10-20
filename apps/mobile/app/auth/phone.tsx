@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { DemoAccountsHint } from '@/components/onboarding/DemoAccountsHint';
 import { NoteLine } from '@/components/onboarding/NoteLine';
 import { PhoneField } from '@/components/onboarding/PhoneField';
 import { StepScreen } from '@/components/onboarding/StepScreen';
@@ -14,7 +15,8 @@ import { isAuthReason } from '@/features/auth/types';
 
 /**
  * Account step 1: the student's mobile number (+994). `?reason=` starts a new flow when the
- * phone is the first account screen (teacher, parent, "Hesabım var — daxil ol").
+ * phone is the first account screen (teacher, parent, "Hesabım var — daxil ol"). A demo
+ * account's number signs in to its role and world after the SMS code.
  */
 export default function AuthPhoneScreen() {
   const { t } = useTranslation();
@@ -70,6 +72,7 @@ export default function AuthPhoneScreen() {
       />
       {send.isError ? <Banner kind="error" message={t('onboarding.phone.sendError')} /> : null}
       <NoteLine icon="shield" iconColor="ok" text={t('onboarding.phone.privacy')} />
+      <DemoAccountsHint onPick={setDigits} />
     </StepScreen>
   );
 }

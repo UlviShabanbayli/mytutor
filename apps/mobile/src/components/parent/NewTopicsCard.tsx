@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { HexCell, Text } from '@/components/ui';
-import type { TopicRef } from '@/features/parent/types';
+import type { TopicRef } from '@mytutor/types';
 import { ReportTile } from './ReportTile';
 
 type NewTopicsCardProps = { topics: TopicRef[]; completedUnit: string | null };

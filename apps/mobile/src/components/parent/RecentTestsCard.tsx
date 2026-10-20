@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { formatDayMonth } from '@/features/parent/format';
-import type { TestScore } from '@/features/parent/types';
+import type { TestScore } from '@mytutor/types';
 import { SectionLabel } from './SectionLabel';
 
 type RecentTestsCardProps = { tests: TestScore[] };
