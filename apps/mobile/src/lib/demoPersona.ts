@@ -2,10 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { DemoPersona } from '@mytutor/types';
+import { queryClient } from './query-client';
 
 /**
  * Which demo world the app shows: Nərmin's (the default) or a first-day student's. Kept on the
- * device; every API call sends it (`apiGet(path, { persona })`).
+ * device; every API call sends it (`apiGet(path, { persona })`). Switching clears the query
+ * cache, so no screen shows the other world's data.
  */
 type DemoPersonaState = {
   persona: DemoPersona;
@@ -16,7 +18,10 @@ export const useDemoPersonaStore = create<DemoPersonaState>()(
   persist(
     (set) => ({
       persona: 'nermin',
-      setPersona: (persona) => set({ persona }),
+      setPersona: (persona) => {
+        set({ persona });
+        queryClient.clear();
+      },
     }),
     { name: 'mytutor-demo-persona', storage: createJSONStorage(() => AsyncStorage) },
   ),

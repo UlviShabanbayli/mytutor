@@ -43,6 +43,8 @@ import type {
   curriculumSubjectSchema,
   deadlineSchema,
   demoAccountSchema,
+  demoEventSchema,
+  demoQuerySchema,
   demoPersonaSchema,
   demoWorldSchema,
   examPlanDaySchema,
@@ -307,3 +309,11 @@ export type ClassInsights = z.output<typeof classInsightsSchema>;
 
 export type BookLesson = z.output<typeof bookLessonSchema>;
 export type BookAnswers = z.output<typeof bookAnswersSchema>;
+
+export type DemoEvent = z.output<typeof demoEventSchema>;
+export type DemoEventType = DemoEvent['type'];
+/** Omit over each member of a union, keeping it a union. */
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+/** An event as a screen writes it: `useDemoWrite` adds `id` and `at`. */
+export type DemoEventInput = DistributiveOmit<DemoEvent, 'id' | 'at'>;
+export type DemoQueryBody = z.output<typeof demoQuerySchema>;
