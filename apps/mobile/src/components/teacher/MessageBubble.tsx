@@ -7,7 +7,7 @@ import { useTeacherFormat } from '@/features/teacher/useTeacherFormat';
 
 type MessageBubbleProps = { message: ChatMessageView };
 
-/** One chat message; the teacher's own sit on the right in raised honey. */
+/** One chat message; the teacher's own sit on the right in raised honey, "Oxundu" once read. */
 export function MessageBubble({ message: m }: MessageBubbleProps) {
   const { t } = useTranslation();
   const f = useTeacherFormat();
@@ -23,7 +23,11 @@ export function MessageBubble({ message: m }: MessageBubbleProps) {
         {m.mine ? t('teacher.live.me') : (m.author?.name ?? '')}
       </Text>
       <Text className="font-sans text-sm">{m.text}</Text>
-      <Text className="font-sans text-2xs text-muted">{f.dayAt(new Date(m.at))}</Text>
+      <Text className="font-sans text-2xs text-muted">
+        {m.mine && m.status === 'read'
+          ? t('teacher.messages.readAt', { time: f.dayAt(new Date(m.at)) })
+          : f.dayAt(new Date(m.at))}
+      </Text>
     </View>
   );
 }

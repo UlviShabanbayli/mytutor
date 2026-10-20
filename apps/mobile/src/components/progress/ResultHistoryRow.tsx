@@ -67,7 +67,7 @@ export function ResultHistoryRow({ result, onPress }: ResultHistoryRowProps) {
               })}
             </Text>
           </View>
-          <Icon name="chevron" size={18} color="muted" />
+          {onPress ? <Icon name="chevron" size={18} color="muted" /> : null}
         </View>
       </Animated.View>
     </Pressable>

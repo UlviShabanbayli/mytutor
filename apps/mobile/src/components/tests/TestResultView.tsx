@@ -69,7 +69,8 @@ export function TestResultView({ study, result }: TestResultViewProps) {
         </View>
         <ScrollView contentContainerClassName="gap-3 px-4 pb-4">
           <ResultHero correct={score.correct} total={score.scored} marks={marks} />
-          {study.kind === 'mistakes' ? null : (
+          {/* Mistakes and a review span several topics: no single cell changes. */}
+          {study.kind === 'mistakes' || study.kind === 'review' ? null : (
             <CellChange
               code={study.topicCode ?? ''}
               from="lesson_completed"
@@ -103,7 +104,7 @@ export function TestResultView({ study, result }: TestResultViewProps) {
         <View className="px-4 pb-2 pt-2.5">
           <Button label={t('study.common.continue')} onPress={finish} />
         </View>
-        {study.kind === 'mistakes' ? null : (
+        {study.kind === 'mistakes' || study.kind === 'review' ? null : (
           <HandoffOverlay code={study.topicCode ?? ''} to={cell} />
         )}
       </SafeAreaView>

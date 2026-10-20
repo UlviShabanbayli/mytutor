@@ -100,8 +100,9 @@ export function TestSession({ study, kind }: TestSessionProps) {
         }
         onClose={() => (answeredCount > 0 ? setExiting(true) : leaveTo('/learn'))}
         trailing={
-          // transitions.handoff B: the topic cell flies from here to the result card.
-          study.kind !== 'mistakes' && study.topicCode ? (
+          // transitions.handoff B: the topic cell flies from here to the result card. A review
+          // spans several topics: no single cell.
+          study.kind !== 'mistakes' && study.kind !== 'review' && study.topicCode ? (
             <HandoffSource code={study.topicCode} />
           ) : undefined
         }

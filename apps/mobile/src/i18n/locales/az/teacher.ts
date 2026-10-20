@@ -644,6 +644,7 @@ export const teacher = {
     placeholder: 'Mesaj yaz…',
     send: 'Göndər',
     emptyThread: 'Hələ mesaj yoxdur. İlk mesajı sən yaz.',
+    readAt: '{{time}} · Oxundu',
     emptyTitle: 'Hələ mesaj yoxdur',
     emptyBody: 'Sinif söhbətləri və valideynlərlə yazışma burada olacaq.',
   },
