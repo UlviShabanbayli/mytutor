@@ -162,16 +162,17 @@ packages/
 Demo scope: **test practice**. The app UI is Azerbaijani only.
 
 Content rule (non-negotiable): test questions are built ONLY from the textbooks and
-test banks the team provides. Paraphrase them; never invent questions, answers or
-explanations. Every question cites its source (`sourceRefSchema`: book/bank, grade,
-section, page) so a teacher can verify it.
+test banks the team provides. Questions from test books are used exactly as printed
+(the team's decision: those books are written and tried out by teachers); never
+invent questions, answers or explanations. Every question cites its source
+(`sourceRefSchema`: book/bank, grade, section, page) so a teacher can verify it.
 
 1. **Scaffold** — monorepo, `apps/mobile`, `apps/api` skeleton, `packages/*`, GitHub
    Actions CI (typecheck, lint, test), theme tokens, `components/ui` primitives.
 2. **Test UI** — subjects → topics → one-question-at-a-time test with feedback,
    explanation and source → result → results history. Runs on clearly marked demo data.
 3. **Content import** — ingest the provided textbooks and test banks into
-   paraphrased, source-cited questions (schemas in `packages/schemas/src/test.ts`).
+   source-cited questions (schemas in `packages/schemas/src/test.ts`).
 4. **Tests API** — serve subjects/topics/tests from PostgreSQL; persist results.
 
 After the demo:
