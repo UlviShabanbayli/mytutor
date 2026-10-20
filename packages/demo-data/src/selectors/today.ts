@@ -71,9 +71,8 @@ export function selectToday(world: DemoWorld): TodayResponse {
   const map = studentMap(world);
   const crystals = topicsAt(map, 'needs_practice');
   const week = world.weekReports[student.personId]?.[0];
-  const due = myAssignments(world).filter(
-    (a) => a.dueAt > world.now && (a.submission === null || a.submission.state === 'in_progress'),
-  );
+  // Work due from now on, with its state: handed-in and graded work stays until its due date.
+  const due = myAssignments(world).filter((a) => a.dueAt > world.now);
   return {
     studentName: student.name,
     plan: plan(world),
@@ -87,6 +86,8 @@ export function selectToday(world: DemoWorld): TodayResponse {
         teacher: cls ? teacherTitle(cls.teacherId) : '',
         title: a.title,
         dueAt: a.dueAt,
+        state: a.submission?.state ?? 'not_started',
+        grade: a.submission?.grade ?? null,
       };
     }),
     firstStep: {

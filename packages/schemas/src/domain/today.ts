@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { gradeSchema, submissionStateSchema } from './assignments';
 import { masteryLevelSchema } from './course';
 import { dateTimeSchema, pointsSchema } from './people';
 
@@ -49,7 +50,7 @@ export const unfinishedLessonSchema = z.object({
   total: z.number().int().positive(),
 });
 
-/** A class assignment due soon (architecture Ş10). */
+/** A class assignment due soon (architecture Ş10), with where the student is with it. */
 export const assignmentDueSchema = z.object({
   id: z.string().min(1),
   className: z.string().min(1),
@@ -57,6 +58,9 @@ export const assignmentDueSchema = z.object({
   teacher: z.string().min(1),
   title: z.string().min(1),
   dueAt: dateTimeSchema,
+  state: submissionStateSchema,
+  /** The teacher's grade once checked. */
+  grade: gradeSchema.nullable(),
 });
 
 /** First day: where to start in the recommended textbook. */
