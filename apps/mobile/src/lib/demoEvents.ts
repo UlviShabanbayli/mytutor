@@ -66,8 +66,30 @@ export function useDemoWrite(): (event: DemoEventInput) => void {
   );
 }
 
-/** "Demo məlumatını sıfırla": forgets the current persona's events and refetches. */
+/** Puts a device store's demo state back to the first day, for one persona. */
+export type DemoReset = (persona: DemoPersona) => void;
+
+const resets = new Set<DemoReset>();
+
+/**
+ * Device stores that keep demo state the events do not hold (the textbook choice, the first
+ * step, test results, exam targets, local switches) register how to forget it, so "Demo
+ * məlumatını sıfırla" brings the first-day screens back. Returns a function that unregisters.
+ */
+export function registerDemoReset(reset: DemoReset): () => void {
+  resets.add(reset);
+  return () => {
+    resets.delete(reset);
+  };
+}
+
+/**
+ * "Demo məlumatını sıfırla": forgets the current persona's events and every registered device
+ * store's demo state, then refetches.
+ */
 export function resetDemo(): void {
-  useDemoEventsStore.getState().clear(useDemoPersonaStore.getState().persona);
+  const persona = useDemoPersonaStore.getState().persona;
+  useDemoEventsStore.getState().clear(persona);
+  for (const reset of resets) reset(persona);
   void queryClient.invalidateQueries();
 }

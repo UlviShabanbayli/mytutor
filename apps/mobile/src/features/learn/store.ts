@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { DemoPersona } from '@mytutor/types';
+import { registerDemoReset } from '@/lib/demoEvents';
 import { useDemoPersona, useDemoPersonaStore } from '@/lib/demoPersona';
 import type { HiveState } from './mastery';
 import type { PlacementAnswer, PlacementOutcome } from './types';
@@ -113,6 +114,15 @@ export const useLearnStore = create<LearnState>()(
       }),
     },
   ),
+);
+
+// "Demo məlumatını sıfırla": the persona starts over (textbook, placement, levels, downloads).
+registerDemoReset((persona) =>
+  useLearnStore.setState((s) => {
+    const byPersona = { ...s.byPersona };
+    delete byPersona[persona];
+    return { byPersona, recentSearches: [] };
+  }),
 );
 
 /** A piece of the current persona's learn data. */

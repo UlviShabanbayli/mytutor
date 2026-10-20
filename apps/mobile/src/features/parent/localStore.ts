@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { NotificationPrefs } from '@mytutor/types';
+import { registerDemoReset } from '@/lib/demoEvents';
 import type { NotificationKind } from './types';
 
 type ParentLocalState = {
@@ -40,3 +41,6 @@ export const useParentLocalStore = create<ParentLocalState>()(
     },
   ),
 );
+
+// "Demo məlumatını sıfırla": read marks, reports and switches go back to the server's.
+registerDemoReset(() => useParentLocalStore.setState({ seenAt: {}, reported: [], prefs: {} }));

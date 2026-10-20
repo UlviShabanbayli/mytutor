@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { registerDemoReset } from '@/lib/demoEvents';
 
 export const EXAM_TARGETS = ['unknown', '60', '75', '90'] as const;
 export type ExamTarget = (typeof EXAM_TARGETS)[number];
@@ -26,6 +27,16 @@ type ExamPrefsState = {
   addChainToPlan: (weakSpotId: string) => void;
 };
 
+/** A student who has not set up the exam area yet. */
+const EXAM_DEFAULTS = {
+  target: '75' as ExamTarget,
+  minutesPerDay: 40 as ExamMinutes,
+  registeredMocks: [] as string[],
+  leaderboardOptIn: false,
+  reminders: true,
+  chainsInPlan: [] as string[],
+};
+
 const addOnce = (list: string[], id: string) => (list.includes(id) ? list : [...list, id]);
 
 /**
@@ -35,12 +46,7 @@ const addOnce = (list: string[], id: string) => (list.includes(id) ? list : [...
 export const useExamStore = create<ExamPrefsState>()(
   persist(
     (set) => ({
-      target: '75',
-      minutesPerDay: 40,
-      registeredMocks: [],
-      leaderboardOptIn: false,
-      reminders: true,
-      chainsInPlan: [],
+      ...EXAM_DEFAULTS,
       setPlanPrefs: ({ target, minutesPerDay }) => set({ target, minutesPerDay }),
       registerMock: (mockId) =>
         set((s) => ({ registeredMocks: addOnce(s.registeredMocks, mockId) })),
@@ -70,3 +76,6 @@ export const useExamStore = create<ExamPrefsState>()(
     },
   ),
 );
+
+// "Demo məlumatını sıfırla": the target, minutes, registrations and choices start over.
+registerDemoReset(() => useExamStore.setState({ ...EXAM_DEFAULTS }));

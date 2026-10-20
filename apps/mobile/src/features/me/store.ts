@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { registerDemoReset } from '@/lib/demoEvents';
 import { PARENT_CODE_TTL_MS } from './codes';
 import type { GrantKey, Grants } from './privacy';
 
@@ -30,8 +31,8 @@ type MeState = {
   clearParentCode: () => void;
 };
 
-export const useMeStore = create<MeState>((set) => ({
-  guest: false,
+/** What the demo resets: the nickname edit, the league choice, switches, reports, reminders. */
+const ME_DEFAULTS = {
   nickname: null,
   leagueJoined: true,
   grants: {
@@ -41,6 +42,11 @@ export const useMeStore = create<MeState>((set) => ({
   reported: [],
   reminders: [],
   parentCode: null,
+} satisfies Partial<MeState>;
+
+export const useMeStore = create<MeState>((set) => ({
+  guest: false,
+  ...ME_DEFAULTS,
   setGuest: (guest) => set({ guest }),
   setNickname: (nickname) => set({ nickname: nickname.trim() }),
   setLeagueJoined: (leagueJoined) => set({ leagueJoined }),
@@ -57,3 +63,6 @@ export const useMeStore = create<MeState>((set) => ({
     set({ parentCode: { value, expiresAt: now + PARENT_CODE_TTL_MS } }),
   clearParentCode: () => set({ parentCode: null }),
 }));
+
+// "Demo məlumatını sıfırla": the world's nickname and league again (the guest preview stays).
+registerDemoReset(() => useMeStore.setState({ ...ME_DEFAULTS }));

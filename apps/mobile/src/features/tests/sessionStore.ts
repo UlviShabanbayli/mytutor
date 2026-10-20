@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { PracticeTest, TestAnswers, TestResult } from '@mytutor/types';
+import { registerDemoReset } from '@/lib/demoEvents';
 import { useDemoPersonaStore } from '@/lib/demoPersona';
 import { countCorrect } from './scoring';
 
@@ -74,6 +75,9 @@ useDemoPersonaStore.subscribe((state, previous) => {
   if (state.persona !== previous.persona)
     useTestSessionStore.setState({ session: null, results: [] });
 });
+
+// "Demo məlumatını sıfırla": no running test and no finished tests either.
+registerDemoReset(() => useTestSessionStore.setState({ session: null, results: [] }));
 
 /** Questions answered today across finished tests (drives the daily goal). */
 export function answeredToday(results: TestResult[], now = new Date()): number {

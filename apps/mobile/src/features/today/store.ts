@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { DemoPersona } from '@mytutor/types';
+import { registerDemoReset } from '@/lib/demoEvents';
 import { daysBetween } from './dates';
 
 type TodayState = {
@@ -50,6 +51,14 @@ export const useTodayStore = create<TodayState>()(
       partialize: ({ lastVisit, firstStepTaken }) => ({ lastVisit, firstStepTaken }),
     },
   ),
+);
+
+// "Demo məlumatını sıfırla": the first-day card comes back, and no long break is noticed.
+registerDemoReset((persona) =>
+  useTodayStore.setState((s) => ({
+    lastVisit: null,
+    firstStepTaken: s.firstStepTaken.filter((p) => p !== persona),
+  })),
 );
 
 /** True once the stored state is loaded, so the first-day screen never flashes. */
