@@ -2,7 +2,8 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui';
 import { formatDuration } from '@/features/parent/format';
-import type { ChildLink, WeekReport } from '@/features/parent/types';
+import type { WeekReport } from '@mytutor/types';
+import type { ChildView } from '@/features/parent/types';
 import { ActiveDaysCard } from './ActiveDaysCard';
 import { NewTopicsCard } from './NewTopicsCard';
 import { ReportStatusTiles } from './ReportStatusTiles';
@@ -11,7 +12,7 @@ import { ReportTile, TileValue } from './ReportTile';
 import { TeacherNoteCard } from './TeacherNoteCard';
 import { WeakSpotsCard } from './WeakSpotsCard';
 
-type ReportBodyProps = { child: ChildLink; report: WeekReport };
+type ReportBodyProps = { child: ChildView; report: WeekReport };
 
 /** One week of the report (V2): summary, time, accuracy, days, topics, status, notes. */
 export function ReportBody({ child, report }: ReportBodyProps) {

@@ -1,7 +1,8 @@
-import type { Assignment, Mastery, UnitProgress, WeekReport } from './types';
+import type { MasteryLevel, UnitProgress, WeekReport } from '@mytutor/types';
+import type { AssignmentItem } from './types';
 
 /** Honey and sealed cells count as mastered ("hüceyrə mənimsənilib"). */
-export const isMastered = (level: Mastery) => level === 'mastered' || level === 'reinforced';
+export const isMastered = (level: MasteryLevel) => level === 'mastered' || level === 'reinforced';
 
 export type UnitNote =
   | { kind: 'practice'; count: number }
@@ -14,7 +15,7 @@ export type UnitStats = {
   done: number;
   total: number;
   /** The level the unit's number hexagon shows: honey when complete, nectar while in progress. */
-  level: Mastery;
+  level: MasteryLevel;
   note: UnitNote;
 };
 
@@ -26,7 +27,7 @@ export function unitStats(unit: UnitProgress): UnitStats {
   const practice = levels.filter((l) => l === 'needs_practice').length;
   const learning = levels.filter((l) => l === 'lesson_completed').length;
   const started = levels.some((l) => l !== 'not_started');
-  const level: Mastery =
+  const level: MasteryLevel =
     total > 0 && done === total ? 'mastered' : started ? 'lesson_completed' : 'not_started';
   const note: UnitNote =
     practice > 0
@@ -74,10 +75,11 @@ export function summaryClauses(report: WeekReport): SummaryClause[] {
 
 export type AssignmentFilter = 'all' | 'active' | 'done';
 
-export const isAssignmentDone = (a: Assignment) => a.state === 'submitted' || a.state === 'checked';
+export const isAssignmentDone = (a: AssignmentItem) =>
+  a.state === 'submitted' || a.state === 'checked';
 
 /** Open work and finished work, each in the order the server sends (newest first). */
-export function groupAssignments(items: Assignment[]) {
+export function groupAssignments(items: AssignmentItem[]) {
   return {
     active: items.filter((a) => !isAssignmentDone(a)),
     done: items.filter(isAssignmentDone),
@@ -87,7 +89,7 @@ export function groupAssignments(items: Assignment[]) {
 export type AssignmentTone = 'work' | 'late' | 'ok' | 'check' | 'idle';
 
 /** The status pill of an assignment: colour tone and icon (the label is never colour alone). */
-export function assignmentTone(a: Assignment): AssignmentTone {
+export function assignmentTone(a: AssignmentItem): AssignmentTone {
   switch (a.state) {
     case 'in_progress':
       return 'work';

@@ -1,14 +1,22 @@
-import { demoAssignments, demoReports, demoSubjects, NERMIN } from './demoData';
+import {
+  buildDemoWorld,
+  selectChildAssignments,
+  selectChildProgress,
+  selectChildReport,
+} from '@mytutor/demo-data';
+import type { MasteryLevel, UnitProgress, WeekReport } from '@mytutor/types';
+import { toAssignmentItem } from './map';
 import { groupAssignments, subjectTotals, summaryClauses, unitStats } from './report';
-import type { UnitProgress, WeekReport } from './types';
 
-const subject = demoSubjects[NERMIN]?.[0];
-const thisWeek = demoReports[NERMIN]?.[0];
+const world = buildDemoWorld({ now: new Date('2026-10-20T06:00:00.000Z'), persona: 'nermin' });
+const subject = selectChildProgress(world, 'nermin')?.[0];
+const thisWeek = selectChildReport(world, 'nermin', 0)?.report;
 
-const unitOf = (levels: UnitProgress['topics'][number]['level'][]): UnitProgress => ({
+const unitOf = (levels: MasteryLevel[]): UnitProgress => ({
+  unitId: 'u9',
   number: '9',
   title: 'Test',
-  topics: levels.map((level, i) => ({ number: `9.${i + 1}`, level })),
+  topics: levels.map((level, i) => ({ topicId: `t${i}`, number: `9.${i + 1}`, level })),
 });
 
 describe('unitStats', () => {
@@ -35,7 +43,7 @@ describe('unitStats', () => {
     });
   });
 
-  it('gives the design totals for the demo hive box', () => {
+  it('gives the one mastery map: 15 of the 26 cells of Riyaziyyat 7 are honey', () => {
     expect(subject && subjectTotals(subject.units)).toEqual({ done: 15, total: 26 });
   });
 });
@@ -43,7 +51,7 @@ describe('unitStats', () => {
 describe('summaryClauses', () => {
   it('lists days, new topics and assignments in order', () => {
     expect(thisWeek && summaryClauses(thisWeek)).toEqual([
-      { kind: 'days', count: 5 },
+      { kind: 'days', count: 6 },
       { kind: 'topics', count: 4 },
       { kind: 'tasksAll', count: 3 },
     ]);
@@ -52,7 +60,7 @@ describe('summaryClauses', () => {
   it('leaves out what is not shared or did not happen', () => {
     const week = thisWeek as WeekReport;
     expect(summaryClauses({ ...week, newTopics: [], assignments: null })).toEqual([
-      { kind: 'days', count: 5 },
+      { kind: 'days', count: 6 },
     ]);
     expect(summaryClauses({ ...week, assignments: { onTime: 2, total: 3 } })[2]).toEqual({
       kind: 'tasksSome',
@@ -64,9 +72,11 @@ describe('summaryClauses', () => {
 });
 
 describe('groupAssignments', () => {
-  it('splits open and finished work', () => {
-    const { active, done } = groupAssignments(demoAssignments[NERMIN]?.items ?? []);
-    expect(active.map((a) => a.id)).toEqual(['a1', 'a2']);
-    expect(done.map((a) => a.id)).toEqual(['a3', 'a4', 'a5', 'a6']);
+  it('splits open and finished work, hw-4-1 waiting for the grade among the finished', () => {
+    const items = (selectChildAssignments(world, 'nermin')?.items ?? []).map(toAssignmentItem);
+    const { active, done } = groupAssignments(items);
+    expect(active.length + done.length).toBe(items.length);
+    expect(active.every((a) => a.state !== 'submitted' && a.state !== 'checked')).toBe(true);
+    expect(done.find((a) => a.id === 'hw-4-1')).toMatchObject({ state: 'submitted', score: null });
   });
 });

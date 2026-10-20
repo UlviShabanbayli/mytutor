@@ -11,7 +11,7 @@ type ChildRequestCardProps = {
   onAction: () => void;
 };
 
-/** A child who is not linked yet: waiting for the parent's consent or for the child's approval. */
+/** A child who is not linked yet: an account under 13 waiting for the parent's consent. */
 export function ChildRequestCard({
   name,
   subtitle,

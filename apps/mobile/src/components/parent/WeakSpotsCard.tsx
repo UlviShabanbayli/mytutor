@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { HexCell, Text } from '@/components/ui';
 import { genitiveAz } from '@/features/parent/text';
-import type { TopicRef } from '@/features/parent/types';
+import type { TopicRef } from '@mytutor/types';
 import { ReportTile } from './ReportTile';
 
 type WeakSpotsCardProps = { name: string; topics: TopicRef[] };

@@ -1,10 +1,10 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { formatDuration } from '@/features/parent/format';
-import type { WeekOverview } from '@/features/parent/types';
+import type { ChildWeek } from '@/features/parent/types';
 import { WeekTile } from './WeekTile';
 
-type WeekTilesProps = { week: WeekOverview };
+type WeekTilesProps = { week: ChildWeek };
 
 /** The four facts of the week in a 2×2 grid; assignments only when the child shares them. */
 export function WeekTiles({ week }: WeekTilesProps) {

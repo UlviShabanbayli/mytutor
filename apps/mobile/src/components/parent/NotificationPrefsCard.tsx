@@ -1,8 +1,10 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useNotificationPrefs, useSetNotificationPref } from '@/features/parent/queries';
+import { PARENT_NOTIFICATION_KINDS } from '@mytutor/schemas';
+import { useNotificationPrefs } from '@/features/parent/queries';
 import { joinList } from '@/features/parent/text';
-import { NOTIFICATION_KINDS, type NotificationKind } from '@/features/parent/types';
+import type { NotificationKind } from '@/features/parent/types';
+import { useSetNotificationPref } from '@/features/parent/writes';
 import { SectionLabel } from './SectionLabel';
 import { ToggleRow } from './ToggleRow';
 
@@ -45,14 +47,14 @@ export function NotificationPrefsCard({ lateAllowedBy }: NotificationPrefsCardPr
     <View className="gap-1.5">
       <SectionLabel>{t('parent.me.notifications')}</SectionLabel>
       <View className="overflow-hidden rounded-lg border border-border bg-surf">
-        {NOTIFICATION_KINDS.map((kind, i) => (
+        {PARENT_NOTIFICATION_KINDS.map((kind, i) => (
           <ToggleRow
             key={kind}
             title={t(`parent.me.notif.${kind}`)}
             note={note(kind)}
             on={values[kind]}
-            onChange={(on) => setPref.mutate({ kind, on })}
-            divider={i < NOTIFICATION_KINDS.length - 1}
+            onChange={(on) => setPref(kind, on)}
+            divider={i < PARENT_NOTIFICATION_KINDS.length - 1}
           />
         ))}
       </View>

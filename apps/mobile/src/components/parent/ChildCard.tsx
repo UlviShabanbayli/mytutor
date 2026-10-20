@@ -3,13 +3,13 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Icon, Text } from '@/components/ui';
 import { formatClock, formatWeekRange } from '@/features/parent/format';
-import type { ChildOverview } from '@/features/parent/types';
+import type { ChildView } from '@/features/parent/types';
 import { HexAvatar } from './HexAvatar';
 import { LockedNote } from './LockedNote';
 import { ReportButton } from './ReportButton';
 import { WeekTiles } from './WeekTiles';
 
-type ChildCardProps = { child: ChildOverview };
+type ChildCardProps = { child: ChildView };
 
 /** A linked child: who, this week in four facts, and the way into the report and assignments. */
 export function ChildCard({ child }: ChildCardProps) {

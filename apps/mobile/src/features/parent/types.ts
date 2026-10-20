@@ -1,130 +1,40 @@
-/**
- * View types of the parent area for the demo. The real schemas (ParentLink, Grant, Consent and
- * the weekly report) come with the parent API (architecture V1–V3) into packages/schemas.
- */
-
-/** What a child can choose to show a parent (architecture "Rollar və icazələr"). */
-export type ShareCategory = 'report' | 'progress' | 'assignments' | 'exam';
-
-export const SHARE_CATEGORIES: readonly ShareCategory[] = [
-  'report',
-  'progress',
-  'assignments',
-  'exam',
-];
-
-/** Mastery level of one topic cell (same code names as the `HexCell` states, ADR 0001). */
-export type Mastery =
-  'not_started' | 'lesson_completed' | 'mastered' | 'reinforced' | 'needs_practice';
+import type { ChildOverview, NotificationPrefs } from '@mytutor/types';
 
 /**
- * - `active`: linked; the parent sees what the child shares.
- * - `awaiting_consent`: a child under 13 is opening an account and needs the parent's consent.
+ * View shapes of the parent area. The data comes from the demo world (`/v1/parent/*`, domain
+ * types in `@mytutor/types`); `features/parent/map.ts` turns it into these.
  */
-export type ChildLinkStatus = 'active' | 'awaiting_consent';
 
-export type ChildLink = {
-  childId: string;
-  name: string;
-  grade: number;
-  /** The child's class ("7B") and its teacher, when the child is in a class. */
-  className: string | null;
-  teacherName: string | null;
-  status: ChildLinkStatus;
-  underThirteen: boolean;
-  /** The categories the child shares; the server leaves out everything else. */
-  grants: ShareCategory[];
-};
-
-/** This week at a glance on the child's card (only when the child shares the report). */
-export type WeekOverview = {
-  weekStart: string;
-  minutes: number;
-  activeDays: number;
-  newTopics: number;
-  /** Null when the child does not share assignments. */
-  assignments: { onTime: number; total: number } | null;
-  lastActiveAt: string | null;
-  /** The parent has not opened this week's report yet. */
+/** This week at a glance on a child's card, and whether the parent has opened the report. */
+export type ChildWeek = NonNullable<ChildOverview['week']> & {
+  /** This week's report notification is still unread. */
   reportIsNew: boolean;
 };
 
-export type ChildOverview = ChildLink & { week: WeekOverview | null };
+/** A child as the parent's screens show it. */
+export type ChildView = Omit<ChildOverview, 'week'> & { week: ChildWeek | null };
 
-/** The parent's own code request, waiting for the child's approval. */
-export type LinkRequest = {
-  childId: string;
-  childName: string;
-  sentAt: string;
-  expiresAt: string;
-};
+/** Where an assignment stands for the parent; `late` is derived (due passed, nothing in). */
+export type AssignmentItemState = 'not_started' | 'in_progress' | 'late' | 'submitted' | 'checked';
 
-export type TopicRef = { number: string; title: string };
-
-export type WeekReport = {
-  /** Monday of the week (ISO). */
-  weekStart: string;
-  minutes: number;
-  previousMinutes: number | null;
-  /** Monday first, seven days. */
-  activeDays: boolean[];
-  answers: { correct: number; total: number };
-  newTopics: TopicRef[];
-  /** A unit (çərçivə) whose every topic became honey this week. */
-  completedUnit: string | null;
-  weakSpots: TopicRef[];
-  assignments: { onTime: number; total: number } | null;
-  /** Estimated readiness in percent; null when not shared or no plan exists. */
-  examReadiness: number | null;
-  teacherNote: { teacherId: string; teacherName: string; text: string } | null;
-};
-
-/** One page of the report: a week by its offset from the latest week (0 = this week). */
-export type ReportPage = { report: WeekReport | null; hasPrevious: boolean; hasNext: boolean };
-
-export type UnitProgress = {
-  number: string;
-  title: string;
-  topics: { number: string; level: Mastery }[];
-};
-
-export type TestScore = {
-  id: string;
-  kind: 'practice' | 'unit';
-  /** Topic number for a practice test, unit number for a unit test. */
-  ref: string;
-  takenAt: string;
-  questions: number;
-  correct: number;
-};
-
-export type SubjectProgress = {
-  subjectId: string;
-  title: string;
-  book: string;
-  units: UnitProgress[];
-  recentTests: TestScore[];
-};
-
-export type AssignmentState = 'not_started' | 'in_progress' | 'late' | 'submitted' | 'checked';
-
-export type Assignment = {
+export type AssignmentItem = {
   id: string;
   title: string;
   dueAt: string;
-  state: AssignmentState;
+  state: AssignmentItemState;
   progress: { done: number; total: number } | null;
   lateDays: number;
   submittedAt: string | null;
   onTime: boolean;
+  /** A mock's grade is shown as a percent, every other grade as points. */
   score: { kind: 'points'; value: number; max: number } | { kind: 'percent'; value: number } | null;
 };
 
-export type AssignmentList = { classLabel: string; items: Assignment[] };
-
+/** A teacher's note to the whole class ("Sinif qeydi · 7B"). */
 export type ClassNote = { id: string; className: string; text: string; at: string };
 
-export type ChatMessage = {
+/** A message of the parent's conversation with a teacher. */
+export type ThreadMessage = {
   id: string;
   from: 'teacher' | 'me';
   text: string;
@@ -133,8 +43,9 @@ export type ChatMessage = {
   reported: boolean;
 };
 
+/** The teacher a conversation is with, and whose teacher. */
 export type TeacherContact = {
-  teacherId: string;
+  threadId: string;
   name: string;
   firstName: string;
   /** "7B · Riyaziyyat" */
@@ -148,24 +59,15 @@ export type Conversation = TeacherContact & {
   unread: number;
 };
 
-export type Thread = TeacherContact & { notes: ClassNote[]; messages: ChatMessage[] };
+export type Thread = TeacherContact & { notes: ClassNote[]; messages: ThreadMessage[] };
 
-export type ParentNotification =
-  | { id: string; kind: 'weekly_report'; childId: string; childName: string; at: string }
-  | { id: string; kind: 'teacher_message'; teacherId: string; teacherName: string; at: string };
+export type ParentNotification = { id: string; at: string; read: boolean } & (
+  | { kind: 'weekly_report'; childId: string; childName: string }
+  | { kind: 'teacher_message'; threadId: string; teacherName: string }
+);
 
-export type NotificationKind = 'weeklyReport' | 'assignmentLate' | 'longBreak' | 'teacherMessage';
+/** What a parent can switch notifications on and off for. */
+export type NotificationKind = keyof NotificationPrefs;
 
-export const NOTIFICATION_KINDS: readonly NotificationKind[] = [
-  'weeklyReport',
-  'assignmentLate',
-  'longBreak',
-  'teacherMessage',
-];
-
-export type NotificationPrefs = Record<NotificationKind, boolean>;
-
-export type ParentProfile = { name: string; phoneMasked: string };
-
-/** A child under 13 whose account waits for the parent's SMS consent. */
-export type ConsentRequest = { childId: string; childName: string; phoneMasked: string };
+/** The parent's own name and masked number ("Mən" header, the first greeting). */
+export type ParentSelf = { name: string; phoneMasked: string };

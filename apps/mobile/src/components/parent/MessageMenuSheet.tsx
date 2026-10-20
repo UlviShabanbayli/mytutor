@@ -2,14 +2,14 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Icon, Sheet, Text } from '@/components/ui';
 import { formatTime } from '@/features/parent/format';
-import type { ChatMessage } from '@/features/parent/types';
+import type { ThreadMessage } from '@/features/parent/types';
 
 type MessageMenuSheetProps = {
-  message: ChatMessage | null;
+  message: ThreadMessage | null;
   authorName: string;
   /** Absent where the platform has no clipboard. */
-  onCopy?: (message: ChatMessage) => void;
-  onReport: (message: ChatMessage) => void;
+  onCopy?: (message: ThreadMessage) => void;
+  onReport: (message: ThreadMessage) => void;
   onClose: () => void;
 };
 

@@ -1,174 +1,200 @@
-import { useMutation, useMutationState, useQuery, useQueryClient } from '@tanstack/react-query';
-import * as api from './demo';
-import type { ChatMessage, NotificationKind, Thread } from './types';
+import { useCallback } from 'react';
+import { type QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
+import type {
+  Announcement,
+  ChatThreadView,
+  DemoPersona,
+  NotificationPrefs,
+  ParentHome,
+} from '@mytutor/types';
+import { useDemoPersona } from '@/lib/demoPersona';
+import * as api from './api';
+import { useParentLocalStore } from './localStore';
+import {
+  parentSelf,
+  toAssignmentItem,
+  toChildViews,
+  toConversations,
+  toNotifications,
+  toThread,
+} from './map';
+import type { Thread } from './types';
 
+/** Every key starts with the persona, so the two demo worlds never share an answer. */
 export const parentKeys = {
   all: ['parent'] as const,
-  profile: ['parent', 'profile'] as const,
-  children: ['parent', 'children'] as const,
-  request: ['parent', 'request'] as const,
-  consent: ['parent', 'consent'] as const,
-  report: (childId: string, week: number) => ['parent', 'report', childId, week] as const,
-  subjects: (childId: string) => ['parent', 'subjects', childId] as const,
-  assignments: (childId: string) => ['parent', 'assignments', childId] as const,
-  conversations: ['parent', 'conversations'] as const,
-  thread: (teacherId: string) => ['parent', 'thread', teacherId] as const,
-  send: (teacherId: string) => ['parent', 'send', teacherId] as const,
-  notifications: ['parent', 'notifications'] as const,
-  prefs: ['parent', 'prefs'] as const,
+  home: (p: DemoPersona) => ['parent', p, 'home'] as const,
+  notificationsRaw: (p: DemoPersona) => ['parent', p, 'notifications-raw'] as const,
+  threads: (p: DemoPersona) => ['parent', p, 'threads'] as const,
+  notes: (p: DemoPersona) => ['parent', p, 'notes'] as const,
+  children: (p: DemoPersona) => ['parent', p, 'children'] as const,
+  notifications: (p: DemoPersona) => ['parent', p, 'notifications'] as const,
+  conversations: (p: DemoPersona) => ['parent', p, 'conversations'] as const,
+  thread: (p: DemoPersona, threadId: string) => ['parent', p, 'thread', threadId] as const,
+  report: (p: DemoPersona, childId: string, week: number) =>
+    ['parent', p, 'report', childId, week] as const,
+  progress: (p: DemoPersona, childId: string) => ['parent', p, 'progress', childId] as const,
+  assignments: (p: DemoPersona, childId: string) => ['parent', p, 'assignments', childId] as const,
+  prefs: (p: DemoPersona) => ['parent', p, 'prefs'] as const,
+  send: (threadId: string) => ['parent', 'send', threadId] as const,
 };
 
-/** Every parent screen reads from the same demo server, so a change refreshes them all. */
-function useInvalidateParent() {
+/** Resources several views are built from: fetched once and shared through the cache. */
+export const baseQueries = {
+  home: (p: DemoPersona) => ({ queryKey: parentKeys.home(p), queryFn: () => api.fetchHome(p) }),
+  notifications: (p: DemoPersona) => ({
+    queryKey: parentKeys.notificationsRaw(p),
+    queryFn: () => api.fetchNotifications(p),
+  }),
+  threads: (p: DemoPersona) => ({
+    queryKey: parentKeys.threads(p),
+    queryFn: () => api.fetchThreads(p),
+  }),
+  notes: (p: DemoPersona) => ({ queryKey: parentKeys.notes(p), queryFn: () => api.fetchNotes(p) }),
+};
+
+const shared = (client: QueryClient, p: DemoPersona) => ({
+  home: () => client.fetchQuery(baseQueries.home(p)),
+  notifications: () => client.fetchQuery(baseQueries.notifications(p)),
+  threads: () => client.fetchQuery(baseQueries.threads(p)),
+  notes: () => client.fetchQuery(baseQueries.notes(p)),
+});
+
+export function useParentProfile() {
+  const p = useDemoPersona();
+  return useQuery({ ...baseQueries.home(p), select: parentSelf });
+}
+
+export function useConsentRequests() {
+  const p = useDemoPersona();
+  return useQuery({ ...baseQueries.home(p), select: (home) => home.consentRequests });
+}
+
+/** The children, with "this week's report is new" from the parent's notifications. */
+export function useChildren() {
+  const p = useDemoPersona();
   const client = useQueryClient();
-  return () => client.invalidateQueries({ queryKey: parentKeys.all });
-}
-
-export const useParentProfile = () =>
-  useQuery({ queryKey: parentKeys.profile, queryFn: api.fetchProfile });
-
-export const useChildren = () =>
-  useQuery({ queryKey: parentKeys.children, queryFn: api.fetchChildren });
-
-export const useLinkRequest = () =>
-  useQuery({ queryKey: parentKeys.request, queryFn: api.fetchLinkRequest });
-
-export const useConsentRequests = () =>
-  useQuery({ queryKey: parentKeys.consent, queryFn: api.fetchConsentRequests });
-
-export const useChildReport = (childId: string, week: number) =>
-  useQuery({
-    queryKey: parentKeys.report(childId, week),
-    queryFn: () => api.fetchReport(childId, week),
-  });
-
-export const useChildSubjects = (childId: string) =>
-  useQuery({ queryKey: parentKeys.subjects(childId), queryFn: () => api.fetchSubjects(childId) });
-
-export const useChildAssignments = (childId: string) =>
-  useQuery({
-    queryKey: parentKeys.assignments(childId),
-    queryFn: () => api.fetchAssignments(childId),
-  });
-
-export const useConversations = () =>
-  useQuery({ queryKey: parentKeys.conversations, queryFn: api.fetchConversations });
-
-/** Unread messages and class notes, for the "Mesajlar" tab badge. */
-export const useUnreadMessageCount = () =>
-  useQuery({
-    queryKey: parentKeys.conversations,
-    queryFn: api.fetchConversations,
-    select: (list) => list.reduce((sum, c) => sum + c.unread, 0),
-  });
-
-export const useThread = (teacherId: string) =>
-  useQuery({ queryKey: parentKeys.thread(teacherId), queryFn: () => api.fetchThread(teacherId) });
-
-export const useNotifications = () =>
-  useQuery({ queryKey: parentKeys.notifications, queryFn: api.fetchNotifications });
-
-export const useNotificationPrefs = () =>
-  useQuery({ queryKey: parentKeys.prefs, queryFn: api.fetchNotificationPrefs });
-
-export function useSubmitLinkCode() {
-  const invalidate = useInvalidateParent();
-  return useMutation({ mutationFn: api.submitLinkCode, onSuccess: invalidate });
-}
-
-export function useCancelLinkRequest() {
-  const invalidate = useInvalidateParent();
-  return useMutation({ mutationFn: api.cancelLinkRequest, onSuccess: invalidate });
-}
-
-export function useStopLink() {
-  const invalidate = useInvalidateParent();
-  return useMutation({ mutationFn: api.stopLink, onSuccess: invalidate });
-}
-
-export function useSubmitConsent() {
-  const invalidate = useInvalidateParent();
-  return useMutation({
-    mutationFn: ({ childId, code }: { childId: string; code: string }) =>
-      api.submitConsent(childId, code),
-    onSuccess: invalidate,
-  });
-}
-
-export function useDeclineConsent() {
-  const invalidate = useInvalidateParent();
-  return useMutation({ mutationFn: api.declineConsent, onSuccess: invalidate });
-}
-
-export function useMarkReportSeen() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: api.markReportSeen,
-    onSuccess: () => client.invalidateQueries({ queryKey: parentKeys.children }),
-  });
-}
-
-export function useMarkThreadRead() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: api.markThreadRead,
-    onSuccess: () => client.invalidateQueries({ queryKey: parentKeys.conversations }),
-  });
-}
-
-export function useMarkNotificationsRead() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: api.markNotificationsRead,
-    onSuccess: () => client.invalidateQueries({ queryKey: parentKeys.notifications }),
-  });
-}
-
-export function useSetNotificationPref() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: ({ kind, on }: { kind: NotificationKind; on: boolean }) =>
-      api.setNotificationPref(kind, on),
-    onSuccess: () => client.invalidateQueries({ queryKey: parentKeys.prefs }),
-  });
-}
-
-export function useReportMessage(teacherId: string) {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: (messageId: string) => api.reportMessage(teacherId, messageId),
-    onSuccess: () => client.invalidateQueries({ queryKey: parentKeys.thread(teacherId) }),
-  });
-}
-
-/**
- * Sends a message to the teacher. Offline, TanStack Query pauses the mutation and runs it once
- * the device is back online ("Mesajın qoşulanda özü göndəriləcək").
- */
-export function useSendMessage(teacherId: string) {
-  const client = useQueryClient();
-  return useMutation({
-    mutationKey: parentKeys.send(teacherId),
-    mutationFn: (text: string) => api.sendMessage(teacherId, text),
-    onSuccess: (message: ChatMessage) => {
-      client.setQueryData<Thread | null>(parentKeys.thread(teacherId), (thread) =>
-        thread ? { ...thread, messages: [...thread.messages, message] } : thread,
-      );
-      void client.invalidateQueries({ queryKey: parentKeys.conversations });
+  return useQuery({
+    queryKey: parentKeys.children(p),
+    queryFn: async () => {
+      const get = shared(client, p);
+      const [home, notifications] = await Promise.all([get.home(), get.notifications()]);
+      return toChildViews(home, notifications);
     },
   });
 }
 
-export type OutgoingMessage = { key: number; text: string; queued: boolean };
-
-/** Messages still on their way: shown in the thread with "Göndərilir…". */
-export function useOutgoingMessages(teacherId: string): OutgoingMessage[] {
-  return useMutationState({
-    filters: { mutationKey: parentKeys.send(teacherId), status: 'pending' },
-    select: (mutation) => ({
-      key: mutation.state.submittedAt,
-      text: typeof mutation.state.variables === 'string' ? mutation.state.variables : '',
-      queued: mutation.state.isPaused,
-    }),
+export function useChildReport(childId: string, week: number) {
+  const p = useDemoPersona();
+  return useQuery({
+    queryKey: parentKeys.report(p, childId, week),
+    queryFn: () => api.fetchReport(p, childId, week),
   });
+}
+
+export function useChildSubjects(childId: string) {
+  const p = useDemoPersona();
+  return useQuery({
+    queryKey: parentKeys.progress(p, childId),
+    queryFn: () => api.fetchProgress(p, childId),
+  });
+}
+
+export function useChildAssignments(childId: string) {
+  const p = useDemoPersona();
+  return useQuery({
+    queryKey: parentKeys.assignments(p, childId),
+    queryFn: async () => {
+      const list = await api.fetchAssignments(p, childId);
+      return list ? { classLabel: list.classLabel, items: list.items.map(toAssignmentItem) } : null;
+    },
+  });
+}
+
+type ConversationData = { threads: ChatThreadView[]; home: ParentHome; notes: Announcement[] };
+
+/** Threads, children and class notes together, with this device's read marks applied. */
+function useConversationQuery<T>(
+  pick: (data: ConversationData, seenAt: Record<string, string>) => T,
+) {
+  const p = useDemoPersona();
+  const client = useQueryClient();
+  const seenAt = useParentLocalStore((s) => s.seenAt);
+  const select = useCallback((data: ConversationData) => pick(data, seenAt), [pick, seenAt]);
+  return useQuery({
+    queryKey: parentKeys.conversations(p),
+    queryFn: async (): Promise<ConversationData> => {
+      const get = shared(client, p);
+      const [threads, home, notes] = await Promise.all([get.threads(), get.home(), get.notes()]);
+      return { threads, home, notes };
+    },
+    select,
+  });
+}
+
+const conversationsOf = (d: ConversationData, seenAt: Record<string, string>) =>
+  toConversations(d.threads, d.home, d.notes, seenAt);
+
+const unreadOf = (d: ConversationData, seenAt: Record<string, string>) =>
+  conversationsOf(d, seenAt).reduce((sum, c) => sum + c.unread, 0);
+
+/** The teachers of the linked children. */
+export const useConversations = () => useConversationQuery(conversationsOf);
+
+/** Unread teacher messages, for the "Mesajlar" tab badge. */
+export const useUnreadMessageCount = () => useConversationQuery(unreadOf);
+
+/** One conversation; null when it is not the parent's (or the child is no longer linked). */
+export function useThread(threadId: string) {
+  const p = useDemoPersona();
+  const client = useQueryClient();
+  const reported = useParentLocalStore((s) => s.reported);
+  const select = useCallback(
+    (thread: Thread | null) =>
+      thread && {
+        ...thread,
+        messages: thread.messages.map((m) =>
+          reported.includes(m.id) ? { ...m, reported: true } : m,
+        ),
+      },
+    [reported],
+  );
+  return useQuery({
+    queryKey: parentKeys.thread(p, threadId),
+    queryFn: async () => {
+      const get = shared(client, p);
+      const [detail, home, notes] = await Promise.all([
+        api.fetchThreadDetail(p, threadId),
+        get.home(),
+        get.notes(),
+      ]);
+      return detail ? toThread(detail, home, notes) : null;
+    },
+    select,
+  });
+}
+
+export function useNotifications() {
+  const p = useDemoPersona();
+  const client = useQueryClient();
+  return useQuery({
+    queryKey: parentKeys.notifications(p),
+    queryFn: async () => {
+      const get = shared(client, p);
+      const [list, home, threads] = await Promise.all([
+        get.notifications(),
+        get.home(),
+        get.threads(),
+      ]);
+      return toNotifications(list, home, threads);
+    },
+  });
+}
+
+/** The server's notification switches with this device's changes over them. */
+export function useNotificationPrefs() {
+  const p = useDemoPersona();
+  const local = useParentLocalStore((s) => s.prefs);
+  const select = useCallback((prefs: NotificationPrefs) => ({ ...prefs, ...local }), [local]);
+  return useQuery({ queryKey: parentKeys.prefs(p), queryFn: () => api.fetchPrefs(p), select });
 }

@@ -4,7 +4,8 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/ui';
 import { useChildren } from '@/features/parent/queries';
-import type { ChildOverview, ShareCategory } from '@/features/parent/types';
+import type { ShareCategory } from '@mytutor/types';
+import type { ChildView } from '@/features/parent/types';
 import { LockedNote } from './LockedNote';
 import { QueryView } from './QueryView';
 
@@ -12,7 +13,7 @@ type ChildGateProps = {
   childId: string;
   /** The category this screen shows; without the child's permission a calm lock instead. */
   category: ShareCategory;
-  children: (child: ChildOverview) => ReactNode;
+  children: (child: ChildView) => ReactNode;
 };
 
 /** A child's screen opens only for a linked child and a category that child shares. */

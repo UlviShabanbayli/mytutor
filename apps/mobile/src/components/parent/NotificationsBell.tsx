@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/ui';
-import { useMarkNotificationsRead, useNotifications } from '@/features/parent/queries';
+import { useNotifications } from '@/features/parent/queries';
+import { useMarkNotificationsRead } from '@/features/parent/writes';
 import { NotificationsSheet } from './NotificationsSheet';
 
 /** The bell on "Uşaqlarım" with a red dot for unread notifications; it opens the list. */

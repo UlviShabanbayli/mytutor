@@ -3,14 +3,15 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/ui';
 import { addDays } from '@/features/parent/format';
-import { useChildReport, useMarkReportSeen } from '@/features/parent/queries';
-import type { ChildOverview } from '@/features/parent/types';
+import { useChildReport } from '@/features/parent/queries';
+import type { ChildView } from '@/features/parent/types';
+import { useMarkReportSeen } from '@/features/parent/writes';
 import { QueryView } from './QueryView';
 import { ReportBody } from './ReportBody';
 import { ReportSkeleton } from './ReportSkeleton';
 import { WeekSwitcher } from './WeekSwitcher';
 
-type ChildReportProps = { child: ChildOverview };
+type ChildReportProps = { child: ChildView };
 
 /** Monday of the current week, for a child with no report yet. */
 const thisMonday = () => {

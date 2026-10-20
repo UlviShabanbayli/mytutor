@@ -4,14 +4,14 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Banner, Icon, Text } from '@/components/ui';
 import { canCopyText, copyText, groupByDay } from '@/features/parent/chat';
 import { formatDayLabel, formatTime } from '@/features/parent/format';
+import type { Thread, ThreadMessage } from '@/features/parent/types';
+import { useOnline } from '@/features/parent/useOnline';
 import {
   useMarkThreadRead,
   useOutgoingMessages,
   useReportMessage,
   useSendMessage,
-} from '@/features/parent/queries';
-import type { ChatMessage, Thread } from '@/features/parent/types';
-import { useOnline } from '@/features/parent/useOnline';
+} from '@/features/parent/writes';
 import { ClassNoteCard } from './ClassNoteCard';
 import { IconNote } from './IconNote';
 import { MessageBubble } from './MessageBubble';
@@ -25,22 +25,22 @@ export function ChatThread({ thread }: ChatThreadProps) {
   const { t } = useTranslation();
   const online = useOnline();
   const scroll = useRef<ScrollView>(null);
-  const [menuFor, setMenuFor] = useState<ChatMessage | null>(null);
+  const [menuFor, setMenuFor] = useState<ThreadMessage | null>(null);
   const [copied, setCopied] = useState(false);
-  const send = useSendMessage(thread.teacherId);
-  const outgoing = useOutgoingMessages(thread.teacherId);
-  const report = useReportMessage(thread.teacherId);
-  const { mutate: markRead } = useMarkThreadRead();
+  const send = useSendMessage(thread.threadId);
+  const outgoing = useOutgoingMessages(thread.threadId);
+  const report = useReportMessage();
+  const markRead = useMarkThreadRead();
   const now = new Date();
 
-  useEffect(() => markRead(thread.teacherId), [markRead, thread.teacherId]);
+  useEffect(() => markRead(thread.threadId), [markRead, thread.threadId]);
   useEffect(() => {
     if (!copied) return;
     const timer = setTimeout(() => setCopied(false), 3000);
     return () => clearTimeout(timer);
   }, [copied]);
 
-  const meta = (m: ChatMessage) =>
+  const meta = (m: ThreadMessage) =>
     m.from === 'teacher'
       ? formatTime(new Date(m.at))
       : t(m.status === 'read' ? 'parent.chat.read' : 'parent.chat.sent', {
@@ -120,7 +120,7 @@ export function ChatThread({ thread }: ChatThreadProps) {
         }
         onReport={(m) => {
           setMenuFor(null);
-          report.mutate(m.id);
+          report(m.id);
         }}
       />
     </View>

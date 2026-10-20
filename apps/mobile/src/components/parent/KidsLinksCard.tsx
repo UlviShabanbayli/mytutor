@@ -4,24 +4,24 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import { useStopLink } from '@/features/parent/queries';
 import { joinList } from '@/features/parent/text';
-import type { ChildOverview, LinkRequest } from '@/features/parent/types';
+import type { ChildView } from '@/features/parent/types';
+import { useStopLink } from '@/features/parent/writes';
 import { HexAvatar } from './HexAvatar';
 import { SectionLabel } from './SectionLabel';
 import { StopLinkSheet } from './StopLinkSheet';
 import { TextAction } from './TextAction';
 
-type KidsLinksCardProps = { kids: ChildOverview[]; request: LinkRequest | null };
+type KidsLinksCardProps = { kids: ChildView[] };
 
 /** Each link and what the child shares; the parent may stop a link, never change the child's. */
-export function KidsLinksCard({ kids, request }: KidsLinksCardProps) {
+export function KidsLinksCard({ kids }: KidsLinksCardProps) {
   const { t } = useTranslation();
   const stop = useStopLink();
-  const [stopping, setStopping] = useState<ChildOverview | null>(null);
-  const rows = kids.length + (request ? 1 : 0);
+  const [stopping, setStopping] = useState<ChildView | null>(null);
+  const rows = kids.length;
 
-  const shares = (child: ChildOverview) =>
+  const shares = (child: ChildView) =>
     child.grants.length === 0
       ? t('parent.me.sharesNothing')
       : t('parent.me.shares', {
@@ -78,19 +78,6 @@ export function KidsLinksCard({ kids, request }: KidsLinksCardProps) {
             )}
           </View>
         ))}
-        {request ? (
-          <View className="flex-row items-center gap-2.5 px-3 py-2.5">
-            <HexAvatar name={request.childName} tone="wax" size={36} />
-            <View className="min-w-0 flex-1 gap-px">
-              <Text className="font-sans-black">{request.childName}</Text>
-              <Text className="text-xs text-muted">{t('parent.me.awaitingApproval')}</Text>
-            </View>
-            <TextAction
-              label={t('parent.kids.openRequest')}
-              onPress={() => router.push('/parent/pending')}
-            />
-          </View>
-        ) : null}
       </View>
       <StopLinkSheet
         name={stopping?.name ?? null}
