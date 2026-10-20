@@ -24,7 +24,12 @@ export function StudentPickSheet({
   const { t } = useTranslation();
 
   return (
-    <Sheet visible={visible} onClose={onClose} title={t('teacher.assign.pickSheet')}>
+    <Sheet
+      visible={visible}
+      onClose={onClose}
+      title={t('teacher.assign.pickSheet')}
+      dragArea="handle"
+    >
       <ScrollView className="max-h-[360px]" contentContainerClassName="gap-1">
         {members.map((m) => {
           const on = value.includes(m.id);

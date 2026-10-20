@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
-import { Icon } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { HexCheckbox } from '@/components/ui';
 
 type CheckboxRowProps = {
   checked: boolean;
@@ -11,7 +10,7 @@ type CheckboxRowProps = {
   children: ReactNode;
 };
 
-/** A 26pt honey checkbox with its sentence; the whole row toggles it. */
+/** A honeycomb checkbox with its sentence; the whole row toggles it (micro.check C). */
 export function CheckboxRow({ checked, onChange, accessibilityLabel, children }: CheckboxRowProps) {
   return (
     <Pressable
@@ -21,13 +20,8 @@ export function CheckboxRow({ checked, onChange, accessibilityLabel, children }:
       onPress={() => onChange(!checked)}
       className="min-h-[44px] flex-row items-start gap-3"
     >
-      <View
-        className={cn(
-          'mt-px h-[26px] w-[26px] items-center justify-center rounded-[8px]',
-          checked ? 'bg-honey' : 'border-2 border-border bg-surf',
-        )}
-      >
-        {checked ? <Icon name="check" size={18} color="on-honey" /> : null}
+      <View className="mt-px">
+        <HexCheckbox checked={checked} size={26} />
       </View>
       <View className="min-w-0 flex-1">{children}</View>
     </Pressable>

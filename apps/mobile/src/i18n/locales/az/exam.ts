@@ -294,9 +294,13 @@ export const exam = {
   },
   run: {
     exit: 'Sınaqdan çıx',
+    exitTitle: 'Sınaqdan çıxırsan?',
+    exitBody: 'Cavabların yadda qalır, qayıdanda qaldığın sualdan davam edərsən.',
+    exitClock: 'Vaxt dayanmır: çıxanda da gedir.',
     progress: 'Sual {{current}} / {{total}}',
     progressA11y: 'Cavablanan suallar: {{answered}} / {{total}}',
     timerA11y: 'Qalan vaxt: {{minutes}} {{seconds}}',
+    lastMinutes: 'Son 5 dəqiqə — cavablarını yoxla.',
     minutesLong_one: '{{count}} dəqiqə',
     minutesLong_other: '{{count}} dəqiqə',
     secondsLong_one: '{{count}} saniyə',

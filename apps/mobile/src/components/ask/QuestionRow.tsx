@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { PressableCard, Text } from '@/components/ui';
+import { PressableCard, StaggerLead, StaggerText, Text } from '@/components/ui';
 import { statusLabel } from '@/features/ask/labels';
 import type { AskQuestion } from '@/features/ask/types';
 import { PhotoThumb } from './PhotoThumb';
@@ -30,8 +30,10 @@ export function QuestionRow({ question, meta, note }: QuestionRowProps) {
       className="rounded-lg"
       contentClassName="min-h-[70px] flex-row items-center gap-3 rounded-lg px-3 py-2"
     >
-      <PhotoThumb uri={question.photoUri} mark={question.mark} />
-      <View className="min-w-0 flex-1 gap-1.5">
+      <StaggerLead>
+        <PhotoThumb uri={question.photoUri} mark={question.mark} />
+      </StaggerLead>
+      <StaggerText className="gap-1.5">
         <Text className="font-sans-black leading-5">{question.title}</Text>
         <View className="flex-row flex-wrap items-center gap-x-2 gap-y-1">
           <QuestionStatusPill status={question.status} />
@@ -44,7 +46,7 @@ export function QuestionRow({ question, meta, note }: QuestionRowProps) {
             {note}
           </Text>
         ) : null}
-      </View>
+      </StaggerText>
     </PressableCard>
   );
 }

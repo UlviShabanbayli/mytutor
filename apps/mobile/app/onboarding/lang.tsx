@@ -6,6 +6,7 @@ import { ChoiceCard } from '@/components/onboarding/ChoiceCard';
 import { GreetingBubble } from '@/components/onboarding/GreetingBubble';
 import { NoteLine } from '@/components/onboarding/NoteLine';
 import { StepScreen } from '@/components/onboarding/StepScreen';
+import { StepStill } from '@/components/onboarding/StepStill';
 import { Button, Text } from '@/components/ui';
 import { useAppStore } from '@/features/app/appStore';
 import { APP_LOCALES } from '@/i18n';
@@ -27,7 +28,9 @@ export default function OnboardingLangScreen() {
       }
     >
       <View className="mt-1 flex-row items-end gap-1">
-        <Mascot moment="greeting" behavior="greet" size={96} decorative />
+        <StepStill>
+          <Mascot moment="greeting" size={112} decorative />
+        </StepStill>
         <GreetingBubble
           greeting={t('onboarding.lang.greeting')}
           other={t('onboarding.lang.greetingOther')}

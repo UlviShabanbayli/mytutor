@@ -306,9 +306,13 @@ export const exam = {
   },
   run: {
     exit: 'Выйти из пробного',
+    exitTitle: 'Выйти из пробного?',
+    exitBody: 'Ответы сохранятся, потом продолжишь с того же вопроса.',
+    exitClock: 'Время не останавливается: оно идёт и после выхода.',
     progress: 'Вопрос {{current}} / {{total}}',
     progressA11y: 'Отвечено вопросов: {{answered}} из {{total}}',
     timerA11y: 'Осталось времени: {{minutes}} {{seconds}}',
+    lastMinutes: 'Последние 5 минут — проверь ответы.',
     minutesLong_one: '{{count}} минута',
     minutesLong_few: '{{count}} минуты',
     minutesLong_many: '{{count}} минут',

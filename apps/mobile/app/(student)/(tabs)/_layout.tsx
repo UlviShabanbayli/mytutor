@@ -1,10 +1,12 @@
 import { Tabs } from 'expo-router/js-tabs';
 import { useTranslation } from 'react-i18next';
 import { RoleTabBar } from '@/components/navigation/RoleTabBar';
+import { useTabMotion } from '@/features/transitions/useTabMotion';
 
 /** Student menu (design TABBAR): Bu gün, Öyrən, Soruş in the middle, İmtahan, Mən. */
 export default function StudentTabsLayout() {
   const { t } = useTranslation();
+  const tabMotion = useTabMotion();
   const items = [
     { name: 'today', label: t('tabs.today'), icon: 'today' },
     { name: 'learn', label: t('tabs.learn'), icon: 'learn' },
@@ -15,7 +17,7 @@ export default function StudentTabsLayout() {
 
   return (
     <Tabs
-      screenOptions={{ headerShown: false }}
+      screenOptions={tabMotion}
       tabBar={(props) => (
         <RoleTabBar {...props} items={[...items]} menuLabel={t('tabs.menuStudent')} />
       )}

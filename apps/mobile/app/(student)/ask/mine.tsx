@@ -12,6 +12,8 @@ import {
   LoadingState,
   Screen,
   ScreenHeader,
+  StaggerGroup,
+  StaggerItem,
   Text,
 } from '@/components/ui';
 import { dayHeading, formatClock, daysAgo } from '@/features/ask/dates';
@@ -77,9 +79,13 @@ export default function MyQuestionsScreen() {
     );
 
   const groups = groupByDay(questions.filter((q) => matchesFilter(q, filter)));
+  // Rows are counted across the days, so the first-load stagger runs down the whole list.
+  const offsets = groups.map((_, g) =>
+    groups.slice(0, g).reduce((sum, group) => sum + group.items.length, 0),
+  );
 
   return (
-    <Screen className="gap-3">
+    <Screen className="gap-3" onRefresh={() => query.refetch()}>
       {header}
       <QuestionFilterChips value={filter} counts={filterCounts(questions)} onChange={setFilter} />
       <View className="flex-row items-center gap-1.5">
@@ -89,31 +95,34 @@ export default function MyQuestionsScreen() {
         </Text>
       </View>
       {groups.length === 0 ? <Text tone="muted">{t('ask.mine.filterEmpty')}</Text> : null}
-      {groups.map((group) => (
-        <View key={group.key} className="gap-2">
-          <Text variant="overline" tone="muted" className="mt-2 text-xs">
-            {dayHeading(t, group.date, now, i18n.language)}
-          </Text>
-          {group.items.map((q) => {
-            const sent = new Date(q.sentAt);
-            return (
-              <QuestionRow
-                key={q.id}
-                question={q}
-                meta={
-                  daysAgo(sent, now) === 0
-                    ? t('ask.state.metaSubjectTime', {
-                        subject: q.subjectLabel,
-                        time: formatClock(sent),
-                      })
-                    : q.subjectLabel
-                }
-                note={questionNote(t, q)}
-              />
-            );
-          })}
-        </View>
-      ))}
+      <StaggerGroup>
+        {groups.map((group, g) => (
+          <View key={group.key} className="gap-2">
+            <Text variant="overline" tone="muted" className="mt-2 text-xs">
+              {dayHeading(t, group.date, now, i18n.language)}
+            </Text>
+            {group.items.map((q, i) => {
+              const sent = new Date(q.sentAt);
+              return (
+                <StaggerItem key={q.id} index={(offsets[g] ?? 0) + i}>
+                  <QuestionRow
+                    question={q}
+                    meta={
+                      daysAgo(sent, now) === 0
+                        ? t('ask.state.metaSubjectTime', {
+                            subject: q.subjectLabel,
+                            time: formatClock(sent),
+                          })
+                        : q.subjectLabel
+                    }
+                    note={questionNote(t, q)}
+                  />
+                </StaggerItem>
+              );
+            })}
+          </View>
+        ))}
+      </StaggerGroup>
     </Screen>
   );
 }

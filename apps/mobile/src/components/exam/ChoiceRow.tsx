@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native';
-import { Icon, Text } from '@/components/ui';
+import { HexRadio, Text } from '@/components/ui';
 import { cn } from '@/lib/cn';
 
 type ChoiceRowProps = {
@@ -9,7 +9,7 @@ type ChoiceRowProps = {
   onPress: () => void;
 };
 
-/** One option of a single-choice list (a radio): title, a line of help and a round check. */
+/** One option of a single-choice list (a radio): title, a line of help and a hex mark. */
 export function ChoiceRow({ title, subtitle, selected, onPress }: ChoiceRowProps) {
   return (
     <Pressable
@@ -31,14 +31,7 @@ export function ChoiceRow({ title, subtitle, selected, onPress }: ChoiceRowProps
             {subtitle}
           </Text>
         </View>
-        <View
-          className={cn(
-            'h-[26px] w-[26px] items-center justify-center rounded-full',
-            selected ? 'bg-honey' : 'border-2 border-border',
-          )}
-        >
-          {selected ? <Icon name="check" size={16} color="on-honey" /> : null}
-        </View>
+        <HexRadio selected={selected} size={24} />
       </View>
     </Pressable>
   );

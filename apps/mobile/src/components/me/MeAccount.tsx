@@ -4,7 +4,6 @@ import { StatTile } from '@/components/progress/StatTile';
 import { ErrorState, LoadingState, Screen } from '@/components/ui';
 import { useAppStore } from '@/features/app/appStore';
 import { RANK_THRESHOLDS } from '@/features/me/demo';
-import { formatNumber } from '@/features/me/format';
 import { useMeOverview, useTextbookProgress } from '@/features/me/queries';
 import { rankProgress } from '@/features/me/rank';
 import { useMeStore } from '@/features/me/store';
@@ -54,9 +53,9 @@ export function MeAccount() {
       <RankCard points={me.points} progress={rankProgress(me.points, RANK_THRESHOLDS)} />
       <View accessibilityLabel={t('me.home.statsLabel')} className="flex-row gap-2">
         {/* Day streak is real (finished tests); points and cells are demo until P2 exists. */}
-        <StatTile icon="wing" value={String(streakDays(results))} label={t('me.home.streak')} />
-        <StatTile icon="drop" value={formatNumber(me.weekPoints)} label={t('me.home.weekPoints')} />
-        <StatTile icon="learn" value={String(me.honeyCells)} label={t('me.home.honeyCells')} />
+        <StatTile icon="wing" value={streakDays(results)} label={t('me.home.streak')} />
+        <StatTile icon="drop" value={me.weekPoints} label={t('me.home.weekPoints')} />
+        <StatTile icon="learn" value={me.honeyCells} label={t('me.home.honeyCells')} />
       </View>
       <BadgeStrip badges={me.badges} total={me.badgesTotal} />
       <MeMenu

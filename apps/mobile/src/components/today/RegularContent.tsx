@@ -15,7 +15,8 @@ type RegularContentProps = {
 
 /**
  * Below the goal card on a usual day: "Davam et", the day's plan (with the real recommended
- * test from the tests API) and class assignments due. Empty blocks are hidden (Ş2).
+ * test from the tests API, which keeps a skeleton row until it arrives) and class assignments
+ * due. Empty blocks are hidden (Ş2).
  */
 export function RegularContent({ today, online }: RegularContentProps) {
   const continueItem = useContinueItem(today.unfinishedLesson);
@@ -26,7 +27,7 @@ export function RegularContent({ today, online }: RegularContentProps) {
   return (
     <>
       {continueItem ? <ContinueCard item={continueItem} /> : null}
-      {empty ? <PlanEmpty /> : <PlanList steps={plan} />}
+      {empty ? <PlanEmpty /> : <PlanList steps={plan} pendingStep={recommended.isPending} />}
       {online ? (
         today.assignments.map((a) => <AssignmentDueRow key={a.id} assignment={a} />)
       ) : (

@@ -23,6 +23,10 @@ export const ask = {
     offlineBody: 'Фотографировать можно — задача отправится сама, когда появится интернет.',
     limitLabel: 'Дневной лимит',
     limitUsed: 'Сегодня: {{used}} / {{limit}} бесплатных фото-вопросов',
+    // The used count between these two rolls on its own (micro.count).
+    limitUsedBefore: 'Сегодня:',
+    limitUsedOf: '/ {{limit}}',
+    limitUsedAfter: 'бесплатных фото-вопросов',
     limitReset: 'Обновится завтра в 00:00',
     premium: 'Premium',
     premiumA11y: 'Premium: фото-вопросы без лимита',
@@ -77,6 +81,12 @@ export const ask = {
       '3': 'Если есть твоё решение, сними и его — учитель увидит, где возникла трудность.',
     },
     tipsDone: 'Понятно',
+    // The shot under the frame before cropping (micro.camera C).
+    readyTitle: 'Снимок готов',
+    readyBody: 'На следующем шаге ты обрежешь и выровняешь задачу.',
+    readyA11y: 'Снимок сделан. Можно продолжить или переснять.',
+    retake: 'Переснять',
+    continue: 'Дальше',
     captureError: 'Не удалось сделать фото. Попробуй ещё раз или выбери из галереи.',
     unavailable: 'Камера не открылась. Можно выбрать фото из галереи.',
   },
@@ -129,6 +139,11 @@ export const ask = {
   },
   status: {
     title: 'Твой вопрос',
+    // Right after sending (micro.done).
+    sentTitle: 'Вопрос отправлен',
+    sentBody: 'Сообщим, когда учитель проверит.',
+    savedTitle: 'Вопрос сохранён на телефоне',
+    savedBody: 'Он отправится сам, когда появится интернет.',
     more: 'Ещё: отменить вопрос, пожаловаться',
     moreTitle: 'Действия',
     meta: '{{subject}} · {{queue}}',

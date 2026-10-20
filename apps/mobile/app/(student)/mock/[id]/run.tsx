@@ -1,7 +1,7 @@
 import { Redirect, Stack, useLocalSearchParams } from 'expo-router';
 import { MockNotFound } from '@/components/exam/MockNotFound';
 import { MockRunner } from '@/components/exam/MockRunner';
-import { ErrorState, LoadingState, Screen } from '@/components/ui';
+import { DepthScreen, ErrorState, LoadingState, Screen } from '@/components/ui';
 import { mockHref, mockResultHref } from '@/features/exam/links';
 import { useMockRunHydrated, useMockRunStore } from '@/features/exam/mockRunStore';
 import { useMock } from '@/features/exam/queries';
@@ -33,7 +33,10 @@ export default function MockRunScreen() {
     <>
       {/* A running mock is left only through its own exit, never by a swipe. */}
       <Stack.Screen options={{ gestureEnabled: false }} />
-      <MockRunner mock={query.data} attempt={attempt} />
+      {/* The exit dialog makes the running mock step back behind it (transitions.dialog C). */}
+      <DepthScreen>
+        <MockRunner mock={query.data} attempt={attempt} />
+      </DepthScreen>
     </>
   );
 }

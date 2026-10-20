@@ -28,7 +28,7 @@ export function SubjectSheet({
   const { t } = useTranslation();
 
   return (
-    <Sheet visible={visible} onClose={onClose} title={t('ask.send.subjectSheet')}>
+    <Sheet visible={visible} onClose={onClose} title={t('ask.send.subjectSheet')} dragArea="handle">
       <ScrollView className="max-h-[360px]" contentContainerClassName="gap-1">
         <View accessibilityRole="radiogroup" accessibilityLabel={t('ask.send.subject')}>
           {DEMO_SUBJECT_IDS.map((id) => {

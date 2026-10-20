@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { IconButton, Text } from '@/components/ui';
 import { stepPosition } from '@/features/onboarding/steps';
 import type { StepKey } from '@/features/onboarding/types';
-import { cn } from '@/lib/cn';
+import { StepDash } from './StepDash';
 
 type StepHeaderProps = {
   step: StepKey;
@@ -34,14 +34,7 @@ export function StepHeader({ step, back = true }: StepHeaderProps) {
         className="flex-1 flex-row justify-center gap-1.5"
       >
         {dashes.map((i) => (
-          <View
-            key={i}
-            className={cn(
-              'h-2 rounded-full',
-              i === position.step - 1 ? 'w-8' : 'w-[18px]',
-              i < position.step ? 'bg-honey' : 'bg-wax',
-            )}
-          />
+          <StepDash key={i} index={i} step={position.step} />
         ))}
       </View>
       <Text className="min-w-touch text-center font-sans-black text-xs" tone="muted">
