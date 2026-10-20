@@ -25,10 +25,12 @@ import {
  */
 export function applyDemoEvents(world: DemoWorld, events: readonly DemoEvent[]): DemoWorld {
   if (events.length === 0) return world;
-  // A private copy to change: the world is plain JSON.
+  // Private copies to change: the world and the events are plain JSON, and an event's payload
+  // (a question, an assignment) becomes part of the world.
   const w = JSON.parse(JSON.stringify(world)) as DemoWorld;
+  const log = JSON.parse(JSON.stringify(events)) as DemoEvent[];
   let goal: StudyGoal | null = null;
-  for (const e of [...events].sort((a, b) => a.at.localeCompare(b.at))) {
+  for (const e of log.sort((a, b) => a.at.localeCompare(b.at))) {
     switch (e.type) {
       case 'assignment.created':
         assignmentCreated(w, e);
