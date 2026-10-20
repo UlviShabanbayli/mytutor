@@ -86,3 +86,9 @@ export function materialMeta(t: TFunction, m: Pick<ClassMaterial, 'kind' | 'size
       return t('me.classPage.material.question');
   }
 }
+
+/** "+994500000001" → "+994 50 000 00 01". */
+export function formatPhone(e164: string): string {
+  const d = e164.replace(/^\+994/, '');
+  return `+994 ${d.slice(0, 2)} ${d.slice(2, 5)} ${d.slice(5, 7)} ${d.slice(7, 9)}`;
+}

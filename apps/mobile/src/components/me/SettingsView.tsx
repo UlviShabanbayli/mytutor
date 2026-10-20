@@ -13,6 +13,7 @@ import { useMeStore } from '@/features/me/store';
 import type { AppLocale } from '@/i18n';
 import { ChoiceSheet } from './ChoiceSheet';
 import { ConfirmSheet } from './ConfirmSheet';
+import { DemoSettingsGroup } from './DemoSettingsGroup';
 import { NicknameSheet } from './NicknameSheet';
 import { NotificationChips } from './NotificationChips';
 import { SettingsGroup } from './SettingsGroup';
@@ -129,6 +130,7 @@ export function SettingsView() {
           />
         )}
       </SettingsGroup>
+      <DemoSettingsGroup />
       <SettingsGroup title={t('me.settings.aboutGroup')}>
         <SettingsRow
           icon="info"

@@ -1,5 +1,5 @@
 import i18n from '@/i18n';
-import { formatDay, formatNumber, formatWhen } from './format';
+import { formatDay, formatNumber, formatPhone, formatWhen } from './format';
 
 describe('formatNumber', () => {
   it('groups thousands with a no-break space', () => {
@@ -21,5 +21,11 @@ describe('formatWhen / formatDay', () => {
   it('writes a date with the month name', () => {
     expect(formatDay(t, '2026-09-03')).toBe('3 sentyabr');
     expect(formatDay(t, '2026-10-15', true)).toBe('15 OKT');
+  });
+});
+
+describe('formatPhone', () => {
+  it('groups an Azerbaijani number as it is read aloud', () => {
+    expect(formatPhone('+994500000001')).toBe('+994 50 000 00 01');
   });
 });
