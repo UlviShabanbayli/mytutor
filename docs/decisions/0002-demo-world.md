@@ -96,10 +96,17 @@ lesson and demo questions instead.
 
 Both call the same `createApp()`; only the Node entry passes a content provider. The server is
 stateless: the persona comes with each request (`x-demo-persona` header or `?persona=`), "now"
-is the request's time, and an exam goal the student chose is sent as `?goal=`. Writes (grading a
-homework, sending a message, linking a child, answering a question) are for the app to apply to a
-local overlay on top of the read-only world (the next PRs), so every role on one device sees
-the change.
+is the request's time, and an exam goal the student chose is sent as `?goal=`.
+
+Writes are **shared demo events** (`packages/schemas/src/domain/demoEvents.ts`): grading a
+homework, sending a message, linking a child, answering a question and so on. A screen writes
+one with `useDemoWrite()` (`apps/mobile/src/lib/demoEvents.ts`); it is appended to a log kept on
+the device, one log per persona (at most 200 events), and every query is refetched. When the
+persona has events, `apiGet` asks `POST /v1/query { path, events }` instead of `GET path`; the API
+and the offline fallback both answer with `applyDemoEvents(world, events)` applied, a pure reducer
+in `packages/demo-data`. So every role on one device sees the change, and the server still
+stores nothing. "Demo məlumatını sıfırla" (`resetDemo()`) clears the current persona's log;
+switching persona clears the query cache.
 
 Deploying runs `pnpm deploy:demo-api` with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in
 the repo-root `.env`, after the product owner confirms. `pnpm --filter @mytutor/api check:worker`
