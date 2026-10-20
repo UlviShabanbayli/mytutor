@@ -235,6 +235,8 @@ export const onboarding = {
     termsAfter: '.',
     send: 'Отправить код',
     sendError: 'Не удалось отправить код. Проверь интернет и попробуй снова.',
+    demoAccounts: 'Тестовый режим · демо-аккаунты',
+    demoPick: '{{label}}: вставить номер',
   },
   otp: {
     title: 'Введи код',

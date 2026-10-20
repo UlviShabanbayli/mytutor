@@ -229,6 +229,8 @@ export const onboarding = {
     termsAfter: ' ilə razılaşırsan.',
     send: 'Kod göndər',
     sendError: 'Kodu göndərə bilmədim. İnterneti yoxla və yenidən cəhd et.',
+    demoAccounts: 'Sınaq rejimi · demo hesablar',
+    demoPick: '{{label}}: nömrəni yaz',
   },
   otp: {
     title: 'Kodu yaz',
