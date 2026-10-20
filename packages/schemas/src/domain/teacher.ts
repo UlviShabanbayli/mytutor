@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { askQuestionSchema } from './ask';
 import { assignmentSchema, submissionSchema } from './assignments';
-import { classMemberSchema, schoolClassSchema } from './classes';
+import { announcementSchema, classMemberSchema, schoolClassSchema } from './classes';
 import { masteryLevelSchema } from './course';
 import { notificationSchema } from './notifications';
 import { personSchema, teacherProfileSchema } from './people';
@@ -43,6 +43,8 @@ export const teacherClassDetailSchema = z.object({
   class: teacherClassViewSchema,
   members: z.array(rosterEntrySchema),
   assignments: z.array(teacherAssignmentSchema),
+  /** The class's announcements, newest first. */
+  announcements: z.array(announcementSchema),
 });
 
 export const submissionViewSchema = submissionSchema.extend({

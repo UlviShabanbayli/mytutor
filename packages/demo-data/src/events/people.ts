@@ -43,6 +43,12 @@ export function classLeft(w: DemoWorld, e: Of<'class.left'> | Of<'member.removed
   w.members = w.members.filter((m) => !(m.classId === e.classId && m.personId === e.studentId));
   if (e.studentId === w.student.personId)
     w.student.classIds = w.student.classIds.filter((id) => id !== e.classId);
+  const cls = w.classes.find((c) => c.id === e.classId);
+  if (cls)
+    cls.groups = cls.groups.map((g) => ({
+      ...g,
+      memberIds: g.memberIds.filter((id) => id !== e.studentId),
+    }));
   for (const t of w.threads)
     if (t.kind === 'class' && t.classId === e.classId)
       t.memberIds = t.memberIds.filter((id) => id !== e.studentId);

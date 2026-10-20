@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { studyGoalSchema } from '../account';
-import { askQuestionSchema } from './ask';
+import { askQuestionSchema, solutionStepSchema } from './ask';
 import { assignmentSchema } from './assignments';
+import { classGroupSchema, materialSchema, schoolClassSchema } from './classes';
 import { dateTimeSchema } from './people';
 
 /**
@@ -41,7 +42,11 @@ export const demoEventSchema = z.discriminatedUnion('type', [
     threadId: id,
     fromPersonId: id,
     text: z.string().trim().min(1),
+    /** The message in the same thread this one answers. */
+    replyToId: id.optional(),
   }),
+  /** Any role: read a thread up to now (the other side sees "Oxundu"). */
+  z.object({ ...base, type: z.literal('thread.read'), threadId: id, readerId: id }),
   /** Student: a photo question. */
   z.object({ ...base, type: z.literal('ask.sent'), question: askQuestionSchema }),
   /** Teacher: approves (or edits) the AI's answer to a question. */
@@ -51,12 +56,42 @@ export const demoEventSchema = z.discriminatedUnion('type', [
     questionId: id,
     teacherId: id,
     note: z.string().optional(),
+    /** The teacher's steps when they changed the AI's (edited ones marked). */
+    steps: z.array(solutionStepSchema).min(1).optional(),
+    /** The topic the teacher linked the question to, when it differs. */
+    topicId: id.optional(),
   }),
+  /** Student: takes back a question no one has answered yet. */
+  z.object({ ...base, type: z.literal('ask.cancelled'), questionId: id, studentId: id }),
   /** Student: joins or leaves a class. */
   z.object({ ...base, type: z.literal('class.joined'), classId: id, studentId: id }),
   z.object({ ...base, type: z.literal('class.left'), classId: id, studentId: id }),
-  /** Teacher: removes a student from a class. */
+  /** Teacher: removes a student from a class (and from its groups). */
   z.object({ ...base, type: z.literal('member.removed'), classId: id, studentId: id }),
+  /** Teacher: opens a new class (with its join code and chat). */
+  z.object({ ...base, type: z.literal('class.created'), class: schoolClassSchema }),
+  /** Teacher: a note to the whole class. */
+  z.object({
+    ...base,
+    type: z.literal('announcement.posted'),
+    classId: id,
+    authorId: id,
+    text: z.string().trim().min(1),
+  }),
+  /** Teacher: creates or changes a group of a class. */
+  z.object({ ...base, type: z.literal('group.saved'), classId: id, group: classGroupSchema }),
+  /** Teacher: mutes or unmutes a student in the class chat. */
+  z.object({
+    ...base,
+    type: z.literal('member.muted'),
+    classId: id,
+    studentId: id,
+    muted: z.boolean(),
+  }),
+  /** Teacher: opens or closes the class chat to students. */
+  z.object({ ...base, type: z.literal('class.chatSet'), classId: id, open: z.boolean() }),
+  /** Teacher: saves a material (a draft, sent to classes or to the catalogue's review). */
+  z.object({ ...base, type: z.literal('material.saved'), material: materialSchema }),
   /** Parent: links to a child (with the child's code) or stops following. */
   z.object({ ...base, type: z.literal('child.linked'), parentId: id, childId: id }),
   z.object({ ...base, type: z.literal('child.unlinked'), parentId: id, childId: id }),

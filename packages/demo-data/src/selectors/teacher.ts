@@ -84,6 +84,9 @@ export function selectTeacherClass(world: DemoWorld, classId: string): TeacherCl
       .filter((a) => a.classId === classId)
       .sort((a, b) => b.dueAt.localeCompare(a.dueAt))
       .map((a) => assignmentView(world, a)),
+    announcements: world.announcements
+      .filter((a) => a.classId === classId)
+      .sort((a, b) => b.at.localeCompare(a.at)),
   };
 }
 

@@ -1,7 +1,7 @@
-import type { AskQuestion, DemoEvent, DemoWorld, SolutionStep, Submission } from '@mytutor/types';
+import type { DemoEvent, DemoWorld, Submission } from '@mytutor/types';
 
 /**
- * Event handlers for work and talk: assignments, submissions, grades, messages and questions.
+ * Event handlers for class work: assignments, submissions and grades.
  * Each one changes the draft world it is given (a private copy made by `applyDemoEvents`) and
  * ignores events that point at nothing.
  */
@@ -80,88 +80,5 @@ export function assignmentGraded(w: DemoWorld, e: Of<'assignment.graded'>) {
     teacherId: cls?.teacherId ?? w.teacher.personId,
     score: e.score,
     outOf: e.outOf,
-  });
-}
-
-export function messageSent(w: DemoWorld, e: Of<'message.sent'>) {
-  const thread = w.threads.find((t) => t.id === e.threadId);
-  if (!thread || !thread.memberIds.includes(e.fromPersonId)) return;
-  w.messages.push({
-    id: e.id,
-    threadId: thread.id,
-    authorId: e.fromPersonId,
-    text: e.text,
-    at: e.at,
-    replyToId: null,
-    reported: false,
-  });
-  // The sender has read everything up to their own message.
-  thread.readAt[e.fromPersonId] = e.at;
-  const parent = thread.memberIds.find((id) => id === w.parent.personId);
-  if (thread.kind === 'parent' && parent && e.fromPersonId !== parent)
-    w.notifications.push({
-      id: `n-${e.id}`,
-      kind: 'teacherMessage',
-      recipientId: parent,
-      role: 'parent',
-      at: e.at,
-      read: false,
-      teacherId: e.fromPersonId,
-      threadId: thread.id,
-    });
-}
-
-export function askSent(w: DemoWorld, e: Of<'ask.sent'>) {
-  if (w.askQuestions.some((q) => q.id === e.question.id)) return;
-  w.askQuestions.push(e.question);
-  if (e.question.teacherId)
-    w.notifications.push({
-      id: `n-${e.id}`,
-      kind: 'question',
-      recipientId: e.question.teacherId,
-      role: 'teacher',
-      at: e.at,
-      read: false,
-      questionId: e.question.id,
-      studentId: e.question.studentId,
-    });
-}
-
-/** The approved steps: the AI's, or one step with its answer when it had none. */
-function approvedSteps(q: AskQuestion, note: string | undefined): SolutionStep[] {
-  const steps = q.answer?.steps ?? q.aiDraft?.steps ?? [];
-  if (steps.length > 0) return steps;
-  return [
-    {
-      id: 's1',
-      text: note?.trim() || 'Müəllimin cavabı',
-      formula: q.aiDraft?.answer ?? q.mark,
-      edited: true,
-    },
-  ];
-}
-
-export function askAnswered(w: DemoWorld, e: Of<'ask.answered'>) {
-  const q = w.askQuestions.find((x) => x.id === e.questionId);
-  if (!q || q.status === 'answered') return;
-  const note = e.note?.trim() ? e.note.trim() : null;
-  q.status = 'answered';
-  q.teacherId = e.teacherId;
-  q.timeline.push({ event: 'answered', at: e.at });
-  q.answer = {
-    teacherId: e.teacherId,
-    steps: approvedSteps(q, e.note),
-    teacherNote: note,
-    correctedAi: note !== null,
-  };
-  w.notifications.push({
-    id: `n-${e.id}`,
-    kind: 'answerReady',
-    recipientId: q.studentId,
-    role: 'student',
-    at: e.at,
-    read: false,
-    questionId: q.id,
-    teacherId: e.teacherId,
   });
 }

@@ -52,6 +52,7 @@ function threadView(world: DemoWorld, t: ChatThread, readerId: string): ChatThre
     title: title(world, t, readerId),
     classId: t.classId,
     childId: t.childId,
+    childName: t.childId ? (personOf(world, t.childId)?.fullName ?? null) : null,
     unread: unreadIn(world, t.id, readerId),
     last: last ? messageView(world, last, readerId) : null,
   };

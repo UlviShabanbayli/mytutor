@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { AskQuestion } from '@mytutor/types';
+import type { AskQuestion, DemoEvent } from '@mytutor/types';
 import { NOW, ev, get, grade, list } from './testEvents';
 
 describe('demo events across roles', () => {
@@ -85,18 +85,25 @@ describe('demo events across roles', () => {
       fromPersonId: 'nermin',
       text: 'Sabah görüşərik',
     });
-    const toParent = ev({
-      type: 'message.sent',
-      threadId: 'dm-lale-sebine',
-      fromPersonId: 'lale',
-      text: 'Nərmin əla işləyir',
-    });
-    const reply = ev({
-      type: 'message.sent',
-      threadId: 'dm-lale-sebine',
-      fromPersonId: 'sebine',
-      text: 'Sağ olun!',
-    });
+    // Written in the last minutes, after everyone last read the conversation.
+    const toParent = {
+      ...ev({
+        type: 'message.sent',
+        threadId: 'dm-lale-sebine',
+        fromPersonId: 'lale',
+        text: 'Nərmin əla işləyir',
+      }),
+      at: '2026-10-20T05:58:00.000Z',
+    } as DemoEvent;
+    const reply = {
+      ...ev({
+        type: 'message.sent',
+        threadId: 'dm-lale-sebine',
+        fromPersonId: 'sebine',
+        text: 'Sağ olun!',
+      }),
+      at: '2026-10-20T05:59:00.000Z',
+    } as DemoEvent;
     const events = [toClass, toParent, reply];
     const classChat = get('/v1/teacher/messages/chat-7b', events) as {
       messages: { text: string; mine: boolean }[];

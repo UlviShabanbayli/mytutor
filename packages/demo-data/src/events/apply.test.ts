@@ -77,6 +77,14 @@ describe('applyDemoEvents', () => {
       'consent.decided',
       'notification.read',
       'exam.goalSet',
+      'class.created',
+      'announcement.posted',
+      'group.saved',
+      'member.muted',
+      'class.chatSet',
+      'material.saved',
+      'thread.read',
+      'ask.cancelled',
     ]);
     expect(DEMO_EVENT_TYPES.filter((t) => !tested.has(t))).toEqual([]);
   });

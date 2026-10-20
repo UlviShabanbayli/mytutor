@@ -9,14 +9,17 @@ import {
   consentDecided,
   notificationRead,
 } from './people';
+import { askAnswered, askCancelled, askSent } from './ask';
 import {
-  askAnswered,
-  askSent,
-  assignmentCreated,
-  assignmentGraded,
-  assignmentSubmitted,
-  messageSent,
-} from './work';
+  announcementPosted,
+  classChatSet,
+  classCreated,
+  groupSaved,
+  materialSaved,
+  memberMuted,
+} from './classes';
+import { messageSent, threadRead } from './talk';
+import { assignmentCreated, assignmentGraded, assignmentSubmitted } from './work';
 
 /**
  * The world with the device's demo events applied, oldest first. Pure: the given world is
@@ -44,11 +47,17 @@ export function applyDemoEvents(world: DemoWorld, events: readonly DemoEvent[]):
       case 'message.sent':
         messageSent(w, e);
         break;
+      case 'thread.read':
+        threadRead(w, e);
+        break;
       case 'ask.sent':
         askSent(w, e);
         break;
       case 'ask.answered':
         askAnswered(w, e);
+        break;
+      case 'ask.cancelled':
+        askCancelled(w, e);
         break;
       case 'class.joined':
         classJoined(w, e);
@@ -56,6 +65,24 @@ export function applyDemoEvents(world: DemoWorld, events: readonly DemoEvent[]):
       case 'class.left':
       case 'member.removed':
         classLeft(w, e);
+        break;
+      case 'class.created':
+        classCreated(w, e);
+        break;
+      case 'announcement.posted':
+        announcementPosted(w, e);
+        break;
+      case 'group.saved':
+        groupSaved(w, e);
+        break;
+      case 'member.muted':
+        memberMuted(w, e);
+        break;
+      case 'class.chatSet':
+        classChatSet(w, e);
+        break;
+      case 'material.saved':
+        materialSaved(w, e);
         break;
       case 'child.linked':
         childLinked(w, e);

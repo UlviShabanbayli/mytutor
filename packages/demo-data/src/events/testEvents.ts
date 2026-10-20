@@ -5,13 +5,13 @@ import { answerDemo } from '../selectors/answer';
 
 export const NOW = new Date('2026-10-20T06:00:00.000Z');
 let n = 0;
-/** An event a few minutes before now, in the order written. */
+/** An event in the two hours before now, half a minute after the one written before it. */
 export const ev = (input: DemoEventInput): DemoEvent => {
   n += 1;
   return {
     ...input,
     id: `ev-${n}`,
-    at: new Date(NOW.getTime() - (60 - n) * 60_000).toISOString(),
+    at: new Date(NOW.getTime() - (240 - n) * 30_000).toISOString(),
   } as DemoEvent;
 };
 

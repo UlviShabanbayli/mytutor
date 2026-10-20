@@ -58,6 +58,8 @@ export const chatThreadViewSchema = z.object({
   title: z.string().min(1),
   classId: z.string().nullable(),
   childId: z.string().nullable(),
+  /** The child a parent–teacher conversation is about ("Nərmin Əliyeva"). */
+  childName: z.string().nullable(),
   unread: z.number().int().nonnegative(),
   last: chatMessageViewSchema.nullable(),
 });
