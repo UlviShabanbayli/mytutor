@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { OptionKey } from '@mytutor/types';
-import { AnswerOption, Icon, Text } from '@/components/ui';
+import { AnswerOption, SuccessCheck, Text } from '@/components/ui';
 import type { MockQuestion } from '@/features/exam/types';
 
 type MockOptionsProps = {
@@ -43,16 +43,8 @@ export function MockOptions({ question, selected, onSelect }: MockOptionsProps) 
           );
         })}
       </View>
-      {selected ? (
-        <View
-          accessibilityRole="summary"
-          accessibilityLiveRegion="polite"
-          className="flex-row items-center gap-1.5"
-        >
-          <Icon name="check" size={14} color="ok" />
-          <Text className="font-sans-bold text-xs text-ok">{t('exam.run.saved')}</Text>
-        </View>
-      ) : null}
+      {/* micro.done A: the first answer to a question draws the check; a change keeps it. */}
+      {selected ? <SuccessCheck layout="row" body={t('exam.run.saved')} /> : null}
     </View>
   );
 }
