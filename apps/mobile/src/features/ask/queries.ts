@@ -44,7 +44,6 @@ export function useAskQuestions() {
       apiGet('/v1/ask/questions', { persona, parse: askQuestionViewSchema.array().parse }),
   });
   const queued = useAskStore((s) => s.queued);
-  const cancelled = useAskStore((s) => s.cancelledIds);
   const photos = useAskStore((s) => s.photos);
 
   const data = useMemo(() => {
@@ -54,8 +53,8 @@ export function useAskQuestions() {
       // A photo kept on this device when the event could not carry it.
       photoUri: q.photoUri ?? photos[q.id] ?? null,
     }));
-    return sortNewest(all.filter((q) => !cancelled.includes(q.id)));
-  }, [query.data, queued, cancelled, photos, t]);
+    return sortNewest(all);
+  }, [query.data, queued, photos, t]);
 
   return { ...query, data };
 }
@@ -197,4 +196,21 @@ export function useReadAnswerNotification(questionId: string, answered: boolean)
   useEffect(() => {
     if (unread) write({ type: 'notification.read', notificationId: unread.id });
   }, [unread, write]);
+}
+
+/**
+ * "Sualı ləğv et": a question still waiting on the device is dropped there; a sent one is taken
+ * back with the demo event `ask.cancelled`, so it leaves the teacher's inbox too.
+ */
+export function useCancelQuestion(): (questionId: string) => void {
+  const write = useDemoWrite();
+  const studentId = useMe().data?.person.id;
+  return (questionId) => {
+    const { queued, cancel } = useAskStore.getState();
+    if (queued.some((q) => q.id === questionId)) {
+      cancel(questionId);
+      return;
+    }
+    if (studentId) write({ type: 'ask.cancelled', questionId, studentId });
+  };
 }

@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Mascot } from '@/components/mascot/Mascot';
 import { Button, IconButton, Screen, ScreenHeader, SuccessCheck, Text } from '@/components/ui';
+import { useCancelQuestion } from '@/features/ask/queries';
 import { useAskStore } from '@/features/ask/store';
 import type { AskQuestion } from '@/features/ask/types';
 import { AiDraftCard } from './AiDraftCard';
@@ -20,7 +21,7 @@ type AskStatusViewProps = {
 /** A question on its way: the four steps, the AI's first solution (marked as AI), a lesson. */
 export function AskStatusView({ question, justSent = false }: AskStatusViewProps) {
   const { t } = useTranslation();
-  const cancel = useAskStore((s) => s.cancel);
+  const cancel = useCancelQuestion();
   const report = useAskStore((s) => s.report);
   const reported = useAskStore((s) => s.reportedIds.includes(question.id));
   const [menu, setMenu] = useState(false);

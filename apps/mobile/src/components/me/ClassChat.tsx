@@ -5,7 +5,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Banner, Icon, IconButton, Text } from '@/components/ui';
 import { canCopy, copyText } from '@/features/me/chat';
-import { useClassMessages, useIsOnline, useSendMessage } from '@/features/me/queries';
+import {
+  useClassMessages,
+  useIsOnline,
+  useReadThread,
+  useSendMessage,
+} from '@/features/me/queries';
 import { useMeStore } from '@/features/me/store';
 import type { ChatMessage, ClassSummary } from '@/features/me/types';
 import { ChatBubble } from './ChatBubble';
@@ -24,14 +29,15 @@ type ClassChatProps = { summary: ClassSummary };
 export function ClassChat({ summary }: ClassChatProps) {
   const { t } = useTranslation();
   const scroll = useRef<ScrollView>(null);
-  const { threadId, messages, isPending, isError, refetch } = useClassMessages(summary.id);
+  const { threadId, unread, messages, isPending, isError, refetch } = useClassMessages(summary.id);
+  useReadThread(threadId, unread);
   const online = useIsOnline();
   const send = useSendMessage();
   const reported = useMeStore((s) => s.reported);
   const report = useMeStore((s) => s.report);
   const [menuFor, setMenuFor] = useState<ChatMessage | null>(null);
   const [sheet, setSheet] = useState<'menu' | 'report' | 'info' | 'attach' | null>(null);
-  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [replyTo, setReplyTo] = useState<{ id: string; author: string } | null>(null);
 
   const options: SheetOption[] = menuFor
     ? [
@@ -39,7 +45,7 @@ export function ClassChat({ summary }: ClassChatProps) {
           key: 'reply',
           icon: 'chat',
           label: t('me.chat.reply'),
-          onPress: () => setReplyTo(menuFor.author),
+          onPress: () => setReplyTo({ id: menuFor.id, author: menuFor.author }),
         },
         ...(canCopy
           ? [
@@ -147,12 +153,12 @@ export function ClassChat({ summary }: ClassChatProps) {
           <Banner kind="offline" message={t('me.chat.offline')} className="mx-3 mb-2" />
         ) : null}
         <ChatComposer
-          replyTo={replyTo}
+          replyTo={replyTo?.author ?? null}
           disabled={!online || threadId === null}
           onCancelReply={() => setReplyTo(null)}
           onAttach={() => setSheet('attach')}
           onSend={(text) => {
-            if (threadId) send(threadId, text);
+            if (threadId) send(threadId, text, replyTo?.id);
             setReplyTo(null);
           }}
         />

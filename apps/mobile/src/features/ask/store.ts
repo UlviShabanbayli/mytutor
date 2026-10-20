@@ -21,7 +21,6 @@ type AskState = {
   queued: WorldQuestion[];
   /** Photos of questions sent from this device, by question id (an inline photo stays here). */
   photos: Record<string, string>;
-  cancelledIds: string[];
   feedback: Record<string, Feedback>;
   reportedIds: string[];
   setPhoto: (photo: { uri: string; width: number; height: number }) => void;
@@ -36,6 +35,7 @@ type AskState = {
   keepPhoto: (id: string, uri: string) => void;
   enqueue: (question: WorldQuestion) => void;
   dequeue: (id: string) => void;
+  /** Drops a question still waiting on the device (a sent one is `ask.cancelled`). */
   cancel: (id: string) => void;
   setFeedback: (id: string, feedback: Feedback) => void;
   report: (id: string) => void;
@@ -51,7 +51,6 @@ export const useAskStore = create<AskState>()((set) => ({
   queue: 'teacher',
   queued: [],
   photos: {},
-  cancelledIds: [],
   feedback: {},
   reportedIds: [],
   setPhoto: (photo) => set({ draft: { ...photo, rotation: 0, crop: null } }),
@@ -68,11 +67,7 @@ export const useAskStore = create<AskState>()((set) => ({
   keepPhoto: (id, uri) => set((s) => ({ photos: { ...s.photos, [id]: uri } })),
   enqueue: (question) => set((s) => ({ queued: [question, ...s.queued] })),
   dequeue: (id) => set((s) => ({ queued: s.queued.filter((q) => q.id !== id) })),
-  cancel: (id) =>
-    set((s) => ({
-      cancelledIds: [...s.cancelledIds, id],
-      queued: s.queued.filter((q) => q.id !== id),
-    })),
+  cancel: (id) => set((s) => ({ queued: s.queued.filter((q) => q.id !== id) })),
   setFeedback: (id, feedback) => set((s) => ({ feedback: { ...s.feedback, [id]: feedback } })),
   report: (id) => set((s) => ({ reportedIds: [...s.reportedIds, id] })),
 }));

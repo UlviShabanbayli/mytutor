@@ -103,16 +103,25 @@ export function useMarkNotificationsRead() {
   return useMutation({ mutationFn: () => read(() => true) });
 }
 
-/** Opening a conversation: read on this device, and its message notifications read too. */
+/**
+ * Opening a conversation: read on this device, its message notifications read, and the demo
+ * event `thread.read`, so the teacher sees "Oxundu".
+ */
 export function useMarkThreadRead() {
   const read = useReadNotifications();
   const markSeen = useParentLocalStore((s) => s.markSeen);
+  const p = useDemoPersona();
+  const client = useQueryClient();
+  const write = useDemoWrite();
   return useCallback(
     (threadId: string) => {
       markSeen(threadId, new Date().toISOString());
       void read((n) => n.kind === 'teacherMessage' && n.threadId === threadId);
+      void client
+        .ensureQueryData(baseQueries.home(p))
+        .then((home) => write({ type: 'thread.read', threadId, readerId: home.person.id }));
     },
-    [markSeen, read],
+    [markSeen, read, client, p, write],
   );
 }
 

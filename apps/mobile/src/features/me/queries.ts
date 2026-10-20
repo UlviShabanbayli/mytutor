@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { onlineManager, useQuery } from '@tanstack/react-query';
 import {
   chatThreadDetailSchema,
@@ -188,7 +188,8 @@ export function useClassMessages(classId: string) {
     queryKey: meKeys.threads(persona),
     queryFn: () => apiGet('/v1/messages', { persona, parse: chatThreadViewSchema.array().parse }),
   });
-  const threadId = threads.data?.find((t) => t.kind === 'class' && t.classId === classId)?.id;
+  const found = threads.data?.find((t) => t.kind === 'class' && t.classId === classId);
+  const threadId = found?.id;
   const thread = useQuery({
     queryKey: meKeys.thread(persona, threadId ?? ''),
     enabled: threadId !== undefined,
@@ -201,6 +202,8 @@ export function useClassMessages(classId: string) {
   });
   return {
     threadId: threadId ?? null,
+    /** Messages the student has not read yet (opening the chat reads them). */
+    unread: found?.unread ?? 0,
     messages: thread.data ?? [],
     isPending: threads.isPending || (threadId !== undefined && thread.isPending),
     isError: threads.isError || thread.isError,
@@ -208,13 +211,26 @@ export function useClassMessages(classId: string) {
   };
 }
 
-/** Sends a chat message as the demo event `message.sent`; the teacher's chat shows it too. */
-export function useSendMessage(): (threadId: string, text: string) => void {
+/**
+ * Sends a chat message as the demo event `message.sent` (with the message it answers); the
+ * teacher's chat shows it too.
+ */
+export function useSendMessage(): (threadId: string, text: string, replyToId?: string) => void {
   const write = useDemoWrite();
   const me = useMe().data?.person.id;
-  return (threadId, text) => {
-    if (me && text.trim()) write({ type: 'message.sent', threadId, fromPersonId: me, text });
+  return (threadId, text, replyToId) => {
+    if (me && text.trim())
+      write({ type: 'message.sent', threadId, fromPersonId: me, text, replyToId });
   };
+}
+
+/** Opening a chat with news reads it (`thread.read`): the teacher sees "Oxundu". */
+export function useReadThread(threadId: string | null, unread: number): void {
+  const write = useDemoWrite();
+  const me = useMe().data?.person.id;
+  useEffect(() => {
+    if (threadId && me && unread > 0) write({ type: 'thread.read', threadId, readerId: me });
+  }, [threadId, me, unread, write]);
 }
 
 /** A live lesson of one of the student's classes; null when none has this id. */
