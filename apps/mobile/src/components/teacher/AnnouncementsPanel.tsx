@@ -4,20 +4,17 @@ import { Card, ErrorState, LoadingState, Text } from '@/components/ui';
 import { useAnnouncements } from '@/features/teacher/queries';
 import { useTeacherFormat } from '@/features/teacher/useTeacherFormat';
 
-/** An announcement the teacher posted on this screen (not kept: no demo event has it yet). */
-export type PostedAnnouncement = { id: string; text: string; at: string };
-
-type AnnouncementsPanelProps = { classId: string; posted: PostedAnnouncement[] };
+type AnnouncementsPanelProps = { classId: string };
 
 /** The class's announcements, newest first. */
-export function AnnouncementsPanel({ classId, posted }: AnnouncementsPanelProps) {
+export function AnnouncementsPanel({ classId }: AnnouncementsPanelProps) {
   const { t } = useTranslation();
   const f = useTeacherFormat();
   const list = useAnnouncements(classId);
 
   if (list.isPending) return <LoadingState />;
   if (list.isError) return <ErrorState onRetry={() => void list.refetch()} />;
-  const all = [...posted, ...list.data];
+  const all = list.data;
   if (all.length === 0) return <Text tone="muted">{t('teacher.class.emptyAnnouncements')}</Text>;
   return (
     <View className="gap-2">

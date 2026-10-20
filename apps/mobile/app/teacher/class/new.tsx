@@ -8,14 +8,13 @@ import { SubjectField, type SubjectKey } from '@/components/teacher/SubjectField
 import { TeacherHeader } from '@/components/teacher/TeacherHeader';
 import { TeacherScreen } from '@/components/teacher/TeacherScreen';
 import { Banner, Button, Input } from '@/components/ui';
-import { NoteLine } from '@/components/teacher/NoteLine';
 import { useCreateClass } from '@/features/teacher/mutations';
 import { useTeacherProfile } from '@/features/teacher/queries';
 import type { TeacherClass } from '@/features/teacher/types';
 
 /**
- * New class and its invite code (design t-class-new, M2): a free class opens at once. The demo
- * shows the code but does not keep the class (no shared demo event for it yet).
+ * New class and its invite code (design t-class-new, M2): a free class opens at once, as the
+ * demo event `class.created`, so it is in the list and students can join with the code.
  */
 export default function NewClassScreen() {
   const { t } = useTranslation();
@@ -35,7 +34,7 @@ export default function NewClassScreen() {
       return;
     }
     create.mutate(
-      { subject: t(`teacher.subjects.${subject}`), grade, name },
+      { subjectKey: subject, subject: t(`teacher.subjects.${subject}`), grade, name, paid },
       { onSuccess: setCreated },
     );
   };
@@ -74,7 +73,6 @@ export default function NewClassScreen() {
       {created ? (
         <>
           <InviteCodeCard cls={created} />
-          <NoteLine icon="info">{t('teacher.classNew.demoNote')}</NoteLine>
           <Button
             variant="secondary"
             label={t('teacher.classNew.backToClasses')}

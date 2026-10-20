@@ -109,12 +109,10 @@ export function useClassAssignments(id: string) {
   return useQuery({ ...classQuery(persona, client, id), select: (d) => d.assignments });
 }
 
+/** The class's announcements, newest first (GET /v1/teacher/classes/:id). */
 export function useAnnouncements(classId: string) {
-  const { persona } = useTeacherScope();
-  return useQuery({
-    queryKey: teacherKey(persona, 'classes', classId, 'announcements'),
-    queryFn: () => api.getAnnouncements(persona, classId),
-  });
+  const { persona, client } = useTeacherScope();
+  return useQuery({ ...classQuery(persona, client, classId), select: (d) => d.announcements });
 }
 
 /** Handed-in work of an assignment, waiting ones first. */
@@ -229,20 +227,10 @@ export function useLiveRoom(id: string) {
 
 /** The teacher's conversations, newest first, with the child a parent writes about. */
 export function useConversations() {
-  const { persona, client } = useTeacherScope();
+  const { persona } = useTeacherScope();
   return useQuery({
     queryKey: teacherKey(persona, 'messages'),
-    queryFn: async () => {
-      const [threads, home] = await Promise.all([
-        api.getThreads(persona),
-        client.ensureQueryData(homeQuery(persona)),
-      ]);
-      const rosters = await Promise.all(
-        home.classes.map((c) => client.ensureQueryData(classQuery(persona, client, c.id))),
-      );
-      const names = new Map(rosters.flatMap((r) => r.members.map((m) => [m.personId, m.name])));
-      return threads.map((t) => conversationOf(t, names));
-    },
+    queryFn: async () => (await api.getThreads(persona)).map(conversationOf),
   });
 }
 

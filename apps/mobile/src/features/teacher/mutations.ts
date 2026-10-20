@@ -1,13 +1,19 @@
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import type { AssignmentKind, Audience, DemoEventInput, SolutionStep } from '@mytutor/types';
+import type {
+  AssignmentKind,
+  Audience,
+  ClassGroup,
+  DemoEventInput,
+  SolutionStep,
+} from '@mytutor/types';
 import { ApiError } from '@/lib/api';
 import { useDemoWrite } from '@/lib/demoEvents';
 import { classShortName, makeInviteCode } from './classroom';
 import { assignmentsQuery, contentsQuery, homeQuery, useTeacherScope } from './teacherQuery';
 import type { InboxQuestion, TeacherClass, TopicView } from './types';
 import { topicOf, unitOfTopic } from './views';
-import { answerNote, newAssignment } from './writes';
+import { editedSteps, newAssignment } from './writes';
 
 /**
  * The teacher's writes. Each one that students and parents should see is a shared demo event
@@ -106,29 +112,18 @@ export type ApproveInput = {
 };
 
 /**
- * `ask.answered`: the student's question shows "Müəllim təsdiqlədi". The event carries no
- * steps or topic, so the teacher's changes go to the student in its note.
+ * `ask.answered`: the student's question shows "Müəllim təsdiqlədi", with the teacher's own
+ * steps when she changed the AI's and the topic she linked.
  */
 export function useApproveAnswer() {
-  const { t } = useTranslation();
   const teacherId = useTeacherId();
-  return useEventMutation(async (v: ApproveInput) => {
-    const steps = answerNote(v.question.aiDraft?.steps ?? [], v.steps, (index, s) =>
-      t('teacher.answer.noteLine', { index, text: s.text, formula: s.formula }),
-    );
-    const topic = v.topic
-      ? t('teacher.answer.noteTopic', {
-          topic: t('teacher.topicLine', { id: v.topic.number, title: v.topic.title }),
-        })
-      : undefined;
-    const note = [steps, topic].filter(Boolean).join('\n');
-    return {
-      type: 'ask.answered',
-      questionId: v.question.id,
-      teacherId: await teacherId(),
-      note: note || undefined,
-    };
-  });
+  return useEventMutation(async (v: ApproveInput) => ({
+    type: 'ask.answered',
+    questionId: v.question.id,
+    teacherId: await teacherId(),
+    steps: editedSteps(v.question.aiDraft?.steps ?? [], v.steps),
+    topicId: v.topic?.id,
+  }));
 }
 
 /** `member.removed`: the student leaves the class's roster, chat and assignments. */
@@ -142,11 +137,22 @@ export const useRemoveMember = () =>
 /** `message.sent`: the class chat or the parent sees it on their side. */
 export function useSendMessage() {
   const teacherId = useTeacherId();
-  return useEventMutation(async (v: { threadId: string; text: string }) => ({
+  return useEventMutation(async (v: { threadId: string; text: string; replyToId?: string }) => ({
     type: 'message.sent',
     threadId: v.threadId,
     fromPersonId: await teacherId(),
     text: v.text.trim(),
+    replyToId: v.replyToId,
+  }));
+}
+
+/** `thread.read`: the teacher has seen the conversation; the parent or student sees "Oxundu". */
+export function useReadThread() {
+  const teacherId = useTeacherId();
+  return useEventMutation(async (threadId: string) => ({
+    type: 'thread.read',
+    threadId,
+    readerId: await teacherId(),
   }));
 }
 
@@ -160,31 +166,55 @@ export function useReadNotices() {
   });
 }
 
-/*
- * Writes the shared demo events have no type for yet (a new class, an SMS invite, a test saved
- * for the class or the catalogue). They answer on this screen and are not kept; proposals for
- * the events: `class.created`, `material.saved`.
- */
+export type NewClassInput = {
+  subjectKey: string;
+  subject: string;
+  grade: number;
+  name: string;
+  paid: boolean;
+};
 
-export type NewClassInput = { subject: string; grade: number; name: string };
+/** The id slug of a subject key, for the class's subject id ("riyaziyyat-7"). */
+const SUBJECT_SLUGS: Record<string, string> = {
+  math: 'riyaziyyat',
+  azLang: 'azerbaycan-dili',
+  english: 'ingilis-dili',
+  physics: 'fizika',
+  biology: 'biologiya',
+  history: 'tarix',
+  chemistry: 'kimya',
+  geography: 'cografiya',
+};
 
-/** The new class with its invite code, shown on the screen that opened it (not kept). */
-export const useCreateClass = () =>
-  useMutation({
+/** `class.created`: the class, its code and its chat; students can join with the code. */
+export function useCreateClass() {
+  const { persona, client } = useTeacherScope();
+  const teacherId = useTeacherId();
+  const write = useDemoWrite();
+  return useMutation({
     mutationFn: async (input: NewClassInput): Promise<TeacherClass> => {
+      const home = await client.ensureQueryData(homeQuery(persona));
       const shortName = classShortName(input.name);
-      return {
-        id: `new-${shortName.toLowerCase()}`,
+      const taken = new Set(home.classes.map((c) => c.id));
+      const base = shortName.toLowerCase() || 'sinif';
+      let id = base;
+      for (let n = 2; taken.has(id); n++) id = `${base}-${n}`;
+      const cls = {
+        id,
         shortName,
         name: input.name.trim(),
-        subjectId: '',
+        subjectId: `${SUBJECT_SLUGS[input.subjectKey] ?? input.subjectKey}-${input.grade}`,
         subject: input.subject,
         grade: input.grade,
-        teacherId: '',
+        teacherId: await teacherId(),
         joinCode: makeInviteCode(shortName, 'MATH'),
-        paid: false,
+        paid: input.paid,
         groups: [],
         chatOpen: true,
+      };
+      write({ type: 'class.created', class: cls });
+      return {
+        ...cls,
         studentCount: 0,
         activeThisWeek: 0,
         activeAssignments: 0,
@@ -194,17 +224,80 @@ export const useCreateClass = () =>
       };
     },
   });
+}
+
+/** `announcement.posted`: the class's students see it in their class feed. */
+export function usePostAnnouncement() {
+  const teacherId = useTeacherId();
+  return useEventMutation(async (v: { classId: string; text: string }) => ({
+    type: 'announcement.posted',
+    classId: v.classId,
+    authorId: await teacherId(),
+    text: v.text.trim(),
+  }));
+}
+
+/** `class.chatSet`: students can (or cannot) write in the class chat. */
+export const useSetClassChat = () =>
+  useEventMutation(async (v: { classId: string; open: boolean }) => ({
+    type: 'class.chatSet',
+    classId: v.classId,
+    open: v.open,
+  }));
+
+/** `group.saved`: a group of the class, created or changed (saved whole). */
+export const useSaveGroup = () =>
+  useEventMutation(async (v: { classId: string; group: ClassGroup }) => ({
+    type: 'group.saved',
+    classId: v.classId,
+    group: v.group,
+  }));
+
+/** `member.muted`: the student can (or cannot) write in the class chat. */
+export const useMuteMember = () =>
+  useEventMutation(async (v: { classId: string; studentId: string; muted: boolean }) => ({
+    type: 'member.muted',
+    classId: v.classId,
+    studentId: v.studentId,
+    muted: v.muted,
+  }));
 
 /** The SMS invite is sent by the API (Twilio Verify stays server-side); the demo only accepts. */
 export const useInviteByPhone = () =>
   useMutation({ mutationFn: async (_v: { classId: string; phone: string }) => ({ sent: true }) });
 
-/** A test from the bank, for the class or the catalogue (not kept in the demo yet). */
-export const useSaveTest = () =>
-  useMutation({
-    mutationFn: async (v: {
-      title: string;
-      questionIds: string[];
-      audience: 'class' | 'catalog';
-    }) => v,
+export type SaveTestInput = {
+  /** The draft being edited, or none for a new test. */
+  draftId?: string;
+  title: string;
+  topicId: string;
+  questionIds: string[];
+  audience: 'class' | 'catalog';
+};
+
+/**
+ * `material.saved`: a test from the bank, sent to the teacher's classes (they see it in their
+ * class) or to the catalogue's review.
+ */
+export function useSaveTest() {
+  const { persona, client } = useTeacherScope();
+  const teacherId = useTeacherId();
+  return useEventMutation(async (v: SaveTestInput) => {
+    const home = await client.ensureQueryData(homeQuery(persona));
+    const toClass = v.audience === 'class';
+    return {
+      type: 'material.saved',
+      material: {
+        id: v.draftId ?? `mat-test-${Date.now().toString(36)}`,
+        ownerId: await teacherId(),
+        kind: 'test',
+        title: v.title,
+        topicId: v.topicId || null,
+        classIds: toClass ? home.classes.map((c) => c.id) : [],
+        size: v.questionIds.length,
+        state: toClass ? 'class' : 'in_review',
+        updatedAt: new Date().toISOString(),
+      },
+    };
   });
+}

@@ -35,6 +35,10 @@ export default function TestBuilderScreen() {
   const topicIds = unit.data.topics.map((x) => x.id);
   const topicId = topic && topicIds.includes(topic) ? topic : start.data.topicId;
   return (
-    <TestBuilder header={header} topics={unit.data.topics} initial={{ ...start.data, topicId }} />
+    <TestBuilder
+      header={header}
+      topics={unit.data.topics}
+      initial={{ ...start.data, topicId, draftId: draft }}
+    />
   );
 }

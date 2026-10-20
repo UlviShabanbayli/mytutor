@@ -1,18 +1,19 @@
-import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, Switch, Text } from '@/components/ui';
+import { useSetClassChat } from '@/features/teacher/mutations';
 import type { TeacherClass } from '@/features/teacher/types';
 
 type ClassChatRowProps = { cls: TeacherClass; mutedCount: number };
 
 /**
- * The class chat switch (M2 "sinif söhbətini açıb-bağlamaq") with its news. The switch holds on
- * this screen only: the shared demo events have no chat setting yet.
+ * The class chat switch (M2 "sinif söhbətini açıb-bağlamaq") with its news, written as the demo
+ * event `class.chatSet`: a closed chat takes no students' messages.
  */
 export function ClassChatRow({ cls, mutedCount }: ClassChatRowProps) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(cls.chatOpen);
+  const setChat = useSetClassChat();
+  const open = cls.chatOpen;
   const parts = open
     ? [
         t('teacher.class.chatOpen'),
@@ -32,7 +33,7 @@ export function ClassChatRow({ cls, mutedCount }: ClassChatRowProps) {
       </View>
       <Switch
         value={open}
-        onValueChange={setOpen}
+        onValueChange={(value) => setChat.mutate({ classId: cls.id, open: value })}
         accessibilityLabel={
           open ? t('teacher.class.chatSwitchOn') : t('teacher.class.chatSwitchOff')
         }

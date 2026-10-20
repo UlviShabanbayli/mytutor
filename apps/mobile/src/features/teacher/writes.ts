@@ -62,14 +62,14 @@ const sameStep = (a: SolutionStep | undefined, b: SolutionStep) =>
   a !== undefined && a.text === b.text && a.formula === b.formula;
 
 /**
- * What an `ask.answered` event says the teacher changed: her whole solution, one line per step,
- * when it differs from the AI's; nothing when she approved the AI's steps as they are.
+ * The steps an `ask.answered` event carries: the teacher's whole solution, each changed step
+ * marked `edited`, when it differs from the AI's; nothing when she approved the AI's as they are.
  */
-export function answerNote(
+export function editedSteps(
   ai: readonly SolutionStep[],
   steps: readonly SolutionStep[],
-  line: (index: number, step: SolutionStep) => string,
-): string | undefined {
+): SolutionStep[] | undefined {
   const same = ai.length === steps.length && steps.every((s, i) => sameStep(ai[i], s));
-  return same ? undefined : steps.map((s, i) => line(i + 1, s)).join('\n');
+  if (same || steps.length === 0) return undefined;
+  return steps.map((s, i) => (sameStep(ai[i], s) ? s : { ...s, edited: true }));
 }

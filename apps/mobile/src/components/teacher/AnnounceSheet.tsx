@@ -2,19 +2,19 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Input, Sheet } from '@/components/ui';
-import type { PostedAnnouncement } from './AnnouncementsPanel';
+import { usePostAnnouncement } from '@/features/teacher/mutations';
 
 type AnnounceSheetProps = {
+  classId: string;
   visible: boolean;
   onClose: () => void;
-  onPosted: (item: PostedAnnouncement) => void;
+  onPosted: () => void;
 };
 
-let postedSeq = 0;
-
-/** "Elan yaz": one message to the whole class, sent as a notification. */
-export function AnnounceSheet({ visible, onClose, onPosted }: AnnounceSheetProps) {
+/** "Elan yaz": one message to the whole class (the demo event `announcement.posted`). */
+export function AnnounceSheet({ classId, visible, onClose, onPosted }: AnnounceSheetProps) {
   const { t } = useTranslation();
+  const post = usePostAnnouncement();
   const [text, setText] = useState('');
   const [showError, setShowError] = useState(false);
 
@@ -23,7 +23,8 @@ export function AnnounceSheet({ visible, onClose, onPosted }: AnnounceSheetProps
       setShowError(true);
       return;
     }
-    onPosted({ id: `posted-${++postedSeq}`, text: text.trim(), at: new Date().toISOString() });
+    post.mutate({ classId, text });
+    onPosted();
     setText('');
     onClose();
   };

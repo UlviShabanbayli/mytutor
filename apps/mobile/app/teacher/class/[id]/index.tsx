@@ -3,10 +3,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { AnnounceSheet } from '@/components/teacher/AnnounceSheet';
-import {
-  AnnouncementsPanel,
-  type PostedAnnouncement,
-} from '@/components/teacher/AnnouncementsPanel';
+import { AnnouncementsPanel } from '@/components/teacher/AnnouncementsPanel';
 import { ClassAssignments } from '@/components/teacher/ClassAssignments';
 import { ClassChatRow } from '@/components/teacher/ClassChatRow';
 import { ClassLivePanel } from '@/components/teacher/ClassLivePanel';
@@ -27,8 +24,6 @@ export default function TeacherClassScreen() {
   const members = useClassMembers(id);
   const [section, setSection] = useState<Section>('assignments');
   const [announcing, setAnnouncing] = useState(false);
-  // Posted on this screen only: the shared demo events have no announcement yet.
-  const [posted, setPosted] = useState<PostedAnnouncement[]>([]);
 
   if (cls.isPending)
     return (
@@ -106,15 +101,13 @@ export default function TeacherClassScreen() {
       />
       <ClassChatRow cls={c} mutedCount={muted} />
       {section === 'assignments' ? <ClassAssignments cls={c} /> : null}
-      {section === 'announcements' ? <AnnouncementsPanel classId={c.id} posted={posted} /> : null}
+      {section === 'announcements' ? <AnnouncementsPanel classId={c.id} /> : null}
       {section === 'live' ? <ClassLivePanel classId={c.id} /> : null}
       <AnnounceSheet
+        classId={c.id}
         visible={announcing}
         onClose={() => setAnnouncing(false)}
-        onPosted={(item) => {
-          setPosted((list) => [item, ...list]);
-          setSection('announcements');
-        }}
+        onPosted={() => setSection('announcements')}
       />
     </TeacherScreen>
   );

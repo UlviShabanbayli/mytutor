@@ -148,7 +148,6 @@ export const teacher = {
     readyNote:
       'Şagird kodu tətbiqdə Mən → Sinfə qoşul bölməsinə yazır. Kodu istədiyin vaxt yeniləyə bilərsən.',
     shareMessage: 'arı tətbiqində sinfimə qoşul: {{class}}. Kod: {{code}} · {{link}}',
-    demoNote: 'Demo: yeni sinif hələ yadda saxlanmır, siyahıda görünməyəcək.',
     backToClasses: 'Siniflərə qayıt',
     codeLabel: 'Dəvət kodu',
   },

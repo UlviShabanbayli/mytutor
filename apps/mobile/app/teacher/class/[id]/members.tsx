@@ -19,7 +19,7 @@ export default function ClassMembersScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const cls = useTeacherClass(id);
   const members = useClassMembers(id);
-  const edits = useRosterEdits(cls.data?.groups ?? [], members.data ?? []);
+  const edits = useRosterEdits(id, cls.data?.groups ?? [], members.data ?? []);
   const [query, setQuery] = useState('');
   const [groupId, setGroupId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);

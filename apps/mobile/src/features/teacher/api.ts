@@ -3,7 +3,6 @@ import {
   bankQuestionSchema,
   chatThreadDetailSchema,
   chatThreadViewSchema,
-  classFeedSchema,
   classInsightsSchema,
   curriculumResponseSchema,
   liveLessonSchema,
@@ -15,7 +14,7 @@ import {
   teacherHomeSchema,
 } from '@mytutor/schemas';
 import type { DemoPersona } from '@mytutor/types';
-import { ApiError, apiGet } from '@/lib/api';
+import { apiGet } from '@/lib/api';
 
 /*
  * The teacher area's reads of the demo world: GET /v1/teacher/* (and the curriculum), each
@@ -69,21 +68,3 @@ export const getThread = (persona: DemoPersona, id: string) =>
 
 export const getNotifications = (persona: DemoPersona) =>
   apiGet('/v1/teacher/notifications', { persona, parse: notificationSchema.array().parse });
-
-/**
- * A class's announcements. The teacher routes do not return them yet, so they are read from the
- * class feed, which answers only for the persona student's own class; elsewhere the list is
- * empty (proposal: add `announcements` to GET /v1/teacher/classes/:id).
- */
-export async function getAnnouncements(persona: DemoPersona, classId: string) {
-  try {
-    const feed = await apiGet(`/v1/classes/${enc(classId)}`, {
-      persona,
-      parse: classFeedSchema.parse,
-    });
-    return feed.announcements;
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) return [];
-    throw error;
-  }
-}

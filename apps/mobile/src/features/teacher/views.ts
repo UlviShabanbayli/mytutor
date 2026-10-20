@@ -140,26 +140,18 @@ export function liveRoomOf(
   };
 }
 
-/** A class's roster and groups; a removed student leaves the groups too. */
+/** A class's roster, groups (the world drops removed students), assignments, announcements. */
 export function classDetailOf(contents: Contents, detail: TeacherClassDetail) {
-  const ids = new Set(detail.members.map((m) => m.personId));
   return {
-    class: {
-      ...classOf(detail.class),
-      groups: detail.class.groups.map((g) => ({
-        ...g,
-        memberIds: g.memberIds.filter((id) => ids.has(id)),
-      })),
-    },
+    class: classOf(detail.class),
     members: detail.members,
     assignments: detail.assignments.map((a) => assignmentOf(contents, a)),
+    announcements: detail.announcements,
   };
 }
 
-export const conversationOf = (t: ChatThreadView, names: Map<string, string>): Conversation => ({
-  ...t,
-  childName: t.childId ? (names.get(t.childId) ?? null) : null,
-});
+/** A conversation in the teacher's list; the world names the child a parent writes about. */
+export const conversationOf = (t: ChatThreadView): Conversation => ({ ...t });
 
 /** The teacher's notifications for the bell, with names and topic numbers filled in. */
 export function noticesOf(

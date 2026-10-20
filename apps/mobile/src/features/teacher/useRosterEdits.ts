@@ -1,32 +1,31 @@
-import { useState } from 'react';
 import type { ClassGroup, RosterEntry } from '@mytutor/types';
+import { useMuteMember, useSaveGroup } from './mutations';
 import { toggleId } from './testBuilder';
 
 /**
- * Groups and chat mutes the teacher changes on the members screen. The shared demo events have
- * no type for them yet (proposals: `group.saved`, `member.muted`), so they live on this screen
- * only and are not kept.
+ * Groups and chat mutes the teacher changes on the members screen, written as the demo events
+ * `group.saved` and `member.muted`: the world answers with them, on every screen and role.
  */
-export function useRosterEdits(groups: ClassGroup[], members: RosterEntry[]) {
-  const [edited, setEdited] = useState<ClassGroup[] | null>(null);
-  const [muted, setMuted] = useState<Record<string, boolean>>({});
-  const current = edited ?? groups;
+export function useRosterEdits(classId: string, groups: ClassGroup[], members: RosterEntry[]) {
+  const saveGroup = useSaveGroup();
+  const mute = useMuteMember();
+  const save = (group: ClassGroup) => saveGroup.mutate({ classId, group });
 
   return {
-    groups: current,
-    members: members.map((m) => ({ ...m, mutedInChat: muted[m.personId] ?? m.mutedInChat })),
-    addGroup: (name: string) =>
-      setEdited([
-        ...current,
-        { id: `group-${current.length + 1}`, name: name.trim(), memberIds: [] },
-      ]),
-    toggleGroupMember: (groupId: string, personId: string) =>
-      setEdited(
-        current.map((g) =>
-          g.id === groupId ? { ...g, memberIds: toggleId(g.memberIds, personId) } : g,
-        ),
-      ),
-    setMuted: (personId: string, value: boolean) => setMuted((m) => ({ ...m, [personId]: value })),
+    groups,
+    members,
+    addGroup: (name: string) => {
+      const ids = new Set(groups.map((g) => g.id));
+      let n = groups.length + 1;
+      while (ids.has(`group-${n}`)) n += 1;
+      save({ id: `group-${n}`, name: name.trim(), memberIds: [] });
+    },
+    toggleGroupMember: (groupId: string, personId: string) => {
+      const group = groups.find((g) => g.id === groupId);
+      if (group) save({ ...group, memberIds: toggleId(group.memberIds, personId) });
+    },
+    setMuted: (personId: string, value: boolean) =>
+      mute.mutate({ classId, studentId: personId, muted: value }),
   };
 }
 

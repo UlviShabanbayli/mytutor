@@ -21,7 +21,7 @@ type TestBuilderProps = {
   /** Gets the live selection count so the header can say "4 sual seçildi". */
   header: (selectedCount: number) => ReactNode;
   topics: TopicView[];
-  initial: { title: string | null; topicId: string; questionIds: string[] };
+  initial: { title: string | null; topicId: string; questionIds: string[]; draftId?: string };
 };
 
 /** Build a test from our bank (M3): pick questions per topic, choose class or catalog. */
@@ -44,7 +44,9 @@ export function TestBuilder({ header, topics, initial }: TestBuilderProps) {
       .join(', ');
     save.mutate(
       {
+        draftId: initial.draftId,
         title: initial.title ?? t('teacher.builder.autoTitle', { topics: picked }),
+        topicId: topic,
         questionIds: selected,
         audience,
       },
