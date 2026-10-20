@@ -1,0 +1,1420 @@
+{
+ "vizi.idle": {
+  "category": "vizi",
+  "title": "Gözləmə halı: nəfəs, qanad, göz qırpma",
+  "when": "Vızı ekranda olub danışmayanda: ana səhifə, boş ekranlar, nəticə kartları",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "hover y 0→−4px 1.6s sine.inOut yoyo ∞ (shadow scaleX 1→0.86 in sync) · breath scaleY 1→1.018 at the feet pivot 1.7s yoyo ∞ · wings ±9° every 90ms around the wing roots · blink at random every 2.2–5.2s: lid down 75ms power2.in, closed 50ms, up 130ms power2.out, 20% double blink · RN: rig in react-native-svg, every named group in the rig comment = Animated G with useAnimatedProps (translateY, rotation, scale + originX/originY = pivot); loops withRepeat(withTiming(v, {easing: Easing.inOut(Easing.sin)}), -1, true); blink = JS timer → withSequence on lid translateY · reduced: still pose, no blink"
+   },
+   "B": {
+    "label": "Maraqlı",
+    "spec": "A + look-around: every 1.3–3.2s the pupils jump (saccade 135ms power3.out) to a random point within 8 units, the face layer follows 0.45s later by half the distance (fake head turn), antennae lag behind with elastic.out(1.1, 0.3) 1.1s; 35% of looks return to the viewer (eye contact) · RN: pupils/face translateX/Y shared values, antenna rotation withSpring({damping: 6, stiffness: 120}) · reduced: still pose looking at the viewer"
+   },
+   "C": {
+    "label": "Oynaq",
+    "spec": "B + bigger hover (−7px, 1.25s), faster wings (±16°/60ms) and a fidget every 3.4–6s, picked at random: small hop with squash and stretch, antenna boing, a smile with cheeks, wing buzz, a glance left and right, body sway ±5° · RN: fidgets are short withSequence clips started from a JS timer, never while another reaction plays · reduced: still pose"
+   }
+  }
+ },
+ "vizi.tap": {
+  "category": "vizi",
+  "title": "Toxunanda reaksiya",
+  "when": "Şagird Vızıya toxunanda: ana səhifə, profil, nəticə ekranı",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Gülümsəyir",
+    "spec": "pointer down: squash scaleY 0.9 / scaleX 1.07 in 90ms (feet pivot) · release: elastic.out(1.2, 0.4) 550ms back to 1, happy eyes (lower lids up) 160ms, cheeks scale 1.3 back.out(3), antennae boing, 0.5s wing buzz; back to idle after 1.1s · RN: Pressable onPressIn → withTiming squash, onPressOut → withSpring({damping: 7, stiffness: 260}); haptic Light on press · reduced: face switches to the smile, no squash"
+   },
+   "B": {
+    "label": "Qıdıqlanır",
+    "spec": "every tap counts (resets after 3s): taps 1–2 giggle = laugh mouth flicker (visemes every 110–180ms), body wiggle 7°→0 over 0.8s, cheeks 1.3, bubble; tap 3 = 360° spin 0.7s power2.inOut + dizzy pupils orbit 1s; tap 4+ = calm open arms and «Bəsdir, gəl dərsə qayıdaq!» · bubble back.out(2.2) 260ms · RN: tap counter in state, each reaction one withSequence; haptic Soft per tap, Medium on the spin · reduced: face swap + bubble fade 150ms"
+   },
+   "C": {
+    "label": "Hoppanır",
+    "spec": "anticipation squash 100ms → jump −44 units 280ms power2.out with stretch 1.12/0.92 and arms up → 360° roll 500ms in the air → fall 220ms power2.in → landing squash 80ms → elastic.out(1, 0.45) 500ms; antennae lag on take-off and landing; taps during a jump are ignored · RN: withSequence on translateY + scale, rotation withTiming; haptic Light on take-off, Medium on landing · reduced: arms-up pose for 1.2s"
+   }
+  }
+ },
+ "vizi.greet": {
+  "category": "vizi",
+  "title": "Salamlaşma",
+  "when": "İlk açılışda tanışlıq və uzun fasilədən sonra qayıdanda",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Əl yelləyir",
+    "spec": "appear scale 0.55→1 + fade 500ms back.out(2.2) → wave: right arm rotates around the shoulder −16°↔12°, 3 times, 200ms each, body sways ±2° with it → laughing face 200ms → bubble 260ms → calm smile at 1.6s · once · RN: arm G rotation withRepeat(withTiming(12, {duration: 200}), 6, true); haptic none · reduced: waving pose + bubble fade"
+   },
+   "B": {
+    "label": "Uçub gəlir",
+    "spec": "flies in from off-screen left: x 1.1s power2.out, y arc −60→+14→0 sine.inOut, flight lean −12° and speed lines; brake: lean −20° then elastic.out(1, 0.5) 700ms to 0 → waving pose 350ms → 2 waves → bubble · once · RN: translateX/Y withTiming on the rig container, lean rotation withSpring; wings switch to the fast flap · reduced: waving pose in place + bubble"
+   },
+   "C": {
+    "label": "Pətəkdən çıxır",
+    "spec": "peeks out from behind a honeycomb ledge: rise 550ms power2.out to eye level → looks left, right (250ms each), blinks → anticipation dip 140ms → jumps out 320ms with stretch → elastic settle 500ms, arms up, then waves · once · RN: rig inside a View with overflow hidden above the ledge, translateY withSequence; haptic Light on the jump · reduced: standing above the ledge, waving pose + bubble"
+   }
+  }
+ },
+ "vizi.correct": {
+  "category": "vizi",
+  "title": "Düz cavab sevinci",
+  "when": "Testdə düz cavabdan sonra «Düz» paneli açılanda; Vızı panelin küncündədir, sual kartında yox",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Gülən gözlər",
+    "spec": "panel slides up 220ms power2.out → Vızı pops in 320ms back.out(2.4) → happy eyes + laugh 180ms, small hop 10 units → a honey drop flies from Vızı to the points pill on an arc (600ms: up power2.out, down power2.in), pill pulses 1.12 and the number counts 120→125 in 400ms → calm smile · once · RN: drop = Animated View on the overlay layer, translateX withTiming(linear), translateY withSequence; haptic Success when the drop lands · reduced: final state (smile, 125 bal), no drop"
+   },
+   "B": {
+    "label": "Qollar yuxarı",
+    "spec": "panel up 220ms → arms-up pose 220ms + jump 26 units with squash/stretch + 0.9s fast wings → two small honey cells pop beside Vızı (scale 0→1 back.out(2.5), float up 20px, fade, 900ms) → points count up → back to idle at 1.5s · once · RN: cells = Animated Views, withDelay stagger 80ms; haptic Success · reduced: arms-up still pose, 125 bal"
+   },
+   "C": {
+    "label": "Göz vurur",
+    "spec": "panel up 220ms → 360° spin 550ms power2.inOut with a 14-unit hop → grin → left eye winks (lid 80ms down, holds 400ms, 140ms up) + cheeks 1.25 → bubble «Əla!» → calm smile at 1.9s · once · RN: spin = rotation withTiming on the spin group (pivot = body centre), wink = one lid withSequence; haptic Light on the wink · reduced: grin still pose + bubble"
+   }
+  }
+ },
+ "vizi.wrong": {
+  "category": "vizi",
+  "title": "Səhvdə təsəlli",
+  "when": "Səhv cavabdan sonra: düzgün cavab göstərilir, sual «Səhvlərim»ə düşür; titrəmə və qırmızı şok yoxdur",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit baxış",
+    "spec": "panel rises calmly 300ms power2.out (no bounce) → kind face 500ms (soft brows, lids slightly down) → head tilt −6° 700ms sine.inOut → two slow nods (face y +3, 280ms each) → back upright 800ms and a warm smile · once · RN: withTiming only, no springs (calm); no haptic on a wrong answer · reduced: kind still face"
+   },
+   "B": {
+    "label": "Ürək",
+    "spec": "panel rises 300ms → open arms pose 500ms power2.inOut → small heart appears above the head (scale 0.4→1 back.out(2) 450ms), floats up 16 units 1.4s and fades → bubble → arms back down at 2.8s, warm smile · once · RN: heart = part of the rig (G with opacity/scale/translateY); no haptic · reduced: open-arms still pose + bubble, heart static"
+   },
+   "C": {
+    "label": "Birlikdə baxaq",
+    "spec": "kind face → eyes and head turn to the correct answer (400ms) → right arm points down at it (450ms power2.inOut) → the answer row glows twice (outline scale 1→1.08, fade, 700ms) → bubble → looks back at the student (eye contact), smiles and nods once · once · RN: arm rotation withTiming, glow = Animated View border opacity/scale; no haptic · reduced: pointing still pose + bubble, no glow"
+   }
+  }
+ },
+ "vizi.done": {
+  "category": "vizi",
+  "title": "Dərs bitdi: bayram",
+  "when": "Dərs, mövzu testi və ya çərçivə bitəndə, nəticə ekranının yuxarısında",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Bal damcıları",
+    "spec": "arms-up pose 250ms + jump 24 units + 1.8s fast wings → 8 honey drops leave Vızı's hands every 110ms and arc into the cell (550ms each: up power2.out, down power2.in) → each drop raises the honey level by 1/8 (scaleY 180ms power2.out) and the cell pulses 1.04 → points count 0→45 in 1.3s → title fades in, Vızı laughs and hops · ≈2.6s, celebrate tempo · once · RN: drops on an overlay layer, honey level = Animated View height (or SVG clip rect) withTiming; haptic Light on 4 of the drops, Success at the end · reduced: full cell, +45 bal, arms-up still pose"
+   },
+   "B": {
+    "label": "Pətək halqası",
+    "spec": "6 small cells pop in a ring around Vızı (scale 0→1 back.out(2.5), 70ms stagger) → each fills with honey (300ms, 120ms stagger) and turns «Bal» (the test cell turns «Möhürlü») → Vızı anticipation 120ms + 360° spin 900ms power2.inOut with a 28-unit jump, arms up → «Çərçivə 4 möhürləndi» pill pops → cells keep floating ±3px · once, then idle · RN: ring positions computed once (cos/sin), cells = Animated Views with withDelay; haptic Success at the end of the spin · reduced: ring already full, arms-up still pose"
+   },
+   "C": {
+    "label": "Möhür",
+    "spec": "the unit-test cell fills with honey in 1s power1.inOut while Vızı watches (pupils follow the level) → a wax cap drops onto it 280ms power2.in → impact: cell dips 0.95, cap squashes 0.86→1 with elastic.out(1, 0.4) → the cell becomes «Möhürlü» → Vızı arms up + 26-unit jump + fast wings → title fades in · once · RN: cap = Animated View, translateY withTiming then withSpring on scaleY; haptic Heavy on the seal impact · reduced: sealed cell + arms-up still pose"
+   }
+  }
+ },
+ "vizi.think": {
+  "category": "vizi",
+  "title": "Düşünür: AI işləyir",
+  "when": "«Vızıdan soruş»: AI cavab hazırlayanda və ya şəkil oxunanda (1–10 saniyə)",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Nöqtələr",
+    "spec": "thinking pose (hand on chin, eyes up-right, uneven brows) · 3 dots pulse in turn: scale 1→1.3, opacity 0.35→1, 300ms each, 220ms stagger · every 2–3.5s the eyes shift a little and the mouth switches hmm/flat · slow wings ±4°/550ms, right antenna sways 8° in 1.4s · loops while AI works · RN: dots = 3 Animated Views withRepeat(withSequence) + withDelay; only eyes, mouth and one antenna move · reduced: still thinking pose, dots at 70%"
+   },
+   "B": {
+    "label": "Antena siqnalı",
+    "spec": "eyes up, rings expand from both antenna tips (r 9→26, opacity 0.9→0, 1.1s, left/right 550ms apart, loop) while the pupils read in two lines (6 stops 320ms apart, then back to the student and a blink) · loops while AI works · RN: rings = SVG Circle animatedProps r/opacity/strokeWidth; pupils translateX withSequence · reduced: still pose, no rings"
+   },
+   "C": {
+    "label": "Hüceyrələr dolur",
+    "spec": "focused face · three small cells next to Vızı fill with honey one after another (500ms power1.inOut each, 600ms apart), the eyes follow the cell being filled; when all three are full Vızı blinks, they fade out (250ms) and start again · loops; can show real steps if the backend reports progress · RN: fills = scaleY withTiming inside withRepeat · reduced: still focused pose, 2 of 3 cells full"
+   }
+  }
+ },
+ "vizi.explain": {
+  "category": "vizi",
+  "title": "İzah edir",
+  "when": "Dərsdə və AI həllində addımlar göstəriləndə; video-dərsdə səsləndirmə zamanı",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Göstərici",
+    "spec": "explaining pose with the pointer stick · for each step: the arm aims at the line (rotation around the shoulder, 400ms power2.inOut), taps it (+5°, 100ms yoyo), the line highlights (raised background + honey edge, 220ms), the mouth talks (visemes every 110–180ms) for 1.1s, then Vızı looks back at the student and lifts the brows · 3 steps, then a short pause · loop · RN: aim angle = atan2 from the shoulder pivot to the line position (onLayout); visemes from TTS timestamps later · reduced: pointer on the last line, no talking"
+   },
+   "B": {
+    "label": "Yanında uçur",
+    "spec": "no stick: Vızı flies beside the card to each line (translateY 500ms power2.inOut, 6° lean and fast wings while moving), points with the open hand (−6° flick), talks 1s, then checks in: looks at the student, lifts the brows, nods · loop · RN: translateY of the rig container withTiming, wing mode switch · reduced: still pointing pose next to the first line"
+   },
+   "C": {
+    "label": "Səsləndirir",
+    "spec": "voice-over mode for the video lessons: the caption lights up word by word (380ms per word) while the mouth runs visemes and 5 audio bars move (scaleY 0.3–1, new value every 100ms) · after the sentence: closed smile, 1.2s pause · loop · RN/Remotion: drive the visemes and the word highlight from TTS word timestamps (Azure az-AZ reports word boundaries); in RN the mouth shape index is a shared value · reduced: full caption, closed smile"
+   }
+  }
+ },
+ "vizi.loading": {
+  "category": "vizi",
+  "title": "Yükləmə uçuşu",
+  "when": "Plan, pətək və ya dərs 1 saniyədən çox yüklənəndə",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Keçib gedir",
+    "spec": "flying pose, fast wings (±22°/45ms with a motion ghost), speed lines flickering every 120ms · crosses left→right in 2.6s linear, bobbing ±10px (420ms sine), loops · show only after 1s of waiting, fade out 150ms when loaded · RN: translateX withRepeat(withTiming(width, {duration: 2600, easing: Easing.linear}), -1) · reduced: still flying pose in the centre + text"
+   },
+   "B": {
+    "label": "Səkkiz çəkir",
+    "spec": "flies a figure eight in place: x = A·sin t, y = B·sin 2t (3.4s per loop, linear), leans into the direction and mirrors at the turning points (150ms flip), speed lines only on the fast stretches · loop · RN: one shared value t withRepeat(withTiming(2π)), x/y/flip derived in useAnimatedStyle · reduced: still flying pose + text"
+   },
+   "C": {
+    "label": "Çiçəkdən çiçəyə",
+    "spec": "determinate progress: Vızı flies to each flower (700ms power2.inOut arc), dips, the flower bows (scaleY 0.82 yoyo), a honey drop flies into the bar, the bar grows to 33 / 67 / 100% (400ms) and the number counts · at 100% a happy hop, then the bar resets · loop until loaded · RN: bar = scaleX withTiming from real progress; flower steps follow progress events · reduced: bar and number update, no flight"
+   }
+  }
+ },
+ "vizi.sleepy": {
+  "category": "vizi",
+  "title": "Yuxulu: oflayn",
+  "when": "İnternet olmayanda və ya tətbiq uzun müddət toxunulmadan qalanda",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Mürgüləyir",
+    "spec": "dozing cycle ≈ 6s: lids get heavy (1.4s), antennae sag, head droops 6–11° (sine), eyes close, z letters float up (rise 46px with drift, 1.6s) → wakes with a start (big eyes 120ms, head back with back.out(3), antennae boing, looks left and right) → smiles → heavy again · loops while offline · RN: one withSequence loop; z letters = Animated Text views · reduced: sleepy still pose with two static z"
+   },
+   "B": {
+    "label": "Yatır (toxun)",
+    "spec": "asleep: eyes closed, deep slow breath (scaleY 1.04, 2.4s), slow wings, a new z every 1.2s · tap Vızı → wakes: big eyes 120ms, antennae spring up, small hop, wing buzz, bubble → falls asleep again after 4.5s (lids close over 1.6s) · RN: Pressable around the rig; haptic Light on wake · reduced: closed-eye still pose; a tap swaps to the awake face + bubble"
+   }
+  }
+ },
+ "vizi.scout": {
+  "category": "vizi",
+  "title": "Kəşfiyyat: zəif yeri tapır",
+  "when": "«Vızının kəşfiyyatı»: son sınaqlardakı səhvlərdən zəif hüceyrə tapılanda",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Lupa gəzdirir",
+    "spec": "Vızı holds a magnifier and flies along the cells (each step 500ms power2.inOut, 5° lean, wing buzz), stops over each and wiggles the lens (±5°) · over the weak cell: surprised face 150ms + antennae boing, a ring pulses around the cell twice (scale 1→1.35, fade, 700ms) → result card slides in (y 8→0, 260ms) → happy nod · once · RN: per-cell x from onLayout; ring = SVG polygon in an Animated View; haptic Medium when found · reduced: Vızı over the weak cell, ring and card visible"
+   },
+   "B": {
+    "label": "Göz lupada",
+    "spec": "the scout mood: big lens over one eye. A soft scan beam sweeps the cells (400ms per cell) and comes back to the weak one; the magnified pupil follows the beam · found: the magnified pupil grows 1.25 (back.out(3)), «!» pops, brows lift, ring pulses, card fades in, then a grin and a nod · once · RN: lens pupil translateX/scale inside the rig, beam = Animated View translateX · reduced: lens on the weak cell, ring and card visible"
+   }
+  }
+ },
+ "vizi.reward": {
+  "category": "vizi",
+  "title": "Sürpriz və mükafat",
+  "when": "Yeni nişan, yeni dərəcə və ya həftəlik hədiyyə veriləndə",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Təəccüb",
+    "spec": "badge pops in (scale 0→1, rotation −14°→0, 550ms back.out(2.4)), a shine sweeps across it (600ms) · Vızı: surprise pose 160ms (big eyes, small pupils, antennae straight up, hands up), «!» pops back.out(3), body stretches 1.08 → 850ms later joy: laugh, 20-unit hop, fast wings → title fades in · once · RN: badge withSpring({damping: 10}); shine = LinearGradient translateX; haptic Success · reduced: badge and joy pose still"
+   },
+   "B": {
+    "label": "Hədiyyə (toxun)",
+    "spec": "gift box wiggles every 1.6s (±6°, 500ms) and Vızı glances at it · tap → lid flies off (y −60, −25°, fade, 450ms power2.out), box sinks and fades (300ms), the prize cell rises (y 40→0, scale 0.3→1, back.out(2) 500ms), Vızı surprise → arms up + hop + fast wings · RN: Pressable gift; haptic Medium on open, Success on the prize · reduced: a tap swaps gift for prize at once, still joy pose"
+   },
+   "C": {
+    "label": "Yeni dərəcə",
+    "spec": "rank ladder: the 4th cell («Bal ustası») fills with honey in 700ms while Vızı looks at it → cell pops 1.15 → Vızı anticipation + 360° spin 700ms + 28-unit jump, arms up, fast wings → title pops (scale 0.8→1, 260ms back.out(2)) → laugh, then calm · once · RN: fill scaleY withTiming, spin rotation withTiming; haptic Success · reduced: filled ladder + arms-up still pose"
+   }
+  }
+ },
+ "vizi.streak": {
+  "category": "vizi",
+  "title": "Seriya qırıldı: «Darıxmışdım»",
+  "when": "Uçuş seriyası qırılandan sonra ilk açılışda; keçmiş zəhməti xatırladır, utandırmır",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Toxunanda canlanır",
+    "spec": "droop pose (antennae hang, wings low and slow, arms down, kind slanted lids, small mouth), a sigh every 3.2s (body scaleY 0.96 for 700ms sine, antennae dip 6°) · tap «YENİDƏN BAŞLAYAQ» (button sinks 4px onto its edge) → recovery: antennae spring up (elastic), wings buzz 1.2s, arms up + 22-unit hop, the days pill turns honey «1 uçuş günü» and pulses · no tears, the copy praises the 12 days · RN: button press → withSpring on the antenna/arm path poses; haptic Medium on the hop · reduced: droop still pose; a tap swaps to the happy pose + pill"
+   },
+   "B": {
+    "label": "Özü toparlanır",
+    "spec": "plays by itself: 1.6s droop with one sigh → looks up at the student (400ms) → blinks → smile grows (500ms) → left antenna, then right, springs back up (450ms back.out(3), 250ms apart) → wings, arms and flap come back (400ms), small hop, a laugh → calm smile · once · RN: one withSequence timeline; no haptic · reduced: shows the final happy pose"
+   }
+  }
+ },
+ "vizi.enterexit": {
+  "category": "vizi",
+  "title": "Ekrana giriş və çıxış",
+  "when": "Vızı ekrana gələndə və gedəndə: boş ekran, sheet, nəticə kartı",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "enter: opacity 0→1, y 16→0, scale 0.96→1, 220ms power2.out · exit: opacity →0, y +8, 160ms power1.in · demo plays enter, exit, enter; the button toggles · RN: Reanimated layout animations FadeInDown.duration(220) / FadeOutDown.duration(160) on the rig container · reduced: 150ms fade both ways"
+   },
+   "B": {
+    "label": "Uçuş",
+    "spec": "enter: flies in from the left (700ms power2.out, arc y −40→8→0, lean −12°, speed lines), brakes (lean −18°) and settles with elastic.out(1, 0.5) · exit: dips 6 units with a squash (120ms), then shoots up and right (450ms power2.in) stretched 1.1 with speed lines · RN: custom entering/exiting worklets on the rig container; wings switch to the flight flap · reduced: 150ms fade"
+   },
+   "C": {
+    "label": "Yaylı",
+    "spec": "enter: scale 0→1 back.out(2.4) 420ms from the body centre, antennae boing, 400ms wing buzz · exit: grows to 1.08 (100ms), then shrinks to 0 with back.in(2) in 200ms and a 10° twist · RN: ZoomIn.springify().damping(12) / ZoomOut with a short pre-scale · reduced: 150ms fade"
+   }
+  }
+ },
+ "buttons.primary": {
+  "category": "buttons",
+  "title": "Əsas bal düyməsi: basılış",
+  "when": "Ekranın əsas əməli (YOXLA, DAVAM ET, BAŞLA): barmaq toxunduğu və buraxdığı an",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Yay",
+    "spec": "pressIn 80ms out-quad: face translateY 0→4px onto the honey-deep edge · release withSpring({ damping: 12, stiffness: 320, mass: 0.7 }) ≈ 450ms, ~1px overshoot · once per press · RN: Pressable onPressIn/onPressOut set a shared value, useAnimatedStyle translateY on the face View, the edge View stays (Button.tsx structure) · haptic Light (impactAsync) on pressIn"
+   },
+   "B": {
+    "label": "Xətti",
+    "spec": "120ms linear in and out: translateY 0↔4px, no overshoot, crisp · once per press · RN: withTiming(4 or 0, { duration: 120, easing: Easing.linear }) on the face · haptic Light on pressIn"
+   },
+   "C": {
+    "label": "Sıxılma",
+    "spec": "pressIn 90ms out-quad: translateY 4px + scale(1.03, 0.94) from the bottom edge (squash) · release withSpring({ damping: 9, stiffness: 260 }) ≈ 550ms, overshoots into a light stretch (scaleY ≈ 1.02) · RN: one progress shared value p, interpolate p to translateY/scaleX/scaleY, transformOrigin bottom · haptic Light on pressIn"
+   }
+  }
+ },
+ "buttons.spot": {
+  "category": "buttons",
+  "title": "«Davam et» kartı: tünd düymə",
+  "when": "«Bu gün» ekranında yarımçıq dərsə qayıtma kartı; bütün kart bir düymədir",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "pressIn 120ms out-quad: the spot face sinks 4px onto the honey-deep edge · release withSpring({ damping: 20, stiffness: 300 }) ≈ 300ms, no visible bounce · RN: Button variant spot, the whole card is one Pressable, translateY on the face · haptic Light on pressIn"
+   },
+   "B": {
+    "label": "Ox irəli",
+    "spec": "Sink 4px as in A + the honey play disc slides 6px right and scales to 1.06 in 120ms; release withSpring({ damping: 10, stiffness: 240 }) back · reads as go forward · RN: second shared value on the disc translateX + scale · haptic Light on pressIn"
+   },
+   "C": {
+    "label": "Əyilmə",
+    "spec": "The card tilts up to 4° toward the finger (perspective 700) and the face sinks 3px, 120ms out-quad · release withSpring({ damping: 14, stiffness: 220 }) back to flat · RN: onPressIn nativeEvent.locationX/Y to rotateX/rotateY shared values, transform [{ perspective: 700 }, { rotateX }, { rotateY }] on the card · haptic Light on pressIn"
+   }
+  }
+ },
+ "buttons.flat": {
+  "category": "buttons",
+  "title": "Sakit düymələr: ikinci dərəcəli, mətn, ikon",
+  "when": "Kənarı olmayan düymələr: başlıqda geri və bağla, «Səhvlərimə bax», «Bilirəm, keç»",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Solğun",
+    "spec": "Opacity 1→0.55 in 80ms, back in 180ms out-quad · nothing moves · RN: Pressable style={({ pressed }) => ...} or withTiming on opacity (Button.tsx secondary/text already dim) · haptic none: flat controls stay quiet, only raised ones tick"
+   },
+   "B": {
+    "label": "Mum fonu",
+    "spec": "A wax background fades in (120ms) and grows from 92% to 100% behind the label or icon; fades out in 220ms · RN: absolute wax View behind the content, withTiming on opacity + scale (IconButton active:bg-wax, made smooth) · haptic none"
+   },
+   "C": {
+    "label": "Kiçilmə",
+    "spec": "Scale 0.96 (icons 0.88) in 100ms; release withSpring({ damping: 12, stiffness: 300 }) with a tiny overshoot · the back arrow nudges 3px left, the close cross turns 90° · RN: withTiming/withSpring on scale, translateX or rotate on the Icon · haptic none"
+   }
+  }
+ },
+ "buttons.enable": {
+  "category": "buttons",
+  "title": "YOXLA aktivləşir",
+  "when": "Test sualında: cavab seçilənə qədər YOXLA sönükdür, seçim edilən an aktivləşir",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Rəng keçidi",
+    "spec": "220ms out-cubic: face wax→honey, label lock-ink→on-honey; the face rises 4px off the ground while the honey-deep edge fades in · once, on the first chosen answer · RN: the disabled face sits at translateY 4 inside an edge container that is always there (no layout jump); interpolateColor(progress) + translateY · haptic Selection when the answer is chosen"
+   },
+   "B": {
+    "label": "Qalxma",
+    "spec": "Colours switch in 120ms, then the face springs up 4px with withSpring({ damping: 10, stiffness: 240 }) ≈ 500ms, ~1.5px overshoot: the button stands up, ready · RN: interpolateColor with withTiming(120) + withSpring on translateY · haptic Selection on choosing"
+   },
+   "C": {
+    "label": "Bal dolur",
+    "spec": "Honey pours over the wax face left→right in 400ms out-cubic (label turns on-honey at half), then the face rises 4px in 120ms and the edge appears · RN: absolute honey View, scaleX from 0 with transformOrigin left, inside the overflow-hidden face; then translateY · haptic Selection on choosing"
+   }
+  }
+ },
+ "buttons.loading": {
+  "category": "buttons",
+  "title": "Gözləmə halı",
+  "when": "Sual göndərilir, cavab yoxlanır, ayar saxlanır: bir az vaxt aparan hər əməl",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Üç nöqtə",
+    "spec": "Label fades out in 120ms; three 8px dots wave: translateY 0→-4→0 + opacity 0.45→1, 900ms loop, 120ms stagger · done: check + GÖNDƏRİLDİ fade in (120ms), back to idle after ≈1s · RN: withRepeat(withSequence(withTiming(-4, { duration: 270 }), withTiming(0, { duration: 270 })), -1) + withDelay(i * 120); accessibilityState { busy: true } · haptic Light on press, notificationAsync(Success) when done"
+   },
+   "B": {
+    "label": "Bal dolur",
+    "spec": "Label becomes GÖNDƏRİLİR; a deeper honey fills the face left→right, easing to 85% over the expected time (out-cubic), then 100% in 200ms when the server answers, then GÖNDƏRİLDİ · RN: progress shared value to scaleX of an absolute fill View (honey-deep mixed into honey); drive it with real upload progress when there is one · haptics as A"
+   },
+   "C": {
+    "label": "Pətəklər",
+    "spec": "Three small hex cells fill with honey bottom→top one after another (300ms each, 200ms stagger) and empty again, 1200ms loop · RN: three Views clipped to a hexagon (react-native-svg Polygon mask) with withRepeat on scaleY, transformOrigin bottom · haptics as A"
+   }
+  }
+ },
+ "buttons.tabbar": {
+  "category": "buttons",
+  "title": "Alt menyu və «Soruş»",
+  "when": "Şagirdin alt menyusu: Bu gün · Öyrən · Soruş · İmtahan · Mən",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sürüşən",
+    "spec": "One cream pill slides to the chosen tab with withSpring({ damping: 18, stiffness: 220 }) ≈ 350ms; icon and label colour cross-fade in 220ms, label weight 700→800 · Soruş: the face sinks 4px onto honey-deep and turns honey · RN: custom tabBar, pill translateX from each tab onLayout x · haptic Selection on tab change, Medium on Soruş pressIn"
+   },
+   "B": {
+    "label": "Böyüyən",
+    "spec": "The new tab pill grows out of the icon (scale 0.2→1, opacity 0→1) with withSpring({ damping: 14, stiffness: 260 }); the old pill shrinks away in 120ms · colours 220ms · Soruş as A · RN: a pill View per tab driven by its own shared value (or Layout Animations ZoomIn/ZoomOut) · haptic Selection, Medium on Soruş"
+   },
+   "C": {
+    "label": "Sıçrayış",
+    "spec": "The pill fades in (120ms); the icon hops up 6px and scales to 1.12 in 110ms, then withSpring({ damping: 8, stiffness: 300 }) lands it with a soft dip · Soruş as A · RN: withSequence(withTiming(1, { duration: 110 }), withSpring(0, ...)) on the icon translateY/scale · haptic Selection, Medium on Soruş"
+   }
+  }
+ },
+ "buttons.switch": {
+  "category": "buttons",
+  "title": "Açar: aç və bağla",
+  "when": "Ayarlar: səs, titrəmə, xatırlatma",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sürüşmə",
+    "spec": "Knob slides 20px in 220ms out-cubic; track wax↔honey and knob muted↔surf cross-fade in 220ms · RN: withTiming on translateX + interpolateColor, accessibilityRole switch · haptic Light on toggle"
+   },
+   "B": {
+    "label": "Yay",
+    "spec": "Knob moves with withSpring({ damping: 13, stiffness: 260 }); it stretches up to 25% while travelling and squashes against the end instead of overshooting · colours 220ms · RN: shared value x; scaleX derived from sin(π · progress) and the clamped overshoot in useAnimatedStyle · haptic Light"
+   },
+   "C": {
+    "label": "Bal axını",
+    "spec": "Honey flows behind the knob: the fill grows from the left edge to the knob in 300ms in-out cubic and runs back when switched off · RN: animate the fill width together with the knob translateX (same shared value) · haptic Light"
+   }
+  }
+ },
+ "buttons.segment": {
+  "category": "buttons",
+  "title": "Görünüş seçici: Açıq / Tünd / Sistem",
+  "when": "Mən → Ayarlar → Görünüş",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Bal göstərici",
+    "spec": "Wax track; the honey indicator slides with withSpring({ damping: 18, stiffness: 240 }) ≈ 320ms; the chosen label turns on-honey 800 · the current SegmentedControl look, now animated · RN: indicator translateX + width from each segment onLayout, accessibilityRole radio · haptic Selection"
+   },
+   "B": {
+    "label": "Ağ göstərici",
+    "spec": "Cream (raised) track with a white card indicator and soft shadow; 220ms out-cubic slide, label muted→ink · the settings screen design · RN: withTiming(x, { duration: 220, easing: Easing.out(Easing.cubic) }) · haptic Selection"
+   },
+   "C": {
+    "label": "Uzanan",
+    "spec": "The honey indicator stretches like a drop: the leading edge goes first (180ms out-cubic), the trailing edge follows 70ms later with withSpring({ damping: 16, stiffness: 200 }) · RN: two shared values (left, right) to left + width in useAnimatedStyle · haptic Selection"
+   }
+  }
+ },
+ "buttons.grade": {
+  "category": "buttons",
+  "title": "Sinif seçimi: hüceyrə düymələri",
+  "when": "Qeydiyyat və profil: «Neçənci sinifdəsən?» (5–11)",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "150ms colour cross-fade: cell surf→honey, rim border→honey-deep, number ink→on-honey; the previous cell fades back · nothing moves · RN: interpolateColor with withTiming(150) · haptic Selection"
+   },
+   "B": {
+    "label": "Qabarma",
+    "spec": "The chosen cell scales 1→1.12 in 90ms, then withSpring({ damping: 10, stiffness: 300 }) back to 1; colours switch in 120ms · RN: withSequence(withTiming(1.12, { duration: 90 }), withSpring(1, ...)) on scale, zIndex 1 while it pops · haptic Selection"
+   },
+   "C": {
+    "label": "Bal dolur",
+    "spec": "Honey rises inside the chosen cell from the bottom, 400ms out-cubic (number turns on-honey at half); the previous cell drains in 220ms · cells fill like honey · RN: fill View scaleY with transformOrigin bottom inside the hexagon mask · haptic Selection"
+   }
+  }
+ },
+ "buttons.hold": {
+  "category": "buttons",
+  "title": "Uzun basış: ipucu",
+  "when": "Test sualında ipucu, xəritədə hüceyrəyə uzun basış: əlavə məlumat açılır",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Halqa",
+    "spec": "A honey ring draws around the button while it is held (500ms linear = delayLongPress); at 500ms haptic Medium, the button pops to 1.04 and springs back, the hint rises in 220ms out-cubic; letting go early rewinds the ring in 150ms · RN: Pressable delayLongPress 500, onPressIn starts withTiming(1, { duration: 500 }) on an SVG strokeDashoffset (useAnimatedProps), onLongPress opens the hint; VoiceOver: a normal activation opens it too"
+   },
+   "B": {
+    "label": "Bal dolur",
+    "spec": "The button fills with honey bottom→top while held (500ms linear); when full, haptic Medium and the hint unfolds from the button with withSpring({ damping: 16, stiffness: 220 }); letting go early drains it in 150ms · RN: fill View scaleY (origin bottom) + hint scaleY/opacity from the top"
+   },
+   "C": {
+    "label": "Sakit",
+    "spec": "No progress shown: after 500ms (native long-press delay) the button settles to 0.97, haptic Medium, the hint fades in over 150ms · the simplest, most native option · RN: onLongPress, withTiming on opacity (150ms) and scale"
+   }
+  }
+ },
+ "feedback.select": {
+  "category": "feedback",
+  "title": "Variant seçimi",
+  "when": "Testdə şagird A–E variantlarından birinə toxunanda; YOXLA düyməsi aktivləşir.",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "120ms · ease-out · on every tap · press: the option sinks 3pt onto its edge; selected: honey border, raised fill, honey letter box on a 3pt honey-deep edge; YOXLA turns wax → honey in 220ms · RN: Pressable onPressIn withTiming(translateY 3, {duration:120}); interpolateColor(progress) for border/bg; Haptics.selectionAsync(); playCue('tap')"
+   },
+   "B": {
+    "label": "Qalxma",
+    "spec": "220ms · spring · the selected option lifts 2pt onto a 5pt honey-deep edge, the letter box pops 1 → 1.18 → 1; the previous one settles back in 120ms · RN: withSpring(-2, {damping:14, stiffness:260}) on translateY + edge height 3 → 5; letter withSequence(withTiming(1.18, {duration:90}), withSpring(1, {damping:12})); Haptics.selectionAsync()"
+   },
+   "C": {
+    "label": "Pətək",
+    "spec": "220ms morph + 260ms fill (60ms delay) · cubic-bezier(.2,.8,.2,1) · the letter box turns into a hex cell and honey rises inside it · RN: react-native-svg Polygon, useAnimatedProps morphs 6 points square → hex; honey Rect y 30 → 0 withTiming(260); Haptics.selectionAsync()"
+   }
+  }
+ },
+ "feedback.correct": {
+  "category": "feedback",
+  "title": "Düz cavab",
+  "when": "YOXLA basılanda cavab düzdürsə: variant yaşıllaşır, işarə çəkilir, alt panel qalxır.",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "YOXLA sinks 120ms → option takes ok colours 220ms → check draws 300ms → panel rises 400ms cubic-bezier(.2,.8,.2,1) · once · RN: interpolateColor 220ms; react-native-svg Path strokeDasharray=len, strokeDashoffset len → 0 via useAnimatedProps; panel entering={SlideInDown.duration(400).easing(Easing.bezier(.2,.8,.2,1))}; Haptics.notificationAsync(Success); playCue('correct')"
+   },
+   "B": {
+    "label": "Canlı",
+    "spec": "option breathes 1 → 1.03 → 1 (220ms) · panel springs up (damping 16, stiffness 190) · badge pops from 0 with overshoot · '+15 bal' pill pops 0.6 → 1 · RN: withSequence(withTiming(1.03, {duration:110}), withTiming(1, {duration:110})); entering={SlideInDown.springify().damping(16)}; pill entering={ZoomIn.springify()}; Haptics Success"
+   },
+   "C": {
+    "label": "Möhür",
+    "spec": "the letter box becomes a green hex (220ms) + one ripple ring 600ms (scale 1 → 1.07, opacity .7 → 0) · panel 400ms with a hex badge · RN: Polygon points morph via useAnimatedProps; ripple = absolute View withTiming on scale/opacity; Haptics Success"
+   }
+  }
+ },
+ "feedback.wrong": {
+  "category": "feedback",
+  "title": "Səhv cavab — sakit",
+  "when": "Cavab səhvdirsə: seçilən variant «Səhv» olur, düzgün cavab göstərilir, sual Səhvlərimə düşür. Silkələmə yoxdur.",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "no shake · chosen option → err colours + x draws (220/300ms) · 350ms later the right option turns ok + check draws · panel rises 400ms · once · RN: as correct A plus withDelay(350) on the right option; Haptics.impactAsync(Light) only, never the Error notification; playCue('wrong') soft"
+   },
+   "B": {
+    "label": "Yol göstər",
+    "spec": "chosen option marks Səhv, then a green frame glides from it to the right answer (450ms ease-in-out) and fades; neutral surface panel · RN: absolute View, translateY withTiming(targetY, {duration:450, easing: Easing.inOut(Easing.quad)}), targets measured with onLayout; Haptics Light"
+   },
+   "C": {
+    "label": "Vızı ilə",
+    "spec": "as A, but the panel is warm (raised) and Vızı (teselli) peeks over its edge (450ms back-out) and nods once ±6° · RN: Vızı entering={FadeInDown.springify().damping(12)} + withSequence(withTiming(-6°), withTiming(0)); Haptics Light; one mascot only, never inside the question card"
+   }
+  }
+ },
+ "feedback.points": {
+  "category": "feedback",
+  "title": "+15 bal damcıları",
+  "when": "Düz cavabdan sonra: bal damcıları cavabdan bal sayğacına uçur, sayğac artır.",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Bir damcı",
+    "spec": "one '+15' token flies a quadratic arc 700ms ease-in-out to the counter and shrinks to 55%; the counter counts up 300ms and bumps 1.1 · RN: shared value t, useAnimatedStyle computes the bezier x/y; counter via ReText (TextInput + useAnimatedProps); Haptics Light on arrival"
+   },
+   "B": {
+    "label": "Damcılar",
+    "spec": "5 drops, 80ms stagger, 650ms each; every arrival adds +3 with a 220ms bump; '+15 bal' floats up 24pt and fades in 700ms · RN: 5 shared values withDelay(i*80, withTiming(1, {duration:650})); runOnJS on finish to add points; Haptics Light on the first and last drop"
+   },
+   "C": {
+    "label": "Doldur",
+    "spec": "8 small drops stream in (50ms stagger); the counter's drop icon fills with honey from the bottom per arrival, then drains 400ms while '+15' slides out under it · RN: icon = Svg ClipPath(drop) + Rect y animated; drops as in B; Haptics Light at the end"
+   }
+  }
+ },
+ "feedback.progress": {
+  "category": "feedback",
+  "title": "Test irəliləyiş zolağı",
+  "when": "Hər cavabdan sonra testin yuxarısındakı zolaq bir addım dolur.",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "400ms · cubic-bezier(.2,.8,.2,1) · the fill moves with translateX (never width) · the count rolls 6pt in 220ms · RN: fill View translateX = withTiming(-(1 - p) * trackW, {duration:400}); trackW from onLayout; accessibilityValue {min:0, max:10, now}"
+   },
+   "B": {
+    "label": "Bal parıltısı",
+    "spec": "600ms back-out(1.6) overshoot · glossy top line · a shine sweeps the filled part in 700ms after it settles · RN: withSpring(target, {damping:13, stiffness:170}) on translateX; shine = expo-linear-gradient View, translateX withDelay(450, withTiming(fillW, {duration:700}))"
+   },
+   "C": {
+    "label": "Hüceyrələr",
+    "spec": "10 hex cells; the answered one fills with honey from the bottom in 400ms, the next one gets a honey rim (220ms) · RN: 10 small react-native-svg Polygons; fill Rect height withTiming(400); rim colour interpolateColor 220ms"
+   }
+  }
+ },
+ "feedback.streak": {
+  "category": "feedback",
+  "title": "Uçuş günü: 12 → 13",
+  "when": "Günün ilk dərsi və ya testi bitəndə uçuş günlərinin sayı bir artır.",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "today's hex fills 400ms, then the number rolls 12 → 13 (old up and out 220ms, new in 260ms) · once · RN: two Texts in an overflow-hidden View, translateY withTiming, or exiting={SlideOutUp} / entering={SlideInDown}; Haptics.notificationAsync(Success); playCue('streak')"
+   },
+   "B": {
+    "label": "Qanad",
+    "spec": "the wing badge lifts 6pt, flaps 4 × 100ms and lands with back-out; a hex echo ring 700ms; the new number springs in with overshoot · RN: withSequence(withTiming(-14°), withRepeat(withTiming(10°, {duration:100}), 4, true), withSpring(0)); echo = scale 1 → 1.6 + opacity → 0; Haptics Light + Success"
+   },
+   "C": {
+    "label": "Vızı uçur",
+    "spec": "Vızı (ucur) flies a 1.2s arc over today's hex, which fills as she passes; the number rolls; she perches top-right and bobs once · RN: shared t + bezier in useAnimatedStyle; withDelay for fill and number; reduced motion: no flight, end state only"
+   }
+  }
+ },
+ "feedback.goal": {
+  "category": "feedback",
+  "title": "Gündəlik hədəf halqası",
+  "when": "Gündəlik hədəfin son dəqiqəsi dolanda (20 / 20 dəq) halqa tamamlanır.",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "900ms ease-in-out arc 75% → 100% with minutes counting 15 → 20, then the centre cross-fades to a check that draws in 300ms · RN: react-native-svg Circle strokeDashoffset via useAnimatedProps; minutes via ReText; Haptics.notificationAsync(Success); playCue('complete')"
+   },
+   "B": {
+    "label": "Möhür",
+    "spec": "the arc completes, its stroke thickens 10 → 14 → 10 (360ms), a honey disc springs into the centre and the check draws; one glow ring 800ms · RN: strokeWidth via useAnimatedProps; disc withSpring(1, {damping:12}); glow Circle r 50 → 60 + opacity → 0"
+   },
+   "C": {
+    "label": "Damla",
+    "spec": "a honey drop rides the head of the arc (900ms), falls into the centre (300ms) and the centre fills with honey from the bottom (500ms); check draws · RN: drop position from the progress angle (sin/cos) in useAnimatedStyle; centre fill = clipped View translateY"
+   }
+  }
+ },
+ "feedback.lessondone": {
+  "category": "feedback",
+  "title": "Dərs bitdi: xülasə",
+  "when": "Dərsin 4 addımı bitəndə: bal, dəqiqlik və vaxt sayılır, 4.3 hüceyrəsi nektarla dolur.",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "120ms stagger fade-up (8pt, 220ms) · cell fills with nectar 900ms · stats count up 900ms · CTA last · RN: entering={FadeInDown.delay(i*120).duration(220)}; nectar Rect height withTiming(900); counts via ReText; Haptics Success + playCue('complete')"
+   },
+   "B": {
+    "label": "Bayram",
+    "spec": "Vızı (bayram) springs in, nectar rises with a moving wave surface, stat tiles pop 0.8 → 1 (back-out, 150ms stagger) · RN: ZoomIn.springify(); wave = Svg Path translateX withRepeat(withTiming(-W, {duration:1200, easing: Easing.linear}), 2); tiles entering={ZoomIn.springify().delay(i*150)}"
+   },
+   "C": {
+    "label": "Hüceyrə önə",
+    "spec": "the cell fills big in the centre first (900ms), then moves to its place (500ms ease-in-out, shared-element style) while the stats slide up · RN: measure the target with onLayout and animate translate/scale withTiming, or a Reanimated sharedTransitionTag between two layouts"
+   }
+  }
+ },
+ "feedback.rankup": {
+  "category": "feedback",
+  "title": "Yeni dərəcə: İşçi arı",
+  "when": "Bal cəmi 2 000-ə çatanda: Gənc arı → İşçi arı.",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "badge fades and scales 0.9 → 1 in 400ms, texts fade up (120ms stagger), the İşçi arı step takes the current style (220ms colour + spring scale) · RN: FadeIn + ZoomIn.duration(400); ladder step withSpring(1.25); Haptics Success; playCue('levelUp')"
+   },
+   "B": {
+    "label": "Möhür",
+    "spec": "the hex outline draws in 450ms, the badge fills from the bottom (400ms), the icon pops with back-out, one soft pulse 700ms, title words rise 80ms apart · RN: Svg Polygon strokeDashoffset via useAnimatedProps; fill Rect translateY; title words as separate Animated.Text with FadeInDown.delay(i*80)"
+   },
+   "C": {
+    "label": "Pillə-pillə",
+    "spec": "a marker walks from Gənc arı to İşçi arı (400ms), the step flips (rotateY 160 + 220ms), then the big badge grows out of it (550ms power3-out, shared element) · RN: rotateY with perspective in useAnimatedStyle; badge translate/scale from the measured step position"
+   }
+  }
+ },
+ "feedback.score": {
+  "category": "feedback",
+  "title": "Test nəticəsi halqası",
+  "when": "Mövzu testi bitəndə nəticə ekranının yuxarısında: 10 sualdan 8-i düz.",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "the ring draws 0 → 80% in 900ms ease-out while score and percent count up · tiles fade up (120ms stagger) · RN: Circle strokeDashoffset via useAnimatedProps; ReText for the numbers; Haptics Success at the end"
+   },
+   "B": {
+    "label": "Seqmentlər",
+    "spec": "10 segments light up in question order, 90ms apart (160ms each); correct = honey, to review = crystal (never red); the score ticks per correct segment · RN: 10 Circles, strokeDasharray via useAnimatedProps with withDelay(i*90); one Haptics Success at the end, no per-segment haptics"
+   },
+   "C": {
+    "label": "Pətək halqası",
+    "spec": "10 numbered hex cells around the score pop in one by one (back-out, 90ms apart); crystal cells mark the 2 questions to review; the score pops at the end · RN: absolutely positioned HexCell views with entering={ZoomIn.springify().delay(i*90)}"
+   }
+  }
+ },
+ "hive.fill-nectar": {
+  "category": "hive",
+  "title": "Boşdan nektara",
+  "when": "Mövzunun dərsi bitəndə hüceyrə ilk dəfə dolur (mövzu səhifəsində və pətək qutusuna qayıdanda).",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit dolma",
+    "spec": "≈1.5s · level 0→52% 900ms cubic-bezier(.33,0,.2,1) after 500ms · meniscus fade 300ms · word + pill cross-fade 220ms at 1150ms · once · RN: react-native-svg ClipPath (hex) + Animated Rect; level = useSharedValue(0) → withDelay(500, withTiming(0.52, {duration: 900, easing: Easing.bezier(.33,0,.2,1)})); useAnimatedProps sets y = h·(1−level), height = h·level; the meniscus Path follows with translateY; no haptic"
+   },
+   "B": {
+    "label": "Dalğalı səth",
+    "spec": "≈2.4s · rise 1100ms cubic-bezier(.33,0,.2,1) · the surface is a moving wave (period 1100ms linear, 2 runs) whose amplitude calms 1→0.1 over 2200ms cubic-bezier(.45,0,.55,1), then the still meniscus fades in · once · RN: wave Path d built in useDerivedValue from phase = withRepeat(withTiming(2π, {duration: 1100, easing: Easing.linear}), 2) and amplitude = withTiming(0, {duration: 2200}); animatedProps on the Path inside the hex ClipPath; no haptic"
+   },
+   "C": {
+    "label": "Damcı ilə",
+    "spec": "≈2s · a nectar drop falls in 460ms cubic-bezier(.55,0,.85,.4) · impact ripple 500ms ease-out · level 0→52% 800ms cubic-bezier(.33,0,.2,1) · meniscus wobble 700ms · once · RN: drop = Animated.View translateY withTiming (Easing.in(Easing.cubic)); ripple = SVG Ellipse scale + opacity; level as in A, started on impact (withDelay 460); Haptics.impactAsync(Light) on impact"
+   }
+  }
+ },
+ "hive.nectar-honey": {
+  "category": "hive",
+  "title": "Nektardan bala",
+  "when": "Mövzu testi keçiləndə və ya “Bilirəm, keç” uğurlu olanda hüceyrə Bal olur.",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Yumşaq parıltı",
+    "spec": "≈2s · level 52→100% 700ms cubic-bezier(.33,0,.2,1), colour nectar→honey 450ms · soft glow 900ms ease-out + scale 1→1.03→1 400ms · once · RN: same level shared value + interpolateColor(progress, [0, 1], [nectar, honey]) on the Rect fill; glow = SVG Circle with a RadialGradient (honey → transparent), opacity and scale with withSequence; Haptics.notificationAsync(Success) when full"
+   },
+   "B": {
+    "label": "İşıq zolağı",
+    "spec": "≈1.9s · level 600ms + colour 350ms · a band of light sweeps across 750ms cubic-bezier(.4,0,.2,1) · pop 520ms cubic-bezier(.34,1.56,.64,1) · once · RN: sheen = LinearGradient (transparent → cap → transparent) inside the hex ClipPath, translateX withTiming 750; pop = withSequence(withTiming(1.07, {duration: 200}), withSpring(1, {damping: 12, stiffness: 200})); Haptics.impactAsync(Light)"
+   },
+   "C": {
+    "label": "Bal damcısı",
+    "spec": "≈2.6s · fill as A · glow 700ms · the “+20 bal” drop chip rises from the cell and settles beside it 1400ms cubic-bezier(.2,.8,.2,1) · once · RN: chip = Animated.View, entering={FadeInUp.springify().damping(14)} or withSequence on translateY/scale/opacity; Haptics.notificationAsync(Success) when the chip lands"
+   }
+  }
+ },
+ "hive.seal": {
+  "category": "hive",
+  "title": "Baldan möhürə",
+  "when": "Bal hüceyrə bir neçə gün sonra qısa təkrardan keçəndə mum qapaq bağlanır (Bərkidilib).",
+  "chosen": "C",
+  "status": "change",
+  "note": "içindəki hexagon daha böyük olsun\n",
+  "variants": {
+   "A": {
+    "label": "Mərkəzdən",
+    "spec": "≈1.4s · colour honey→sealed 350ms · the wax cap grows from the centre 0→1 460ms cubic-bezier(.34,1.56,.64,1) · the cell sinks 3% for 260ms as the cap lands · once · RN: inner cap Polygon in an Animated G, scale withSpring({damping: 12, stiffness: 180}) around the cell centre; body fill via interpolateColor; Haptics.impactAsync(Medium) when the cap lands · App: change the HexCell reinforced cap inset from 0.19·w to 0.12·w (hexPoints(w, h, w * 0.12)); every sealed cell in this lab uses 0.12·w"
+   },
+   "B": {
+    "label": "Qapaq enir",
+    "spec": "≈1.6s · the cap hinges down from its top vertex like a lid: rotateX −95°→0° 620ms cubic-bezier(.3,1.3,.5,1), perspective 240 · settle press 240ms · once · RN: cap as an Animated.View (SVG inside) with transform [{perspective: 240}, {rotateX}] and transformOrigin 'top' (RN 0.73+); withSpring({damping: 14, stiffness: 160}); Haptics.impactAsync(Medium) on close · App: change the HexCell reinforced cap inset from 0.19·w to 0.12·w (hexPoints(w, h, w * 0.12)); every sealed cell in this lab uses 0.12·w"
+   },
+   "C": {
+    "label": "Kontur çəkilir",
+    "spec": "≈1.8s · the cap outline is traced around its six sides 700ms cubic-bezier(.45,0,.25,1) (a bee building wax), then the cap fills 260ms and the body darkens 350ms · once · RN: cap Path with strokeDasharray = perimeter and animated strokeDashoffset (useAnimatedProps, withTiming 700), then fillOpacity withTiming 260; Haptics.impactAsync(Light) when the fill completes · App: change the HexCell reinforced cap inset from 0.19·w to 0.12·w (hexPoints(w, h, w * 0.12)); every sealed cell in this lab uses 0.12·w"
+   }
+  }
+ },
+ "hive.crystallize": {
+  "category": "hive",
+  "title": "Kristallaşma",
+  "when": "Mənimsənilmiş mövzu uzun müddət təkrarlanmayanda; pətək qutusu açılanda bir dəfə oynayır, səs və titrəmə olmadan.",
+  "chosen": "C",
+  "status": "change",
+  "note": "kristalın dizaynı və rəngi düzgün əks olunmayıb, dizayna uyğun bir daha düzəlt",
+  "variants": {
+   "A": {
+    "label": "Yavaş şaxta",
+    "spec": "≈2.4s · frost spreads from the lower-left corner as a growing circle 1600ms cubic-bezier(.4,0,.2,1) · facets fade in 500ms · word + pill + note 220–300ms · once, no sound, no haptic · RN: crystal Rect clipped by an animated Circle inside the hex ClipPath (r withTiming 0 → 1.5·w); facet Path opacity withTiming · ends exactly as HexCell needs_practice (crystal fill, crystal-ink label, two surf facet lines at opacity .6)"
+   },
+   "B": {
+    "label": "Fasetlər",
+    "spec": "≈2s · facet lines draw like frost 520ms each (cubic-bezier(.45,0,.25,1), 450ms apart) · then the crystal colour fades in 700ms · once, no haptic · RN: facet Paths with animated strokeDashoffset (useAnimatedProps + withDelay); crystal Rect opacity withTiming 700 · ends exactly as HexCell needs_practice (crystal fill, crystal-ink label, two surf facet lines at opacity .6)"
+   },
+   "C": {
+    "label": "Dənəciklər",
+    "spec": "≈2.7s · 7 crystal-tone hex grains (var(--crystal)) appear 110ms apart and grow 1 → 4.4 over 1300ms cubic-bezier(.4,0,.2,1) · the crystal layer fades in under them 600ms, then the grains fade out 200ms (invisible, same colour) · facets fade in 400ms · ends exactly as HexCell needs_practice: crystal fill, crystal-ink label, two surf facet lines at opacity .6 · once, no haptic · RN: grains = small hex Polygons inside the hex ClipPath, each withDelay(i*110, withTiming(scale 4.4)); crystal Rect opacity withTiming 600; then the HexCell needs_practice art"
+   }
+  }
+ },
+ "hive.cell-tap": {
+  "category": "hive",
+  "title": "Hüceyrəyə toxunma",
+  "when": "Pətək qutusunda hüceyrəyə toxunanda: basılma, seçim halqası və hüceyrənin alt pəncərəsi açılır. Bir dəfə özü oynayır, sonra istənilən hüceyrəyə toxun.",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "press 120ms (scale .94) · selection ring 120ms · scrim 220ms ease · sheet translateY 100%→0 300ms cubic-bezier(.2,.8,.2,1); close 220ms cubic-bezier(.4,0,1,1) · RN: Pressable + useAnimatedStyle scale withTiming(0.94, {duration: 120}); ring = outer hex Polygon opacity + inner inset; sheet translateY withTiming 300 (or @gorhom/bottom-sheet animationConfigs with the same curve); Haptics.selectionAsync on tap"
+   },
+   "B": {
+    "label": "Yaylı",
+    "spec": "press: sink 3px + scale .92 · release 420ms overshoot to 1.06 · sheet 480ms with a 3% overshoot · sheet content staggers in 45ms apart (240ms each) · RN: cell scale withSpring({damping: 13, stiffness: 220}); sheet translateY withSpring({damping: 18, stiffness: 180}); sheet rows entering={FadeInDown.delay(140 + i*45).springify()}; Haptics.impactAsync(Light) on press"
+   },
+   "C": {
+    "label": "Hüceyrədən açılır",
+    "spec": "shared element: the tapped hex lifts (scale 1.12 at mid) and flies into the sheet header 380ms cubic-bezier(.2,.8,.2,1) while the sheet rises 340ms · RN: measure() the cell and the sheet slot, animate an absolutely positioned overlay HexCell (translateX/Y + scale withTiming 380) and show the sheet's own cell when it lands (Reanimated shared element transitions are still experimental); Haptics.selectionAsync"
+   }
+  }
+ },
+ "hive.frame-toggle": {
+  "category": "hive",
+  "title": "Çərçivəni açıb-bağlamaq",
+  "when": "Pətək qutusunda çərçivənin başlığına toxunanda çərçivə açılır və hüceyrələr görünür; ikinci toxunuş bağlayır.",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sıra ilə",
+    "spec": "height 0→auto 320ms cubic-bezier(.2,.8,.2,1) · chevron 180° 220ms · cells fade in, rise 8px and scale .9→1 240ms, 45ms apart in reading order · close: cells fade 120ms, height 260ms · RN: cells entering={FadeInDown.delay(80 + i*45).duration(240)} exiting={FadeOut.duration(120)}; frame body layout={LinearTransition.duration(320)}; chevron rotate withTiming 220; Haptics.selectionAsync on toggle"
+   },
+   "B": {
+    "label": "Mərkəzdən dalğa",
+    "spec": "height 280ms · cells pop from scale 0 with overshoot (cubic-bezier(.34,1.56,.64,1)) 360ms, delayed by distance from the current cell 4.3, so the comb grows out of “you are here” · RN: entering={ZoomIn.delay(d).springify().damping(13)} with d = distance to the current cell × 1.1ms; layout={LinearTransition}; Haptics.selectionAsync"
+   },
+   "C": {
+    "label": "Zolaqdan böyüyür",
+    "spec": "each cell grows out of its mini hex in the header strip: translate + scale 460ms cubic-bezier(.2,.8,.2,1), 40ms stagger, height 380ms; closing flies them back into the strip (420ms, reverse order) · RN: measure() strip dots and comb cells (or compute from layout), per cell withDelay(i*40, withTiming) on translateX/translateY/scale; strip opacity withTiming 120; Haptics.selectionAsync"
+   }
+  }
+ },
+ "hive.placement-result": {
+  "category": "hive",
+  "title": "Yoxlamanın nəticəsi",
+  "when": "“Bilirəm, yoxla” bitəndə nəticə ekranında: bildiyin mövzuların hüceyrələri ardıcıl dolur, sonra başlanğıc hüceyrən yumşaq döyünür.",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Bir-bir",
+    "spec": "each known cell fills from the bottom 220ms cubic-bezier(.33,0,.2,1), 65ms apart (17 cells ≈ 1.3s) · the counter ticks with each cell · a row badge turns honey 220ms when its row is done · start card rises 300ms · start cell pulses twice (1200ms) · once · RN: per-cell withDelay(i*65, withTiming(1, {duration: 220})) on scaleY; counter via useAnimatedReaction + runOnJS (or an AnimatedText); Haptics.selectionAsync every 5th cell, notificationAsync(Success) at the end"
+   },
+   "B": {
+    "label": "Sətir-sətir",
+    "spec": "row by row: rows 260ms apart, cells inside a row 35ms apart, fill 220ms · counter follows · start card and pulse as A · once (≈1.8s) · RN: same as A with row-based delays (r*260 + c*35); Haptics.impactAsync(Light) once per row"
+   },
+   "C": {
+    "label": "Vızı ilə",
+    "spec": "diagonal wave: cells fade wax→honey 300ms, delay (row + column)·70ms · Vızı (sevinc) pops in 520ms cubic-bezier(.34,1.56,.64,1) as the wave ends · start cell pulses twice · once · RN: same per-cell delays on opacity; Vızı entering={ZoomIn.springify().damping(12)}; Haptics.notificationAsync(Success) with Vızı"
+   }
+  }
+ },
+ "hive.unit-sealed": {
+  "category": "hive",
+  "title": "Çərçivə möhürləndi",
+  "when": "Çərçivənin son hüceyrəsi möhürlənəndə: hüceyrələr dalğa ilə bağlanır, ana arı hüceyrəsi (bölmə sınağı) oyanır və sınaq təklif olunur.",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit dalğa",
+    "spec": "honey→sealed and caps close in a wave, 110ms apart: colour 300ms + cap 380ms cubic-bezier(.34,1.56,.64,1) · the queen cell wakes 600ms (ring, soft glow, star turns honey) · CTA rises 320ms · once (≈2.1s) · RN: per cell withDelay(i*110, withSpring({damping: 12, stiffness: 180})) on the cap scale; queen ring opacity + scale withSequence; CTA entering={FadeInUp.delay(1700)}; Haptics.impactAsync(Light) per cap, notificationAsync(Success) for the queen"
+   },
+   "B": {
+    "label": "Bayram",
+    "spec": "celebrate ≈2.3s on the honey panel: Vızı (bayram) hops in 700ms cubic-bezier(.34,1.56,.64,1) · caps close with a small bounce per cell (scale 1.1, 110ms apart) · “+15 bal” chip 1000ms · queen glows twice · CTA 320ms · once · RN: as A plus Vızı entering={ZoomIn.springify()}; per cell withSequence(withTiming(1.1, {duration: 160}), withSpring(1)); Haptics.notificationAsync(Success) at the queen"
+   },
+   "C": {
+    "label": "İşıq izi",
+    "spec": "a band of light sweeps the frame 1000ms cubic-bezier(.4,0,.2,1); each cell seals the moment the band passes it (cap 220ms) · the queen wakes when the band leaves · once (≈2s) · RN: band = LinearGradient translateX withTiming 1000; each cell reads the band progress in useDerivedValue and closes its cap when progress ≥ its x / width; Haptics.impactAsync(Light) at the queen"
+   }
+  }
+ },
+ "hive.current-pulse": {
+  "category": "hive",
+  "title": "Cari hüceyrə",
+  "when": "Pətək qutusunda “Sən buradasan” hüceyrəsi: diqqəti yumşaq çəkir, ekran açılandan sonra 3 dövr oynayır və dayanır (bezdirmir).",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Nəfəs",
+    "spec": "the ring breathes (opacity 1 ↔ .45) and the body swells 1 ↔ 1.035, 2400ms ease-in-out, 3 cycles after the screen opens, then still · RN: one shared value withRepeat(withTiming(1, {duration: 1200, easing: Easing.inOut(Easing.sin)}), 6, true) → ring opacity + body scale; no haptic; may resume once after 20s idle"
+   },
+   "B": {
+    "label": "Halqa",
+    "spec": "one soft hex wave grows out of the cell (scale 1→1.45, opacity .5→0, 1400ms cubic-bezier(.2,.8,.2,1)) every 3.6s, 3 times, then still; the wave stays behind the neighbours · RN: an extra Polygon under the comb with withRepeat(withSequence(withTiming(1, {duration: 1400}), withDelay(2200, withTiming(0, {duration: 0}))), 3); no haptic"
+   },
+   "C": {
+    "label": "Nektar yırğalanır",
+    "spec": "no ring motion: the nectar surface tilts ±3° around its centre, 3200ms ease-in-out, 3 cycles, then still · RN: rotate the liquid G (origin at the surface centre) inside the hex ClipPath with withRepeat(withSequence(withTiming(-3), withTiming(3), withTiming(0)), 3); no haptic"
+   }
+  }
+ },
+ "transitions.push": {
+  "category": "transitions",
+  "title": "Ekran açılır, geri qayıdır",
+  "when": "Siyahıdan mövzu açılanda (push) və geri düyməsi ilə qayıdanda (pop)",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sürüşmə",
+    "spec": "Push 360ms · cubic-bezier(.2,.8,.2,1): the new screen slides in from the right, the list moves −30% under a 0→40% scrim; pop 300ms · cubic-bezier(.4,0,.2,1); swipe right to go back (release past 40% or a fast flick pops) · once · RN: expo-router Stack screenOptions {animation:'ios_from_right', gestureEnabled:true, fullScreenGestureEnabled:true} on the react-native-screens native stack (same feel on Android) · no haptic · reduced motion: 150ms cross-fade (animation:'fade')"
+   },
+   "B": {
+    "label": "Solub-açılma",
+    "spec": "Fade-through: the list fades out 90ms · cubic-bezier(.4,0,1,1), then the new screen comes in 210ms opacity 0→1 + scale 0.92→1 · cubic-bezier(0,0,.2,1); pop mirrors it · once · RN: Stack {animation:'fade', animationDuration:300} and the screen root Animated.View entering={new Keyframe({0:{opacity:0, transform:[{scale:0.92}]}, 100:{opacity:1, transform:[{scale:1}]}}).duration(210).delay(90)} · no haptic · reduced motion: 150ms cross-fade"
+   },
+   "C": {
+    "label": "Böyümə",
+    "spec": "Container transform: the new screen grows out of the tapped row (its clip goes from the row's rect to the full screen, 400ms · cubic-bezier(.2,.8,.2,1)); the row's own content fades out on top in 200ms, the new content fades in 220ms from 120ms; the list behind goes scale 1→0.94 under a 0→30% scrim; back 340ms · cubic-bezier(.4,0,.2,1) into the same row · once · RN: measure(rowRef) → absolute Animated.View withTiming on its layout, router.push with animation:'none' underneath (Reanimated sharedTransitionTag is still experimental in v4) · haptic Light on row press · reduced motion: 150ms cross-fade"
+   }
+  }
+ },
+ "transitions.sheet": {
+  "category": "transitions",
+  "title": "Alt pəncərə",
+  "when": "Pətəkdə hüceyrəyə toxunanda: hüceyrənin vəziyyəti, mənbəyi və «Davam et»",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "Open 300ms · cubic-bezier(.2,.8,.2,1), close 220ms · cubic-bezier(.4,0,1,1); scrim opacity = 1 − y / height; the sheet follows the finger, release past 35% or faster than 800 px/s closes, otherwise 220ms back · once · RN: our Sheet with Modal animationType='none' + gesture-handler Gesture.Pan() on a translateY shared value, withTiming(0, {duration:300, easing:Easing.bezier(.2,.8,.2,1)}) · no haptic · reduced motion: 150ms fade in place, drag still works"
+   },
+   "B": {
+    "label": "Yaylı",
+    "spec": "Open withSpring {damping:18, stiffness:200, mass:1} (about 7% overshoot, hidden by a 40px overscan below the screen edge); close withSpring {damping:22, stiffness:220} carrying the release velocity; same 35% / 800 px/s rule; the grab handle widens 28→36 while held · once · RN: Gesture.Pan().onEnd(e => { y.value = withSpring(target, {velocity:e.velocityY, damping:22, stiffness:220}) }) · haptic Light on open · reduced motion: 150ms fade"
+   },
+   "C": {
+    "label": "İki pillə",
+    "spec": "Two detents: a medium one that shows exactly the actions (about half the screen) and full, which adds the steps list; opens to medium withSpring {damping:20, stiffness:220}; on release it snaps to the detent nearest to y + 0.2 × velocity, below medium it closes · once · RN: native form sheet, Stack.Screen options {presentation:'formSheet', sheetAllowedDetents:[0.5, 1], sheetGrabberVisible:true, sheetCornerRadius:28} (react-native-screens) · haptic Selection on each detent snap · reduced motion: 150ms fade, detents stay"
+   }
+  }
+ },
+ "transitions.dialog": {
+  "category": "transitions",
+  "title": "Təsdiq pəncərəsi",
+  "when": "Testdən çıxmaq istəyəndə və digər «əminsən?» anlarında",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "In 200ms · cubic-bezier(.2,.8,.2,1): scrim 0→1, card opacity 0→1 + scale 0.96→1; out 150ms · cubic-bezier(.4,0,1,1) to scale 0.98 · once · RN: Modal transparent animationType='none'; scrim entering={FadeIn.duration(200)}, card entering={new Keyframe({0:{opacity:0, transform:[{scale:0.96}]}, 100:{opacity:1, transform:[{scale:1}]}}).duration(200)}, exiting={FadeOut.duration(150)}; focus moves to DAVAM ET · no haptic · reduced motion: 150ms fade"
+   },
+   "B": {
+    "label": "Yaylı",
+    "spec": "Scrim 200ms; card opacity 0→1 in 120ms while scale 0.88→1 withSpring {damping:16, stiffness:260, mass:1} (small overshoot); out 150ms fade + scale 0.95 · once · RN: scale shared value set to 0.88, then withSpring(1, {damping:16, stiffness:260}) on mount; exiting={FadeOut.duration(150)} · haptic Light on open · reduced motion: 150ms fade"
+   },
+   "C": {
+    "label": "Dərinlik",
+    "spec": "The test behind steps back: scale 1→0.94 + corner radius 0→18 in 320ms · cubic-bezier(.2,.8,.2,1) while the card rises 24px→0 with opacity; out 220ms · cubic-bezier(.4,0,.2,1), the mirror · once · RN: presentation:'transparentModal'; the test screen's root Animated.View scale and borderRadius withTiming; card entering={new Keyframe({0:{opacity:0, transform:[{translateY:24}]}, 100:{opacity:1, transform:[{translateY:0}]}}).duration(320)} · no haptic · reduced motion: 150ms fade, nothing scales"
+   }
+  }
+ },
+ "transitions.tabs": {
+  "category": "transitions",
+  "title": "Alt menyu: bölmə dəyişir",
+  "when": "Bu gün, Öyrən, İmtahan və Mən arasında keçəndə; Soruş isə kameranı aşağıdan açır",
+  "chosen": "B",
+  "status": "change",
+  "note": "bu normalda  dünyadaistifadə olunan animasaylardan çox fərqlidir, bunun normalı sürüşməli olandır",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "Content cross-fade 150ms · ease-out; the active pill and icon colour switch in 120ms; Soruş opens the camera from the bottom 300ms · cubic-bezier(.2,.8,.2,1), closes 220ms · cubic-bezier(.4,0,1,1) · once · RN: expo-router Tabs screenOptions {animation:'fade'} (React Navigation 7 bottom tabs, transitionSpec timing 150ms); Soruş is a Stack screen with presentation:'fullScreenModal', animation:'slide_from_bottom' · haptic Selection on tab press · reduced motion: the same 150ms fade, camera fades in"
+   },
+   "B": {
+    "label": "Sürüşmə",
+    "spec": "Pager slide: the whole content area moves by its full width, 280ms · cubic-bezier(.2,.8,.2,1); a tab to the right comes in from the right edge while the old one leaves to the left, side by side (a tab to the left is the mirror); no fade, no scale; the tab bar stays still, only its highlight slides with the same timing; the content also follows a horizontal swipe (release past 30% or a fast flick switches, the ends rubber-band) · once · RN: react-native-pager-view (setPage(index) on tab press, onPageScroll drives the highlight, scrollEnabled for the swipe) or a Reanimated horizontal pager: translateX = withTiming(-index * width, {duration:280, easing:Easing.bezier(.2,.8,.2,1)}) with an optional Gesture.Pan() swipe; Soruş stays a fullScreenModal with animation:'slide_from_bottom' · haptic Selection on tab press · reduced motion: 150ms cross-fade"
+   },
+   "C": {
+    "label": "Sürüşən fon",
+    "spec": "The raised pill glides to the new tab withSpring {damping:20, stiffness:260}; the icon hops 3px; content fades up 8px→0 in 220ms · cubic-bezier(.2,.8,.2,1) · once · RN: custom tabBar prop: pill translateX shared value withSpring, icon translateY withSequence(withTiming(-3, {duration:90}), withSpring(0)); Tabs animation:'fade' · haptic Selection on tab press · reduced motion: the pill jumps, 150ms fade"
+   }
+  }
+ },
+ "transitions.onboarding": {
+  "category": "transitions",
+  "title": "Tanışlıq addımları",
+  "when": "İlk açılışda sinif, məqsəd və gündəlik vaxt seçiləndə; Vızı yerində qalır, yalnız sual dəyişir",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Nöqtələr",
+    "spec": "Step content slides: out 160ms opacity 1→0 + x 0→−40px · cubic-bezier(.4,0,1,1); in 260ms from x +40px · cubic-bezier(.2,.8,.2,1), 60ms later; Geri mirrors it; the active dot stretches 6→18px in 220ms; Vızı does not move (its mood cross-fades 220ms on the last step) · once per step · RN: key the step view by step, entering={new Keyframe({0:{opacity:0, transform:[{translateX:40}]}, 100:{opacity:1, transform:[{translateX:0}]}}).duration(260).delay(60)}, exiting a 160ms mirror Keyframe; dot width withTiming(18, {duration:220}); Vızı lives outside the keyed view · haptic Selection on an option, Light on DAVAM ET · reduced motion: 150ms cross-fade"
+   },
+   "B": {
+    "label": "Pətək",
+    "spec": "Progress is 4 hexagon cells that fill with honey from the bottom, 400ms · cubic-bezier(.2,.8,.2,1); content fade-through: out 120ms, in 220ms with y 6px→0; Vızı hops 6px on each step (300ms) · once per step · RN: cell fill height withTiming(1, {duration:400}); exiting={FadeOut.duration(120)}, entering={FadeIn.duration(220).delay(120)}; Vızı translateY withSequence(withTiming(-6, {duration:120}), withSpring(0, {damping:12, stiffness:220})) · haptic Light on DAVAM ET · reduced motion: 150ms fade, cells fill at once"
+   },
+   "C": {
+    "label": "Zolaq",
+    "spec": "A progress bar fills withSpring {damping:20, stiffness:180}; the question cross-fades 200ms; options rise 14px→0 one by one, 40ms stagger (at most 5 staggered, the rest arrive with the fifth), 260ms · cubic-bezier(.2,.8,.2,1); Vızı nods (rotate −6°→0, 360ms) · once per step · RN: options entering={FadeInDown.delay(i * 40).duration(260).withInitialValues({opacity:0, transform:[{translateY:14}]})}; bar width withSpring · haptic Selection on an option, Light on DAVAM ET · reduced motion: 150ms fade, no stagger"
+   }
+  }
+ },
+ "transitions.skeleton": {
+  "category": "transitions",
+  "title": "Yüklənmə skeleti",
+  "when": "Bu gün ekranı və siyahılar məlumat gələnə qədər; sonra məzmun skeletin yerinə keçir",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Bal parıltısı",
+    "spec": "Wax blocks with a honey glint (nectar at 55% opacity) sweeping left→right in screen space, 1400ms · cubic-bezier(.4,0,.2,1) · loop; when data arrives the skeleton and the content cross-fade together in 220ms · RN: one shared progress value withRepeat(withTiming(1, {duration:1400}), -1) drives translateX of a react-native-svg LinearGradient inside every block (one value, so the glint lines up); content entering={FadeIn.duration(220)}, skeleton exiting={FadeOut.duration(220)} · no haptic · reduced motion: still wax blocks, 150ms fade"
+   },
+   "B": {
+    "label": "Nəbz",
+    "spec": "Blocks pulse opacity 1→0.5→1, 1200ms ease-in-out · loop, all in sync; content replaces each block with opacity + y 6px→0, 260ms · cubic-bezier(.2,.8,.2,1), 50ms stagger · RN: one shared opacity withRepeat(withSequence(withTiming(0.5, {duration:600}), withTiming(1, {duration:600})), -1); content entering={FadeInDown.delay(i * 50).duration(260).withInitialValues({opacity:0, transform:[{translateY:6}]})} · no haptic · reduced motion: still blocks, 150ms fade"
+   },
+   "C": {
+    "label": "Hissə-hissə",
+    "spec": "Same glint, but every block swaps on its own as its request finishes (here at 0.7s, 1.3s and 1.9s): 220ms cross-fade in place; skeleton heights equal the content, so nothing jumps · RN: one skeleton per useQuery (TanStack Query isPending), each wrapped in its own entering={FadeIn.duration(220)} / exiting={FadeOut.duration(220)}; the skeleton reserves the final height · no haptic · reduced motion: still blocks, 150ms fade"
+   }
+  }
+ },
+ "transitions.list": {
+  "category": "transitions",
+  "title": "Siyahı elementləri",
+  "when": "Pətək qutusu açılanda və filtr dəyişəndə hüceyrə sətirləri ardıcıl gəlir",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "Rows fade in 200ms · cubic-bezier(0,0,.2,1), 40ms stagger, no movement; on a filter change the old rows fade out together in 120ms, then the new ones stagger in; at most 6 rows are staggered, the rest arrive with the last · once · RN: row Animated.View entering={FadeIn.duration(200).delay(Math.min(i, 5) * 40)}, exiting={FadeOut.duration(120)} (first render only, not on FlashList recycling) · no haptic · reduced motion: one 150ms fade for the whole list"
+   },
+   "B": {
+    "label": "Aşağıdan",
+    "spec": "Rows rise 14px→0 withSpring {damping:18, stiffness:200} with opacity 0→1 in 180ms, 60ms stagger · once · RN: entering={FadeInDown.springify().damping(18).stiffness(200).delay(Math.min(i, 5) * 60).withInitialValues({opacity:0, transform:[{translateY:14}]})}, exiting={FadeOut.duration(120)} (first render only) · no haptic · reduced motion: one 150ms fade"
+   },
+   "C": {
+    "label": "Pətək",
+    "spec": "Each row's hexagon pops first (scale 0.6→1 withSpring {damping:14, stiffness:260}, about 9% overshoot), its text slides in 8px→0 80ms later (220ms · cubic-bezier(.2,.8,.2,1)); 70ms stagger · once · RN: hexagon entering={ZoomIn.springify().damping(14).stiffness(260).delay(i * 70).withInitialValues({transform:[{scale:0.6}]})}, text entering={new Keyframe({0:{opacity:0, transform:[{translateX:-8}]}, 100:{opacity:1, transform:[{translateX:0}]}}).duration(220).delay(i * 70 + 80)} · no haptic · reduced motion: one 150ms fade"
+   }
+  }
+ },
+ "transitions.refresh": {
+  "category": "transitions",
+  "title": "Aşağı çəkib yenilə",
+  "when": "Suallarım siyahısında: müəllim cavabı təsdiqləyibmi, yoxlamaq üçün",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Pətək",
+    "spec": "Pull with 0.5× resistance; a hexagon outline draws in proportion to the pull (0–56pt) and fills with honey at the threshold; on release past it the list holds at 56pt while the cell turns in 60° steps (300ms each · cubic-bezier(.4,0,.2,1)); when done the hexagon shrinks 200ms, the list springs back {damping:20, stiffness:220} and the updated row glows raised for 900ms · RN: Animated.FlatList + useAnimatedScrollHandler (iOS overscroll, contentOffset.y below 0); on Android Gesture.Pan() simultaneous with the list at the top; react-native-svg Polygon strokeDashoffset from the pull · haptic Light once at the threshold · reduced motion: a still hexagon, 150ms fades"
+   },
+   "B": {
+    "label": "Vızı",
+    "spec": "Vızı (ucur) comes down with the pull and straightens up (rotate −10°→0); while loading it hovers (y ±3px, 700ms ease-in-out · loop); when done it flies up 40px and fades in 260ms, the list springs back {damping:20, stiffness:220} · RN: same scroll handler; Vızı translateY and rotate = interpolate(pull, [0, 56], …); hover withRepeat(withTiming(-3, {duration:700}), -1, true) · haptic Light at the threshold · reduced motion: Vızı fades in and out, no hovering"
+   },
+   "C": {
+    "label": "Damcı",
+    "spec": "A honey drop stretches with the pull (scaleY 0.7→1.2); on release it becomes a small cell that fills with honey from the bottom, to 80% in 1000ms and to 100% when the request ends, then a check appears and it fades 200ms; the list springs back {damping:20, stiffness:220} · RN: drop scaleY = interpolate(pull); cell fill height withTiming tied to the refetch promise; check entering={ZoomIn.duration(160)} · haptic Light at the threshold, Success when done · reduced motion: a still cell, 150ms fades"
+   }
+  }
+ },
+ "transitions.toast": {
+  "category": "transitions",
+  "title": "Banner və qısa bildiriş",
+  "when": "İnternet kəsiləndə (oflayn banner) və bir şey yadda saxlananda («Yadda saxlandı»)",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "Offline banner: its slot opens 0→auto while it fades in with y −8px→0, 220ms · cubic-bezier(.2,.8,.2,1), the content below moves with it; back online it turns green («Yenidən onlayn») and leaves after 1.4s (150ms fade, 220ms collapse). Toast «Yadda saxlandı»: opacity + y 8px→0 in 220ms, stays 1.8s, fades 150ms · RN: Banner entering={new Keyframe({0:{opacity:0, transform:[{translateY:-8}]}, 100:{opacity:1, transform:[{translateY:0}]}}).duration(220)}, exiting={FadeOut.duration(150)}, siblings layout={LinearTransition.duration(220)}; online state from TanStack onlineManager; role status, accessibilityLiveRegion polite · haptic Success on save only · reduced motion: 150ms fades, no movement"
+   },
+   "B": {
+    "label": "Yaylı",
+    "spec": "The banner drops from under the header withSpring {damping:20, stiffness:240} while its slot opens; the toast springs up from below the screen {damping:16, stiffness:220}; both leave in 180ms · cubic-bezier(.4,0,1,1) (y 24px + fade) · RN: translateY shared value from −height (onLayout) to 0 withSpring({damping:20, stiffness:240}); toast from +64 withSpring({damping:16, stiffness:220}); slot height with LinearTransition.springify() · haptic Success on save only · reduced motion: 150ms fades"
+   },
+   "C": {
+    "label": "Kapsul",
+    "spec": "One capsule at the top: a 24pt circle with the icon grows to fit the message withSpring {damping:18, stiffness:220}, the text fades in 120ms later; it holds (2.2s offline, 1.5s saved) and shrinks back; offline then stays as a small «Oflayn» capsule until the connection returns · RN: Animated.View width withSpring(measuredWidth) (text measured onLayout), text opacity withDelay(120, withTiming(1)); a small queue so one message shows at a time · haptic Success on save only · reduced motion: no growing, 150ms fades"
+   }
+  }
+ },
+ "transitions.handoff": {
+  "category": "transitions",
+  "title": "Testdən nəticəyə keçid",
+  "when": "Mövzu testinin son sualından sonra nəticə ekranı açılanda",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "The test fades out 150ms, the result fades in 220ms; then the score counts 0→8 in 600ms, the 4.3 cell fills nectar→honey in 400ms · cubic-bezier(.2,.8,.2,1) and «+15 bal» appears (scale 0.9→1, 200ms) · once · RN: router.replace to the result with Stack animation:'fade'; the count via useDerivedValue + withTiming(8, {duration:600}) into a ReText; fill height withTiming · haptic Success when the cell turns Bal · reduced motion: 150ms cross-fade, final numbers at once"
+   },
+   "B": {
+    "label": "Hüceyrə uçur",
+    "spec": "Shared element: the small 4.3 cell in the test header flies to the result card and grows, 420ms · cubic-bezier(.2,.8,.2,1), while the test fades out 200ms and the result fades in 260ms; on landing the cell fills with honey 400ms and the score counts up; about 900ms in total (celebrate) · once · RN: measure() the header cell, render an absolute overlay cell, animate it to the target's onLayout rect withTiming, then hide it (sharedTransitionTag is experimental in Reanimated 4) · haptic Success when the cell turns Bal · reduced motion: 150ms cross-fade"
+   },
+   "C": {
+    "label": "Bal pərdəsi",
+    "spec": "Honey curtain: a honey circle grows from the pressed button to cover the screen (400ms · cubic-bezier(.4,0,.2,1)), then shrinks into the result's honey score card (400ms · cubic-bezier(.2,.8,.2,1)) with the rest of the result already underneath; the score counts up · once · RN: absolute Animated.View (borderRadius + scale) measured from the button, then animated to the score card's layout; router.replace with animation:'none' under it · haptic Light on press, Success when the cell turns Bal · reduced motion: 150ms cross-fade"
+   }
+  }
+ },
+ "micro.count": {
+  "category": "micro",
+  "title": "Rəqəm sayğacı: bal və faiz",
+  "when": "Test və dərs bitəndə nəticə kartında; həftəlik bal yenilənəndə",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit sayma",
+    "spec": "900ms · easeOutCubic · once (+5: 400ms) · RN: useSharedValue(0) → withTiming(15, {duration: 900, easing: Easing.out(Easing.cubic)}); text via useAnimatedProps on a read-only TextInput (or AnimateableText), fontVariant ['tabular-nums']; bar scaleX withTiming in the same 900ms; weekly total starts 150ms after the first count ends. Haptic: none."
+   },
+   "B": {
+    "label": "Diyircək",
+    "spec": "per digit 700ms · cubic-bezier(.34,1.32,.64,1) (slight overshoot) · stagger 70ms left → right · once · RN: each digit = View (overflow hidden, height = lineHeight) holding a 0–9 strip; strip translateY = withDelay(i * 70, withSpring(-digit * lineHeight, {damping: 15, stiffness: 160})); screen reader gets the final value via accessibilityLabel. Haptic: Haptics.selectionAsync() when the last digit settles."
+   },
+   "C": {
+    "label": "Bal damcıları",
+    "spec": "3 drops × 360ms ease-in, 320ms apart · number pop 220ms · once · RN: drop = Animated.View translateY from -64 withTiming(0, {duration: 360, easing: Easing.in(Easing.quad)}); on land runOnJS(add5) + number scale withSequence(withTiming(1.14, {duration: 90}), withSpring(1, {damping: 12})); drop icon squash scaleX 1.12 / scaleY .86 for 200ms. Haptic: impactAsync(Light) per drop."
+   }
+  }
+ },
+ "micro.typing": {
+  "category": "micro",
+  "title": "Vızı yazır: AI düşünmə işarəsi",
+  "when": "«Vızıdan soruş» söhbətində cavab hazırlanarkən; cavab gələndə işarə yerini mətnə verir",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Üç bal damcısı",
+    "spec": "1200ms loop · ease-in-out · stagger 160ms · RN: 3 Animated.Views, translateY withDelay(i * 160, withRepeat(withSequence(withTiming(-4, {duration: 300}), withTiming(0, {duration: 300}), withTiming(0, {duration: 600})), -1)), opacity .45 ↔ 1; bubble entering FadeInDown.duration(220); answer swap: FadeOut.duration(120) → FadeInUp.duration(220); accessibilityLiveRegion polite «Vızı düşünür». Haptic: none."
+   },
+   "B": {
+    "label": "Pətək nəbzi",
+    "spec": "1400ms loop · ease-in-out · stagger 200ms · RN: 3 hexagons (react-native-svg Polygon); scale .72 ↔ 1 and fill wax → honey via interpolateColor(progress) in useAnimatedProps; progress = withDelay(i * 200, withRepeat(withTiming(1, {duration: 700}), -1, true)). Answer swap as in A. Haptic: none."
+   },
+   "C": {
+    "label": "Yazan xətt",
+    "spec": "1600ms loop · ease-in-out · RN: react-native-svg Path with pathLength 100, strokeDasharray 100, strokeDashoffset 100 → 0 over 60% of the loop, then opacity → 0; pen tip = small circle moved along pre-sampled path points with interpolate(progress). Answer swap as in A. Haptic: none."
+   }
+  }
+ },
+ "micro.badge": {
+  "category": "micro",
+  "title": "Bildiriş nişanı menyuda",
+  "when": "Müəllim cavab verəndə, tapşırıq və ya sinif mesajı gələndə — alt menyunun ikonunda",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "appear 220ms · cubic-bezier(.2,.8,.2,1) · count change 120ms crossfade · clear 140ms · RN: badge Animated.View entering={ZoomIn.duration(220)} (scale .6 → 1 + fade), exiting={ZoomOut.duration(140)}; count Text keyed by value with entering={FadeIn.duration(120)}; lives in the custom TabBarItem. Haptic: none (notifications arrive passively)."
+   },
+   "B": {
+    "label": "Yay",
+    "spec": "appear 380ms spring (peak ≈1.2) · icon bump 260ms · count slides up 220ms · RN: scale withSequence(withTiming(0, {duration: 0}), withSpring(1, {damping: 11, stiffness: 220})); tab icon translateY withSequence(withTiming(-3, {duration: 110}), withSpring(0)); count entering SlideInDown.duration(220) / exiting SlideOutUp.duration(140), keyed by value. Haptic: none."
+   },
+   "C": {
+    "label": "Bal damcısı",
+    "spec": "drop 360ms ease-in + squash 320ms · once per notification · honey badge (honey bg, on-honey text) · RN: drop Animated.View translateY from -46 withTiming(0, {duration: 360, easing: Easing.in(Easing.quad)}); on land: badge scaleX/scaleY withSequence(1.25/.8 → .95/1.05 → withSpring(1)). Haptic: none."
+   }
+  }
+ },
+ "micro.field": {
+  "category": "micro",
+  "title": "Sahə: fokus və səhv mesajı",
+  "when": "Telefon nömrəsi, sinif kodu, ad sahələri; nömrə natamamdırsa «KOD GÖNDƏR» basılanda",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "focus: border 120ms + 4px ring 220ms · error: message reveal 220ms cubic-bezier(.2,.8,.2,1), no shake · once · RN: Input border colour = interpolateColor(focus, [0, 1], [border, honey]) with withTiming(120ms) (or a plain className switch); message row entering={FadeIn.duration(220)} with layout={LinearTransition.duration(220)} on the form column so the button slides down; accessibilityLiveRegion polite. Error clears as soon as the student edits. Haptic: impactAsync(Light) once when the error appears."
+   },
+   "B": {
+    "label": "Halqa",
+    "spec": "focus: ring pulse 400ms cubic-bezier(.2,.8,.2,1) — 0 → 7px nectar → settles at 4px raised; label turns honey-text · error: message slides 8px down + warning icon stroke draws 220ms · once · RN: ring = absolutely positioned View behind the field, scale withSequence(withTiming(1.06, {duration: 160}), withSpring(1, {damping: 16})) + opacity; message entering={FadeInDown.duration(220)}; icon path strokeDashoffset via useAnimatedProps. Haptic: impactAsync(Light) on error."
+   },
+   "C": {
+    "label": "Uçan etiket",
+    "spec": "label float 220ms cubic-bezier(.2,.8,.2,1) (to the top edge, scale .8, notch in surf) · +994 fades in 120ms · error pill scales from .92 at top-left 220ms · once · RN: label Animated.Text translateY/scale = withTiming(focused || value ? 1 : 0, {duration: 220}); label backgroundColor surf makes the notch; error entering={ZoomIn.duration(220)} from .92. Haptic: impactAsync(Light) on error."
+   }
+  }
+ },
+ "micro.otp": {
+  "category": "micro",
+  "title": "SMS kodu: rəqəm-rəqəm və səhv kod",
+  "when": "Qeydiyyatda SMS kodu yazılanda; kod uyğun gəlməyəndə (sakit: qırmızı haşiyə və mesaj, silkələmə yoxdur)",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": "digit in 120ms (fade + 4px rise) · filled box border honey-deep / bg raised 120ms · wrong: all six boxes crossfade to err / err-bg 220ms + message reveal 220ms · RN: one hidden TextInput (textContentType oneTimeCode, autoComplete sms-otp) drives 6 Views; digit Text entering={FadeInUp.duration(120)}; border via interpolateColor; no translateX shake. Haptic: selectionAsync per digit, notificationAsync(Warning) once on wrong code."
+   },
+   "B": {
+    "label": "Bal dolur",
+    "spec": "per digit: box fills from the bottom 220ms cubic-bezier(.2,.8,.2,1) + digit pop .6 → 1 (overshoot) · checking: fills breathe 600ms · wrong: fill drains to err-bg from the top, borders turn err left → right 40ms stagger · RN: fill = Animated.View scaleY withTiming(1, {duration: 220}) with transformOrigin bottom; digit scale withSpring({damping: 12, stiffness: 260}); stagger via withDelay(i * 40). Haptic: selectionAsync per digit, notificationAsync(Warning) on wrong code."
+   },
+   "C": {
+    "label": "Dalğa",
+    "spec": "digit drops in from -10px 220ms · complete: honey wave across the boxes (border honey + lift 3px, 60ms stagger) while checking · wrong: a slower err wave (90ms stagger) and boxes settle err; message last · RN: per box withDelay(i * 60, withSequence(withTiming(-3, {duration: 120}), withSpring(0))); colour via interpolateColor. Haptic: selectionAsync per digit, notificationAsync(Warning) on wrong code."
+   }
+  }
+ },
+ "micro.check": {
+  "category": "micro",
+  "title": "Seçim qutusu və dairə: çəkilən işarə",
+  "when": "Ayarlarda, razılıq ekranında, filtrlərdə; gündəlik hədəf kimi tək seçimlərdə",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Çəkilən işarə",
+    "spec": "box fill 120ms ease-out → check stroke draws 220ms cubic-bezier(.2,.8,.2,1) after 60ms · uncheck 120ms ease-in · radio dot scale 0 → 1 220ms · RN: react-native-svg Path, strokeDasharray = length, strokeDashoffset via useAnimatedProps(withTiming(checked ? 0 : len, {duration: 220})); box colour interpolateColor; accessibilityRole checkbox / radio + accessibilityState. Haptic: selectionAsync on change."
+   },
+   "B": {
+    "label": "Yay",
+    "spec": "press: box scale .9 120ms · check on: box .85 → 1.08 → 1 in 320ms (≈ withSpring({damping: 10, stiffness: 260})), check draws 180ms · radio dot springs to 1.25 then 1 · RN: Pressable onPressIn scale withTiming(.9, {duration: 120}); onPress scale withSpring(1, {damping: 10, stiffness: 260}); check strokeDashoffset as in A. Haptic: impactAsync(Light) on check."
+   },
+   "C": {
+    "label": "Pətək",
+    "spec": "hexagon box: honey fills it from the bottom 220ms cubic-bezier(.2,.8,.2,1), then the check draws 220ms (160ms delay) · radio = hex ring with an inner hex 220ms · RN: react-native-svg Polygon hex + ClipPath; fill Rect translateY withTiming(0, {duration: 220}); check strokeDashoffset withDelay(160, withTiming(0, {duration: 220})). Haptic: selectionAsync on change."
+   }
+  }
+ },
+ "micro.copy": {
+  "category": "micro",
+  "title": "Dəvət kodunu kopyala: təsdiq",
+  "when": "Müəllim sinif dəvət kodunu paylaşanda; valideyn bağlantı kodunda",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Etiket dəyişir",
+    "spec": "label swap: out 120ms ease-in (8px up), in 220ms cubic-bezier(.2,.8,.2,1) (from 8px below) · button honey → ok-bg 220ms · check draws 220ms · code flashes nectar 600ms · reverts after 1.8s · RN: expo-clipboard setStringAsync; two stacked Animated.Text layers with entering FadeInDown / exiting FadeOutUp; setTimeout(1800) to revert; accessibilityLiveRegion polite «Kod kopyalandı». Haptic: impactAsync(Light)."
+   },
+   "B": {
+    "label": "Tost",
+    "spec": "button sinks 3px 120ms · toast slides up 12px + fades in 220ms cubic-bezier(.2,.8,.2,1), its check draws 220ms, stays 1.8s, exits 140ms ease-in · RN: toast entering={FadeInDown.duration(220)} exiting={FadeOutDown.duration(140)} rendered in a portal above the tab bar; AccessibilityInfo.announceForAccessibility('Kod kopyalandı'). Haptic: impactAsync(Light)."
+   },
+   "C": {
+    "label": "Kod uçur",
+    "spec": "a ghost of the code lifts 120ms, then flies into the button 400ms cubic-bezier(.2,.8,.2,1), shrinking to .3 and fading; the label then swaps with a 220ms pop · reverts after 1.8s · RN: measureInWindow for code and button; absolutely positioned Animated.Text translateX / translateY / scale withTiming(400); on finish runOnJS(setCopied). Haptic: impactAsync(Light) when the ghost lands."
+   }
+  }
+ },
+ "micro.header": {
+  "category": "micro",
+  "title": "Böyük başlıq kiçik başlığa yığılır",
+  "when": "Öyrən, Mən, Suallarım kimi uzun siyahılı ekranlarda aşağı sürüşdürəndə",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Sakit",
+    "spec": ""
+   },
+   "B": {
+    "label": "Kiçilib yerləşir",
+    "spec": "scroll-linked · the large title itself moves up 40pt and scales 1 → .6 into the bar (stays left-aligned); subtitle fades out over the first half · RN: useAnimatedScrollHandler → y; title transform [{translateY: interpolate(y, [0, 56], [0, -40], CLAMP)}, {scale: interpolate(y, [0, 56], [1, .6], CLAMP)}] with transformOrigin 'left top'; content paddingTop reserves the large header. Reduced motion: title only fades. Haptic: none."
+   },
+   "C": {
+    "label": "Kontekst",
+    "spec": ""
+   }
+  }
+ },
+ "micro.timer": {
+  "category": "micro",
+  "title": "Sınaq taymeri: halqa geri sayır",
+  "when": "Sınaq imtahanında yuxarı sağ küncdə; son 5 dəqiqədə sakit xəbərdarlıq (demo: 48:12-dən 05:02-yə sürətlə keçir)",
+  "chosen": "B",
+  "status": "change",
+  "note": "qırmızı yaxçıdır amma altdan yazı çıxmasın.",
+  "variants": {
+   "A": {
+    "label": "Sakit halqa",
+    "spec": "tick every 1s · ring dashoffset 400ms linear · at 05:00 one soft halo (scale 1 → 1.45, fade, 900ms ease-out) + note fades in 220ms; colours stay honey · RN: react-native-svg Circle strokeDashoffset via useAnimatedProps(withTiming(value, {duration: 400, easing: Easing.linear})); remaining time comes from the server clock, not setInterval drift; halo Animated.View withTiming(1, {duration: 900}). Haptic: impactAsync(Light) once at 05:00."
+   },
+   "B": {
+    "label": "Rəng keçidi",
+    "spec": "tick every 1s · at 05:00 chip and ring tween honey → err over 900ms ease-in-out, once (no blinking) · nothing appears under the timer: the warning «Son 5 dəqiqə — cavablarını yoxla» is screen-reader text only (aria-live polite) · RN: warn = withTiming(1, {duration: 900}); ring stroke and chip background via interpolateColor(warn, [0, 1], [honey, err]) in useAnimatedProps / useAnimatedStyle; AccessibilityInfo.announceForAccessibility once at 05:00, no visible note. Haptic: notificationAsync(Warning) once at 05:00."
+   },
+   "C": {
+    "label": "Nəfəs",
+    "spec": "tick every 1s · at 05:00 colours turn info (calm blue) over 900ms; the ring breathes opacity 1 ↔ .55 on a 2.4s loop until the end · RN: withRepeat(withTiming(.55, {duration: 1200, easing: Easing.inOut(Easing.sin)}), -1, true) on ring opacity; colours via interpolateColor; stop the loop at 00:00. Haptic: impactAsync(Light) once at 05:00."
+   }
+  }
+ },
+ "micro.camera": {
+  "category": "micro",
+  "title": "Kamera: çəkiliş anı və kiçik şəkil",
+  "when": "Soruş → Kamera: sualın şəklini çəkəndə",
+  "chosen": "C",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Yumşaq işıq",
+    "spec": "shutter press: inner disc scale .86 120ms · flash: light veil 0 → .75 → 0 in 220ms (ease-out) · thumbnail fades + scales .6 → 1 220ms cubic-bezier(.2,.8,.2,1), count pops · RN: expo-camera takePictureAsync; flash = absolute View opacity withSequence(withTiming(.75, {duration: 60}), withTiming(0, {duration: 160})); thumbnail entering={ZoomIn.duration(220)}. Haptic: impactAsync(Medium) on press."
+   },
+   "B": {
+    "label": "Pərdə",
+    "spec": "iris blink: top and bottom lids close 90ms ease-in, open 140ms ease-out · the captured frame flies into the thumbnail 420ms cubic-bezier(.2,.8,.2,1), shrinking · RN: lids = two Animated.Views scaleY withSequence(withTiming(1, {duration: 90}), withTiming(0, {duration: 140})); fly = measured frame → thumbnail with translateX / translateY / scaleX / scaleY withTiming(420). Haptic: impactAsync(Medium) on press, selectionAsync when it lands."
+   },
+   "C": {
+    "label": "Kəsilmiş kadr",
+    "spec": "no flash · outside the frame darkens 160ms, the frame and its honey corners snap in (.96 → 1, 220ms) · a sheet slides up 220ms cubic-bezier(.2,.8,.2,1) with the shot and «Yenidən çək» (exits 140ms) · RN: scrim opacity withTiming(160); frame scale withSequence(withTiming(.96, {duration: 90}), withSpring(1)); sheet entering={SlideInDown.duration(220)}, exiting SlideOutDown.duration(140). Haptic: impactAsync(Light) on press."
+   }
+  }
+ },
+ "micro.done": {
+  "category": "micro",
+  "title": "Uğur işarəsi: göndərildi, yadda saxlandı",
+  "when": "Sual müəllimə göndəriləndə, ev tapşırığı və ya ayarlar yadda saxlananda",
+  "chosen": "A",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Xətt",
+    "spec": "ring draws 400ms cubic-bezier(.65,0,.35,1) → check draws 220ms cubic-bezier(.2,.8,.2,1) (starts at 380ms) → text rises 8px 220ms (450ms) · once · RN: react-native-svg Circle + Path, strokeDasharray = length, strokeDashoffset via useAnimatedProps(withTiming(0, …)); check withDelay(380); text entering={FadeInDown.delay(450).duration(220)}. Haptic: notificationAsync(Success) when the check finishes."
+   },
+   "B": {
+    "label": "Pətək dolur",
+    "spec": "hexagon pops .9 → 1 (spring) while honey fills it from the bottom 400ms cubic-bezier(.65,0,.35,1) → check (on-honey) draws 220ms → text rises · once · RN: react-native-svg ClipPath hex; fill Rect translateY withTiming(0, {duration: 400}); container scale withSpring(1, {damping: 12, stiffness: 200}) from .9; check strokeDashoffset withDelay(380). Haptic: notificationAsync(Success) at the check."
+   },
+   "C": {
+    "label": "Düymədən",
+    "spec": "press sinks 4px → label fades 120ms → button narrows to a 56pt circle 300ms cubic-bezier(.2,.8,.2,1) with a spinner → turns ok and the check draws 220ms → caption fades in · RN: width via layout={LinearTransition.duration(300)} or animated width inside a fixed parent; spinner withRepeat(withTiming(360, {duration: 700, easing: Easing.linear}), -1); check strokeDashoffset. Haptic: impactAsync(Light) on press, notificationAsync(Success) at the check."
+   }
+  }
+ },
+ "micro.pill": {
+  "category": "micro",
+  "title": "Status dəyişir: AI → müəllim təsdiqi",
+  "when": "«Suallarım» siyahısında və cavab ekranında — müəllim AI həllini təsdiqləyəndə",
+  "chosen": "B",
+  "status": "approved",
+  "note": "",
+  "variants": {
+   "A": {
+    "label": "Çarpaz keçid",
+    "spec": "old pill fades out 120ms ease-in, new fades in 220ms; pill width eases between the two labels 220ms cubic-bezier(.2,.8,.2,1); check draws 220ms (100ms delay) · while «yoxlanır» the hex breathes opacity .5 ↔ 1 on a 1.6s loop · RN: two stacked pills, entering FadeIn.duration(220) / exiting FadeOut.duration(120), layout={LinearTransition.duration(220)} on the row; hex opacity withRepeat. Haptic: notificationAsync(Success) only if the student is on this screen."
+   },
+   "B": {
+    "label": "Çevrilmə",
+    "spec": "split-flap: old pill rotateX 0 → 90° 160ms ease-in, new pill -90° → 0 200ms cubic-bezier(.2,.8,.2,1), perspective 400 · check draws after it lands · RN: transform [{perspective: 400}, {rotateX}] withSequence(withTiming(90, {duration: 160}), …); swap the content at 90° via runOnJS. Haptic: notificationAsync(Success) if on screen."
+   },
+   "C": {
+    "label": "Möhür",
+    "spec": "a green ring stamps out from the icon (scale .4 → 2.2, fade, 400ms ease-out), ok-bg wipes left → right 300ms cubic-bezier(.65,0,.35,1), the check draws, then a soft settle 1 → 1.06 → 1 (220ms) · RN: ripple = Animated.View scale / opacity withTiming(400); wipe = overflow-hidden container whose width animates withTiming(300) (or MaskedView); settle withSequence. Haptic: notificationAsync(Success) if on screen."
+   }
+  }
+ }
+}
