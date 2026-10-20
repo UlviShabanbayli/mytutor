@@ -3,6 +3,7 @@ import type { Clock } from '../clock';
 import { CLASS_7A, CLASS_7B, NERMIN, r7, r7Unit, testIdOf } from '../ids';
 import { ROSTER_7A, ROSTER_7B, rosterId7A } from '../people';
 import { questionCountOf } from '../tests';
+import { NERMIN_LESSON_PROGRESS } from './progress';
 
 /**
  * 7B's and 7A's assignments, one state each everywhere. `hw-4-1` was handed in yesterday and
@@ -194,7 +195,15 @@ export function submissions(clock: Clock): Submission[] {
         grade: of((i % 3) + 1, 3),
         gradedAt: clock.ago(300 + i * 20),
       });
-    if (i <= 8) list.push({ ...blank('lesson-4-3', id), submittedAt: clock.at(-1, 17, i * 5) });
+    if (id === NERMIN)
+      // Her 4.3 lesson is half-way (Today's unfinished lesson): the assignment is not done yet.
+      list.push({
+        ...blank('lesson-4-3', id),
+        state: 'in_progress',
+        progress: { ...NERMIN_LESSON_PROGRESS },
+      });
+    else if (i <= 8)
+      list.push({ ...blank('lesson-4-3', id), submittedAt: clock.at(-1, 17, i * 5) });
   });
   ids7A.forEach((id, i) => {
     if (i < 12)

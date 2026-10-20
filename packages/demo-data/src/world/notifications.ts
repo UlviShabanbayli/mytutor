@@ -1,12 +1,22 @@
-import type { AppNotification, NotificationPrefs } from '@mytutor/types';
+import type { AppNotification, NotificationPrefs, ReviewPlan, WeekReport } from '@mytutor/types';
 import type { Clock } from '../clock';
 import { LALE, NERMIN, SEBINE } from '../ids';
 import { THREAD_SEBINE } from './messages';
 
+/** What the student's notices report, taken from the world so they always agree with it. */
+export type NoticeFacts = { streak: number; review: ReviewPlan; week: WeekReport | undefined };
+
 /** Each role's in-app notifications; the student's only in Nərmin's world. */
-export function notifications(clock: Clock, studentId: string): AppNotification[] {
+export function notifications(
+  clock: Clock,
+  studentId: string,
+  { streak, review, week }: NoticeFacts,
+): AppNotification[] {
+  const accuracy = week
+    ? Math.round((week.answers.correct / Math.max(1, week.answers.total)) * 100)
+    : 0;
   const student: AppNotification[] =
-    studentId === NERMIN
+    studentId === NERMIN && week && review.due.length > 0
       ? [
           {
             id: 'n-st-answer',
@@ -34,8 +44,8 @@ export function notifications(clock: Clock, studentId: string): AppNotification[
             role: 'student',
             at: clock.ago(330),
             read: true,
-            cells: 2,
-            minutes: 4,
+            cells: review.due.length,
+            minutes: review.minutes,
           },
           {
             id: 'n-st-streak',
@@ -44,7 +54,8 @@ export function notifications(clock: Clock, studentId: string): AppNotification[
             role: 'student',
             at: clock.at(-1, 20, 14),
             read: true,
-            days: 11,
+            // Yesterday evening: the streak as it stands (today's goal is not met yet).
+            days: streak,
           },
           {
             id: 'n-st-week',
@@ -53,8 +64,8 @@ export function notifications(clock: Clock, studentId: string): AppNotification[
             role: 'student',
             at: clock.at(-1, 19, 0),
             read: true,
-            topics: 4,
-            accuracy: 81,
+            topics: week.newTopics.length,
+            accuracy,
           },
         ]
       : [];

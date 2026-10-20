@@ -17,6 +17,9 @@ import { MISTAKES } from './mistakeItems';
 
 /** What Nərmin did (today, this week, last week) and what review and mistakes follow from it. */
 
+/** Nərmin's 4.3 lesson: two of its four parts done (the `lesson-4-3` assignment follows it). */
+export const NERMIN_LESSON_PROGRESS = { done: 2, total: 4 } as const;
+
 export function activity(clock: Clock, studentId: string): StudentActivity {
   if (studentId !== NERMIN)
     return {
@@ -39,8 +42,7 @@ export function activity(clock: Clock, studentId: string): StudentActivity {
       title: current.shortTitle,
       subject: 'Riyaziyyat 7',
       part: 'examples',
-      done: 2,
-      total: 4,
+      ...NERMIN_LESSON_PROGRESS,
     },
     savedTopicIds: ['3.1', '3.2', '3.3', '3.4', '3.5', '4.1', '4.2', '4.3'].map(r7),
   };
@@ -183,7 +185,8 @@ export function weekReports(
         weekStart: lastWeek,
         minutes: 105,
         previousMinutes: null,
-        activeDays: [true, false, true, true, true, true, true],
+        // The streak (12 days up to yesterday) starts on this week's second day.
+        activeDays: [false, true, true, true, true, true, true],
         answers: { correct: 38, total: 50 },
         newTopics: ['3.2', '3.3'].map(ref),
         completedUnit: null,

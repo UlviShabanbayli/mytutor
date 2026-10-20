@@ -44,6 +44,8 @@ export function buildDemoWorld({ now, persona }: BuildOptions): DemoWorld {
   const assignmentList = assignments(clock);
   const submissionList = submissions(clock);
   const questions = askQuestions(clock);
+  const review = reviewPlan(studentMap);
+  const reports = weekReports(clock, mastery[NERMIN] ?? {}, assignmentList, submissionList);
   const sentToday = questions.filter(
     (q) =>
       q.studentId === studentId &&
@@ -70,7 +72,7 @@ export function buildDemoWorld({ now, persona }: BuildOptions): DemoWorld {
     lessons: LESSONS,
     tests: TESTS,
     placement: PLACEMENT,
-    review: reviewPlan(studentMap),
+    review,
     mistakes: mistakeGroups(clock, studentMap),
     testScores: testScores(clock),
     assignments: assignmentList,
@@ -87,11 +89,15 @@ export function buildDemoWorld({ now, persona }: BuildOptions): DemoWorld {
     missed: missed(),
     threads: threads(clock),
     messages: messages(clock),
-    notifications: notifications(clock, studentId),
+    notifications: notifications(clock, studentId, {
+      streak: student.streak,
+      review,
+      week: reports[NERMIN]?.[0],
+    }),
     notificationPrefs: NOTIFICATION_PREFS,
     countryLeague: countryLeague(),
     badges: badges(clock, studentId),
-    weekReports: weekReports(clock, mastery[NERMIN] ?? {}, assignmentList, submissionList),
+    weekReports: reports,
     mocks: mockExams(clock),
     mockRuns: persona === 'nermin' ? mockRuns(clock) : [],
     exam: noExam(student.goal),
