@@ -13,12 +13,17 @@ type ClassCardProps = { item: ClassSummary };
 export function ClassCard({ item }: ClassCardProps) {
   const { t } = useTranslation();
   const students = t('me.shared.studentsCount', { count: item.students });
+  const live: { icon: IconName; color: ColorName; text: string }[] = item.nextLive
+    ? [
+        {
+          icon: 'video',
+          color: 'info',
+          text: t('me.classes.live', { when: formatWhen(t, item.nextLive) }),
+        },
+      ]
+    : [];
   const lines: { icon: IconName; color: ColorName; text: string }[] = [
-    {
-      icon: 'video',
-      color: 'info',
-      text: t('me.classes.live', { when: formatWhen(t, item.nextLive) }),
-    },
+    ...live,
     {
       icon: 'chat',
       color: 'info',
@@ -60,20 +65,22 @@ export function ClassCard({ item }: ClassCardProps) {
           </View>
         ) : null}
       </View>
-      <View className="flex-row items-center gap-2.5 rounded-md bg-raised px-3 py-2.5">
-        <Icon name="file" size={20} color="honey-text" />
-        <View className="flex-1 gap-px">
-          <Text variant="overline" tone="muted">
-            {t('me.classes.next')}
-          </Text>
-          <Text className="font-sans-black text-sm">{item.nextAssignment.title}</Text>
+      {item.nextAssignment ? (
+        <View className="flex-row items-center gap-2.5 rounded-md bg-raised px-3 py-2.5">
+          <Icon name="file" size={20} color="honey-text" />
+          <View className="flex-1 gap-px">
+            <Text variant="overline" tone="muted">
+              {t('me.classes.next')}
+            </Text>
+            <Text className="font-sans-black text-sm">{item.nextAssignment.title}</Text>
+          </View>
+          <View className="rounded-full bg-surf px-2 py-[5px]">
+            <Text className="font-sans-black text-xs text-honey-text">
+              {formatWhen(t, item.nextAssignment.due)}
+            </Text>
+          </View>
         </View>
-        <View className="rounded-full bg-surf px-2 py-[5px]">
-          <Text className="font-sans-black text-xs text-honey-text">
-            {formatWhen(t, item.nextAssignment.due)}
-          </Text>
-        </View>
-      </View>
+      ) : null}
       <View className="gap-2">
         {lines.map((l) => (
           <View key={l.icon} className="flex-row items-center gap-2">

@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next';
+import type { ClassMaterial } from './types';
 
 /** 2140 → "2 140" (a no-break space between thousands, as Azerbaijani and Russian write them). */
 export function formatNumber(value: number): string {
@@ -68,4 +69,20 @@ export function formatDay(t: TFunction, isoDate: string, short = false): string 
     ? t(SHORT_MONTH_KEYS[i] ?? 'me.when.monthsShort.0')
     : t(MONTH_KEYS[i] ?? 'months.0');
   return `${Number(day)} ${name}`;
+}
+
+/** "240 KB", "Video · 7 dəq", "Test · 3 sual": what a shared material is, by its kind. */
+export function materialMeta(t: TFunction, m: Pick<ClassMaterial, 'kind' | 'size'>): string {
+  switch (m.kind) {
+    case 'file':
+      return t('me.classPage.material.file', { size: m.size });
+    case 'video':
+      return t('me.classPage.material.video', { count: Math.max(1, Math.round(m.size / 60)) });
+    case 'lesson':
+      return t('me.classPage.material.lesson', { count: m.size });
+    case 'test':
+      return t('me.classPage.material.test', { count: m.size });
+    case 'question':
+      return t('me.classPage.material.question');
+  }
 }

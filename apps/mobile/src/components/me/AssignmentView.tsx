@@ -20,6 +20,12 @@ export function AssignmentView({ item }: AssignmentViewProps) {
   const [sheet, setSheet] = useState<'report' | 'file' | null>(null);
   const report = useMeStore((s) => s.report);
   const done = item.status !== 'not_started';
+  const attachment = item.attachment
+    ? {
+        name: item.attachment.name,
+        size: t('me.classPage.material.file', { size: item.attachment.sizeKb }),
+      }
+    : null;
 
   return (
     <Screen className="gap-2.5">
@@ -71,19 +77,21 @@ export function AssignmentView({ item }: AssignmentViewProps) {
       </View>
       <Text className="leading-[22px]">{item.description}</Text>
       <TopicLinkCard topic={item.topic} />
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={t('me.assignment.download', item.attachment)}
-        onPress={() => setSheet('file')}
-        className="min-h-touch flex-row items-center gap-2.5 rounded-md border border-dashed border-border px-3 active:bg-wax"
-      >
-        <Icon name="file" size={20} color="info" />
-        <Text className="flex-1 font-sans-bold text-sm">{item.attachment.name}</Text>
-        <Text tone="muted" className="text-xs">
-          {item.attachment.size}
-        </Text>
-        <Icon name="download" size={18} color="muted" />
-      </Pressable>
+      {attachment ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('me.assignment.download', attachment)}
+          onPress={() => setSheet('file')}
+          className="min-h-touch flex-row items-center gap-2.5 rounded-md border border-dashed border-border px-3 active:bg-wax"
+        >
+          <Icon name="file" size={20} color="info" />
+          <Text className="flex-1 font-sans-bold text-sm">{attachment.name}</Text>
+          <Text tone="muted" className="text-xs">
+            {attachment.size}
+          </Text>
+          <Icon name="download" size={18} color="muted" />
+        </Pressable>
+      ) : null}
       <SubmissionPreview submission={item.submission} />
       {item.feedback ? <TeacherFeedback feedback={item.feedback} /> : null}
       <Button

@@ -20,7 +20,8 @@ export function LeagueStandings({ table, scope }: LeagueStandingsProps) {
   const s = leagueSections(
     table.rows,
     { size: table.rows.length, promote: table.promote, demote: table.demote },
-    table.place,
+    // Not in the table (no points yet): every middle place is behind "göstər".
+    table.place ?? 0,
   );
   const first = s.hidden[0];
   const last = s.hidden[s.hidden.length - 1];

@@ -84,7 +84,7 @@ export function LeaderboardView() {
             ? [
                 {
                   value: 'class' as const,
-                  label: t('exam.board.scopeClass', { name: myClass.shortName }),
+                  label: t('exam.board.scopeClass', { name: myClass.short }),
                 },
               ]
             : []),

@@ -15,13 +15,17 @@ export function LeagueHeroCard({ table }: LeagueHeroCardProps) {
   const down = LEAGUE_IDS[index - 1];
   const size = table.rows.length;
   const leagueName = t('me.league.leagueName', { name });
+  const place =
+    table.place === null
+      ? t('me.league.noPlace')
+      : t('me.shared.place', { count: table.place, ordinal: true });
 
   return (
     <View
       accessible
       accessibilityLabel={`${t('me.league.heroLabel', {
         league: leagueName,
-        place: t('me.shared.place', { count: table.place, ordinal: true }),
+        place,
       })}. ${t('me.league.endsIn', { count: table.daysLeft })}`}
       className="gap-2.5 rounded-xl bg-spot p-3.5"
     >
@@ -35,12 +39,14 @@ export function LeagueHeroCard({ table }: LeagueHeroCardProps) {
           </Text>
           <Text className="font-display-bold text-lg text-on-spot">{leagueName}</Text>
         </View>
-        <View className="items-end">
-          <Text className="font-display-black text-xl text-on-spot">{table.place}</Text>
-          <Text className="text-xs text-on-spot opacity-80">
-            {t('me.league.placeSuffix', { count: table.place, ordinal: true })}
-          </Text>
-        </View>
+        {table.place === null ? null : (
+          <View className="items-end">
+            <Text className="font-display-black text-xl text-on-spot">{table.place}</Text>
+            <Text className="text-xs text-on-spot opacity-80">
+              {t('me.league.placeSuffix', { count: table.place, ordinal: true })}
+            </Text>
+          </View>
+        )}
       </View>
       <View className="flex-row items-center gap-1.5">
         <Icon name="clock" size={16} color="on-spot" />

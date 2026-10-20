@@ -8,6 +8,7 @@ import { Button, Screen, ScreenHeader, SegmentedControl } from '@/components/ui'
 import { useAppStore } from '@/features/app/appStore';
 import { showToast } from '@/features/transitions/toastStore';
 import { QUIET_HOURS, type QuietHours, useSettingsStore } from '@/features/me/settingsStore';
+import { useNickname } from '@/features/me/queries';
 import { useMeStore } from '@/features/me/store';
 import type { AppLocale } from '@/i18n';
 import { ChoiceSheet } from './ChoiceSheet';
@@ -33,7 +34,7 @@ export function SettingsView() {
   const resetOnboarding = useAppStore((s) => s.resetOnboarding);
   const settings = useSettingsStore();
   const guest = useMeStore((s) => s.guest);
-  const nickname = useMeStore((s) => s.nickname);
+  const nickname = useNickname();
   const goal = GOALS.find((g) => GOAL_MINUTES[g] === minutes) ?? '20';
   const close = () => setSheet(null);
   const leave = () => {
