@@ -21,7 +21,7 @@ export default function TeacherInboxScreen() {
   const verified = profile.data?.verification === 'verified';
   const waiting = inbox.data?.filter((q) => !q.approved) ?? [];
   const answered = inbox.data?.filter((q) => q.approved) ?? [];
-  const cls = (id: string) => classes.data?.find((c) => c.id === id);
+  const cls = (id: string | null) => classes.data?.find((c) => c.id === id);
   const card = (q: (typeof waiting)[number], i: number) => (
     <InboxCard
       key={q.id}

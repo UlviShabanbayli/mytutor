@@ -1,6 +1,6 @@
 import { ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import type { ClassGroup } from '@/features/teacher/types';
+import type { ClassGroup } from '@mytutor/types';
 import { ChoiceChip } from './ChoiceChip';
 
 type GroupFilterProps = {

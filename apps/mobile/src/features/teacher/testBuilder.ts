@@ -1,4 +1,4 @@
-import type { BankQuestion } from './types';
+import type { BankQuestion } from '@mytutor/types';
 
 /** Rough time a student needs per question, for the "~12 dəq" estimate. */
 export const MINUTES_PER_QUESTION = 3;
@@ -7,7 +7,7 @@ export function toggleId(ids: string[], id: string): string[] {
   return ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id];
 }
 
-/** Selected questions per topic, e.g. { '4.1': 2, '4.2': 2 }. */
+/** Selected questions per topic id, e.g. { 'riyaziyyat-7-4-1': 2, 'riyaziyyat-7-4-2': 2 }. */
 export function countByTopic(selected: string[], bank: BankQuestion[]): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const q of bank) {

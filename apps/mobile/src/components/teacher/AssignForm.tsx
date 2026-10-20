@@ -3,16 +3,11 @@ import { type ReactNode, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Banner, Button } from '@/components/ui';
-import { audienceSize } from '@/features/teacher/classroom';
-import { useBank, useCreateAssignment } from '@/features/teacher/queries';
+import type { AssignmentKind, Audience, RosterEntry } from '@mytutor/types';
+import { useCreateAssignment } from '@/features/teacher/mutations';
+import { useBank } from '@/features/teacher/queries';
 import { dueAtOffset } from '@/features/teacher/time';
-import type {
-  AssignmentKind,
-  Audience,
-  ClassMember,
-  TeacherClass,
-  TopicView,
-} from '@/features/teacher/types';
+import type { TeacherClass, UnitView } from '@/features/teacher/types';
 import { AssignOptions, type AssignSettings } from './AssignOptions';
 import { AssignTopicSection } from './AssignTopicSection';
 import { AudiencePicker } from './AudiencePicker';
@@ -26,16 +21,15 @@ import { TeacherScreen } from './TeacherScreen';
 type AssignFormProps = {
   header: ReactNode;
   cls: TeacherClass;
-  members: ClassMember[];
-  unit: { number: number; book: string };
-  topics: TopicView[];
+  members: RosterEntry[];
+  unit: UnitView;
   initial: { kind: AssignmentKind; topic: string; audience: Audience };
 };
 
 const KINDS = ['lesson', 'test', 'homework', 'mock'] as const;
 
 /** "Tapşırıq ver" (M4): kind, topic, audience, due date, test settings, reminder. */
-export function AssignForm({ header, cls, members, unit, topics, initial }: AssignFormProps) {
+export function AssignForm({ header, cls, members, unit, initial }: AssignFormProps) {
   const { t } = useTranslation();
   const create = useCreateAssignment();
   const [kind, setKind] = useState<AssignmentKind>(initial.kind);
@@ -47,7 +41,7 @@ export function AssignForm({ header, cls, members, unit, topics, initial }: Assi
     minutes: 20,
     reminder: true,
   });
-  const firstTopic = topics[0]?.id ?? '';
+  const firstTopic = unit.topics[0]?.id ?? '';
   const topicId = topic === UNIT_TEST ? firstTopic : topic;
   const bank = useBank(topicId);
   const notes = {
@@ -70,15 +64,7 @@ export function AssignForm({ header, cls, members, unit, topics, initial }: Assi
   };
   const submit = () =>
     create.mutate(
-      {
-        classId: cls.id,
-        kind,
-        topicId,
-        unit: kind === 'mock' ? unit.number : undefined,
-        audience,
-        dueAt: due.toISOString(),
-        total: audienceSize(audience, cls.studentCount, cls.groups),
-      },
+      { classId: cls.id, kind, topicId, audience, dueAt: due.toISOString() },
       {
         onSuccess: () => (router.canGoBack() ? router.back() : router.replace('/teacher/classes')),
       },
@@ -105,13 +91,7 @@ export function AssignForm({ header, cls, members, unit, topics, initial }: Assi
           accessibilityLabel={t('teacher.assign.kind')}
         />
       </View>
-      <AssignTopicSection
-        unit={unit.number}
-        book={unit.book}
-        topics={topics}
-        value={topic}
-        onChange={changeTopic}
-      />
+      <AssignTopicSection unit={unit} value={topic} onChange={changeTopic} />
       <AudiencePicker cls={cls} members={members} value={audience} onChange={setAudience} />
       <DueField value={due} onChange={setDue} />
       <AssignOptions
@@ -120,6 +100,7 @@ export function AssignForm({ header, cls, members, unit, topics, initial }: Assi
         isTest={kind === 'test' || kind === 'mock'}
         questionCount={bank.data?.length ?? 0}
         topicId={topicId}
+        topicNumber={unit.topics.find((x) => x.id === topicId)?.number ?? ''}
       />
       {create.isError ? <Banner kind="error" message={t('common.errorDescription')} /> : null}
     </TeacherScreen>

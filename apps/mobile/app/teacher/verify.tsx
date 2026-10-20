@@ -9,10 +9,10 @@ import { VerifyStatusCard } from '@/components/teacher/VerifyStatusCard';
 import { type StepState, VerifyStepItem } from '@/components/teacher/VerifyStepItem';
 import { ErrorState, Icon, LoadingState, Text } from '@/components/ui';
 import { useTeacherProfile } from '@/features/teacher/queries';
-import type { VerificationStatus } from '@/features/teacher/types';
+import type { TeacherVerification } from '@mytutor/types';
 
 /** The three steps and their state for a verification status. */
-const STEPS: Record<VerificationStatus, StepState[]> = {
+const STEPS: Record<TeacherVerification, StepState[]> = {
   unverified: ['now', 'todo', 'todo'],
   pending: ['done', 'done', 'now'],
   verified: ['done', 'done', 'done'],

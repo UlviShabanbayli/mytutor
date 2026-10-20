@@ -11,7 +11,7 @@ export const UNIT_TEST = 'unit';
 
 type HexTopicPickerProps = {
   topics: TopicView[];
-  unit: number;
+  unit: string;
   value: TopicChoice;
   onChange: (value: TopicChoice) => void;
   /** Names the group for screen readers (the caps label above it). */
@@ -40,7 +40,7 @@ export function HexTopicPicker({ topics, unit, value, onChange, label }: HexTopi
               accessibilityRole="radio"
               accessibilityState={{ checked: on }}
               accessibilityLabel={t('teacher.assign.topicLabel', {
-                id: topic.id,
+                id: topic.number,
                 title: topic.title,
               })}
               onPress={() => {
@@ -49,7 +49,7 @@ export function HexTopicPicker({ topics, unit, value, onChange, label }: HexTopi
               }}
               className="active:opacity-80"
             >
-              <HexBadge size={52} tone={on ? 'honey' : 'wax'} label={topic.id} />
+              <HexBadge size={52} tone={on ? 'honey' : 'wax'} label={topic.number} />
             </Pressable>
           </SelectPop>
         );

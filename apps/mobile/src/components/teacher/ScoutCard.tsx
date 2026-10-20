@@ -4,10 +4,11 @@ import { Mascot } from '@/components/mascot/Mascot';
 import { Text } from '@/components/ui';
 import { SmallButton } from './SmallButton';
 
-type ScoutCardProps = { topicId: string; names: string[]; onAssign: () => void };
+/** `topic` is the topic's number, "4.2". */
+type ScoutCardProps = { topic: string; names: string[]; onAssign: () => void };
 
 /** Vızı's scouting suggestion (M7): who to give a review, turned into an assignment in one tap. */
-export function ScoutCard({ topicId, names, onAssign }: ScoutCardProps) {
+export function ScoutCard({ topic, names, onAssign }: ScoutCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -21,10 +22,10 @@ export function ScoutCard({ topicId, names, onAssign }: ScoutCardProps) {
           {t('teacher.insights.scout')}
         </Text>
         <Text className="font-sans-black text-base text-on-spot">
-          {t('teacher.insights.scoutTitle', { count: names.length, topic: topicId })}
+          {t('teacher.insights.scoutTitle', { count: names.length, topic })}
         </Text>
         <Text variant="caption" className="font-sans text-on-spot opacity-85">
-          {t('teacher.insights.scoutBody', { names: names.join(', '), topic: topicId })}
+          {t('teacher.insights.scoutBody', { names: names.join(', '), topic })}
         </Text>
         <SmallButton
           icon="plus"

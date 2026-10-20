@@ -28,7 +28,7 @@ export default function InsightsScreen() {
         cls.data && data
           ? t('teacher.insights.subtitle', {
               class: cls.data.shortName,
-              unit: data.unit,
+              unit: data.unitNumber,
               days: data.days,
             })
           : cls.data?.name
@@ -74,7 +74,7 @@ export default function InsightsScreen() {
           label={t('teacher.insights.statActive')}
         />
         <StatTile
-          value={hardest === null ? '—' : (data.topics[hardest] ?? '—')}
+          value={hardest === null ? '—' : (data.topics[hardest]?.number ?? '—')}
           label={t('teacher.insights.statHardest')}
         />
       </View>
@@ -84,7 +84,7 @@ export default function InsightsScreen() {
       <MasteryGrid topics={data.topics} rows={data.rows} />
       {suggestion ? (
         <ScoutCard
-          topicId={suggestion.topicId}
+          topic={suggestion.topic.number}
           names={suggestion.students.map((s) => firstName(s.name))}
           onAssign={() =>
             router.push({
@@ -92,7 +92,7 @@ export default function InsightsScreen() {
               params: {
                 classId,
                 kind: 'test',
-                topic: suggestion.topicId,
+                topic: suggestion.topic.id,
                 students: suggestion.students.map((s) => s.studentId).join(','),
               },
             })
