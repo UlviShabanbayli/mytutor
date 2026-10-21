@@ -1,8 +1,9 @@
 #!/usr/bin/env tsx
-// Usage: pnpm --filter @mytutor/content-engine knowledge <topic-dir> [--dry-run] [--inline]
+// Usage: pnpm --filter @mytutor/content-engine knowledge <topic-dir> [--grade=N] [--dry-run] [--inline]
 // <topic-dir> is the folder written by `textbook-parser source` (contains source.json and crops).
 // Writes <topic-dir>/knowledge/knowledge.json and review.html; AI results are cached in
 // <topic-dir>/knowledge/cache, so re-running costs nothing unless inputs or prompts change.
+// --grade=N is the book's school grade: LaTeX from later grades is flagged (skipped without it).
 // --dry-run makes no call: it lists the calls the cache cannot answer and estimates their cost.
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -28,6 +29,10 @@ async function main() {
   const source = topicSourceSchema.parse(JSON.parse(sourceJson));
   const outDir = join(topicDir, 'knowledge');
   const cacheDir = join(outDir, 'cache');
+  const gradeArg = args.find((a) => a.startsWith('--grade='))?.slice('--grade='.length);
+  const grade = gradeArg === undefined ? null : Number(gradeArg);
+  if (grade !== null && !(Number.isInteger(grade) && grade >= 1 && grade <= 12))
+    throw new Error(`--grade must be a school grade 1–12, got "${gradeArg}"`);
 
   if (args.includes('--dry-run')) {
     // Only calls without a cached result reach the API; those are what the estimate prices.
@@ -80,7 +85,7 @@ async function main() {
     verifyModel: VERIFY_MODEL,
     log: (m) => console.log(m),
   });
-  const doc = buildDocument(source, sourceJson, results, calls);
+  const doc = buildDocument(source, sourceJson, results, calls, grade);
   await mkdir(outDir, { recursive: true });
   await writeFile(join(outDir, 'knowledge.json'), `${JSON.stringify(doc, null, 2)}\n`);
   await writeFile(

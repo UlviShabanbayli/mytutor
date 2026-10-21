@@ -142,6 +142,23 @@ describe('checks and status', () => {
     expect(statusOf(item, checks)).toBe('textbook');
   });
 
+  it('flags notation from a later grade without changing the status', () => {
+    const item = formula('\\sqrt{a^2} = a');
+    const match = { ref: 'k1', verdict: 'match' as const, correction: null };
+    const grade = (g: number | null) =>
+      checkItem(item, source, match, [], g).find((c) => c.name === 'grade_symbols');
+    expect(grade(null)?.result).toBe('skip');
+    expect(grade(8)?.result).toBe('pass');
+    expect(grade(7)).toEqual({
+      name: 'grade_symbols',
+      result: 'fail',
+      detail: '\\sqrt 8-ci sinifdən başlayır (kitab 7-ci sinif üçündür)',
+    });
+    expect(statusOf(item, checkItem(item, source, match, [], 7))).toBe(
+      statusOf(item, checkItem(item, source, match, [], 8)),
+    );
+  });
+
   it('a misread formula is unverified even if the verifier agreed', () => {
     const item = formula('(a+b)^2 = a^2 + ab + b^2');
     const checks = checkItem(item, source, { ref: 'k1', verdict: 'match', correction: null });

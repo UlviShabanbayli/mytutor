@@ -51,6 +51,8 @@ export function buildDocument(
   sourceJson: string,
   groups: GroupResult[],
   aiCalls: AiCall[],
+  /** The book's school grade, for the grade check; documents rebuilt from cache get it too. */
+  grade: number | null = null,
 ): KnowledgeDocument {
   // Figures are linked here rather than in the pipeline, so documents rebuilt from cache get
   // them too; across the whole topic, since a drawing goes to the nearest text that uses it.
@@ -61,7 +63,7 @@ export function buildDocument(
     g.items.map((item) => {
       const verdict = g.verdicts.find((v) => v.ref === item.ref);
       const figureLinks = links[extracted.indexOf(item)] ?? [];
-      const checks = checkItem(item, source, verdict, figureLinks);
+      const checks = checkItem(item, source, verdict, figureLinks, grade);
       const { type, ref, origin, sources, readFrom, ...content } = item;
       n += 1;
       return {
