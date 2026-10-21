@@ -1,4 +1,4 @@
-import { Check, Maximize2, MessageSquareWarning, Pencil, X } from 'lucide-react';
+import { Check, Columns2, Maximize2, MessageSquareWarning, Pencil, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui';
 import { GuideSection } from './GuideSection';
@@ -28,6 +28,14 @@ export function ReviewGuide() {
         {
           sample: <Badge tone="accent">{t('review.flagged')}</Badge>,
           text: t('guide.review.flagged'),
+        },
+        {
+          sample: (
+            <Badge tone="neutral" icon={<Columns2 className="size-3" />}>
+              {t('review.compare')}
+            </Badge>
+          ),
+          text: t('guide.review.compare'),
         },
         {
           sample: (

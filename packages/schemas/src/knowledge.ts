@@ -172,6 +172,8 @@ export const knowledgeCheckSchema = z.object({
     'image_verification',
     // Text that relies on a picture carries it (added later: older documents lack it).
     'figure_link',
+    // LaTeX uses nothing taught only in later grades (added later: older documents lack it).
+    'grade_symbols',
   ]),
   result: z.enum(['pass', 'fail', 'skip']),
   detail: z.string().nullable(),

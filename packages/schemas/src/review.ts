@@ -99,6 +99,21 @@ export const primaryBlockOf = (item: Pick<Item, 'sources'>): string | null =>
 export const isFlagged = (item: Pick<Item, 'status' | 'checks'>): boolean =>
   item.status === 'unverified' || item.checks.some((check) => check.result === 'fail');
 
+/**
+ * How closely an editor looks at an item (docs/decisions/0003-review-tiers.md):
+ * auto     — confirmed as printed, every check passed: approvable together;
+ * targeted — the model's own structuring, every check passed: compared with its source;
+ * full     — unconfirmed, or a check failed (`isFlagged`): read in full.
+ */
+export const reviewTierSchema = z.enum(['auto', 'targeted', 'full']);
+
+export function reviewTier(
+  item: Pick<Item, 'status' | 'checks'>,
+): z.output<typeof reviewTierSchema> {
+  if (isFlagged(item)) return 'full';
+  return item.status === 'derived' ? 'targeted' : 'auto';
+}
+
 /** Each current item's decision: found by id and content, else by content alone. */
 export function itemDecisions(
   items: Item[],

@@ -11,6 +11,7 @@ const CHECKS = [
   'identity',
   'image_verification',
   'figure_link',
+  'grade_symbols',
 ] as const;
 
 export function ChecksGuide() {

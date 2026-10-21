@@ -8,6 +8,7 @@ import {
   itemFingerprint,
   reviewBlocks,
   reviewProgress,
+  reviewTier,
 } from './review';
 
 type Item = z.output<typeof knowledgeItemSchema>;
@@ -89,6 +90,18 @@ describe('review', () => {
       decidedItems: 2,
       openFlagged: 1,
     });
+  });
+
+  it('sends confirmed items to bulk approval, derived ones to a closer look, flagged ones to a full read', () => {
+    const derived = item('k004', 'b02', 'Dörd', { status: 'derived' });
+    const derivedFailed = { ...derived, checks: c.checks };
+    expect([a, derived, b, c, derivedFailed].map(reviewTier)).toEqual([
+      'auto',
+      'targeted',
+      'full',
+      'full',
+      'full',
+    ]);
   });
 
   it('uses an approved correction, and only an approved one', () => {

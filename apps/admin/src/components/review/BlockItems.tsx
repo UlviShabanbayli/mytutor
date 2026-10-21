@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { isFlagged } from '@mytutor/schemas';
+import { reviewTier } from '@mytutor/schemas';
 import type { ItemReview, KnowledgeItem } from '@mytutor/types';
 import type { ReviewBlock } from '@/features/review/queue';
 import type { ReviewActions } from '@/features/review/useTopicReview';
@@ -26,7 +26,8 @@ export function BlockItems({
 }: BlockItemsProps) {
   const { t } = useTranslation();
   const { items } = entry;
-  const clean = items.filter((item) => !decisions.has(item.id) && !isFlagged(item));
+  // Only items confirmed as printed go together; derived and flagged ones are decided one by one.
+  const clean = items.filter((item) => !decisions.has(item.id) && reviewTier(item) === 'auto');
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <span className="text-xs font-sans-black uppercase text-muted-foreground">

@@ -7,6 +7,7 @@ import type {
   TopicSource,
   VerificationVerdict,
 } from '@mytutor/types';
+import { gradeOrdinal, gradeSymbolProblems } from './gradeSymbols';
 import { checkIdentity, latexSyntaxError, solutionsOf } from './latex';
 import { pictureNeed } from './pictureRefs';
 
@@ -103,12 +104,14 @@ function proseOf(item: ExtractedItem): string | null {
 /**
  * Deterministic checks plus the image verdict, on the item as the model returned it.
  * `figureLinks` are the refs `linkFigures` added; only the figure check looks at them.
+ * `grade` is the book's school grade; without it the grade check is skipped.
  */
 export function checkItem(
   item: ExtractedItem,
   source: TopicSource,
   verdict?: VerificationVerdict,
   figureLinks: KnowledgeSourceId[] = [],
+  grade: number | null = null,
 ): KnowledgeCheck[] {
   const checks: KnowledgeCheck[] = [];
   const blockIds = new Set(source.blocks.map((b) => b.id));
@@ -236,6 +239,19 @@ export function checkItem(
       detail: `${isFigure ? 'fiqur elementidir' : `mətn şəklə istinad edir ("${need[0]}")`}, amma mənbə bloklarında uyğun fiqur tapılmadı`,
     };
   checks.push({ name: 'figure_link', ...figure });
+
+  // 8. The LaTeX uses nothing from a later grade. Only flags: the status stays as it is.
+  let early: Omit<KnowledgeCheck, 'name'> = { result: 'skip', detail: null };
+  if (grade !== null && latex.length) {
+    const problems = gradeSymbolProblems(latex, grade);
+    early = problems.length
+      ? {
+          result: 'fail',
+          detail: `${problems.join('; ')} (kitab ${gradeOrdinal(grade)} sinif üçündür)`,
+        }
+      : { result: 'pass', detail: null };
+  }
+  checks.push({ name: 'grade_symbols', ...early });
   return checks;
 }
 

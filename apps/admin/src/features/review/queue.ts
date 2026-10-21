@@ -1,4 +1,4 @@
-import { approvedBlocks, isFlagged, itemDecisions, primaryBlockOf } from '@mytutor/schemas';
+import { approvedBlocks, itemDecisions, primaryBlockOf, reviewTier } from '@mytutor/schemas';
 import type {
   ItemReview,
   KnowledgeItem,
@@ -15,8 +15,10 @@ export type ReviewBlock = {
   approved: boolean;
   /** Items with no decision yet. */
   open: number;
-  /** Flagged items with no decision yet. */
+  /** Flagged items (tier "full") with no decision yet. */
   problems: number;
+  /** Derived items (tier "targeted") with no decision yet: compared with the crop one by one. */
+  toCompare: number;
 };
 
 /** The blocks the review goes through, in reading order, with their items and state. */
@@ -45,7 +47,8 @@ export function reviewQueue(
       items: blockItems,
       approved: approved.has(id),
       open: open.length,
-      problems: open.filter(isFlagged).length,
+      problems: open.filter((item) => reviewTier(item) === 'full').length,
+      toCompare: open.filter((item) => reviewTier(item) === 'targeted').length,
     };
   });
   return { queue, decisions };

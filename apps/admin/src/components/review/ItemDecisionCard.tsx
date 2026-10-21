@@ -1,7 +1,7 @@
-import { Pencil, TriangleAlert } from 'lucide-react';
+import { Columns2, Pencil, TriangleAlert } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { effectiveContent, isFlagged } from '@mytutor/schemas';
+import { effectiveContent, reviewTier } from '@mytutor/schemas';
 import type { ItemReview, KnowledgeItem } from '@mytutor/types';
 import { KnowledgeItemBody } from '@/components/knowledge/KnowledgeItemBody';
 import { statusTone } from '@/components/knowledge/statusTone';
@@ -42,7 +42,7 @@ export function ItemDecisionCard({
     decision?.decision === 'approved' && decision.correction ? decision.correction : null;
   const shown = toExtracted({ ...item, content: effectiveContent(item, decision) });
   const original = corrected ? toExtracted(item) : null;
-  const flagged = isFlagged(item);
+  const tier = reviewTier(item);
   const failed = item.checks.filter((c) => c.result === 'fail');
 
   return (
@@ -51,9 +51,11 @@ export function ItemDecisionCard({
         'flex flex-col gap-2.5 rounded-md border-[1.5px] p-3',
         decision
           ? look[decision.decision].card
-          : flagged
+          : tier === 'full'
             ? 'border-destructive/40 bg-destructive-muted/30'
-            : 'border-border bg-card',
+            : tier === 'targeted'
+              ? 'border-primary/40 bg-card'
+              : 'border-border bg-card',
       )}
     >
       <header className="flex flex-wrap items-center gap-1.5">
@@ -68,8 +70,12 @@ export function ItemDecisionCard({
           <Badge tone={look[decision.decision].tone}>
             {t(`review.decision.${decision.decision}`)}
           </Badge>
-        ) : flagged ? (
+        ) : tier === 'full' ? (
           <Badge tone="accent">{t('review.flagged')}</Badge>
+        ) : tier === 'targeted' ? (
+          <Badge tone="neutral" icon={<Columns2 className="size-3" />}>
+            {t('review.compare')}
+          </Badge>
         ) : null}
       </header>
       {editing ? (

@@ -8,7 +8,7 @@ type BlockFooterProps = {
   itemCount: number;
   /** Items with no decision yet. */
   open: number;
-  /** Undecided items with no warning: approvable together. */
+  /** Undecided items confirmed as printed with every check passed: approvable together. */
   clean: number;
   next: string | null;
   onApproveClean: () => void;

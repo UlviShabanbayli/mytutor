@@ -36,6 +36,16 @@ describe('reviewQueue', () => {
     ]);
   });
 
+  it('counts derived items apart, to be compared one by one', () => {
+    const derived = { ...item('k5', 'b03'), status: 'derived' as const };
+    const { queue } = reviewQueue(source, [...items, derived], null);
+    expect(queue.map((b) => `${b.id}:${b.problems}:${b.toCompare}`)).toEqual([
+      'b01:1:0',
+      'b02:0:0',
+      'b03:0:1',
+    ]);
+  });
+
   it('marks approved blocks and finds the next open one', () => {
     const [k1, k2, k3] = items as [KnowledgeItem, KnowledgeItem, KnowledgeItem];
     const decided = (i: KnowledgeItem) => ({

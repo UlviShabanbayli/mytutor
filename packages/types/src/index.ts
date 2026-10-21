@@ -52,6 +52,7 @@ import type {
   topicReviewSchema,
   topicReviewInputSchema,
   reviewDecisionSchema,
+  reviewTierSchema,
   knowledgeSummarySchema,
   reviewProgressSchema,
   standardLinksSchema,
@@ -191,6 +192,7 @@ export type CreateStandardSetResponse = z.output<typeof createStandardSetRespons
 export type SavedResponse = z.output<typeof savedResponseSchema>;
 export type PurgeTrashResponse = z.output<typeof purgeTrashResponseSchema>;
 export type ReviewDecision = z.output<typeof reviewDecisionSchema>;
+export type ReviewTier = z.output<typeof reviewTierSchema>;
 export type ItemReview = z.output<typeof itemReviewSchema>;
 export type BlockReview = z.output<typeof blockReviewSchema>;
 export type TopicReview = z.output<typeof topicReviewSchema>;
