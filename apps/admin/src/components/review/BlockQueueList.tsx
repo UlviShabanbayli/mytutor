@@ -55,6 +55,10 @@ export function BlockQueueList({ blocks, current, onSelect }: BlockQueueListProp
                 <span className="text-[11px] font-sans-black text-destructive">
                   {t('review.problems', { count: b.problems })}
                 </span>
+              ) : b.toCompare ? (
+                <span className="text-[11px] font-sans-black text-muted-foreground">
+                  {t('review.toCompare', { count: b.toCompare })}
+                </span>
               ) : now ? (
                 <span className="text-[11px] font-sans-black text-primary">{t('review.now')}</span>
               ) : null}

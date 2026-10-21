@@ -89,8 +89,11 @@ export const guide = {
     intro:
       'Mövzu blok-blok yoxlanılır: solda dərslik səhifəsi, sağda seçilmiş blokun dərslikdəki kəsiyi və ondan çıxarılan elementlər. Hər qərar dərhal yadda saxlanılır.',
     pageList:
-      'Səhifədəki bloklar: işarəli təsdiqlənib, mavi halqalı indi baxılır, boş halqalı gözləyir. Qırmızı «problem»: qərar gözləyən yoxlanmalı element.',
-    flagged: 'Element yoxlanmalıdır: təsdiqlənməyib və ya avtomatik yoxlaması keçməyib.',
+      'Səhifədəki bloklar: işarəli təsdiqlənib, mavi halqalı indi baxılır, boş halqalı gözləyir. Qırmızı «problem»: qərar gözləyən yoxlanmalı element. «Tutuşdur»: qərar gözləyən törəmə element.',
+    flagged:
+      'Element tam oxunmalıdır: təsdiqlənməyib və ya avtomatik yoxlaması keçməyib. Toplu təsdiqə düşmür.',
+    compare:
+      'Törəmə element: AI dərsliyi öz sözləri ilə strukturlaşdırıb, yoxlamaları keçib. Onu kəsiklə tutuşdurub ayrıca təsdiqləyin; toplu təsdiqə düşmür.',
     approve: 'Element doğrudur: tələbələrə olduğu kimi göstəriləcək.',
     correct:
       'Element səhvdirsə, amma lazımdırsa: sahələri dərslikdə yazıldığı kimi düzəldin (düstur yazanda görünüşü dərhal göstərilir). Düzəldilmiş versiya təsdiqlənir, AI-nin ilkin variantı saxlanılır.',
@@ -99,7 +102,8 @@ export const guide = {
     zoom: 'Kəsiyi böyük açır: mətni rahat oxuyun, qərar düymələri yanında işləyir.',
     reject: 'Element lazımsızdır və ya yanlışdır: tələbələrə göstərilməyəcək.',
     undo: 'Qərarı geri alır; blok təsdiqlənibsə, blok yenidən açılır.',
-    approveClean: 'Problemsiz (yoxlaması keçmiş) elementlərin hamısını birdən təsdiqləyir.',
+    approveClean:
+      'Dərslikdə yazıldığı kimi təsdiqlənmiş və bütün yoxlamaları keçmiş elementlərin hamısını birdən təsdiqləyir. Yoxlanmalı və törəmə elementlərə ayrıca qərar verilir.',
     later: 'Bloku hələlik buraxıb növbətinə keçir.',
     approveBlock: 'Blokun bütün elementlərinə qərar veriləndən sonra açılır və bloku təsdiqləyir.',
     done: 'Blok təsdiqlənib. Element sonradan dəyişsə (bilik yenidən yaradılsa), blok özü yenidən açılır.',
@@ -194,6 +198,8 @@ export const guide = {
       'Ayrıca AI çağırışı elementi səhifənin şəkli ilə tutuşdurub: uyğundursa keçir.',
     figure_link:
       'Mətn şəklə istinad edirsə («şəkildə», «qrafikdə», «cədvəldə»…), uyğun fiqur elementə bağlanıb.',
+    grade_symbols:
+      'Düsturda kitabın sinfindən sonra keçilən işarə yoxdur (məsələn, 7-ci sinifdə kök, loqarifm və ya inteqral). Belə işarə çox vaxt AI-nin səhv oxumasıdır. Statusu dəyişmir, yalnız elementi yoxlanmalı edir.',
   },
   standards: {
     title: 'Rəsmi standartlar',
